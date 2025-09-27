@@ -670,6 +670,198 @@ const DelegationHours = ({ user }) => {
     );
   };
 
+  const renderCessions = () => (
+    <div className="space-y-6">
+      {/* En-tête avec informations légales */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start space-x-3">
+          <div className="text-blue-500 text-xl">⚖️</div>
+          <div>
+            <h3 className="font-semibold text-blue-800 mb-2">Cession d'Heures de Délégation</h3>
+            <p className="text-sm text-blue-700 mb-2">
+              <strong>Base légale :</strong> Article L2315-7 du Code du Travail
+            </p>
+            <div className="text-xs text-blue-600 space-y-1">
+              <p>• Les représentants peuvent céder tout ou partie de leurs heures de délégation</p>
+              <p>• La cession peut se faire entre membres de la même instance ou d'instances différentes</p>
+              <p>• L'employeur doit être informé de la cession et de son motif</p>
+              <p>• Les heures cédées restent payées normalement par l'employeur</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Statistiques des cessions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">Heures Cédées</span>
+            <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+              <span className="text-white text-lg">📤</span>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-gray-800">
+            {delegates.reduce((sum, d) => sum + d.cededHours, 0)}h
+          </div>
+          <div className="text-sm text-red-600 mt-1">Total ce mois</div>
+        </div>
+        
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">Heures Reçues</span>
+            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+              <span className="text-white text-lg">📥</span>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-gray-800">
+            {delegates.reduce((sum, d) => sum + d.receivedHours, 0)}h
+          </div>
+          <div className="text-sm text-green-600 mt-1">Total ce mois</div>
+        </div>
+        
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">Cessions Actives</span>
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <span className="text-white text-lg">🔄</span>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-gray-800">{cessionHistory.length}</div>
+          <div className="text-sm text-blue-600 mt-1">Ce mois</div>
+        </div>
+      </div>
+
+      {/* Actions rapides */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-800">Gestion des Cessions</h2>
+            <button
+              onClick={() => setShowCessionModal(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+            >
+              <span>🔄</span>
+              <span>Nouvelle Cession</span>
+            </button>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          {cessionHistory.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-left text-sm font-medium text-gray-500 border-b border-gray-200">
+                    <th className="pb-3">Date</th>
+                    <th className="pb-3">Cédant</th>
+                    <th className="pb-3">Bénéficiaire</th>
+                    <th className="pb-3">Heures</th>
+                    <th className="pb-3">Motif</th>
+                    <th className="pb-3">Statut</th>
+                    <th className="pb-3">Base Légale</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cessionHistory.map((cession) => (
+                    <tr key={cession.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-4 text-gray-600">{formatDate(cession.date)}</td>
+                      <td className="py-4">
+                        <div>
+                          <div className="font-medium text-gray-800">{cession.fromDelegateName}</div>
+                          <div className="text-sm text-gray-500">{delegationTypes[cession.fromType]?.name}</div>
+                        </div>
+                      </td>
+                      <td className="py-4">
+                        <div>
+                          <div className="font-medium text-gray-800">{cession.toDelegateName}</div>
+                          <div className="text-sm text-gray-500">{delegationTypes[cession.toType]?.name}</div>
+                        </div>
+                      </td>
+                      <td className="py-4 font-medium text-blue-600">{cession.hours}h</td>
+                      <td className="py-4 text-gray-600 max-w-xs truncate">{cession.reason}</td>
+                      <td className="py-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(cession.status)}`}>
+                          {cession.status === 'approved' ? 'Approuvé' : 'En attente'}
+                        </span>
+                      </td>
+                      <td className="py-4 text-xs text-gray-500">{cession.legalBasis}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="text-4xl mb-4">🔄</div>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">Aucune cession d'heures</h3>
+              <p className="text-gray-600 mb-4">Les cessions d'heures entre représentants apparaîtront ici</p>
+              <button
+                onClick={() => setShowCessionModal(true)}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                Créer une cession
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Règles de cession */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800">Règles de Cession (Code du Travail)</h2>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-800">✅ Cessions Autorisées</h4>
+              <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex items-start space-x-2">
+                  <span className="text-green-500 mt-0.5">•</span>
+                  <span>Entre membres du CSE</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="text-green-500 mt-0.5">•</span>
+                  <span>Entre délégués syndicaux</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="text-green-500 mt-0.5">•</span>
+                  <span>Entre représentants de proximité</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="text-green-500 mt-0.5">•</span>
+                  <span>Entre instances différentes (CSE ↔ DS)</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-800">⚠️ Conditions Requises</h4>
+              <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex items-start space-x-2">
+                  <span className="text-orange-500 mt-0.5">•</span>
+                  <span>Information préalable de l'employeur</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="text-orange-500 mt-0.5">•</span>
+                  <span>Motif de la cession justifié</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="text-orange-500 mt-0.5">•</span>
+                  <span>Accord du bénéficiaire</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="text-orange-500 mt-0.5">•</span>
+                  <span>Respect du crédit d'heures global</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderSettings = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
