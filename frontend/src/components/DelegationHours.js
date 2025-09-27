@@ -35,7 +35,8 @@ const DelegationHours = ({ user }) => {
     { id: 4, name: 'Claire Dubois', department: 'Marketing', email: 'claire.dubois@company.com' },
     { id: 5, name: 'Lucas Bernard', department: 'IT', email: 'lucas.bernard@company.com' },
     { id: 6, name: 'Emma Rousseau', department: 'Commercial', email: 'emma.rousseau@company.com' },
-    { id: 7, name: 'Thomas Leroy', department: 'Operations', email: 'thomas.leroy@company.com' }
+    { id: 7, name: 'Thomas Leroy', department: 'Operations', email: 'thomas.leroy@company.com' },
+    { id: 8, name: 'Pierre Moreau', department: 'Production', email: 'pierre.cse@company.com' }
   ];
 
   const delegates = [
