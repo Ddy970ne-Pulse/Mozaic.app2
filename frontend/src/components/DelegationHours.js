@@ -258,6 +258,81 @@ const DelegationHours = ({ user }) => {
     return Math.round((used / total) * 100);
   };
 
+  // Fonction pour calculer la déduction correcte selon les règles légales
+  const calculateHoursDeduction = (delegate, hoursToUse) => {
+    const deduction = {
+      fromReceived: 0,
+      fromReported: 0,
+      fromBase: 0,
+      total: hoursToUse
+    };
+
+    let remainingToUse = hoursToUse;
+
+    // 1. D'abord utiliser les heures reçues (priorité légale - Art. L2315-7)
+    const availableReceived = delegate.receivedHours - delegate.usedFromReceived;
+    if (remainingToUse > 0 && availableReceived > 0) {
+      const usedFromReceived = Math.min(remainingToUse, availableReceived);
+      deduction.fromReceived = usedFromReceived;
+      remainingToUse -= usedFromReceived;
+    }
+
+    // 2. Ensuite utiliser les heures reportées (dans les 3 mois - jurisprudence)
+    const availableReported = delegate.reportedHours - delegate.usedFromReported;
+    if (remainingToUse > 0 && availableReported > 0) {
+      const usedFromReported = Math.min(remainingToUse, availableReported);
+      deduction.fromReported = usedFromReported;
+      remainingToUse -= usedFromReported;
+    }
+
+    // 3. Enfin utiliser le crédit de base du mois
+    const availableBase = delegate.baseMonthlyHours - delegate.cededFromBase - delegate.usedFromBase;
+    if (remainingToUse > 0 && availableBase > 0) {
+      const usedFromBase = Math.min(remainingToUse, availableBase);
+      deduction.fromBase = usedFromBase;
+      remainingToUse -= usedFromBase;
+    }
+
+    return {
+      deduction,
+      remainingToUse, // Si > 0, dépassement exceptionnel requis
+      isExceptional: remainingToUse > 0
+    };
+  };
+
+  // Fonction pour calculer la cession selon les règles légales
+  const calculateCessionSource = (delegate, hoursToCede) => {
+    const cessionSource = {
+      fromBase: 0,
+      fromReported: 0,
+      total: hoursToCede
+    };
+
+    let remainingToCede = hoursToCede;
+
+    // 1. D'abord céder depuis le crédit de base (priorité)
+    const availableBase = delegate.baseMonthlyHours - delegate.cededFromBase - delegate.usedFromBase;
+    if (remainingToCede > 0 && availableBase > 0) {
+      const cededFromBase = Math.min(remainingToCede, availableBase);
+      cessionSource.fromBase = cededFromBase;
+      remainingToCede -= cededFromBase;
+    }
+
+    // 2. Ensuite céder depuis les heures reportées (si autorisé)
+    const availableReported = delegate.reportedHours - delegate.cededFromReported - delegate.usedFromReported;
+    if (remainingToCede > 0 && availableReported > 0) {
+      const cededFromReported = Math.min(remainingToCede, availableReported);
+      cessionSource.fromReported = cededFromReported;
+      remainingToCede -= cededFromReported;
+    }
+
+    return {
+      cessionSource,
+      remainingToCede, // Si > 0, cession impossible
+      isPossible: remainingToCede === 0
+    };
+  };
+
   const handleAddDelegate = (e) => {
     e.preventDefault();
     console.log('Adding delegate:', newDelegate);
