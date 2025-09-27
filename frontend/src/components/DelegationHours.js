@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 
 const DelegationHours = ({ user }) => {
-  const [activeTab, setActiveTab] = useState('overview');
+  // Vérifier si l'utilisateur actuel est titulaire d'une délégation
+  const isUserDelegate = user.role === 'employee' && (user.isDelegateCSE || user.name === 'Marie Leblanc' || user.name === 'Pierre Moreau');
+  const [activeTab, setActiveTab] = useState(isUserDelegate && user.role === 'employee' ? 'my-delegation' : 'overview');
   const [showAddDelegate, setShowAddDelegate] = useState(false);
   const [showAddUsage, setShowAddUsage] = useState(false);
   const [selectedDelegate, setSelectedDelegate] = useState(null);
