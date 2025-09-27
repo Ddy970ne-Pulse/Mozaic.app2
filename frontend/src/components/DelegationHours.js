@@ -595,7 +595,6 @@ const DelegationHours = ({ user }) => {
                     </div>
                   </div>
                 )}
-                </div>
               </div>
             ))}
           </div>
