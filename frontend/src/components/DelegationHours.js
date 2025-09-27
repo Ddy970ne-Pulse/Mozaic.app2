@@ -116,6 +116,26 @@ const DelegationHours = ({ user }) => {
     }
   ];
 
+  // Historique des cessions d'heures
+  const cessionHistory = [
+    {
+      id: 1,
+      fromDelegateId: 4,
+      fromDelegateName: 'Pierre Moreau',
+      fromType: 'CSE',
+      toDelegateId: 2,
+      toDelegateName: 'Jean Dupont',
+      toType: 'DS',
+      hours: 3,
+      date: '2024-01-10',
+      reason: 'Négociation urgente accord télétravail - expertise technique requise',
+      status: 'approved',
+      approvedBy: 'Sophie Martin',
+      approvedDate: '2024-01-10',
+      legalBasis: 'Art. L2315-7 Code du Travail - Cession entre représentants'
+    }
+  ];
+
   const usageHistory = [
     {
       id: 1,
