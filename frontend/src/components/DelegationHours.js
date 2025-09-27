@@ -48,9 +48,13 @@ const DelegationHours = ({ user }) => {
       name: 'Marie Leblanc',
       department: 'Commercial',
       type: 'CSE',
-      monthlyHours: 10,
+      baseMonthlyHours: 10, // Heures de base selon effectif
+      monthlyHours: 10, // Heures actuelles après cessions
       usedHours: 7.5,
       remainingHours: 2.5,
+      cededHours: 0, // Heures cédées à d'autres
+      receivedHours: 0, // Heures reçues d'autres
+      reportedHours: 0, // Heures reportées du mois précédent
       startDate: '2024-01-01',
       endDate: '2024-12-31',
       status: 'active',
@@ -62,9 +66,13 @@ const DelegationHours = ({ user }) => {
       name: 'Jean Dupont',
       department: 'IT',
       type: 'DS',
-      monthlyHours: 15,
+      baseMonthlyHours: 15,
+      monthlyHours: 18, // +3h reçues de Pierre
       usedHours: 12,
-      remainingHours: 3,
+      remainingHours: 6,
+      cededHours: 0,
+      receivedHours: 3, // Reçu 3h de Pierre Moreau
+      reportedHours: 0,
       startDate: '2024-01-01',
       endDate: '2024-12-31',
       status: 'active',
@@ -76,9 +84,13 @@ const DelegationHours = ({ user }) => {
       name: 'Claire Dubois',
       department: 'Marketing',
       type: 'RSS',
+      baseMonthlyHours: 4,
       monthlyHours: 4,
       usedHours: 2,
       remainingHours: 2,
+      cededHours: 0,
+      receivedHours: 0,
+      reportedHours: 0,
       startDate: '2024-01-01',
       endDate: '2024-12-31',
       status: 'active',
@@ -90,9 +102,13 @@ const DelegationHours = ({ user }) => {
       name: 'Pierre Moreau',
       department: 'Production',
       type: 'CSE',
-      monthlyHours: 10,
+      baseMonthlyHours: 10,
+      monthlyHours: 7, // -3h cédées à Jean
       usedHours: 3.5,
-      remainingHours: 6.5,
+      remainingHours: 3.5,
+      cededHours: 3, // Cédé 3h à Jean Dupont
+      receivedHours: 0,
+      reportedHours: 0,
       startDate: '2024-01-01',
       endDate: '2024-12-31',
       status: 'active',
