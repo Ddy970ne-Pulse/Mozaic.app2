@@ -351,14 +351,25 @@ const DelegationHours = ({ user }) => {
 
   const handleAddUsage = (e) => {
     e.preventDefault();
-    console.log('Adding usage:', newUsage);
+    
+    // Create usage data with proper handling
+    const usageData = {
+      ...newUsage,
+      status: newUsage.requiresAcknowledgment ? 'acknowledged' : 'pending',
+      acknowledgedBy: newUsage.requiresAcknowledgment ? user.name : null,
+      acknowledgedDate: newUsage.requiresAcknowledgment ? new Date().toISOString() : null
+    };
+    
+    console.log('Adding usage:', usageData);
     setShowAddUsage(false);
     setNewUsage({
       delegateId: '',
       date: '',
       hours: '',
       activity: '',
-      description: ''
+      description: '',
+      documents: [],
+      requiresAcknowledgment: false
     });
   };
 
