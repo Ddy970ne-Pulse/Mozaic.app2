@@ -1461,22 +1461,35 @@ const DelegationHours = ({ user }) => {
             
             <form onSubmit={handleAddUsage} className="p-6">
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Titulaire</label>
-                  <select
-                    value={newUsage.delegateId}
-                    onChange={(e) => setNewUsage({...newUsage, delegateId: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Sélectionner un titulaire</option>
-                    {delegates.filter(d => d.status === 'active').map(delegate => (
-                      <option key={delegate.id} value={delegate.id}>
-                        {delegate.name} - {delegationTypes[delegate.type]?.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {(user.role === 'admin' || user.role === 'manager') ? (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Titulaire</label>
+                    <select
+                      value={newUsage.delegateId}
+                      onChange={(e) => setNewUsage({...newUsage, delegateId: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Sélectionner un titulaire</option>
+                      {delegates.filter(d => d.status === 'active').map(delegate => (
+                        <option key={delegate.id} value={delegate.id}>
+                          {delegate.name} - {delegationTypes[delegate.type]?.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Titulaire</label>
+                    <div className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-lg text-gray-700">
+                      {(() => {
+                        const userDelegate = delegates.find(d => d.name === user.name);
+                        return userDelegate ? `${userDelegate.name} - ${delegationTypes[userDelegate.type]?.name}` : 'Aucune délégation assignée';
+                      })()}
+                    </div>
+                    <input type="hidden" value={newUsage.delegateId} />
+                  </div>
+                )}
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
