@@ -101,3 +101,91 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Update the "Delegation Hours" module based on the provided "motifs d'absence" list from user images.
+  Implement employee-specific access to their own delegation hours, removing global dropdowns.
+  Integrate new data into the software's parameters section.
+  Add special handling for sickness leave (arrêt maladie) with acknowledgment system and document upload capability.
+
+backend:
+  - task: "Delegation Hours Backend API"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Existing backend endpoints appear functional from previous development"
+
+frontend:
+  - task: "Update activity dropdown with new motifs d'absence"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/DelegationHours.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Added 21 new absence types from user's image analysis, organized in logical groups including medical absences, family leave, vacation types, work/training, and other absences"
+
+  - task: "Implement employee-specific access for delegation hours"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/DelegationHours.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Modified delegate selection to show read-only field for employees, dropdown only for admins/managers. Employees can only see and manage their own delegation data"
+
+  - task: "Special handling for sickness leave with acknowledgment system"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/DelegationHours.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Added special UI for arrêt maladie (AM code) with acknowledgment message, document upload capability, and automatic status handling without medical validation requirement"
+
+  - task: "Add software parameters configuration"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/DelegationHours.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Added comprehensive software parameters section in settings with sites, departments, employee categories, and contract types from user's second image"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Update activity dropdown with new motifs d'absence"
+    - "Implement employee-specific access for delegation hours"
+    - "Special handling for sickness leave with acknowledgment system"
+    - "Add software parameters configuration"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Implemented all requested delegation hours updates: 1) Added 21 new absence types from user images organized in logical categories, 2) Implemented role-based access where employees see only their own delegation data while admins/managers see global access, 3) Added special handling for sickness leave (AM code) with acknowledgment system and document upload without medical validation requirement, 4) Added comprehensive software parameters configuration. Ready for testing to verify functionality and UI behavior."
