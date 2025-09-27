@@ -28,6 +28,9 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Security
+security = HTTPBearer()
+
 # Demo Data
 demo_users = {
     "admin@company.com": {
