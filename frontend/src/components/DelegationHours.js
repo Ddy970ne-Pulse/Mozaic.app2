@@ -1087,7 +1087,92 @@ const DelegationHours = ({ user }) => {
       
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800">Conformité Légale</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Spécificités Légales par Instance</h2>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* CSE */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-800 flex items-center space-x-2">
+                <span className="w-4 h-4 bg-blue-500 rounded"></span>
+                <span>CSE (Art. L2315-7 à L2315-9)</span>
+              </h4>
+              <div className="space-y-3 text-sm">
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="font-medium text-blue-800">✓ Liberté d'utilisation</div>
+                  <div className="text-blue-700">Pas de justification préalable requise</div>
+                </div>
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="font-medium text-blue-800">✓ Formation économique</div>
+                  <div className="text-blue-700">5 jours par mandat (hors crédit d'heures)</div>
+                </div>
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="font-medium text-blue-800">✓ Dépassement exceptionnel</div>
+                  <div className="text-blue-700">Possible si circonstances exceptionnelles</div>
+                </div>
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="font-medium text-blue-800">✓ Report possible</div>
+                  <div className="text-blue-700">Maximum 3 mois selon jurisprudence</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Délégués Syndicaux */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-800 flex items-center space-x-2">
+                <span className="w-4 h-4 bg-green-500 rounded"></span>
+                <span>Délégués Syndicaux (Art. L2143-13)</span>
+              </h4>
+              <div className="space-y-3 text-sm">
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <div className="font-medium text-green-800">✓ Missions spécifiques</div>
+                  <div className="text-green-700">Négociation, information, réclamations</div>
+                </div>
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <div className="font-medium text-green-800">✓ Cession autorisée</div>
+                  <div className="text-green-700">Vers autres DS ou membres CSE</div>
+                </div>
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <div className="font-medium text-green-800">✓ Permanence syndicale</div>
+                  <div className="text-green-700">Accueil et conseil des salariés</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800">Ordre de Déduction des Heures (Automatique)</h2>
+        </div>
+        <div className="p-6">
+          <div className="space-y-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <h4 className="font-medium text-amber-800 mb-2">🔄 Logique de Déduction Appliquée</h4>
+              <ol className="space-y-2 text-sm text-amber-700">
+                <li><strong>1. Heures reçues</strong> → Utilisées en priorité (Art. L2315-7)</li>
+                <li><strong>2. Heures reportées</strong> → Avant expiration (3 mois max)</li>
+                <li><strong>3. Crédit de base</strong> → Heures du mois en cours</li>
+                <li><strong>4. Dépassement exceptionnel</strong> → Si autorisé par l'employeur</li>
+              </ol>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-medium text-blue-800 mb-2">📤 Logique de Cession Appliquée</h4>
+              <ol className="space-y-2 text-sm text-blue-700">
+                <li><strong>1. Crédit de base</strong> → En priorité (disponible immédiatement)</li>
+                <li><strong>2. Heures reportées</strong> → Si autorisé par règlement intérieur</li>
+                <li><strong>❌ Heures reçues</strong> → Non cessibles (principe juridique)</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800">Conformité Légale Vérifiée</h2>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1100,19 +1185,23 @@ const DelegationHours = ({ user }) => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-green-500">✓</span>
-                  <span>Cession d'heures autorisée</span>
+                  <span>Pas de justification préalable (liberté CSE)</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-green-500">✓</span>
-                  <span>Information employeur automatique</span>
+                  <span>Cession avec motif à l'employeur</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-green-500">✓</span>
-                  <span>Traçabilité complète des utilisations</span>
+                  <span>Déduction dans le bon ordre</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-green-500">✓</span>
-                  <span>Rémunération normale maintenue</span>
+                  <span>Report 3 mois maximum</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-green-500">✓</span>
+                  <span>Traçabilité pour inspection du travail</span>
                 </div>
               </div>
             </div>
@@ -1120,11 +1209,12 @@ const DelegationHours = ({ user }) => {
             <div className="space-y-3">
               <h4 className="font-medium text-gray-800">📚 Références Légales</h4>
               <div className="space-y-2 text-sm text-gray-600">
-                <div>• <strong>L2315-7 CT:</strong> Crédit d'heures CSE</div>
-                <div>• <strong>L2143-13 CT:</strong> Crédit d'heures DS</div>
-                <div>• <strong>L2315-8 CT:</strong> Utilisation des heures</div>
+                <div>• <strong>L2315-7 CT:</strong> Crédit d'heures CSE et cession</div>
+                <div>• <strong>L2315-8 CT:</strong> Utilisation libre des heures</div>
                 <div>• <strong>L2315-9 CT:</strong> Dépassement exceptionnel</div>
+                <div>• <strong>L2143-13 CT:</strong> Crédit d'heures DS</div>
                 <div>• <strong>R2315-4 CT:</strong> Modalités de calcul</div>
+                <div>• <strong>Jurisprudence:</strong> Report maximum 3 mois</div>
               </div>
             </div>
           </div>
