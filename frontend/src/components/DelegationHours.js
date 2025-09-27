@@ -1206,6 +1206,139 @@ const DelegationHours = ({ user }) => {
           </div>
         </div>
       )}
+
+      {/* Modal Cession d'Heures */}
+      {showCessionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-800">Cession d'Heures de Délégation</h2>
+                <button
+                  onClick={() => setShowCessionModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mt-2">
+                Conformément à l'article L2315-7 du Code du Travail
+              </p>
+            </div>
+            
+            <form onSubmit={handleAddCession} className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Cédant (qui donne les heures)</label>
+                  <select
+                    value={newCession.fromDelegateId}
+                    onChange={(e) => setNewCession({...newCession, fromDelegateId: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Sélectionner le cédant</option>
+                    {delegates.filter(d => d.status === 'active' && d.remainingHours > 0).map(delegate => (
+                      <option key={delegate.id} value={delegate.id}>
+                        {delegate.name} - {delegationTypes[delegate.type]?.name} ({delegate.remainingHours}h disponibles)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Bénéficiaire (qui reçoit les heures)</label>
+                  <select
+                    value={newCession.toDelegateId}
+                    onChange={(e) => setNewCession({...newCession, toDelegateId: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Sélectionner le bénéficiaire</option>
+                    {delegates.filter(d => d.status === 'active' && d.id !== parseInt(newCession.fromDelegateId)).map(delegate => (
+                      <option key={delegate.id} value={delegate.id}>
+                        {delegate.name} - {delegationTypes[delegate.type]?.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Nombre d'heures</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={newCession.hours}
+                      onChange={(e) => setNewCession({...newCession, hours: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      min="0.5"
+                      max={delegates.find(d => d.id === parseInt(newCession.fromDelegateId))?.remainingHours || 0}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Date de cession</label>
+                    <input
+                      type="date"
+                      value={newCession.date}
+                      onChange={(e) => setNewCession({...newCession, date: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Motif de la cession <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={newCession.reason}
+                    onChange={(e) => setNewCession({...newCession, reason: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Justification requise par le Code du Travail (ex: négociation urgente, expertise spécialisée, surcharge ponctuelle...)"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Le motif sera communiqué à l'employeur conformément à la réglementation
+                  </p>
+                </div>
+
+                {/* Informations légales */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <h4 className="text-sm font-medium text-blue-800 mb-2">📋 Rappel légal</h4>
+                  <div className="text-xs text-blue-700 space-y-1">
+                    <p>• La cession doit être justifiée par les besoins de la représentation</p>
+                    <p>• L'employeur sera automatiquement informé de cette cession</p>
+                    <p>• Les heures cédées restent payées normalement</p>
+                    <p>• La cession prend effet dès validation par l'administration</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowCessionModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                >
+                  Effectuer la Cession
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
