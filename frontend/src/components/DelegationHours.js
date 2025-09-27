@@ -56,13 +56,17 @@ const DelegationHours = ({ user }) => {
       name: 'Marie Leblanc',
       department: 'Commercial',
       type: 'CSE',
-      baseMonthlyHours: 10, // Heures de base selon effectif
-      monthlyHours: 10, // Heures actuelles après cessions
-      usedHours: 7.5,
-      remainingHours: 2.5,
-      cededHours: 0, // Heures cédées à d'autres
-      receivedHours: 0, // Heures reçues d'autres
-      reportedHours: 0, // Heures reportées du mois précédent
+      baseMonthlyHours: 15, // Heures de base selon effectif (78 salariés = 15h)
+      reportedHours: 2, // Heures reportées du mois précédent (max 3 mois)
+      receivedHours: 0, // Heures reçues d'autres représentants
+      cededHours: 0, // Heures cédées à d'autres (depuis quel contingent)
+      cededFromBase: 0, // Cédées depuis le crédit de base
+      cededFromReported: 0, // Cédées depuis les heures reportées
+      usedFromReceived: 0, // Utilisées depuis les heures reçues
+      usedFromReported: 2, // Utilisées depuis les heures reportées
+      usedFromBase: 5.5, // Utilisées depuis le crédit de base
+      totalUsed: 7.5, // Total utilisé ce mois
+      availableHours: 9.5, // Heures disponibles total (base + reportées + reçues - cédées - utilisées)
       startDate: '2024-01-01',
       endDate: '2024-12-31',
       status: 'active',
@@ -74,13 +78,17 @@ const DelegationHours = ({ user }) => {
       name: 'Jean Dupont',
       department: 'IT',
       type: 'DS',
-      baseMonthlyHours: 15,
-      monthlyHours: 18, // +3h reçues de Pierre
-      usedHours: 12,
-      remainingHours: 6,
-      cededHours: 0,
-      receivedHours: 3, // Reçu 3h de Pierre Moreau
+      baseMonthlyHours: 15, // DS selon effectif
       reportedHours: 0,
+      receivedHours: 3, // Reçu 3h de Pierre Moreau (depuis son crédit de base)
+      cededHours: 0,
+      cededFromBase: 0,
+      cededFromReported: 0,
+      usedFromReceived: 3, // D'abord utiliser les heures reçues (priorité légale)
+      usedFromReported: 0,
+      usedFromBase: 9, // Puis utiliser le crédit de base
+      totalUsed: 12,
+      availableHours: 6, // 15 + 0 + 3 - 0 - 12 = 6
       startDate: '2024-01-01',
       endDate: '2024-12-31',
       status: 'active',
@@ -92,13 +100,17 @@ const DelegationHours = ({ user }) => {
       name: 'Claire Dubois',
       department: 'Marketing',
       type: 'RSS',
-      baseMonthlyHours: 4,
-      monthlyHours: 4,
-      usedHours: 2,
-      remainingHours: 2,
-      cededHours: 0,
+      baseMonthlyHours: 4, // RSS selon convention collective
+      reportedHours: 1.5, // Report du mois précédent
       receivedHours: 0,
-      reportedHours: 0,
+      cededHours: 0,
+      cededFromBase: 0,
+      cededFromReported: 0,
+      usedFromReceived: 0,
+      usedFromReported: 1.5, // Priorité aux heures reportées
+      usedFromBase: 0.5,
+      totalUsed: 2,
+      availableHours: 3.5, // 4 + 1.5 + 0 - 0 - 2 = 3.5
       startDate: '2024-01-01',
       endDate: '2024-12-31',
       status: 'active',
@@ -110,13 +122,17 @@ const DelegationHours = ({ user }) => {
       name: 'Pierre Moreau',
       department: 'Production',
       type: 'CSE',
-      baseMonthlyHours: 10,
-      monthlyHours: 7, // -3h cédées à Jean
-      usedHours: 3.5,
-      remainingHours: 3.5,
-      cededHours: 3, // Cédé 3h à Jean Dupont
-      receivedHours: 0,
+      baseMonthlyHours: 15,
       reportedHours: 0,
+      receivedHours: 0,
+      cededHours: 3, // Cédé 3h à Jean Dupont
+      cededFromBase: 3, // Cession depuis le crédit de base (priorité)
+      cededFromReported: 0,
+      usedFromReceived: 0,
+      usedFromReported: 0,
+      usedFromBase: 3.5,
+      totalUsed: 3.5,
+      availableHours: 8.5, // 15 + 0 + 0 - 3 - 3.5 = 8.5
       startDate: '2024-01-01',
       endDate: '2024-12-31',
       status: 'active',
