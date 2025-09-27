@@ -905,24 +905,74 @@ const DelegationHours = ({ user }) => {
       
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800">Règles de Calcul</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Calcul des Heures selon l'Effectif (Code du Travail)</h2>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-800">Membres CSE (Art. L2315-7)</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span>Moins de 50 salariés:</span>
+                  <span className="font-medium">Pas de crédit</span>
+                </div>
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span>50 à 74 salariés:</span>
+                  <span className="font-medium">10h/mois</span>
+                </div>
+                <div className="flex justify-between p-2 bg-blue-50 rounded border border-blue-200">
+                  <span>75 à 99 salariés:</span>
+                  <span className="font-medium text-blue-600">15h/mois ⭐</span>
+                </div>
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span>Plus de 100 salariés:</span>
+                  <span className="font-medium">20h/mois</span>
+                </div>
+              </div>
+              <p className="text-xs text-blue-600">⭐ Effectif actuel de l'entreprise: 78 salariés</p>
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-800">Délégués Syndicaux (Art. L2143-13)</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span>50 à 150 salariés:</span>
+                  <span className="font-medium">10h/mois</span>
+                </div>
+                <div className="flex justify-between p-2 bg-blue-50 rounded border border-blue-200">
+                  <span>151 à 500 salariés:</span>
+                  <span className="font-medium text-blue-600">15h/mois ⭐</span>
+                </div>
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span>Plus de 500 salariés:</span>
+                  <span className="font-medium">20h/mois</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800">Règles de Gestion</h2>
         </div>
         <div className="p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div>
-                <div className="font-medium text-gray-800">Attribution automatique</div>
-                <div className="text-sm text-gray-600">Attribuer automatiquement les heures selon les statuts</div>
+                <div className="font-medium text-gray-800">Cession d'heures autorisée</div>
+                <div className="text-sm text-gray-600">Permettre la cession entre représentants (Art. L2315-7)</div>
               </div>
               <input type="checkbox" defaultChecked className="rounded" />
             </div>
             
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div>
-                <div className="font-medium text-gray-800">Report d'heures</div>
+                <div className="font-medium text-gray-800">Report d'heures (3 mois max)</div>
                 <div className="text-sm text-gray-600">Autoriser le report des heures non utilisées</div>
               </div>
-              <input type="checkbox" className="rounded" />
+              <input type="checkbox" defaultChecked className="rounded" />
             </div>
             
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -931,6 +981,60 @@ const DelegationHours = ({ user }) => {
                 <div className="text-sm text-gray-600">Toutes les utilisations doivent être validées</div>
               </div>
               <input type="checkbox" defaultChecked className="rounded" />
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div>
+                <div className="font-medium text-gray-800">Heures supplémentaires exceptionnelles</div>
+                <div className="text-sm text-gray-600">Permettre dépassement en cas de circonstances exceptionnelles</div>
+              </div>
+              <input type="checkbox" className="rounded" />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800">Conformité Légale</h2>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-800">✅ Obligations Respectées</h4>
+              <div className="space-y-2 text-sm text-green-700">
+                <div className="flex items-center space-x-2">
+                  <span className="text-green-500">✓</span>
+                  <span>Calcul selon effectif (Art. L2315-7)</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-green-500">✓</span>
+                  <span>Cession d'heures autorisée</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-green-500">✓</span>
+                  <span>Information employeur automatique</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-green-500">✓</span>
+                  <span>Traçabilité complète des utilisations</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-green-500">✓</span>
+                  <span>Rémunération normale maintenue</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-800">📚 Références Légales</h4>
+              <div className="space-y-2 text-sm text-gray-600">
+                <div>• <strong>L2315-7 CT:</strong> Crédit d'heures CSE</div>
+                <div>• <strong>L2143-13 CT:</strong> Crédit d'heures DS</div>
+                <div>• <strong>L2315-8 CT:</strong> Utilisation des heures</div>
+                <div>• <strong>L2315-9 CT:</strong> Dépassement exceptionnel</div>
+                <div>• <strong>R2315-4 CT:</strong> Modalités de calcul</div>
+              </div>
             </div>
           </div>
         </div>
