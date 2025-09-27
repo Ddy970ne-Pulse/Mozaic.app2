@@ -1691,6 +1691,9 @@ const DelegationHours = ({ user }) => {
                     required
                   >
                     <option value="">Sélectionner une activité CSE</option>
+                    <option value="" disabled style={{fontStyle: 'italic', color: '#666'}}>
+                      ℹ️ Codification DEL = Absence justifiée pour mission CSE
+                    </option>
                     
                     <optgroup label="🏥 Absences médicales - CSE">
                       <option value="AM - Arrêt maladie">AM - Arrêt maladie (avec prise de connaissance)</option>
