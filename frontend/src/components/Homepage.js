@@ -8,7 +8,8 @@ const Homepage = ({ onLogin }) => {
   const demoAccounts = [
     { email: 'sophie.martin@company.com', password: 'demo123', name: 'Sophie Martin', role: 'admin', department: 'RH' },
     { email: 'jean.dupont@company.com', password: 'demo123', name: 'Jean Dupont', role: 'manager', department: 'IT' },
-    { email: 'marie.leblanc@company.com', password: 'demo123', name: 'Marie Leblanc', role: 'employee', department: 'Commercial' }
+    { email: 'marie.leblanc@company.com', password: 'demo123', name: 'Marie Leblanc', role: 'employee', department: 'Commercial', isDelegateCSE: true },
+    { email: 'pierre.cse@company.com', password: 'demo123', name: 'Pierre Moreau', role: 'employee', department: 'Production', isDelegateCSE: true }
   ];
 
   const handleLogin = async (e) => {
