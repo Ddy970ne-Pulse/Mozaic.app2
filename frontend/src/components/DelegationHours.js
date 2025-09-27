@@ -21,7 +21,9 @@ const DelegationHours = ({ user }) => {
     date: '',
     hours: '',
     activity: '',
-    description: ''
+    description: '',
+    documents: [],
+    requiresAcknowledgment: false
   });
   const [newCession, setNewCession] = useState({
     fromDelegateId: '',
