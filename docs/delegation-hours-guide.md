@@ -1,8 +1,22 @@
 # Guide du Module Heures de Délégation - MOZAIK RH
+## ⚖️ **CONFORME AU DROIT FRANÇAIS**
 
 ## Vue d'ensemble
 
-Le module "Heures de Délégation" permet la gestion complète des heures allouées aux représentants du personnel selon leurs mandats (CSE, Délégué Syndical, etc.).
+Le module "Heures de Délégation" permet la gestion complète des heures allouées aux représentants du personnel selon leurs mandats (CSE, Délégué Syndical, etc.) en **CONFORMITÉ TOTALE** avec le Code du Travail français.
+
+## 🚨 **NOUVELLES FONCTIONNALITÉS LÉGALES AJOUTÉES**
+
+### ✅ **Cession d'Heures** (Art. L2315-7 Code du Travail)
+- **Cession entre représentants** : Possibilité de céder des heures entre membres du CSE, délégués syndicaux, etc.
+- **Information employeur automatique** : Notification automatique avec motif légalement requis
+- **Traçabilité complète** : Historique des cessions avec base légale
+- **Workflow de validation** : Approbation par l'administration RH
+
+### ✅ **Calcul Automatique selon l'Effectif** (Code du Travail)
+- **CSE** : Calcul automatique selon l'effectif (10h pour 50-74 salariés, 15h pour 75-99, etc.)
+- **Délégués Syndicaux** : Heures calculées selon les seuils légaux
+- **Mise à jour automatique** : Recalcul en cas de changement d'effectif
 
 ## Comptes de Test Disponibles
 
