@@ -1672,7 +1672,9 @@ const DelegationHours = ({ user }) => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Type d'activité</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Type d'activité CSE <span className="text-blue-600">(Codification DEL)</span>
+                  </label>
                   <select
                     value={newUsage.activity}
                     onChange={(e) => {
