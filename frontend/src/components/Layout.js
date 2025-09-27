@@ -8,6 +8,7 @@ import EmployeeSpace from './EmployeeSpace';
 import SettingsPage from './SettingsPage';
 import Analytics from './Analytics';
 import OvertimeModule from './OvertimeModule';
+import DelegationHours from './DelegationHours';
 
 const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
   const [showMenu, setShowMenu] = useState(false);
