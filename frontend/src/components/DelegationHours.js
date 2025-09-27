@@ -1894,10 +1894,13 @@ const DelegationHours = ({ user }) => {
                       onChange={(e) => setNewUsage({...newUsage, description: e.target.value})}
                       rows={3}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Description facultative de l'activité (Art. L2315-8 : pas de justification préalable requise)"
+                      placeholder="Description facultative de l'activité CSE (Art. L2315-8 : pas de justification préalable requise pour les membres CSE)"
                     />
                     <p className="text-xs text-blue-600 mt-1">
-                      ⚖️ Conformément au Code du Travail, aucune justification préalable n'est requise pour l'utilisation des heures de délégation
+                      ⚖️ Conformément au Code du Travail, aucune justification préalable n'est requise pour l'utilisation des heures de délégation CSE
+                    </p>
+                    <p className="text-xs text-green-600 mt-1">
+                      🏷️ Ces heures seront marquées "DEL" dans les plannings pour distinction avec l'absentéisme classique
                     </p>
                   </div>
                 )}
