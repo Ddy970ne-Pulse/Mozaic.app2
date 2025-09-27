@@ -1367,13 +1367,42 @@ const DelegationHours = ({ user }) => {
                     required
                   >
                     <option value="">Sélectionner une activité</option>
-                    <option value="Réunion CSE">Réunion CSE</option>
-                    <option value="Formation syndicale">Formation syndicale</option>
-                    <option value="Négociation">Négociation</option>
-                    <option value="Permanence syndicale">Permanence syndicale</option>
-                    <option value="Consultation">Consultation</option>
-                    <option value="Enquête">Enquête</option>
-                    <option value="Autre">Autre</option>
+                    <optgroup label="🏢 CSE - Missions générales">
+                      <option value="Réunion CSE ordinaire">Réunion CSE ordinaire</option>
+                      <option value="Réunion CSE extraordinaire">Réunion CSE extraordinaire</option>
+                      <option value="Commission SSCT">Commission Santé, Sécurité et Conditions de Travail</option>
+                      <option value="Enquête accident/maladie pro">Enquête accident du travail / maladie professionnelle</option>
+                      <option value="Consultation reorganisation">Consultation sur réorganisation</option>
+                      <option value="Consultation licenciement eco">Consultation licenciement économique</option>
+                    </optgroup>
+                    <optgroup label="🤝 Relations individuelles">
+                      <option value="Entretien salarié">Entretien avec un salarié</option>
+                      <option value="Accompagnement disciplinaire">Accompagnement entretien disciplinaire</option>
+                      <option value="Réclamation collective">Traitement réclamation collective</option>
+                      <option value="Médiation conflit">Médiation résolution de conflit</option>
+                    </optgroup>
+                    <optgroup label="📚 Formation et information">
+                      <option value="Formation économique">Formation économique (5 jours/mandat)</option>
+                      <option value="Formation SSCT">Formation Santé-Sécurité</option>
+                      <option value="Veille juridique">Veille juridique et réglementaire</option>
+                      <option value="Information syndics">Information organisations syndicales</option>
+                    </optgroup>
+                    <optgroup label="🔍 Expertises">
+                      <option value="Expertise comptable">Suivi expertise comptable</option>
+                      <option value="Expertise CHSCT">Suivi expertise SSCT</option>
+                      <option value="Analyse documents">Analyse documents sociaux</option>
+                    </optgroup>
+                    <optgroup label="⚖️ Délégation syndicale">
+                      <option value="Négociation collective">Négociation d'accord d'entreprise</option>
+                      <option value="Permanence syndicale">Permanence syndicale</option>
+                      <option value="Préparation négociation">Préparation négociation</option>
+                    </optgroup>
+                    <optgroup label="📋 Autres activités légales">
+                      <option value="Préparation réunion">Préparation de réunion</option>
+                      <option value="Compte-rendu">Rédaction compte-rendu</option>
+                      <option value="Déplacement professionnel">Déplacement dans le cadre du mandat</option>
+                      <option value="Autre activité légale">Autre activité prévue par la loi</option>
+                    </optgroup>
                   </select>
                 </div>
                 
