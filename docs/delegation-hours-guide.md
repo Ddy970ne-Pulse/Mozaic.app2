@@ -34,14 +34,16 @@ Le module "Heures de Délégation" permet la gestion complète des heures allou�
 - **Heures utilisées** : 7.5h
 - **Fonctionnalités** : Interface personnalisée avec "Ma Délégation", déclaration d'heures, suivi personnel
 
-### 3. **Pierre Moreau** (Titulaire CSE)
+### 3. **Pierre Moreau** (Titulaire CSE avec Cession)
 - **Email** : pierre.cse@company.com
 - **Mot de passe** : demo123
 - **Rôle** : Employé + Titulaire CSE
 - **Département** : Production
-- **Quota** : 10h/mois
+- **Quota de base** : 10h/mois
+- **Quota actuel** : 7h/mois (après cession de 3h à Jean Dupont)
 - **Heures utilisées** : 3.5h
-- **Fonctionnalités** : Interface personnalisée avec "Ma Délégation", déclaration d'heures, suivi personnel
+- **Heures cédées** : 3h (à Jean Dupont pour négociation urgente)
+- **Fonctionnalités** : Interface personnalisée avec cessions, suivi des transferts d'heures
 
 ### 4. **Jean Dupont** (Manager + Délégué Syndical)
 - **Email** : jean.dupont@company.com
