@@ -173,7 +173,6 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 
 
 # Security
-security = HTTPBearer()
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 
 # Define Models
