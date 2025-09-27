@@ -1031,6 +1031,148 @@ const DelegationHours = ({ user }) => {
 
   const renderSettings = () => (
     <div className="space-y-6">
+      {/* Software Parameters Configuration */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800">Paramètres du Logiciel</h2>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-medium text-gray-800 mb-3">🏢 Sites d'affectation</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Siège</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Pôle Éducatif</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Menuiserie 44</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Voiles 44</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Garage 44</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Alpinia 44</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Ferme 44</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Restaurant 44</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-gray-800 mb-3">🏬 Départements</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Direction</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Éducatif</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Administratif</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Comptable</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>ASI</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-gray-800 mb-3">👥 Catégories Employés</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Cadre Supérieur</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Cadre</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Employé Qualifié</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Technicien</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Ouvrier qualifié</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Ouvrier non qualifié</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Agent administratif</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Personnel ASI</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-gray-800 mb-3">💼 Types de Contrats</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>CDI - Non Cadre</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>CDD - Non Cadre</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>CDI - Cadre</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>CDD - Cadre</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Stagiaire</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked className="rounded" />
+                  <span>Apprenti(e)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800">Configuration des Types de Délégation</h2>
