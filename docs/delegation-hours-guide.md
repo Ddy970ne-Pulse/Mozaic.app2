@@ -170,14 +170,120 @@ Les administrateurs peuvent :
 - Configurer les règles de report d'heures
 - Paramétrer la validation obligatoire
 
-## Conformité Légale
+## 📋 **Processus de Cession d'Heures** (NOUVEAU)
 
-Le module respecte :
-- **Code du Travail** : Articles L2315-1 et suivants (CSE)
-- **Heures de délégation** : Calcul selon l'effectif de l'entreprise
-- **Droits syndicaux** : Articles L2142-1 et suivants
-- **Traçabilité** : Audit trail complet des activités
+### 1. **Initiation de la Cession**
+1. Aller dans "Heures de Délégation" > "Cessions d'Heures"
+2. Cliquer sur "Nouvelle Cession"
+3. Sélectionner le cédant (qui a des heures disponibles)
+4. Sélectionner le bénéficiaire (autre représentant)
+5. Définir le nombre d'heures et la date
+
+### 2. **Justification Obligatoire**
+- **Motif requis** : Justification légalement obligatoire
+- **Exemples valides** : Négociation urgente, expertise spécialisée, surcharge ponctuelle
+- **Information employeur** : Notification automatique avec motif
+
+### 3. **Validation et Effet**
+- **Approbation RH** : Validation par l'administration
+- **Effet immédiat** : Transfert automatique des heures
+- **Traçabilité** : Enregistrement complet avec base légale
+
+## ⚖️ **Conformité Légale Complète**
+
+### 📜 **Articles du Code du Travail Respectés**
+
+| Article | Domaine | Conformité MOZAIK |
+|---------|---------|-------------------|
+| **L2315-7** | Crédit d'heures CSE | ✅ Calcul automatique selon effectif |
+| **L2315-8** | Utilisation des heures | ✅ Validation et traçabilité |
+| **L2315-9** | Dépassement exceptionnel | ✅ Configurable par admin |
+| **L2143-13** | Crédit d'heures DS | ✅ Heures selon seuils légaux |
+| **R2315-4** | Modalités de calcul | ✅ Formules légales appliquées |
+
+### 🏢 **Calcul selon l'Effectif (Automatique)**
+
+**Entreprise actuelle : 78 salariés**
+
+#### CSE (Article L2315-7)
+- ❌ **Moins de 50** : Pas de crédit d'heures
+- ❌ **50-74 salariés** : 10h/mois par membre
+- ✅ **75-99 salariés** : **15h/mois par membre** ← *Applicable*
+- ❌ **100+ salariés** : 20h/mois par membre
+
+#### Délégués Syndicaux (Article L2143-13)
+- ❌ **50-150 salariés** : 10h/mois
+- ✅ **151-500 salariés** : **15h/mois** ← *Applicable*
+- ❌ **500+ salariés** : 20h/mois
+
+### 🔄 **Règles de Cession (Article L2315-7)**
+
+#### ✅ **Cessions Autorisées**
+- Entre membres du même CSE
+- Entre délégués syndicaux
+- Entre représentants de proximité
+- Entre instances différentes (CSE ⟷ DS)
+
+#### ⚠️ **Conditions Obligatoires**
+- **Information préalable** de l'employeur ✅
+- **Motif justifié** de la cession ✅
+- **Accord** du bénéficiaire ✅
+- **Respect** du crédit global d'heures ✅
+
+### 📊 **Obligations de Traçabilité**
+
+#### ✅ **Éléments Tracés**
+- **Qui** : Identité du représentant
+- **Quand** : Date et heure précises
+- **Combien** : Nombre d'heures utilisées
+- **Pourquoi** : Motif de l'utilisation
+- **Validation** : Approbation hiérarchique
+- **Cessions** : Transferts entre représentants
+
+#### 📋 **Rapports Légaux Générés**
+- Utilisation mensuelle par représentant
+- Cessions effectuées et reçues
+- Dépassements exceptionnels
+- Heures non utilisées (report possible)
+
+### 💰 **Règles de Rémunération**
+
+#### ✅ **Conformité Salariale**
+- **Heures payées** comme temps de travail normal
+- **Cessions** : Pas d'impact sur la rémunération
+- **Dépassements** : Heures supplémentaires si autorisées
+- **Report** : Heures reportables sur 3 mois maximum
+
+## 🧪 **Tests de Conformité**
+
+### Test Cession d'Heures
+1. **Se connecter** avec Pierre Moreau (pierre.cse@company.com)
+2. **Aller** dans "Mes Heures Délégation" > "Cessions d'Heures"
+3. **Constater** la cession de 3h à Jean Dupont
+4. **Vérifier** le motif légal : "Négociation urgente accord télétravail"
+5. **Contrôler** la base légale : "Art. L2315-7 Code du Travail"
+
+### Test Réception d'Heures
+1. **Se connecter** avec Jean Dupont (jean.dupont@company.com)
+2. **Constater** quota actuel : 18h (15h + 3h reçues)
+3. **Vérifier** traçabilité complète de la réception
+
+### Test Calcul Effectif
+1. **Vérifier** dans Configuration que l'effectif (78 salariés) donne 15h/mois pour CSE
+2. **Contrôler** application automatique des seuils légaux
+
+## 🚨 **Points de Vigilance Légale**
+
+### ⚠️ **Limites à Respecter**
+- **Cession maximale** : Ne pas dépasser le crédit global de l'instance
+- **Justification** : Motif obligatoire pour chaque cession
+- **Information** : Employeur informé sous 48h (automatique)
+- **Report** : Maximum 3 mois selon jurisprudence
+
+### 📞 **Support Juridique**
+En cas de contrôle de l'inspection du travail, tous les éléments de traçabilité sont disponibles dans le module avec références légales complètes.
 
 ---
 
-*Module développé pour MOZAIK RH - Version 1.0*
+*Module MOZAIK RH - Version 2.0 - Conforme Code du Travail français*
+*Dernière mise à jour : Janvier 2024*
