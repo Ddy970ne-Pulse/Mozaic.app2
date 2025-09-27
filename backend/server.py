@@ -271,7 +271,7 @@ class AbsenceType(BaseModel):
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "MOZAIK RH API - HR Management System"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
@@ -284,6 +284,241 @@ async def create_status_check(input: StatusCheckCreate):
 async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
+
+# Authentication endpoints
+@api_router.post("/auth/login", response_model=LoginResponse)
+async def login(login_request: LoginRequest):
+    email = login_request.email
+    password = login_request.password
+    
+    if email not in demo_users:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    user_data = demo_users[email]
+    if password != user_data["password"]:  # In production, use proper password hashing
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    # Create token
+    token = create_access_token(user_data["id"], user_data["email"], user_data["role"])
+    
+    # Return user info and token
+    user = User(
+        id=user_data["id"],
+        name=user_data["name"],
+        email=user_data["email"], 
+        role=user_data["role"],
+        department=user_data["department"],
+        isDelegateCSE=user_data["isDelegateCSE"]
+    )
+    
+    return LoginResponse(token=token, user=user)
+
+@api_router.get("/auth/me", response_model=User)
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    return current_user
+
+# Delegation Hours endpoints
+@api_router.get("/delegation/delegates", response_model=List[Delegate])
+async def get_delegates(current_user: User = Depends(get_current_user)):
+    # Admin and managers can see all delegates, employees only see their own
+    if current_user.role in ["admin", "manager"]:
+        return [Delegate(**delegate) for delegate in demo_delegates]
+    else:
+        # Return only current user's delegation if they have one
+        user_delegate = next((d for d in demo_delegates if d["name"] == current_user.name), None)
+        return [Delegate(**user_delegate)] if user_delegate else []
+
+@api_router.get("/delegation/delegates/{delegate_id}", response_model=Delegate) 
+async def get_delegate(delegate_id: str, current_user: User = Depends(get_current_user)):
+    delegate_data = next((d for d in demo_delegates if d["id"] == delegate_id), None)
+    if not delegate_data:
+        raise HTTPException(status_code=404, detail="Delegate not found")
+    
+    # Check permissions
+    if current_user.role not in ["admin", "manager"] and delegate_data["name"] != current_user.name:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    return Delegate(**delegate_data)
+
+@api_router.post("/delegation/usage", response_model=UsageRecord)
+async def create_usage_record(usage_data: dict, current_user: User = Depends(get_current_user)):
+    # Create new usage record
+    usage_record = UsageRecord(
+        delegateId=usage_data.get("delegateId"),
+        delegateName=usage_data.get("delegateName", current_user.name),
+        date=usage_data.get("date"),
+        hours=usage_data.get("hours"),
+        activity=usage_data.get("activity"),
+        description=usage_data.get("description", ""),
+        status="acknowledged" if usage_data.get("requiresAcknowledgment") else "pending",
+        approvedBy=current_user.name if usage_data.get("requiresAcknowledgment") else None,
+        approvedDate=datetime.utcnow().isoformat() if usage_data.get("requiresAcknowledgment") else None,
+        documents=usage_data.get("documents", []),
+        requiresAcknowledgment=usage_data.get("requiresAcknowledgment", False)
+    )
+    
+    # In a real implementation, save to database
+    # await db.usage_records.insert_one(usage_record.dict())
+    
+    return usage_record
+
+@api_router.get("/delegation/usage", response_model=List[dict])
+async def get_usage_history(current_user: User = Depends(get_current_user)):
+    # Mock usage history - in real implementation, fetch from database
+    mock_usage = [
+        {
+            "id": "1",
+            "delegateId": "1", 
+            "delegateName": "Marie Leblanc",
+            "date": "2024-01-15",
+            "hours": 2.5,
+            "activity": "Réunion CSE",
+            "description": "Réunion mensuelle du comité social et économique",
+            "status": "approved",
+            "approvedBy": "Sophie Martin",
+            "approvedDate": "2024-01-16"
+        },
+        {
+            "id": "2", 
+            "delegateId": "2",
+            "delegateName": "Pierre Moreau", 
+            "date": "2024-01-18",
+            "hours": 2.5,
+            "activity": "AM - Arrêt maladie",
+            "description": "Prise de connaissance de l'absence pour maladie",
+            "status": "acknowledged",
+            "approvedBy": "Sophie Martin",
+            "approvedDate": "2024-01-18",
+            "requiresAcknowledgment": True
+        }
+    ]
+    
+    # Filter based on user role
+    if current_user.role in ["admin", "manager"]:
+        return mock_usage
+    else:
+        return [u for u in mock_usage if u["delegateName"] == current_user.name]
+
+@api_router.get("/delegation/cessions", response_model=List[CessionRecord])
+async def get_cession_history(current_user: User = Depends(get_current_user)):
+    # Mock cession data
+    mock_cessions = [
+        {
+            "id": "1",
+            "fromDelegateId": "2", 
+            "fromDelegateName": "Pierre Moreau",
+            "fromType": "CSE",
+            "toDelegateId": "1",
+            "toDelegateName": "Marie Leblanc", 
+            "toType": "CSE",
+            "hours": 3.0,
+            "date": "2024-01-10",
+            "reason": "Négociation urgente accord télétravail - expertise technique requise",
+            "status": "approved",
+            "approvedBy": "Sophie Martin",
+            "approvedDate": "2024-01-10",
+            "legalBasis": "Art. L2315-7 Code du Travail - Cession entre représentants"
+        }
+    ]
+    
+    return [CessionRecord(**c) for c in mock_cessions]
+
+@api_router.post("/delegation/cessions", response_model=CessionRecord)
+async def create_cession(cession_data: dict, current_user: User = Depends(get_current_user)):
+    # Create new cession record
+    cession_record = CessionRecord(
+        fromDelegateId=cession_data.get("fromDelegateId"),
+        fromDelegateName=cession_data.get("fromDelegateName"),
+        fromType=cession_data.get("fromType"),
+        toDelegateId=cession_data.get("toDelegateId"), 
+        toDelegateName=cession_data.get("toDelegateName"),
+        toType=cession_data.get("toType"),
+        hours=cession_data.get("hours"),
+        date=cession_data.get("date"),
+        reason=cession_data.get("reason"),
+        status="approved",
+        approvedBy=current_user.name,
+        approvedDate=datetime.utcnow().isoformat()
+    )
+    
+    # In real implementation, save to database
+    # await db.cession_records.insert_one(cession_record.dict())
+    
+    return cession_record
+
+# Absence Types endpoints  
+@api_router.get("/absence-types", response_model=List[AbsenceType])
+async def get_absence_types(current_user: User = Depends(get_current_user)):
+    return [AbsenceType(**absence_type) for absence_type in demo_absence_types]
+
+@api_router.get("/absence-types/{code}", response_model=AbsenceType)
+async def get_absence_type(code: str, current_user: User = Depends(get_current_user)):
+    absence_type = next((a for a in demo_absence_types if a["code"] == code), None)
+    if not absence_type:
+        raise HTTPException(status_code=404, detail="Absence type not found")
+    return AbsenceType(**absence_type)
+
+# User management endpoints
+@api_router.get("/users", response_model=List[User])
+async def get_users(current_user: User = Depends(get_current_user)):
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    users = []
+    for email, user_data in demo_users.items():
+        users.append(User(
+            id=user_data["id"],
+            name=user_data["name"], 
+            email=user_data["email"],
+            role=user_data["role"],
+            department=user_data["department"],
+            isDelegateCSE=user_data["isDelegateCSE"]
+        ))
+    return users
+
+@api_router.get("/users/{user_id}", response_model=User)
+async def get_user(user_id: str, current_user: User = Depends(get_current_user)):
+    # Users can access their own data, admins/managers can access all
+    if current_user.role not in ["admin", "manager"] and current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    user_data = next((u for u in demo_users.values() if u["id"] == user_id), None)
+    if not user_data:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return User(
+        id=user_data["id"],
+        name=user_data["name"],
+        email=user_data["email"],
+        role=user_data["role"], 
+        department=user_data["department"],
+        isDelegateCSE=user_data["isDelegateCSE"]
+    )
+
+# HR Configuration endpoints
+@api_router.get("/hr-config/departments")
+async def get_departments(current_user: User = Depends(get_current_user)):
+    return {
+        "departments": ["Direction", "Éducatif", "Administratif", "Comptable", "ASI"]
+    }
+
+@api_router.get("/hr-config/sites") 
+async def get_sites(current_user: User = Depends(get_current_user)):
+    return {
+        "sites": ["Siège", "Pôle Éducatif", "Menuiserie 44", "Voiles 44", "Garage 44", "Alpinia 44", "Ferme 44", "Restaurant 44"]
+    }
+
+@api_router.get("/hr-config/contracts")
+async def get_contract_types(current_user: User = Depends(get_current_user)):
+    return {
+        "contracts": ["CDI - Non Cadre", "CDD - Non Cadre", "CDI - Cadre", "CDD - Cadre", "Stagiaire", "Apprenti(e)"]
+    }
+
+@api_router.get("/hr-config/employee-categories")
+async def get_employee_categories(current_user: User = Depends(get_current_user)):
+    return {
+        "categories": ["Cadre Supérieur", "Cadre", "Employé Qualifié", "Technicien", "Ouvrier qualifié", "Ouvrier non qualifié", "Agent administratif", "Personnel ASI"]
+    }
 
 # Include the router in the main app
 app.include_router(api_router)
