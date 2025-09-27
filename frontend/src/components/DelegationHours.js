@@ -269,6 +269,19 @@ const DelegationHours = ({ user }) => {
     });
   };
 
+  const handleAddCession = (e) => {
+    e.preventDefault();
+    console.log('Adding cession:', newCession);
+    setShowCessionModal(false);
+    setNewCession({
+      fromDelegateId: '',
+      toDelegateId: '',
+      hours: '',
+      reason: '',
+      date: new Date().toISOString().split('T')[0]
+    });
+  };
+
   const handleEmployeeSelect = (employeeId) => {
     const employee = employees.find(emp => emp.id === parseInt(employeeId));
     if (employee) {
