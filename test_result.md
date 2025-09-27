@@ -110,16 +110,19 @@ user_problem_statement: |
 
 backend:
   - task: "Delegation Hours Backend API"
-    implemented: true
-    working: true
+    implemented: false
+    working: false
     file: "server.py"
-    stuck_count: 0
-    priority: "medium"
+    stuck_count: 1
+    priority: "high"
     needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Existing backend endpoints appear functional from previous development"
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: Backend testing reveals major functionality gaps. Current server.py only implements basic status check endpoints (GET/POST /api/status). Missing ALL core MOZAIK RH functionality: 1) No authentication system (tested /login, /auth/login, /authenticate, /signin, /auth - all 404), 2) No delegation hours endpoints (tested /delegation, /delegation-hours, /absences, /motifs - all 404), 3) No user management (tested /users, /employees - all 404), 4) No HR data endpoints (tested /departments, /sites, /contracts - all 404). The backend needs complete implementation of HR system functionality including authentication, user roles (admin/manager/employee), delegation hours management with 21 absence types, and employee-specific access controls. Backend logs confirm all HR endpoints return 404 Not Found."
 
 frontend:
   - task: "Update activity dropdown with new motifs d'absence"
