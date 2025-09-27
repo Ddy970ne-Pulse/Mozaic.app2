@@ -1509,11 +1509,57 @@ const DelegationHours = ({ user }) => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Type d'activité</label>
                   <select
                     value={newUsage.activity}
-                    onChange={(e) => setNewUsage({...newUsage, activity: e.target.value})}
+                    onChange={(e) => {
+                      const activity = e.target.value;
+                      const requiresAcknowledgment = activity === 'AM - Arrêt maladie';
+                      setNewUsage({
+                        ...newUsage, 
+                        activity: activity,
+                        requiresAcknowledgment: requiresAcknowledgment,
+                        description: requiresAcknowledgment ? '' : newUsage.description
+                      });
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     <option value="">Sélectionner une activité</option>
+                    
+                    <optgroup label="🏥 Absences médicales">
+                      <option value="AT - Accident du travail/Trajet">AT - Accident du travail/Trajet</option>
+                      <option value="AM - Arrêt maladie">AM - Arrêt maladie</option>
+                      <option value="MPRO - Maladie Professionnelle">MPRO - Maladie professionnelle</option>
+                      <option value="EMAL - Enfants malades">EMAL - Enfants malades</option>
+                      <option value="RMED - Rendez-vous médical">RMED - Rendez-vous médical</option>
+                    </optgroup>
+                    
+                    <optgroup label="👨‍👩‍👧‍👦 Congés familiaux">
+                      <option value="MAT - Congé maternité">MAT - Congé maternité</option>
+                      <option value="PAT - Congé paternité">PAT - Congé paternité</option>
+                      <option value="FAM - Évènement familial">FAM - Évènement familial</option>
+                    </optgroup>
+                    
+                    <optgroup label="📅 Congés et repos">
+                      <option value="CA - Congés annuels">CA - Congés annuels</option>
+                      <option value="CT - Congés Trimestriels">CT - Congés trimestriels</option>
+                      <option value="REC - Récupération">REC - Récupération</option>
+                      <option value="RH - Repos Hebdomadaire">RH - Repos hebdomadaire</option>
+                      <option value="RHD - Repos Dominical">RHD - Repos dominical</option>
+                      <option value="CEX - Congé exceptionnel">CEX - Congé exceptionnel</option>
+                    </optgroup>
+                    
+                    <optgroup label="💼 Travail et formation">
+                      <option value="TEL - Télétravail">TEL - Télétravail</option>
+                      <option value="DEL - Délégation">DEL - Délégation</option>
+                      <option value="FO - Congé formation">FO - Congé formation</option>
+                      <option value="STG - Stage">STG - Stage</option>
+                    </optgroup>
+                    
+                    <optgroup label="⚠️ Autres absences">
+                      <option value="NAUT - Absence non autorisée">NAUT - Absence non autorisée</option>
+                      <option value="AUT - Absence autorisée">AUT - Absence autorisée</option>
+                      <option value="CSS - Congés Sans Solde">CSS - Congés sans solde</option>
+                    </optgroup>
+                    
                     <optgroup label="🏢 CSE - Missions générales">
                       <option value="Réunion CSE ordinaire">Réunion CSE ordinaire</option>
                       <option value="Réunion CSE extraordinaire">Réunion CSE extraordinaire</option>
@@ -1522,28 +1568,33 @@ const DelegationHours = ({ user }) => {
                       <option value="Consultation reorganisation">Consultation sur réorganisation</option>
                       <option value="Consultation licenciement eco">Consultation licenciement économique</option>
                     </optgroup>
+                    
                     <optgroup label="🤝 Relations individuelles">
                       <option value="Entretien salarié">Entretien avec un salarié</option>
                       <option value="Accompagnement disciplinaire">Accompagnement entretien disciplinaire</option>
                       <option value="Réclamation collective">Traitement réclamation collective</option>
                       <option value="Médiation conflit">Médiation résolution de conflit</option>
                     </optgroup>
+                    
                     <optgroup label="📚 Formation et information">
                       <option value="Formation économique">Formation économique (5 jours/mandat)</option>
                       <option value="Formation SSCT">Formation Santé-Sécurité</option>
                       <option value="Veille juridique">Veille juridique et réglementaire</option>
                       <option value="Information syndics">Information organisations syndicales</option>
                     </optgroup>
+                    
                     <optgroup label="🔍 Expertises">
                       <option value="Expertise comptable">Suivi expertise comptable</option>
                       <option value="Expertise CHSCT">Suivi expertise SSCT</option>
                       <option value="Analyse documents">Analyse documents sociaux</option>
                     </optgroup>
+                    
                     <optgroup label="⚖️ Délégation syndicale">
                       <option value="Négociation collective">Négociation d'accord d'entreprise</option>
                       <option value="Permanence syndicale">Permanence syndicale</option>
                       <option value="Préparation négociation">Préparation négociation</option>
                     </optgroup>
+                    
                     <optgroup label="📋 Autres activités légales">
                       <option value="Préparation réunion">Préparation de réunion</option>
                       <option value="Compte-rendu">Rédaction compte-rendu</option>
