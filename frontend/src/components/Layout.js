@@ -53,6 +53,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <EmployeeSpace user={user} />;
         case 'my-requests':
           return <AbsenceRequests user={user} />;
+        case 'delegation-hours':
+          return <DelegationHours user={user} />;
         case 'settings':
           return <SettingsPage user={user} />;
         default:
@@ -72,6 +74,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <Analytics user={user} />;
         case 'overtime':
           return <OvertimeModule user={user} />;
+        case 'delegation-hours':
+          return <DelegationHours user={user} />;
         case 'hr-toolbox':
           return <HRToolbox user={user} />;
         case 'settings':
