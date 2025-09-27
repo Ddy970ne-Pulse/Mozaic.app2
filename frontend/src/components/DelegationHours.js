@@ -146,6 +146,30 @@ const DelegationHours = ({ user }) => {
       status: 'pending',
       approvedBy: null,
       approvedDate: null
+    },
+    {
+      id: 5,
+      delegateId: 4,
+      delegateName: 'Pierre Moreau',
+      date: '2024-01-18',
+      hours: 2.5,
+      activity: 'Réunion CSE',
+      description: 'Réunion extraordinaire CSE - Projet restructuration',
+      status: 'approved',
+      approvedBy: 'Sophie Martin',
+      approvedDate: '2024-01-19'
+    },
+    {
+      id: 6,
+      delegateId: 4,
+      delegateName: 'Pierre Moreau',
+      date: '2024-01-16',
+      hours: 1,
+      activity: 'Permanence syndicale',
+      description: 'Consultation individuelle employé en difficulté',
+      status: 'pending',
+      approvedBy: null,
+      approvedDate: null
     }
   ];
 
