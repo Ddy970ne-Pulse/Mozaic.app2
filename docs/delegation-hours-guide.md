@@ -45,12 +45,14 @@ Le module "Heures de Délégation" permet la gestion complète des heures allou�
 - **Heures cédées** : 3h (à Jean Dupont pour négociation urgente)
 - **Fonctionnalités** : Interface personnalisée avec cessions, suivi des transferts d'heures
 
-### 4. **Jean Dupont** (Manager + Délégué Syndical)
+### 4. **Jean Dupont** (Manager + Délégué Syndical avec Heures Reçues)
 - **Email** : jean.dupont@company.com
 - **Mot de passe** : demo123
 - **Rôle** : Manager + Délégué Syndical
-- **Quota** : 15h/mois
-- **Fonctionnalités** : Interface complète admin + gestion de sa propre délégation
+- **Quota de base** : 15h/mois
+- **Quota actuel** : 18h/mois (après réception de 3h de Pierre Moreau)
+- **Heures reçues** : 3h (de Pierre Moreau pour expertise technique)
+- **Fonctionnalités** : Interface complète admin + gestion des cessions reçues
 
 ## Types de Délégation Configurés
 
