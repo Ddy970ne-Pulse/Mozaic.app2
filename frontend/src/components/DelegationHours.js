@@ -81,6 +81,20 @@ const DelegationHours = ({ user }) => {
       endDate: '2024-12-31',
       status: 'active',
       lastActivity: '2024-01-08'
+    },
+    {
+      id: 4,
+      employeeId: 8,
+      name: 'Pierre Moreau',
+      department: 'Production',
+      type: 'CSE',
+      monthlyHours: 10,
+      usedHours: 3.5,
+      remainingHours: 6.5,
+      startDate: '2024-01-01',
+      endDate: '2024-12-31',
+      status: 'active',
+      lastActivity: '2024-01-18'
     }
   ];
 
