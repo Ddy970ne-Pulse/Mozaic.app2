@@ -6,6 +6,7 @@ const DelegationHours = ({ user }) => {
   const [activeTab, setActiveTab] = useState(isUserDelegate && user.role === 'employee' ? 'my-delegation' : 'overview');
   const [showAddDelegate, setShowAddDelegate] = useState(false);
   const [showAddUsage, setShowAddUsage] = useState(false);
+  const [showCessionModal, setShowCessionModal] = useState(false);
   const [selectedDelegate, setSelectedDelegate] = useState(null);
   const [newDelegate, setNewDelegate] = useState({
     employeeId: '',
@@ -21,6 +22,13 @@ const DelegationHours = ({ user }) => {
     hours: '',
     activity: '',
     description: ''
+  });
+  const [newCession, setNewCession] = useState({
+    fromDelegateId: '',
+    toDelegateId: '',
+    hours: '',
+    reason: '',
+    date: new Date().toISOString().split('T')[0]
   });
 
   const delegationTypes = {
