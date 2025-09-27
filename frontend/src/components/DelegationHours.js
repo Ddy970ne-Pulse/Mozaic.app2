@@ -975,6 +975,7 @@ const DelegationHours = ({ user }) => {
       <div className="min-h-[500px]">
         {activeTab === 'my-delegation' && renderMyDelegation()}
         {activeTab === 'overview' && renderOverview()}
+        {activeTab === 'cessions' && renderCessions()}
         {activeTab === 'usage' && renderUsageHistory()}
         {activeTab === 'settings' && renderSettings()}
       </div>
