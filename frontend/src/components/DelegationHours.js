@@ -469,6 +469,150 @@ const DelegationHours = ({ user }) => {
     </div>
   );
 
+  const renderMyDelegation = () => {
+    // Trouver la délégation de l'utilisateur actuel
+    const userDelegation = delegates.find(d => d.name === user.name);
+    const userUsageHistory = usageHistory.filter(u => u.delegateName === user.name);
+    
+    if (!userDelegation) {
+      return (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-8 text-center">
+            <div className="text-4xl mb-4">⚖️</div>
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">Aucune délégation assignée</h2>
+            <p className="text-gray-600">Vous n'êtes actuellement titulaire d'aucune fonction de représentation du personnel.</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* Carte de délégation personnelle */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold">Ma Délégation</h2>
+              <p className="text-blue-100">{delegationTypes[userDelegation.type]?.name}</p>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold">{userDelegation.remainingHours}h</div>
+              <div className="text-blue-100">restantes ce mois</div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-2xl font-bold">{userDelegation.monthlyHours}h</div>
+              <div className="text-blue-100">Quota mensuel</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-2xl font-bold">{userDelegation.usedHours}h</div>
+              <div className="text-blue-100">Utilisées</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-2xl font-bold">{getUsagePercentage(userDelegation.usedHours, userDelegation.monthlyHours)}%</div>
+              <div className="text-blue-100">Taux d'utilisation</div>
+            </div>
+          </div>
+          
+          <div className="mt-4">
+            <div className="w-full bg-white/20 rounded-full h-2">
+              <div 
+                className="h-2 rounded-full bg-white"
+                style={{ width: `${getUsagePercentage(userDelegation.usedHours, userDelegation.monthlyHours)}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions rapides */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Déclarer des heures</h3>
+            <p className="text-gray-600 mb-4">Enregistrez vos heures de délégation effectuées</p>
+            <button 
+              onClick={() => {
+                setNewUsage({...newUsage, delegateId: userDelegation.id});
+                setShowAddUsage(true);
+              }}
+              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200"
+            >
+              Déclarer mes heures
+            </button>
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Mes informations</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Fonction:</span>
+                <span className="font-medium">{delegationTypes[userDelegation.type]?.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Département:</span>
+                <span className="font-medium">{userDelegation.department}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Mandat:</span>
+                <span className="font-medium">{formatDate(userDelegation.startDate)} - {formatDate(userDelegation.endDate)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Historique personnel */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-800">Mon Historique</h2>
+          </div>
+          <div className="p-6">
+            {userUsageHistory.length > 0 ? (
+              <div className="space-y-4">
+                {userUsageHistory.map((usage) => (
+                  <div key={usage.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-lg">📅</div>
+                        <div>
+                          <h4 className="font-medium text-gray-800">{usage.activity}</h4>
+                          <p className="text-sm text-gray-600">{formatDate(usage.date)} • {usage.hours}h</p>
+                        </div>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(usage.status)}`}>
+                        {usage.status === 'pending' ? 'En attente' : 'Approuvé'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600">{usage.description}</p>
+                    {usage.status === 'approved' && (
+                      <p className="text-xs text-green-600 mt-2">
+                        Approuvé par {usage.approvedBy} le {formatDate(usage.approvedDate)}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-4">📋</div>
+                <p className="text-gray-600">Aucune activité enregistrée pour le moment</p>
+                <button 
+                  onClick={() => {
+                    setNewUsage({...newUsage, delegateId: userDelegation.id});
+                    setShowAddUsage(true);
+                  }}
+                  className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                >
+                  Déclarer mes premières heures
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderSettings = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
