@@ -1688,84 +1688,60 @@ const DelegationHours = ({ user }) => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    <option value="">Sélectionner une activité</option>
+                    <option value="">Sélectionner une activité CSE</option>
                     
-                    <optgroup label="🏥 Absences médicales">
-                      <option value="AT - Accident du travail/Trajet">AT - Accident du travail/Trajet</option>
-                      <option value="AM - Arrêt maladie">AM - Arrêt maladie</option>
-                      <option value="MPRO - Maladie Professionnelle">MPRO - Maladie professionnelle</option>
-                      <option value="EMAL - Enfants malades">EMAL - Enfants malades</option>
-                      <option value="RMED - Rendez-vous médical">RMED - Rendez-vous médical</option>
-                    </optgroup>
-                    
-                    <optgroup label="👨‍👩‍👧‍👦 Congés familiaux">
-                      <option value="MAT - Congé maternité">MAT - Congé maternité</option>
-                      <option value="PAT - Congé paternité">PAT - Congé paternité</option>
-                      <option value="FAM - Évènement familial">FAM - Évènement familial</option>
-                    </optgroup>
-                    
-                    <optgroup label="📅 Congés et repos">
-                      <option value="CA - Congés annuels">CA - Congés annuels</option>
-                      <option value="CT - Congés Trimestriels">CT - Congés trimestriels</option>
-                      <option value="REC - Récupération">REC - Récupération</option>
-                      <option value="RH - Repos Hebdomadaire">RH - Repos hebdomadaire</option>
-                      <option value="RHD - Repos Dominical">RHD - Repos dominical</option>
-                      <option value="CEX - Congé exceptionnel">CEX - Congé exceptionnel</option>
-                    </optgroup>
-                    
-                    <optgroup label="💼 Travail et formation">
-                      <option value="TEL - Télétravail">TEL - Télétravail</option>
-                      <option value="DEL - Délégation">DEL - Délégation</option>
-                      <option value="FO - Congé formation">FO - Congé formation</option>
-                      <option value="STG - Stage">STG - Stage</option>
-                    </optgroup>
-                    
-                    <optgroup label="⚠️ Autres absences">
-                      <option value="NAUT - Absence non autorisée">NAUT - Absence non autorisée</option>
-                      <option value="AUT - Absence autorisée">AUT - Absence autorisée</option>
-                      <option value="CSS - Congés Sans Solde">CSS - Congés sans solde</option>
+                    <optgroup label="🏥 Absences médicales - CSE">
+                      <option value="AM - Arrêt maladie">AM - Arrêt maladie (avec prise de connaissance)</option>
                     </optgroup>
                     
                     <optgroup label="🏢 CSE - Missions générales">
-                      <option value="Réunion CSE ordinaire">Réunion CSE ordinaire</option>
-                      <option value="Réunion CSE extraordinaire">Réunion CSE extraordinaire</option>
-                      <option value="Commission SSCT">Commission Santé, Sécurité et Conditions de Travail</option>
-                      <option value="Enquête accident/maladie pro">Enquête accident du travail / maladie professionnelle</option>
-                      <option value="Consultation reorganisation">Consultation sur réorganisation</option>
-                      <option value="Consultation licenciement eco">Consultation licenciement économique</option>
+                      <option value="DEL - Réunion CSE ordinaire">DEL - Réunion CSE ordinaire</option>
+                      <option value="DEL - Réunion CSE extraordinaire">DEL - Réunion CSE extraordinaire</option>
+                      <option value="DEL - Commission SSCT">DEL - Commission Santé, Sécurité et Conditions de Travail</option>
+                      <option value="DEL - Enquête accident/maladie pro">DEL - Enquête accident du travail / maladie professionnelle</option>
+                      <option value="DEL - Consultation reorganisation">DEL - Consultation sur réorganisation</option>
+                      <option value="DEL - Consultation licenciement eco">DEL - Consultation licenciement économique</option>
+                      <option value="DEL - Consultation projet important">DEL - Consultation projet important</option>
                     </optgroup>
                     
-                    <optgroup label="🤝 Relations individuelles">
-                      <option value="Entretien salarié">Entretien avec un salarié</option>
-                      <option value="Accompagnement disciplinaire">Accompagnement entretien disciplinaire</option>
-                      <option value="Réclamation collective">Traitement réclamation collective</option>
-                      <option value="Médiation conflit">Médiation résolution de conflit</option>
+                    <optgroup label="🤝 CSE - Relations individuelles">
+                      <option value="DEL - Entretien salarié">DEL - Entretien avec un salarié</option>
+                      <option value="DEL - Accompagnement disciplinaire">DEL - Accompagnement entretien disciplinaire</option>
+                      <option value="DEL - Réclamation collective">DEL - Traitement réclamation collective</option>
+                      <option value="DEL - Médiation conflit">DEL - Médiation résolution de conflit</option>
+                      <option value="DEL - Droit d'alerte">DEL - Exercice du droit d'alerte</option>
                     </optgroup>
                     
-                    <optgroup label="📚 Formation et information">
-                      <option value="Formation économique">Formation économique (5 jours/mandat)</option>
-                      <option value="Formation SSCT">Formation Santé-Sécurité</option>
-                      <option value="Veille juridique">Veille juridique et réglementaire</option>
-                      <option value="Information syndics">Information organisations syndicales</option>
+                    <optgroup label="📚 CSE - Formation et information">
+                      <option value="DEL - Formation économique">DEL - Formation économique (5 jours/mandat)</option>
+                      <option value="DEL - Formation SSCT">DEL - Formation Santé-Sécurité</option>
+                      <option value="DEL - Veille juridique">DEL - Veille juridique et réglementaire</option>
+                      <option value="DEL - Information syndics">DEL - Information organisations syndicales</option>
+                      <option value="DEL - Formation CSE">DEL - Formation spécifique CSE</option>
                     </optgroup>
                     
-                    <optgroup label="🔍 Expertises">
-                      <option value="Expertise comptable">Suivi expertise comptable</option>
-                      <option value="Expertise CHSCT">Suivi expertise SSCT</option>
-                      <option value="Analyse documents">Analyse documents sociaux</option>
+                    <optgroup label="🔍 CSE - Expertises et analyses">
+                      <option value="DEL - Expertise comptable">DEL - Suivi expertise comptable</option>
+                      <option value="DEL - Expertise CHSCT">DEL - Suivi expertise SSCT</option>
+                      <option value="DEL - Analyse documents">DEL - Analyse documents sociaux</option>
+                      <option value="DEL - Expertise technique">DEL - Expertise technique spécialisée</option>
+                      <option value="DEL - Audit interne">DEL - Participation audit interne</option>
                     </optgroup>
                     
-                    <optgroup label="⚖️ Délégation syndicale">
-                      <option value="Négociation collective">Négociation d'accord d'entreprise</option>
-                      <option value="Permanence syndicale">Permanence syndicale</option>
-                      <option value="Préparation négociation">Préparation négociation</option>
+                    <optgroup label="⚖️ CSE - Représentation syndicale">
+                      <option value="DEL - Négociation collective">DEL - Négociation d'accord d'entreprise</option>
+                      <option value="DEL - Permanence syndicale">DEL - Permanence syndicale</option>
+                      <option value="DEL - Préparation négociation">DEL - Préparation négociation</option>
+                      <option value="DEL - Représentation externe">DEL - Représentation instances externes</option>
                     </optgroup>
                     
-                    <optgroup label="📋 Autres activités légales">
-                      <option value="Préparation réunion">Préparation de réunion</option>
-                      <option value="Compte-rendu">Rédaction compte-rendu</option>
-                      <option value="Déplacement professionnel">Déplacement dans le cadre du mandat</option>
-                      <option value="Autre activité légale">Autre activité prévue par la loi</option>
+                    <optgroup label="📋 CSE - Activités administratives">
+                      <option value="DEL - Préparation réunion">DEL - Préparation de réunion CSE</option>
+                      <option value="DEL - Compte-rendu">DEL - Rédaction compte-rendu</option>
+                      <option value="DEL - Déplacement professionnel">DEL - Déplacement dans le cadre du mandat</option>
+                      <option value="DEL - Communication interne">DEL - Communication vers les salariés</option>
+                      <option value="DEL - Gestion budgétaire">DEL - Gestion budget CSE</option>
+                      <option value="DEL - Autre activité CSE">DEL - Autre activité CSE légale</option>
                     </optgroup>
                   </select>
                 </div>
