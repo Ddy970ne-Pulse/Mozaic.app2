@@ -752,9 +752,11 @@ const DelegationHours = ({ user }) => {
           <nav className="-mb-px flex space-x-8 px-6">
             {(isUserDelegate && user.role === 'employee' ? [
               { id: 'my-delegation', name: 'Ma Délégation', icon: '⚖️' },
+              { id: 'cessions', name: 'Cessions d\'Heures', icon: '🔄' },
               { id: 'usage', name: 'Historique Global', icon: '📝' }
             ] : [
               { id: 'overview', name: 'Vue d\'ensemble', icon: '📊' },
+              { id: 'cessions', name: 'Cessions d\'Heures', icon: '🔄' },
               { id: 'usage', name: 'Historique', icon: '📝' },
               { id: 'settings', name: 'Configuration', icon: '⚙️' }
             ]).map((tab) => (
