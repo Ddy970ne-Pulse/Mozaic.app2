@@ -1303,15 +1303,19 @@ const DelegationHours = ({ user }) => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description <span className="text-gray-400">(facultatif)</span>
+                  </label>
                   <textarea
                     value={newUsage.description}
                     onChange={(e) => setNewUsage({...newUsage, description: e.target.value})}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Détaillez l'activité effectuée..."
-                    required
+                    placeholder="Description facultative de l'activité (Art. L2315-8 : pas de justification préalable requise)"
                   />
+                  <p className="text-xs text-blue-600 mt-1">
+                    ⚖️ Conformément au Code du Travail, aucune justification préalable n'est requise pour l'utilisation des heures de délégation
+                  </p>
                 </div>
               </div>
               
