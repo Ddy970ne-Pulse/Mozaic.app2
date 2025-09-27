@@ -558,18 +558,26 @@ const DelegationHours = ({ user }) => {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-2xl font-bold">{userDelegation.baseMonthlyHours}h</div>
+              <div className="text-blue-100">Quota de base</div>
+            </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="text-2xl font-bold">{userDelegation.monthlyHours}h</div>
-              <div className="text-blue-100">Quota mensuel</div>
+              <div className="text-blue-100">Quota actuel</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="text-2xl font-bold">{userDelegation.usedHours}h</div>
               <div className="text-blue-100">Utilisées</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="text-2xl font-bold">{getUsagePercentage(userDelegation.usedHours, userDelegation.monthlyHours)}%</div>
-              <div className="text-blue-100">Taux d'utilisation</div>
+              <div className="text-2xl font-bold">{userDelegation.cededHours}h</div>
+              <div className="text-blue-100">Cédées</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-2xl font-bold">+{userDelegation.receivedHours}h</div>
+              <div className="text-blue-100">Reçues</div>
             </div>
           </div>
           
