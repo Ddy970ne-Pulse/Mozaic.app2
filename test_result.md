@@ -181,13 +181,15 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Delegation Hours Backend API"
     - "Update activity dropdown with new motifs d'absence"
     - "Implement employee-specific access for delegation hours"
     - "Special handling for sickness leave with acknowledgment system"
     - "Add software parameters configuration"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Delegation Hours Backend API"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "stuck_first"
 
 agent_communication:
   - agent: "main"
