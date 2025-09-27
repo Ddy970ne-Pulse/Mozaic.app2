@@ -693,11 +693,14 @@ const DelegationHours = ({ user }) => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8 px-6">
-            {[
+            {(isUserDelegate && user.role === 'employee' ? [
+              { id: 'my-delegation', name: 'Ma Délégation', icon: '⚖️' },
+              { id: 'usage', name: 'Historique Global', icon: '📝' }
+            ] : [
               { id: 'overview', name: 'Vue d\'ensemble', icon: '📊' },
               { id: 'usage', name: 'Historique', icon: '📝' },
               { id: 'settings', name: 'Configuration', icon: '⚙️' }
-            ].map((tab) => (
+            ]).map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
