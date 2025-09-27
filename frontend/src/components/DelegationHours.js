@@ -1032,6 +1032,69 @@ const DelegationHours = ({ user }) => {
   const renderSettings = () => (
     <div className="space-y-6">
       {/* Software Parameters Configuration */}
+      {/* Codification System */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800">Système de Codification des Absences</h2>
+        </div>
+        <div className="p-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <h4 className="font-medium text-blue-800 mb-2">📋 Codification DEL - Délégation CSE</h4>
+            <p className="text-sm text-blue-700 mb-2">
+              <strong>Code DEL :</strong> Identifie les absences justifiées pour missions CSE dans les plannings
+            </p>
+            <div className="text-xs text-blue-600 space-y-1">
+              <p>• <strong>Plannings annuels/mensuels :</strong> Les absences CSE apparaissent avec la mention "DEL"</p>
+              <p>• <strong>Avantages :</strong> Distinction claire entre absences personnelles et missions représentatives</p>
+              <p>• <strong>Suivi KPI :</strong> Permet de mesurer l'activité représentative vs absentéisme classique</p>
+              <p>• <strong>Conformité légale :</strong> Traçabilité conforme aux obligations du Code du Travail</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-medium text-gray-800 mb-3">🎯 Codes d'absence disponibles</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span><strong>DEL</strong> - Délégation CSE</span>
+                  <span className="text-green-600">✓ Justifiée</span>
+                </div>
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span><strong>AM</strong> - Arrêt maladie</span>
+                  <span className="text-orange-600">⚠️ Prise connaissance</span>
+                </div>
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span><strong>CA</strong> - Congés annuels</span>
+                  <span className="text-blue-600">📅 Programmée</span>
+                </div>
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span><strong>CT</strong> - Congés Trimestriels</span>
+                  <span className="text-blue-600">📅 Programmée</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-gray-800 mb-3">📊 Impact sur les KPIs</h4>
+              <div className="space-y-2 text-sm">
+                <div className="p-2 bg-green-50 rounded border border-green-200">
+                  <div className="font-medium text-green-800">DEL - Mission CSE</div>
+                  <div className="text-green-700">Non comptabilisée dans l'absentéisme</div>
+                </div>
+                <div className="p-2 bg-orange-50 rounded border border-orange-200">
+                  <div className="font-medium text-orange-800">AM - Arrêt maladie</div>
+                  <div className="text-orange-700">Comptabilisée avec suivi spécial</div>
+                </div>
+                <div className="p-2 bg-blue-50 rounded border border-blue-200">
+                  <div className="font-medium text-blue-800">Autres codes</div>
+                  <div className="text-blue-700">Comptabilisées selon type</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800">Paramètres du Logiciel</h2>
