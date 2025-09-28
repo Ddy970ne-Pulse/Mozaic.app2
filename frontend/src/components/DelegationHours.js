@@ -376,6 +376,22 @@ const DelegationHours = ({ user }) => {
     });
   };
 
+  // Fonction pour révoquer une délégation
+  const handleRevokeDelegate = (delegate) => {
+    setDelegateToRevoke(delegate);
+    setShowRevokeModal(true);
+  };
+
+  const confirmRevokeDelegate = () => {
+    if (delegateToRevoke) {
+      console.log('Révocation de délégation:', delegateToRevoke);
+      // Ici, on ferait l'appel API pour révoquer
+      alert(`✅ Délégation de ${delegateToRevoke.name} révoquée avec succès.`);
+      setShowRevokeModal(false);
+      setDelegateToRevoke(null);
+    }
+  };
+
   const handleAddCession = (e) => {
     e.preventDefault();
     console.log('Adding cession:', newCession);
