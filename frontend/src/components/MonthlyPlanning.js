@@ -64,7 +64,7 @@ const MonthlyPlanning = ({ user }) => {
   const absenceCategories = ['Absence Programmée', 'Absentéisme'];
   const absenceReasons = ['Accident du travail / Trajet', 'Congés Sans Solde', 'Congés Trimestriels', 'Récupération', 'Congés Payés', 'Arrêt maladie', 'Formation'];
 
-  const absenceTypes = {
+  const absenceColorMap = {
     'CP': { name: 'Congés Payés', color: 'bg-blue-500', textColor: 'text-white' },
     'RTT': { name: 'RTT', color: 'bg-green-500', textColor: 'text-white' },
     'AM': { name: 'Arrêt Maladie', color: 'bg-red-500', textColor: 'text-white' },
