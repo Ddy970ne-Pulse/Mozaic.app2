@@ -16,12 +16,19 @@ const Dashboard = ({ user, onChangeView }) => {
 
   // Souscription aux changements d'état
   useEffect(() => {
-    const unsubscribe = subscribe((newRequests) => {
+    const unsubscribeRequests = subscribe((newRequests) => {
       setRequests(newRequests);
       setRecentActivities(getRecentActivities());
     });
 
-    return unsubscribe;
+    const unsubscribeEvents = subscribeToEvents((newEvents) => {
+      setUpcomingEvents(newEvents);
+    });
+
+    return () => {
+      unsubscribeRequests();
+      unsubscribeEvents();
+    };
   }, []);
 
   const upcomingEvents = [
