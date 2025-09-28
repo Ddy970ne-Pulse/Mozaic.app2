@@ -127,95 +127,65 @@ backend:
         comment: "FIXED: Implemented complete MOZAIK RH backend API including: 1) Authentication system with JWT tokens and demo users (Sophie Martin/admin, Jean Dupont/manager, Marie Leblanc/employee, Pierre Moreau/employee), 2) Delegation hours management with full CRUD operations for delegates, usage records, and cessions, 3) User management with role-based access control, 4) 21 absence types with special handling for sickness leave (AM code), 5) HR configuration endpoints for departments, sites, contracts, employee categories. All endpoints tested and working. Backend ready for frontend integration."
 
 frontend:
-  - task: "Update activity dropdown with new motifs d'absence"
+  - task: "CCN66 Leave Rights Calculator Interface"
     implemented: true
-    working: true
-    file: "/app/frontend/src/components/DelegationHours.js"
+    working: "NA"
+    file: "/app/frontend/src/components/HRToolbox.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-      - working: false
+      - working: "NA"
         agent: "main"
-        comment: "Added 21 new absence types from user's image analysis, organized in logical groups including medical absences, family leave, vacation types, work/training, and other absences"
-      - working: true
-        agent: "testing"
-        comment: "VERIFIED: Activity dropdown successfully restricted to CSE missions only with DEL codification. Modal shows 'Type d'activité CSE (Codification DEL)' with proper CSE-only activities. Dropdown contains organized groups: CSE missions générales, relations individuelles, formation/information, expertises/analyses, représentation syndicale, and activités administratives. All activities properly prefixed with 'DEL' code for planning integration. No general absence types found - restriction working correctly."
+        comment: "CCN66 leave rights calculator implemented with 3 fields: Ancienneté (années), Temps de travail, Congés exceptionnels. Located in HRToolbox → Concepts Juridiques section."
 
-  - task: "Implement employee-specific access for delegation hours"
+  - task: "CCN66 Seniority Rules Implementation"
     implemented: true
-    working: true
-    file: "/app/frontend/src/components/DelegationHours.js"
+    working: "NA"
+    file: "/app/frontend/src/components/HRToolbox.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-      - working: false
+      - working: "NA"
         agent: "main"
-        comment: "Modified delegate selection to show read-only field for employees, dropdown only for admins/managers. Employees can only see and manage their own delegation data"
-      - working: true
-        agent: "testing"
-        comment: "VERIFIED: Employee-specific access working correctly. Admin (Sophie Martin) has full access to 'Heures de Délégation' module with global view, Configuration tab, and delegate selection dropdown. Employee interface shows 'Mes Heures Délégation' with restricted access. Role-based tabs implemented: Admin sees Vue d'ensemble/Cessions/Historique/Configuration, while employees see Ma Délégation/Cessions/Historique Global. Access restrictions properly enforced."
+        comment: "CCN66 seniority rules: +1 day every 5 years starting from 10 years. 10 years = +1 day, 15 years = +2 days, 20 years = +3 days, 25 years = +4 days (maximum)."
 
-  - task: "Special handling for sickness leave with acknowledgment system"
+  - task: "CCN66 Part-time Proratization"
     implemented: true
-    working: true
-    file: "/app/frontend/src/components/DelegationHours.js"
+    working: "NA"
+    file: "/app/frontend/src/components/HRToolbox.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-      - working: false
+      - working: "NA"
         agent: "main"
-        comment: "Added special UI for arrêt maladie (AM code) with acknowledgment message, document upload capability, and automatic status handling without medical validation requirement"
-      - working: true
-        agent: "testing"
-        comment: "VERIFIED: Sickness leave special handling implemented correctly. AM - Arrêt maladie option available in activity dropdown. When selected, displays special interface with 'Arrêt Maladie - Traitement Spécial' section, acknowledgment message about no medical validation required, document upload capability for certificates, and automatic prise de connaissance system. Interface clearly states compliance with labor law requirements."
+        comment: "Part-time proratization corrected: 80% quotity applied correctly with Math.floor() for proper rounding. Shows detailed breakdown with gross/net values."
 
-  - task: "Add software parameters configuration"
+  - task: "CCN66 Exceptional Leave Handling"
     implemented: true
-    working: true
-    file: "/app/frontend/src/components/DelegationHours.js"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-      - working: false
-        agent: "main"
-        comment: "Added comprehensive software parameters section in settings with sites, departments, employee categories, and contract types from user's second image"
-      - working: true
-        agent: "testing"
-        comment: "VERIFIED: Software parameters configuration working correctly. Found comprehensive configuration section with sites (Siège, Pôle Éducatif, Menuiserie 44, etc.), departments (Direction, Éducatif, Administratif, etc.), employee categories (Cadre Supérieur, Cadre, Employé Qualifié, etc.), and contract types (CDI/CDD Non Cadre/Cadre, Stagiaire, Apprenti). All parameters properly organized and accessible in settings. Configuration system fully functional."
-
-  - task: "Improve CSE delegation hour cession system"
-    implemented: true
-    working: true
-    file: "/app/frontend/src/components/DelegationHours.js"
+    working: "NA"
+    file: "/app/frontend/src/components/HRToolbox.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-      - working: false
+      - working: "NA"
         agent: "main"
-        comment: "Fixed cession modal to use availableHours instead of remainingHours, added dedicated cession button for employees in personal delegation section, corrected property references for functional hour transfers between CSE delegates"
-      - working: true
-        agent: "testing"
-        comment: "VERIFIED: CSE delegation hour cession system working perfectly. Successfully tested cession modal which correctly uses 'heures disponibles' (availableHours) instead of remainingHours. Modal shows proper legal framework (Article L2315-7 Code du Travail), allows selection of beneficiary delegates, includes justification field, and displays legal compliance information. Cession button accessible from employee personal delegation section. System properly calculates available hours for cession."
+        comment: "Exceptional leave limited to 4 days maximum with warning messages for exceeding limits. Math.min(congesExceptionnels, 4) applied correctly."
 
-  - task: "Move absence types to AbsenceRequests module"
+  - task: "CCN66 Engine Testing System"
     implemented: true
-    working: true
-    file: "/app/frontend/src/components/AbsenceRequests.js"
+    working: "NA"
+    file: "/app/frontend/src/components/HRToolbox.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-      - working: false
+      - working: "NA"
         agent: "main"
-        comment: "Added comprehensive absence types (medical, family, vacation, work, other categories) with 21 different types removed from delegation module. Implemented special handling for sickness leave (AM) with acknowledgment system and document upload capability. Added optional justificatives upload for all absence types with file validation."
-      - working: true
-        agent: "testing"
-        comment: "VERIFIED: Absence types successfully moved to AbsenceRequests module with full functionality. Found 22+ absence types organized in 5 categories: 🏥 Absences médicales (AT, AM, MPRO, EMAL, RMED), 👨‍👩‍👧‍👦 Congés familiaux (MAT, PAT, FAM), 📅 Congés et repos (CP, CA, CT, RTT, REC, RH, RHD, CEX), 💼 Travail et formation (TEL, FO, STG), ⚠️ Autres absences (NAUT, AUT, CSS, Autre). Special AM handling with automatic acknowledgment system working. Document upload capability verified for all absence types with proper file format validation (PDF, JPG, PNG). Module separation complete - delegation module contains ONLY CSE missions, absence module contains ALL personal absence types."
+        comment: "CCN66 test engine with 24 tests implemented. Previously failing 'Temps partiel' and 'Congés exceptionnels' tests have been corrected. Validation system included."
 
 metadata:
   created_by: "main_agent"
