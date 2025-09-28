@@ -49,28 +49,36 @@ const Dashboard = ({ user, onChangeView }) => {
     { name: 'Opérations', employees: 24, absences: 6, percentage: 75 }
   ];
 
-  // Fonctions pour les actions rapides - Version finale simple
+  // Fonctions pour les actions rapides - Version avec navigation helper
   const handleGenerateReport = () => {
     if (onChangeView) {
       onChangeView('analytics');
+    } else {
+      navigateToView('analytics');
     }
   };
 
   const handleNewEmployee = () => {
     if (onChangeView) {
       onChangeView('user-management');
+    } else {
+      navigateToView('user-management');
     }
   };
 
   const handleScheduleMeeting = () => {
     if (onChangeView) {
       onChangeView('monthly-planning');
+    } else {
+      navigateToView('monthly-planning');
     }
   };
 
   const handleExportPayroll = () => {
     if (onChangeView) {
       onChangeView('hr-toolbox');
+    } else {
+      navigateToView('hr-toolbox');
     }
   };
 
