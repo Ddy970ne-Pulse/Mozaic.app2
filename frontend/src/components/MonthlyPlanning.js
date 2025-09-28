@@ -184,7 +184,7 @@ const MonthlyPlanning = ({ user }) => {
   };
 
   const generatePrintContent = (format) => {
-    const orientation = format === 'A3' ? 'landscape' : 'portrait';
+    const orientation = 'landscape'; // Toujours paysage pour le planning
     const pageSize = format === 'A3' ? 'A3' : 'A4';
     
     return `
