@@ -3,6 +3,99 @@ import React, { useState } from 'react';
 const AbsenceRequests = ({ user }) => {
   const [activeTab, setActiveTab] = useState('pending');
   const [showNewRequest, setShowNewRequest] = useState(false);
+  const [requests, setRequests] = useState({
+    pending: [
+      {
+        id: 1,
+        employee: 'Marie Leblanc',
+        department: 'Commercial',
+        type: 'RTT',
+        startDate: '2024-02-15',
+        endDate: '2024-02-15',
+        duration: '1 jour',
+        reason: 'Rendez-vous médical',
+        submittedDate: '2024-01-10',
+        status: 'pending',
+        avatar: 'ML'
+      },
+      {
+        id: 2,
+        employee: 'Pierre Martin',
+        department: 'Finance',
+        type: 'CP',
+        startDate: '2024-02-20',
+        endDate: '2024-02-23',
+        duration: '4 jours',
+        reason: 'Vacances familiales',
+        submittedDate: '2024-01-08',
+        status: 'pending',
+        avatar: 'PM'
+      },
+      {
+        id: 3,
+        employee: 'Lucas Bernard',
+        department: 'IT',
+        type: 'Formation',
+        startDate: '2024-02-12',
+        endDate: '2024-02-13',
+        duration: '2 jours',
+        reason: 'Formation React Advanced',
+        submittedDate: '2024-01-05',
+        status: 'pending',
+        avatar: 'LB'
+      }
+    ],
+    approved: [
+      {
+        id: 4,
+        employee: 'Jean Dupont',
+        department: 'IT',
+        type: 'CP',
+        startDate: '2024-01-25',
+        endDate: '2024-01-29',
+        duration: '5 jours',
+        reason: 'Congés payés',
+        submittedDate: '2024-01-02',
+        status: 'approved',
+        approver: 'Sophie Martin',
+        approvedDate: '2024-01-03',
+        avatar: 'JD'
+      },
+      {
+        id: 5,
+        employee: 'Claire Dubois',
+        department: 'Marketing',
+        type: 'RTT',
+        startDate: '2024-01-18',
+        endDate: '2024-01-18',
+        duration: '1 jour',
+        reason: 'Récupération',
+        submittedDate: '2024-01-10',
+        status: 'approved',
+        approver: 'Sophie Martin',
+        approvedDate: '2024-01-11',
+        avatar: 'CD'
+      }
+    ],
+    rejected: [
+      {
+        id: 6,
+        employee: 'Thomas Leroy',
+        department: 'Operations',
+        type: 'CP',
+        startDate: '2024-02-01',
+        endDate: '2024-02-05',
+        duration: '5 jours',
+        reason: 'Vacances',
+        submittedDate: '2024-01-15',
+        status: 'rejected',
+        rejectedBy: 'Sophie Martin',
+        rejectedDate: '2024-01-16',
+        rejectionReason: 'Période déjà surchargée en absences',
+        avatar: 'TL'
+      }
+    ]
+  });
   const [newRequest, setNewRequest] = useState({
     type: 'CP',
     startDate: '',
