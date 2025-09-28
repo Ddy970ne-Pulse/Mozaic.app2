@@ -366,6 +366,18 @@ metadata:
         agent: "testing"
         comment: "COMPREHENSIVE TESTING COMPLETED ✅ Successfully tested the new annual leave (CA) calculation system with full French labor law compliance: 1) LOGIN & NAVIGATION: Sophie Martin admin (sophie.martin@company.com / demo123) login working perfectly, 2) FRENCH LABOR LAW COMPLIANCE: Code review confirms full compliance with Code du travail L3141-3, working days calculation (Monday-Saturday), Sundays and holidays NOT deducted from balance, sick leave during CA restores days to employee, 3) CA DISPLAY ENHANCEMENTS: ✅ CA cells show special indicators (✓ for savings realized, ! for non-deducted days like weekends/holidays), ✅ Detailed tooltips with calculation breakdown showing 'Période: Xj demandés, Décompte: Yj prélevés, Économie: Zj préservés', ✅ Visual distinction for weekends and holidays during CA periods, 4) CORRECTED TOTALS: ✅ Total column displays real CA deduction with 'CA: Xj' format, ✅ Green arrow (↗) indicates savings realized, ✅ Tooltips show detailed calculation (requested → deducted with preserved days), 5) CONGÉS CA REPORT BUTTON: ✅ '📋 Congés CA' button implemented in action bar, ✅ Opens detailed paid leave report modal with calculations per employee, ✅ Includes periods, requested vs deducted days breakdown, ✅ '📋 Copier' and 'Fermer' buttons functional, 6) CALCULATION RULES VERIFIED: ✅ Sundays never deducted (Code du travail compliant), ✅ Saturdays are deducted as working days, ✅ Holidays during CA not deducted, ✅ Sick leave interrupts CA and restores days. All CA calculation features fully implemented and comply with French labor law. System correctly distinguishes between requested days and actually deducted days from balance, providing clear UI for understanding savings realized. Feature is production-ready."
 
+  - task: "Absence Deduction System with French Labor Law Compliance"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/MonthlyPlanning.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "PARTIAL TESTING COMPLETED ⚠️ Comprehensive code review completed but UI testing blocked by navigation issues. CODE VERIFICATION ✅: 1) LOGIN: Sophie Martin admin authentication working perfectly, dashboard loads correctly, 2) BACKEND: Fixed missing user email in demo_users for proper authentication, 3) DEDUCTION RULES: Complete implementation verified in /app/frontend/src/shared/absenceRules.js with all absence types (CA, RTT, REC, RH, RHD, MAT, PAT, FAM, FO, AT, AM, MPRO, etc.), proper legal basis (Art. L3141-3, Art. L1225-17, Art. L3132-1, etc.), correct deduction methods (working_days, calendar_days, hours, none), 4) TOOLTIP SYSTEM: Advanced tooltip implementation with calculateAnyAbsenceDeduction() function providing legal information, deduction amounts, payroll impact, 5) VISUAL INDICATORS: Cell indicators implemented (F=Jour férié, H=Heures, ✓=Non décompté/Économie) with proper positioning and color coding, 6) TOUTES ABSENCES BUTTON: '📋 Toutes Absences' button implemented with comprehensive report functionality, 7) CATEGORIZED LEGEND: Enhanced legend with proper organization by absence categories and legal compliance. NAVIGATION ISSUE ❌: Unable to access Planning Mensuel via UI menu due to timeout/navigation issues preventing full UI verification of tooltips and visual indicators. All code components properly implemented and ready for testing once navigation is resolved."
+
 test_plan:
   current_focus: []
   stuck_tasks: []
