@@ -25,6 +25,9 @@ const DelegationHours = ({ user }) => {
     documents: [],
     requiresAcknowledgment: false
   });
+  const [selectedDelegate, setSelectedDelegate] = useState(null);
+  const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const [delegateToRevoke, setDelegateToRevoke] = useState(null);
   const [newCession, setNewCession] = useState({
     fromDelegateId: '',
     toDelegateId: '',
