@@ -85,34 +85,48 @@ const MonthlyPlanning = ({ user }) => {
     'Enfants malades', 'Rendez-vous médical'
   ];
 
-  // Comprehensive absence legend based on the provided list
+  // Comprehensive absence legend with CORRECTED legal deduction rules
   const absenceColorMap = {
-    'AT': { name: 'Accident du travail / Trajet', color: 'bg-red-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
-    'AM': { name: 'Arrêt maladie', color: 'bg-red-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
-    'NAUT': { name: 'Absence non autorisée', color: 'bg-gray-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
-    'AUT': { name: 'Absence autorisée', color: 'bg-gray-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
-    'FAM': { name: 'Évènement familiale', color: 'bg-pink-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
-    'MAT': { name: 'Congé maternité', color: 'bg-pink-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires' },
-    'PAT': { name: 'Congé paternité', color: 'bg-blue-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires' },
-    'CA': { name: 'Congés annuels', color: 'bg-blue-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables' },
-    'FO': { name: 'Congé formation', color: 'bg-indigo-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' },
-    'CSS': { name: 'Congés Sans Solde', color: 'bg-gray-700', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' },
-    'CT': { name: 'Congés Trimestriels', color: 'bg-orange-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrés' },
-    'REC': { name: 'Récupération', color: 'bg-green-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables' },
-    'RH': { name: 'Repos Hebdomadaire', color: 'bg-green-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables' },
-    'RHD': { name: 'Repos Dominical', color: 'bg-green-600', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires' },
-    'TEL': { name: 'Télétravail', color: 'bg-cyan-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' },
-    'DEL': { name: 'Délégation', color: 'bg-purple-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrés' },
-    'STG': { name: 'Stage', color: 'bg-yellow-500', textColor: 'text-black', type: 'Absence Programmée', decompte: 'Jours Calendaires' },
-    'CEX': { name: 'Congé exceptionnel', color: 'bg-amber-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' },
-    'MPRO': { name: 'Maladie Professionnelle', color: 'bg-red-700', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
-    'EMAL': { name: 'Enfants malades', color: 'bg-red-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
-    'RMED': { name: 'Rendez-vous médical', color: 'bg-teal-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrés' },
+    // ACCIDENTS ET MALADIES - Jours calendaires selon Sécurité Sociale
+    'AT': { name: 'Accident du travail / Trajet', color: 'bg-red-600', textColor: 'text-white', type: 'Accident/Maladie', decompte: 'Jours Calendaires', legalBasis: 'Art. L411-1 SS' },
+    'AM': { name: 'Arrêt maladie', color: 'bg-red-500', textColor: 'text-white', type: 'Accident/Maladie', decompte: 'Jours Calendaires', legalBasis: 'Art. L1226-1' },
+    'MPRO': { name: 'Maladie Professionnelle', color: 'bg-red-700', textColor: 'text-white', type: 'Accident/Maladie', decompte: 'Jours Calendaires', legalBasis: 'Art. L461-1 SS' },
+    'EMAL': { name: 'Enfants malades', color: 'bg-red-400', textColor: 'text-white', type: 'Congés Familiaux', decompte: 'Jours Ouvrables', legalBasis: 'Art. L1225-61' },
+    
+    // CONGÉS LÉGAUX - Jours ouvrables (Lu-Sa)
+    'CA': { name: 'Congés annuels', color: 'bg-blue-500', textColor: 'text-white', type: 'Congés Payés', decompte: 'Jours Ouvrables', legalBasis: 'Art. L3141-3' },
+    'RTT': { name: 'RTT', color: 'bg-green-500', textColor: 'text-white', type: 'Congés Payés', decompte: 'Jours Ouvrables', legalBasis: 'Acc. 35h' },
+    'CT': { name: 'Congés Trimestriels', color: 'bg-orange-500', textColor: 'text-white', type: 'Congés Payés', decompte: 'Jours Ouvrables', legalBasis: 'CCN' },
+    
+    // CONGÉS FAMILIAUX - Règles spécifiques
+    'MAT': { name: 'Congé maternité', color: 'bg-pink-400', textColor: 'text-white', type: 'Congés Familiaux', decompte: 'Jours Calendaires', legalBasis: 'Art. L1225-17' },
+    'PAT': { name: 'Congé paternité', color: 'bg-blue-400', textColor: 'text-white', type: 'Congés Familiaux', decompte: 'Jours Calendaires', legalBasis: 'Art. L1225-35' },
+    'FAM': { name: 'Évènement familiale', color: 'bg-pink-500', textColor: 'text-white', type: 'Congés Familiaux', decompte: 'Jours Ouvrables', legalBasis: 'Art. L3142-1' },
+    
+    // TEMPS DE TRAVAIL - Heures ou pas de décompte
+    'REC': { name: 'Récupération', color: 'bg-green-400', textColor: 'text-white', type: 'Temps de Travail', decompte: 'Heures', legalBasis: 'Art. L3121-16' },
+    'RH': { name: 'Repos Hebdomadaire', color: 'bg-green-500', textColor: 'text-white', type: 'Temps de Travail', decompte: 'Non décompté', legalBasis: 'Art. L3132-1' },
+    'RHD': { name: 'Repos Dominical', color: 'bg-green-600', textColor: 'text-white', type: 'Temps de Travail', decompte: 'Non décompté', legalBasis: 'Art. L3132-3' },
+    'TEL': { name: 'Télétravail', color: 'bg-cyan-500', textColor: 'text-white', type: 'Temps de Travail', decompte: 'Non décompté', legalBasis: 'Art. L1222-9' },
+    
+    // ACTIVITÉS PROFESSIONNELLES - Heures
+    'DEL': { name: 'Délégation', color: 'bg-purple-500', textColor: 'text-white', type: 'Activité Pro', decompte: 'Heures', legalBasis: 'Code électoral' },
+    'FO': { name: 'Congé formation', color: 'bg-indigo-500', textColor: 'text-white', type: 'Formation', decompte: 'Jours Ouvrables', legalBasis: 'Art. L6313-1' },
+    'STG': { name: 'Stage', color: 'bg-yellow-500', textColor: 'text-black', type: 'Formation', decompte: 'Jours Calendaires', legalBasis: 'Art. L124-1' },
+    'RMED': { name: 'Rendez-vous médical', color: 'bg-teal-500', textColor: 'text-white', type: 'Temps de Travail', decompte: 'Heures', legalBasis: 'Art. R4624-10' },
+    
+    // ABSENCES EXCEPTIONNELLES - Jours ouvrables
+    'CEX': { name: 'Congé exceptionnel', color: 'bg-amber-500', textColor: 'text-white', type: 'Congé Spécial', decompte: 'Jours Ouvrables', legalBasis: 'Accord entreprise' },
+    'AUT': { name: 'Absence autorisée', color: 'bg-gray-400', textColor: 'text-white', type: 'Congé Spécial', decompte: 'Jours Ouvrables', legalBasis: 'Accord employeur' },
+    'CSS': { name: 'Congés Sans Solde', color: 'bg-gray-700', textColor: 'text-white', type: 'Congé Spécial', decompte: 'Jours Calendaires', legalBasis: 'Accord employeur' },
+    
+    // ABSENCES DISCIPLINAIRES - Jours ouvrables
+    'NAUT': { name: 'Absence non autorisée', color: 'bg-gray-600', textColor: 'text-white', type: 'Disciplinaire', decompte: 'Jours Ouvrables', legalBasis: 'Discipline' },
+    
     // Deprecated codes (keeping for backward compatibility)
-    'CP': { name: 'Congés Payés', color: 'bg-blue-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables' },
-    'RTT': { name: 'RTT', color: 'bg-green-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables' },
+    'CP': { name: 'Congés Payés', color: 'bg-blue-500', textColor: 'text-white', type: 'Congés Payés', decompte: 'Jours Ouvrables' },
     'HS': { name: 'Heures Sup', color: 'bg-purple-600', textColor: 'text-white', type: 'Présence', decompte: 'Heures' },
-    'FM': { name: 'Formation', color: 'bg-indigo-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' }
+    'FM': { name: 'Formation', color: 'bg-indigo-600', textColor: 'text-white', type: 'Formation', decompte: 'Jours Ouvrables' }
   };
 
   // Jours fériés 2025 - Liste officielle
