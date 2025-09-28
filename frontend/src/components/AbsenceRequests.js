@@ -520,10 +520,7 @@ const AbsenceRequests = ({ user }) => {
                           type="file"
                           multiple
                           accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files);
-                            setNewRequest({...newRequest, documents: files});
-                          }}
+                          onChange={handleFileUpload}
                           className="hidden"
                           id="absence-documents"
                         />
