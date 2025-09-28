@@ -170,34 +170,173 @@ const MonthlyPlanning = ({ user }) => {
           </div>
         </div>
 
-        {/* Filtres et tri */}
-        <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 mt-6">
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Trier par:</label>
-            <select 
-              value={sortBy} 
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="name">Nom</option>
-              <option value="department">Département</option>
-              <option value="absences">Nb absences</option>
-            </select>
+        {/* Filtres avancés basés sur l'image fournie */}
+        <div className="mt-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-4">
+            {/* Filtre Mois */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Month</label>
+              <select className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white">
+                <option>janv</option><option>févr</option><option>mars</option><option>avr</option>
+                <option>mai</option><option>juin</option><option>juil</option><option>août</option>
+                <option>sept</option><option>oct</option><option>nov</option><option>déc</option>
+              </select>
+            </div>
+
+            {/* Type Absence */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Type Absence</label>
+              <select 
+                value={filterAbsenceType}
+                onChange={(e) => setFilterAbsenceType(e.target.value)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+              >
+                <option value="all">(tous)</option>
+                {absenceTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Motif Absence */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Motif Absence</label>
+              <select 
+                value={filterAbsenceReason}
+                onChange={(e) => setFilterAbsenceReason(e.target.value)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+              >
+                <option value="all">(tous)</option>
+                {absenceReasons.map(reason => (
+                  <option key={reason} value={reason}>{reason}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Catégorie Employé */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Catégorie Employé</label>
+              <select 
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+              >
+                <option value="all">(tous)</option>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Métier */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Métier</label>
+              <select className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white">
+                <option>(tous)</option>
+                {jobs.map(job => (
+                  <option key={job} value={job}>{job}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Genre */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Genre</label>
+              <select 
+                value={filterGender}
+                onChange={(e) => setFilterGender(e.target.value)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+              >
+                <option value="all">(tous)</option>
+                <option value="Femme">Femme</option>
+                <option value="Homme">Homme</option>
+              </select>
+            </div>
+
+            {/* Temps de travail */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Temps de travail</label>
+              <select 
+                value={filterWorkTime}
+                onChange={(e) => setFilterWorkTime(e.target.value)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+              >
+                <option value="all">(tous)</option>
+                <option value="Temps Partiel">Temps Partiel</option>
+                <option value="Temps Plein">Temps Plein</option>
+              </select>
+            </div>
+
+            {/* Département */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Département</label>
+              <select 
+                value={filterDept}
+                onChange={(e) => setFilterDept(e.target.value)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+              >
+                <option value="all">(tous)</option>
+                {departments.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Département:</label>
-            <select 
-              value={filterDept} 
-              onChange={(e) => setFilterDept(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">Tous</option>
-              {departments.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </select>
+
+          {/* Deuxième ligne de filtres */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Site */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Site</label>
+              <select 
+                value={filterSite}
+                onChange={(e) => setFilterSite(e.target.value)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+              >
+                <option value="all">(tous)</option>
+                {sites.map(site => (
+                  <option key={site} value={site}>{site}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Type de contrat */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Type Contrat</label>
+              <select 
+                value={filterContract}
+                onChange={(e) => setFilterContract(e.target.value)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+              >
+                <option value="all">(tous)</option>
+                {contracts.map(contract => (
+                  <option key={contract} value={contract}>{contract}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Tri */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Trier par</label>
+              <select 
+                value={sortBy} 
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+              >
+                <option value="name">Nom</option>
+                <option value="department">Département</option>
+                <option value="absences">Nb absences</option>
+              </select>
+            </div>
+
+            {/* Résultats */}
+            <div className="flex items-end">
+              <div className="text-xs text-gray-600">
+                {filteredEmployees.length} employé(s) affiché(s)
+              </div>
+            </div>
           </div>
+        </div>
         </div>
       </div>
 
