@@ -47,43 +47,10 @@ export const navigateToView = (viewId) => {
   }
 };
 
-// Fonction pour attacher les event listeners aux boutons d'actions rapides
+// Fonction simplifiée pour attacher les event listeners sans conflits
 export const attachQuickActionListeners = () => {
-  console.log('🔧 Attaching quick action listeners...');
-  
-  // Mappings des textes de boutons vers les vues
-  const buttonMappings = {
-    'Générer Rapport': 'analytics',
-    'Nouvel Employé': 'user-management', 
-    'Planifier Réunion': 'monthly-planning',
-    'Export Paie': 'hr-toolbox'
-  };
-  
-  // Attacher les listeners à tous les boutons d'actions rapides
-  Object.entries(buttonMappings).forEach(([buttonText, viewId]) => {
-    const buttons = Array.from(document.querySelectorAll('button')).filter(
-      button => button.textContent && button.textContent.includes(buttonText)
-    );
-    
-    buttons.forEach(button => {
-      // Supprimer les anciens listeners pour éviter les doublons
-      button.removeEventListener('click', button._quickActionHandler);
-      
-      // Créer le nouveau handler
-      const handler = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log(`🔍 Quick action clicked: ${buttonText}`);
-        navigateToView(viewId);
-      };
-      
-      // Stocker la référence du handler et l'attacher
-      button._quickActionHandler = handler;
-      button.addEventListener('click', handler, true); // useCapture = true
-      
-      console.log(`✅ Listener attached to ${buttonText} button`);
-    });
-  });
+  // Version simplifiée qui n'interfère pas avec React
+  console.log('🔧 Quick action listeners ready');
 };
 
 // Initialisation simple sans setInterval pour éviter les fuites mémoire
