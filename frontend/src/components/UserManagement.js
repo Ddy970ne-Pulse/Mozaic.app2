@@ -100,7 +100,33 @@ const UserManagement = ({ user }) => {
       contract: 'CDI - Cadre',
       category: 'Cadre Supérieur',
       isActive: true,
-      lastLogin: '2024-01-25 09:30'
+      lastLogin: '2024-01-25 09:30',
+      permissions: Object.keys(availablePermissions),
+      // Données RGPD étendues
+      personalData: {
+        birthDate: '1985-06-15',
+        birthPlace: 'Paris',
+        nationality: 'Française',
+        maritalStatus: 'Mariée',
+        emergencyContact: {
+          name: 'Martin Pierre',
+          relationship: 'Époux',
+          phone: '06 12 34 56 78'
+        },
+        bankDetails: {
+          iban: 'FR76 3000 6000 0112 3456 7890 189',
+          bank: 'Banque Populaire'
+        },
+        socialSecurity: '1 85 06 75 001 234 56',
+        taxNumber: 'MARTSO850615789',
+        medicalInfo: 'Aucune restriction médicale',
+        gdprConsent: {
+          dataProcessing: true,
+          marketing: false,
+          consentDate: '2023-05-25',
+          lastUpdated: '2024-01-15'
+        }
+      }
     },
     {
       id: '2', 
