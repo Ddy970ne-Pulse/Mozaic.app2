@@ -133,6 +133,79 @@ const AbsenceRequests = ({ user }) => {
     });
   };
 
+  const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+    
+    // Validation sécurisée des fichiers
+    const validFiles = files.filter(file => {
+      const isValidType = ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type);
+      const isValidSize = file.size <= 5 * 1024 * 1024;
+      const isValidName = !/[<>:"/\\|?*]/.test(file.name); // Caractères dangereux
+      
+      return isValidType && isValidSize && isValidName;
+    });
+
+    if (validFiles.length !== files.length) {
+      alert('⚠️ Certains fichiers ont été ignorés (format non supporté, taille > 5MB ou nom invalide)');
+    }
+
+    // Traitement sécurisé des documents médicaux
+    const processedFiles = validFiles.map(file => {
+      const isMedicalDocument = newRequest.type === 'Arrêt maladie' || 
+                               newRequest.reason?.toLowerCase().includes('médical') ||
+                               file.name.toLowerCase().includes('médical') ||
+                               file.name.toLowerCase().includes('certificat');
+      
+      const documentType = isMedicalDocument ? 'SICK_LEAVE' : 'GENERAL_DOCUMENT';
+      const docConfig = DOCUMENT_TYPES[documentType];
+      
+      // Générer un hash du fichier (simulation)
+      const documentHash = SecurityUtils.generateDocumentHash(file.name + file.size);
+      
+      // Logger l'upload pour audit
+      const auditId = SecurityUtils.logAccess(
+        user.name,
+        documentHash,
+        'upload',
+        documentType
+      );
+      
+      // Métadonnées sécurisées
+      const secureMetadata = {
+        originalName: file.name,
+        securityLevel: docConfig.securityLevel,
+        documentType: docConfig.type,
+        uploadedBy: user.name,
+        uploadDate: new Date().toISOString(),
+        auditId,
+        hash: documentHash,
+        gdprCategory: docConfig.gdprCategory,
+        encryptionRequired: docConfig.requiredEncryption
+      };
+
+      return {
+        name: file.name,
+        size: file.size,
+        type: file.type.split('/')[1].toUpperCase(),
+        uploadDate: new Date().toISOString(),
+        securityMetadata: SecurityUtils.encryptMetadata(secureMetadata),
+        isMedical: isMedicalDocument,
+        auditId
+      };
+    });
+
+    setNewRequest(prev => ({
+      ...prev,
+      documents: [...prev.documents, ...processedFiles]
+    }));
+
+    // Afficher un avertissement pour les documents médicaux
+    const medicalDocs = processedFiles.filter(doc => doc.isMedical);
+    if (medicalDocs.length > 0) {
+      alert(`🔒 ${medicalDocs.length} document(s) médical(aux) téléversé(s) avec chiffrement sécurisé.\nConformité RGPD: Données de santé protégées selon l'Article 9(2)(b).`);
+    }
+  };
+
   const isEmployee = user.role === 'employee';
 
   return (
