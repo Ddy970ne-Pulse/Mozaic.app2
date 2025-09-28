@@ -597,6 +597,22 @@ const MonthlyPlanning = ({ user }) => {
     return tailwindClass === 'text-black' ? '#000000' : '#ffffff';
   };
 
+  // Fonction helper pour décrire l'impact paie
+  const getPayrollImpactDescription = (impact) => {
+    const descriptions = {
+      'maintain_salary': 'Maintien du salaire',
+      'social_security': 'Indemnités Sécurité Sociale',
+      'social_security_complement': 'IJSS + complément employeur',
+      'full_salary': 'Maintien intégral du salaire',
+      'partial_salary': 'Rémunération partielle selon CCN',
+      'no_salary': 'Aucune rémunération',
+      'deduct_salary': 'Retenue sur salaire',
+      'none': 'Pas d\'impact (temps de travail effectif)'
+    };
+    
+    return descriptions[impact] || impact;
+  };
+
   // Fonction d'exportation du planning
   const handleExport = () => {
     const monthName = currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
