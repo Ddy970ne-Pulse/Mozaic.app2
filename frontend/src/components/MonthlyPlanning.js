@@ -161,6 +161,109 @@ const MonthlyPlanning = ({ user }) => {
     return holiday ? holiday.name : null;
   };
 
+  // Calcule le décompte correct des congés annuels (CA)
+  const calculateEmployeeLeaveDeduction = (employee) => {
+    const leaveCalculations = {};
+    
+    // Identifier les périodes de CA consécutives
+    const leavePeriods = [];
+    const sickLeaveDays = [];
+    let currentPeriod = null;
+    
+    // Collecter les jours d'arrêt maladie
+    Object.entries(employee.absences).forEach(([day, code]) => {
+      if (code === 'AM') {
+        const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        sickLeaveDays.push(dateStr);
+      }
+    });
+    
+    // Identifier les périodes de congés
+    Object.entries(employee.absences)
+      .filter(([day, code]) => code === 'CA')
+      .sort(([a], [b]) => parseInt(a) - parseInt(b))
+      .forEach(([day, code]) => {
+        const dayNum = parseInt(day);
+        const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        if (!currentPeriod || dayNum !== currentPeriod.lastDay + 1) {
+          // Nouvelle période de congés
+          if (currentPeriod) {
+            leavePeriods.push(currentPeriod);
+          }
+          currentPeriod = {
+            startDay: dayNum,
+            endDay: dayNum,
+            lastDay: dayNum,
+            startDate: dateStr,
+            endDate: dateStr,
+            days: [day]
+          };
+        } else {
+          // Continuer la période existante
+          currentPeriod.endDay = dayNum;
+          currentPeriod.lastDay = dayNum;
+          currentPeriod.endDate = dateStr;
+          currentPeriod.days.push(day);
+        }
+      });
+    
+    if (currentPeriod) {
+      leavePeriods.push(currentPeriod);
+    }
+    
+    // Calculer le décompte pour chaque période
+    leavePeriods.forEach((period, index) => {
+      const calculation = calculateLeaveDeduction(
+        period.startDate, 
+        period.endDate, 
+        holidays2025, 
+        sickLeaveDays
+      );
+      
+      const validation = validateLeaveCalculation(calculation);
+      
+      leaveCalculations[`period_${index}`] = {
+        period,
+        calculation,
+        validation,
+        displayText: LeaveCalculatorUtils.formatLeavePeriod(calculation),
+        cssClass: LeaveCalculatorUtils.getLeaveDisplayClass(calculation),
+        tooltip: LeaveCalculatorUtils.getLeaveTooltip(calculation)
+      };
+    });
+    
+    return leaveCalculations;
+  };
+
+  // Génère l'affichage enrichi pour une cellule de congé
+  const getLeaveDisplayInfo = (employee, day, absenceCode) => {
+    if (absenceCode !== 'CA') return null;
+    
+    const leaveCalcs = calculateEmployeeLeaveDeduction(employee);
+    const dayNum = parseInt(day);
+    
+    // Trouver la période correspondante
+    const relevantPeriod = Object.values(leaveCalcs).find(calc => 
+      calc.period.days.includes(day)
+    );
+    
+    if (!relevantPeriod) return null;
+    
+    // Vérifier si c'est le premier jour de la période (pour affichage du tooltip)
+    const isFirstDay = relevantPeriod.period.days[0] === day;
+    
+    return {
+      ...relevantPeriod,
+      isFirstDay,
+      dayInfo: {
+        isWeekend: isWeekend(currentMonth, dayNum),
+        isHoliday: isHoliday(dayNum),
+        holidayName: getHolidayName(dayNum)
+      }
+    };
+  };
+
   const isToday = (date, day) => {
     const today = new Date();
     return today.getDate() === day && 
