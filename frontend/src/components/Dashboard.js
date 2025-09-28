@@ -207,20 +207,24 @@ const Dashboard = ({ user, onChangeView }) => {
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              {upcomingEvents.map((event, index) => (
-                <div key={index} className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-                  <div className={`w-3 h-3 rounded-full ${
-                    event.type === 'meeting' ? 'bg-blue-500' :
-                    event.type === 'training' ? 'bg-green-500' :
-                    event.type === 'evaluation' ? 'bg-orange-500' :
-                    'bg-purple-500'
-                  }`}></div>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-800 text-sm">{event.event}</p>
-                    <p className="text-xs text-gray-500">{event.date} à {event.time}</p>
+              {upcomingEvents.map((event, index) => {
+                const formattedEvent = formatEventForDisplay(event);
+                return (
+                  <div key={event.id || index} className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200 cursor-pointer">
+                    <div className={`w-3 h-3 rounded-full ${formattedEvent.typeInfo.color}`}></div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-800 text-sm">{event.event}</p>
+                      <p className="text-xs text-gray-500">{event.date} à {event.time}</p>
+                      {event.location && (
+                        <p className="text-xs text-gray-400">📍 {event.location}</p>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {formattedEvent.typeInfo.icon}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
