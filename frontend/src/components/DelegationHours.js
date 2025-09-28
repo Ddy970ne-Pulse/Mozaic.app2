@@ -1958,9 +1958,9 @@ const DelegationHours = ({ user }) => {
                     required
                   >
                     <option value="">Sélectionner le cédant</option>
-                    {delegates.filter(d => d.status === 'active' && d.remainingHours > 0).map(delegate => (
+                    {delegates.filter(d => d.status === 'active' && d.availableHours > 0).map(delegate => (
                       <option key={delegate.id} value={delegate.id}>
-                        {delegate.name} - {delegationTypes[delegate.type]?.name} ({delegate.remainingHours}h disponibles)
+                        {delegate.name} - {delegationTypes[delegate.type]?.name} ({delegate.availableHours}h disponibles)
                       </option>
                     ))}
                   </select>
