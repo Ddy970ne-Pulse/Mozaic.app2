@@ -214,19 +214,31 @@ const Dashboard = ({ user, onChangeView }) => {
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white">
         <h2 className="text-lg font-semibold mb-4">Actions Rapides</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center">
+          <button 
+            onClick={handleGenerateReport}
+            className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
+          >
             <div className="text-2xl mb-2">📊</div>
             <div className="text-sm font-medium">Générer Rapport</div>
           </button>
-          <button className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center">
+          <button 
+            onClick={handleNewEmployee}
+            className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
+          >
             <div className="text-2xl mb-2">👤</div>
             <div className="text-sm font-medium">Nouvel Employé</div>
           </button>
-          <button className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center">
+          <button 
+            onClick={handleScheduleMeeting}
+            className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
+          >
             <div className="text-2xl mb-2">📅</div>
             <div className="text-sm font-medium">Planifier Réunion</div>
           </button>
-          <button className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center">
+          <button 
+            onClick={handleExportPayroll}
+            className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
+          >
             <div className="text-2xl mb-2">💼</div>
             <div className="text-sm font-medium">Export Paie</div>
           </button>
