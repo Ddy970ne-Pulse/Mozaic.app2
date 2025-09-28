@@ -343,9 +343,23 @@ const HRToolbox = ({ user }) => {
                         <div>• Proratisation selon temps de travail</div>
                       </div>
                     </div>
-                    <button className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors duration-200">
-                      Recalculer Tous les Droits
+                    <button 
+                      onClick={recalculateAllRights}
+                      disabled={isExporting}
+                      className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                      {isExporting ? 'Recalcul en cours...' : 'Recalculer Tous les Droits'}
                     </button>
+                    {leaveCalculation && (
+                      <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="text-sm text-green-800">
+                          <strong>✅ Recalcul terminé</strong>
+                        </div>
+                        <div className="text-xs text-green-700 mt-1">
+                          {leaveCalculation.processed} employés traités • {leaveCalculation.errors} erreurs • {leaveCalculation.warnings} avertissements
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
