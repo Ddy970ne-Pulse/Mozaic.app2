@@ -113,7 +113,27 @@ const MonthlyPlanning = ({ user }) => {
     'FM': { name: 'Formation', color: 'bg-indigo-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' }
   };
 
-  const holidays = [1, 15, 25]; // Jours fériés exemple
+  // Jours fériés 2025 - Liste officielle
+  const holidays2025 = [
+    { date: '2025-01-01', name: 'Nouvel An' },
+    { date: '2025-03-03', name: 'Lundi gras' },
+    { date: '2025-03-04', name: 'Mardi gras' },
+    { date: '2025-03-05', name: 'Mercredi des cendres' },
+    { date: '2025-03-27', name: 'Mi-carême' },
+    { date: '2025-04-18', name: 'Vendredi Saint' },
+    { date: '2025-04-21', name: 'Lundi de Pâques' },
+    { date: '2025-05-01', name: 'Fête du Travail' },
+    { date: '2025-05-08', name: 'Victoire 1945' },
+    { date: '2025-05-09', name: 'Lundi de Pentecôte' },
+    { date: '2025-05-27', name: 'Abolition de l\'esclavage' },
+    { date: '2025-05-29', name: 'Ascension' },
+    { date: '2025-07-14', name: 'Fête nationale' },
+    { date: '2025-08-15', name: 'Assomption' },
+    { date: '2025-11-01', name: 'Toussaint' },
+    { date: '2025-11-02', name: 'Jour saint' },
+    { date: '2025-11-11', name: 'Armistice 1918' },
+    { date: '2025-12-25', name: 'Noël' }
+  ];
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -130,7 +150,14 @@ const MonthlyPlanning = ({ user }) => {
   };
 
   const isHoliday = (day) => {
-    return holidays.includes(day);
+    const currentDateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return holidays2025.some(holiday => holiday.date === currentDateStr);
+  };
+
+  const getHolidayName = (day) => {
+    const currentDateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const holiday = holidays2025.find(holiday => holiday.date === currentDateStr);
+    return holiday ? holiday.name : null;
   };
 
   const isToday = (date, day) => {
