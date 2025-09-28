@@ -86,13 +86,10 @@ export const attachQuickActionListeners = () => {
   });
 };
 
-// Auto-initialisation quand le DOM est prêt
+// Initialisation simple sans setInterval pour éviter les fuites mémoire
 if (typeof window !== 'undefined') {
   const initializeNavigation = () => {
     attachQuickActionListeners();
-    
-    // Re-attacher les listeners périodiquement au cas où de nouveaux boutons sont ajoutés
-    setInterval(attachQuickActionListeners, 5000);
   };
   
   if (document.readyState === 'loading') {
