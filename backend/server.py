@@ -460,6 +460,121 @@ async def get_absence_type(code: str, current_user: User = Depends(get_current_u
         raise HTTPException(status_code=404, detail="Absence type not found")
     return AbsenceType(**absence_type)
 
+# Absence Request Models
+class AbsenceRequest(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    employee: str
+    department: str
+    type: str
+    startDate: str
+    endDate: str
+    duration: Optional[str] = ""
+    reason: Optional[str] = ""
+    halfDay: Optional[bool] = False
+    documents: Optional[List[str]] = []
+    requiresAcknowledgment: Optional[bool] = False
+    status: str = "pending"  # pending, approved, rejected, acknowledged
+    submittedDate: str
+    approver: Optional[str] = None
+    approvedDate: Optional[str] = None
+    rejectedBy: Optional[str] = None
+    rejectedDate: Optional[str] = None
+    rejectionReason: Optional[str] = None
+    acknowledgedBy: Optional[str] = None
+    acknowledgedDate: Optional[str] = None
+
+# Absence Requests endpoints
+@api_router.get("/absence-requests", response_model=List[dict])
+async def get_absence_requests(current_user: User = Depends(get_current_user)):
+    # Mock absence requests data
+    mock_requests = [
+        {
+            "id": "1",
+            "employee": "Marie Leblanc",
+            "department": "Commercial",
+            "type": "RTT",
+            "startDate": "2024-02-15",
+            "endDate": "2024-02-15",
+            "duration": "1 jour",
+            "reason": "Rendez-vous médical",
+            "submittedDate": "2024-01-10",
+            "status": "pending"
+        },
+        {
+            "id": "2",
+            "employee": "Pierre Moreau",
+            "department": "Production",
+            "type": "AM",
+            "startDate": "2024-02-20",
+            "endDate": "2024-02-23",
+            "duration": "4 jours",
+            "reason": "Grippe saisonnière",
+            "submittedDate": "2024-01-08",
+            "status": "acknowledged",
+            "acknowledgedBy": "Sophie Martin",
+            "acknowledgedDate": "2024-01-08",
+            "requiresAcknowledgment": True
+        }
+    ]
+    
+    # Filter based on user role
+    if current_user.role in ["admin", "manager"]:
+        return mock_requests
+    else:
+        return [r for r in mock_requests if r["employee"] == current_user.name]
+
+@api_router.post("/absence-requests", response_model=AbsenceRequest)
+async def create_absence_request(request_data: dict, current_user: User = Depends(get_current_user)):
+    # Create new absence request
+    absence_request = AbsenceRequest(
+        employee=request_data.get("employee", current_user.name),
+        department=request_data.get("department", current_user.department),
+        type=request_data.get("type"),
+        startDate=request_data.get("startDate"),
+        endDate=request_data.get("endDate"),
+        duration=request_data.get("duration", ""),
+        reason=request_data.get("reason", ""),
+        halfDay=request_data.get("halfDay", False),
+        documents=request_data.get("documents", []),
+        requiresAcknowledgment=request_data.get("requiresAcknowledgment", False),
+        status="acknowledged" if request_data.get("requiresAcknowledgment") else "pending",
+        submittedDate=request_data.get("submittedDate", datetime.utcnow().isoformat()),
+        acknowledgedBy=current_user.name if request_data.get("requiresAcknowledgment") else None,
+        acknowledgedDate=datetime.utcnow().isoformat() if request_data.get("requiresAcknowledgment") else None
+    )
+    
+    # In real implementation, save to database
+    # await db.absence_requests.insert_one(absence_request.dict())
+    
+    return absence_request
+
+@api_router.put("/absence-requests/{request_id}/approve", response_model=dict)
+async def approve_absence_request(request_id: str, current_user: User = Depends(get_current_user)):
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # In real implementation, update database
+    return {
+        "message": "Request approved successfully",
+        "request_id": request_id,
+        "approved_by": current_user.name,
+        "approved_date": datetime.utcnow().isoformat()
+    }
+
+@api_router.put("/absence-requests/{request_id}/reject", response_model=dict)
+async def reject_absence_request(request_id: str, rejection_data: dict, current_user: User = Depends(get_current_user)):
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # In real implementation, update database
+    return {
+        "message": "Request rejected successfully",
+        "request_id": request_id,
+        "rejected_by": current_user.name,
+        "rejected_date": datetime.utcnow().isoformat(),
+        "rejection_reason": rejection_data.get("reason", "")
+    }
+
 # User management endpoints
 @api_router.get("/users", response_model=List[User])
 async def get_users(current_user: User = Depends(get_current_user)):
