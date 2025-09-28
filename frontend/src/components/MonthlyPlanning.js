@@ -56,7 +56,7 @@ const MonthlyPlanning = ({ user }) => {
   ];
 
   // Listes de filtres basées sur l'image fournie
-  const departments = ['Direction', 'Éducatif', 'Administratif', 'Comptable', 'ASI', 'Production', 'Commercial', 'Technique', 'Maintenance', 'Qualité'];
+  const departmentsList = ['Direction', 'Éducatif', 'Administratif', 'Comptable', 'ASI', 'Production', 'Commercial', 'Technique', 'Maintenance', 'Qualité'];
   const sites = ['Siège', 'Pôle Éducatif', 'Menuiserie 44', 'Voiles 44', 'Garage 44', 'Alpinia 44', 'Ferme 44', 'Restaurant 44'];
   const categories = ['Cadre Supérieur', 'Cadre', 'Employé Qualifié', 'Technicien', 'Ouvrier qualifié', 'Ouvrier non qualifié', 'Agent administratif', 'Personnel ASI'];
   const contracts = ['CDI - Non Cadre', 'CDD - Non Cadre', 'CDI - Cadre', 'CDD - Cadre', 'Stagiaire', 'Apprenti(e)'];
