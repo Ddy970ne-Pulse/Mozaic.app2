@@ -301,6 +301,59 @@ const HRToolbox = ({ user }) => {
                     ))}
                   </div>
                 </div>
+                
+                {/* Ajout de jours fériés personnalisés */}
+                <div className="bg-white p-4 rounded-lg shadow-sm mt-4">
+                  <h4 className="font-medium text-gray-800 mb-3">🏢 Ajouter Jours Fériés d'Entreprise</h4>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Nom du jour férié</label>
+                        <input 
+                          type="text"
+                          value={newHoliday.name}
+                          onChange={(e) => setNewHoliday({...newHoliday, name: e.target.value})}
+                          placeholder="Ex: Journée d'entreprise"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                        <input 
+                          type="date"
+                          value={newHoliday.date}
+                          onChange={(e) => setNewHoliday({...newHoliday, date: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                      <select 
+                        value={newHoliday.type}
+                        onChange={(e) => setNewHoliday({...newHoliday, type: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        <option value="company">Jour d'entreprise</option>
+                        <option value="direction">Décision direction</option>
+                        <option value="local">Férié local</option>
+                        <option value="exceptional">Exceptionnel</option>
+                      </select>
+                    </div>
+                    <button 
+                      onClick={addCustomHoliday}
+                      disabled={!newHoliday.name || !newHoliday.date}
+                      className="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                      ➕ Ajouter Jour Férié
+                    </button>
+                  </div>
+                  <div className="mt-4 p-3 bg-purple-50 rounded-lg">
+                    <div className="text-xs text-purple-700">
+                      <strong>Note :</strong> Les jours fériés d'entreprise sont automatiquement appliqués aux plannings et calculs de congés.
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
