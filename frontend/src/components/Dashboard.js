@@ -279,6 +279,12 @@ const Dashboard = ({ user, onChangeView }) => {
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white">
         <h2 className="text-lg font-semibold mb-4">Actions Rapides</h2>
         <div className="mb-2 text-sm opacity-70">DEBUG: onChangeView = {onChangeView ? 'Available' : 'NOT Available'}</div>
+        <button 
+          onClick={() => alert('TEST BUTTON CLICKED - onChangeView: ' + (onChangeView ? 'Available' : 'NOT Available'))}
+          className="mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+        >
+          🔥 TEST BUTTON - CLICK ME
+        </button>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <button 
             onClick={() => {
