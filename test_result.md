@@ -285,11 +285,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "CCN66 Leave Rights Calculator Interface"
-    - "CCN66 Seniority Rules Implementation"
-    - "CCN66 Part-time Proratization"
-    - "CCN66 Exceptional Leave Handling"
-    - "CCN66 Engine Testing System"
+    - "MonthlyPlanning Compilation Fix"
+    - "Dashboard Quick Action Buttons"
+    - "Recent Activities Approval/Rejection Buttons"
+    - "Dashboard Visual Feedback Animations"
+    - "Role-based Access Differentiation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
