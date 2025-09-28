@@ -1006,9 +1006,45 @@ const MonthlyPlanning = ({ user }) => {
                         {absence ? (
                           <div className={`w-8 h-8 mx-auto rounded text-xs font-bold flex items-center justify-center ${
                             absenceColorMap[absence]?.color || 'bg-gray-500'
-                          } ${absenceColorMap[absence]?.textColor || 'text-white'}`}
-                               title={`${absenceColorMap[absence]?.name || absence} - ${employee.name}`}>
+                          } ${absenceColorMap[absence]?.textColor || 'text-white'} ${
+                            absence === 'CA' ? 'relative' : ''
+                          }`}
+                               title={
+                                 absence === 'CA' ? 
+                                   (() => {
+                                     const leaveInfo = getLeaveDisplayInfo(employee, day.toString(), absence);
+                                     if (leaveInfo) {
+                                       const calc = leaveInfo.calculation;
+                                       return `CONGÉS PAYÉS - ${employee.name}\n` +
+                                              `Période: ${calc.totalRequested}j demandés\n` +
+                                              `Décompte: ${calc.actuallyDeducted}j prélevés\n` +
+                                              (calc.savings > 0 ? `Économie: ${calc.savings}j préservés\n` : '') +
+                                              (leaveInfo.dayInfo.isHoliday ? `⚠️ Jour férié: ${leaveInfo.dayInfo.holidayName}` : '') +
+                                              (leaveInfo.dayInfo.isWeekend && !leaveInfo.dayInfo.isHoliday ? '⚠️ Weekend (non décompté)' : '');
+                                     }
+                                     return `${absenceColorMap[absence]?.name || absence} - ${employee.name}`;
+                                   })() :
+                                   `${absenceColorMap[absence]?.name || absence} - ${employee.name}`
+                               }>
                             {absence}
+                            {absence === 'CA' && (() => {
+                              const leaveInfo = getLeaveDisplayInfo(employee, day.toString(), absence);
+                              if (leaveInfo && leaveInfo.isFirstDay && leaveInfo.calculation.savings > 0) {
+                                return (
+                                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full text-xs text-white flex items-center justify-center" title={`${leaveInfo.calculation.savings}j préservés`}>
+                                    ✓
+                                  </div>
+                                );
+                              }
+                              if (leaveInfo && (leaveInfo.dayInfo.isHoliday || leaveInfo.dayInfo.isWeekend)) {
+                                return (
+                                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full text-xs text-white flex items-center justify-center" title={leaveInfo.dayInfo.isHoliday ? 'Jour férié' : 'Weekend'}>
+                                    !
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })()}
                           </div>
                         ) : (
                           <div className="w-8 h-8 mx-auto">
