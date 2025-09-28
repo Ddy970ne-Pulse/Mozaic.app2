@@ -216,10 +216,31 @@ const UserManagement = ({ user }) => {
     return matchesSearch && matchesDepartment;
   });
 
+  // Initialisation des données
+  useEffect(() => {
+    setUsers(mockUsers);
+    setAuditLogs(mockAuditLogs);
+  }, []);
+
   // Fonctions de gestion
   const handleEditUser = (userToEdit) => {
     setSelectedUser({...userToEdit});
     setShowUserModal(true);
+  };
+
+  const handleEditPermissions = (userToEdit) => {
+    setSelectedUser({...userToEdit});
+    setShowPermissionsModal(true);
+  };
+
+  const handleEditGdpr = (userToEdit) => {
+    setSelectedUser({...userToEdit});
+    setShowGdprModal(true);
+  };
+
+  const handleViewAudit = (userToEdit) => {
+    setSelectedUser({...userToEdit});
+    setShowAuditModal(true);
   };
 
   const handleSaveUser = () => {
