@@ -383,13 +383,57 @@ const AbsenceRequests = ({ user }) => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Type d'absence</label>
                   <select
                     value={newRequest.type}
-                    onChange={(e) => setNewRequest({...newRequest, type: e.target.value})}
+                    onChange={(e) => {
+                      const selectedType = e.target.value;
+                      const requiresAcknowledgment = absenceTypes[selectedType]?.requiresAcknowledgment || false;
+                      setNewRequest({
+                        ...newRequest, 
+                        type: selectedType,
+                        requiresAcknowledgment: requiresAcknowledgment
+                      });
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    {Object.entries(absenceTypes).map(([key, type]) => (
-                      <option key={key} value={key}>{type.name}</option>
-                    ))}
+                    <option value="">Sélectionner un type d'absence</option>
+                    
+                    <optgroup label="🏥 Absences médicales">
+                      <option value="AT">AT - Accident du travail/Trajet</option>
+                      <option value="AM">AM - Arrêt maladie</option>
+                      <option value="MPRO">MPRO - Maladie professionnelle</option>
+                      <option value="EMAL">EMAL - Enfants malades</option>
+                      <option value="RMED">RMED - Rendez-vous médical</option>
+                    </optgroup>
+                    
+                    <optgroup label="👨‍👩‍👧‍👦 Congés familiaux">
+                      <option value="MAT">MAT - Congé maternité</option>
+                      <option value="PAT">PAT - Congé paternité</option>
+                      <option value="FAM">FAM - Évènement familial</option>
+                    </optgroup>
+                    
+                    <optgroup label="📅 Congés et repos">
+                      <option value="CP">CP - Congés payés</option>
+                      <option value="CA">CA - Congés annuels</option>
+                      <option value="CT">CT - Congés trimestriels</option>
+                      <option value="RTT">RTT - Récupération</option>
+                      <option value="REC">REC - Récupération</option>
+                      <option value="RH">RH - Repos hebdomadaire</option>
+                      <option value="RHD">RHD - Repos dominical</option>
+                      <option value="CEX">CEX - Congé exceptionnel</option>
+                    </optgroup>
+                    
+                    <optgroup label="💼 Travail et formation">
+                      <option value="TEL">TEL - Télétravail</option>
+                      <option value="FO">FO - Formation</option>
+                      <option value="STG">STG - Stage</option>
+                    </optgroup>
+                    
+                    <optgroup label="⚠️ Autres absences">
+                      <option value="NAUT">NAUT - Absence non autorisée</option>
+                      <option value="AUT">AUT - Absence autorisée</option>
+                      <option value="CSS">CSS - Congés sans solde</option>
+                      <option value="Autre">Autre motif</option>
+                    </optgroup>
                   </select>
                 </div>
                 
