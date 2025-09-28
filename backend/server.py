@@ -42,6 +42,15 @@ demo_users = {
         "department": "Direction",
         "isDelegateCSE": False
     },
+    "sophie.martin@company.com": {
+        "id": "1",
+        "name": "Sophie Martin",
+        "email": "sophie.martin@company.com", 
+        "password": "demo123",
+        "role": "admin",
+        "department": "Direction",
+        "isDelegateCSE": False
+    },
     "manager@company.com": {
         "id": "2", 
         "name": "Jean Dupont",
