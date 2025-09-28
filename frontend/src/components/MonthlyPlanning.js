@@ -62,7 +62,13 @@ const MonthlyPlanning = ({ user }) => {
   const contracts = ['CDI - Non Cadre', 'CDD - Non Cadre', 'CDI - Cadre', 'CDD - Cadre', 'Stagiaire', 'Apprenti(e)'];
   const jobs = ['Directrice RH', 'Responsable IT', 'Commerciale', 'Comptable', 'Éducatrice', 'Menuisier', 'Agent ASI', 'Mécanicien', 'Chef de Service'];
   const absenceCategories = ['Absence Programmée', 'Absentéisme'];
-  const absenceReasons = ['Accident du travail / Trajet', 'Congés Sans Solde', 'Congés Trimestriels', 'Récupération', 'Congés Payés', 'Arrêt maladie', 'Formation'];
+  const absenceReasons = [
+    'Accident du travail / Trajet', 'Arrêt maladie', 'Absence non autorisée', 'Absence autorisée',
+    'Évènement familiale', 'Congé maternité', 'Congé paternité', 'Congés annuels', 'Congé formation',
+    'Congés Sans Solde', 'Congés Trimestriels', 'Récupération', 'Repos Hebdomadaire', 'Repos Dominical',
+    'Télétravail', 'Délégation', 'Stage', 'Congé exceptionnel', 'Maladie Professionnelle', 
+    'Enfants malades', 'Rendez-vous médical'
+  ];
 
   // Comprehensive absence legend based on the provided list
   const absenceColorMap = {
