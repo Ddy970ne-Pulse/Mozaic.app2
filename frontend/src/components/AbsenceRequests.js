@@ -81,46 +81,20 @@ const AbsenceRequests = ({ user }) => {
   };
 
   const handleApprove = (requestId) => {
-    setRequests(prevRequests => {
-      const pendingRequest = prevRequests.pending.find(req => req.id === requestId);
-      if (!pendingRequest) return prevRequests;
-
-      const approvedRequest = {
-        ...pendingRequest,
-        status: 'approved',
-        approver: user.name,
-        approvedDate: new Date().toISOString().split('T')[0]
-      };
-
-      return {
-        pending: prevRequests.pending.filter(req => req.id !== requestId),
-        approved: [...prevRequests.approved, approvedRequest],
-        rejected: prevRequests.rejected
-      };
-    });
+    const success = approveRequest(requestId, user.name);
+    if (!success) {
+      alert('❌ Erreur lors de l\'approbation de la demande');
+    }
   };
 
   const handleReject = (requestId) => {
     const rejectionReason = prompt('Raison du refus (optionnel):');
-    
-    setRequests(prevRequests => {
-      const pendingRequest = prevRequests.pending.find(req => req.id === requestId);
-      if (!pendingRequest) return prevRequests;
-
-      const rejectedRequest = {
-        ...pendingRequest,
-        status: 'rejected',
-        rejectedBy: user.name,
-        rejectedDate: new Date().toISOString().split('T')[0],
-        rejectionReason: rejectionReason || 'Aucune raison spécifiée'
-      };
-
-      return {
-        pending: prevRequests.pending.filter(req => req.id !== requestId),
-        approved: prevRequests.approved,
-        rejected: [...prevRequests.rejected, rejectedRequest]
-      };
-    });
+    if (rejectionReason !== null) { // L'utilisateur n'a pas annulé
+      const success = rejectRequest(requestId, user.name, rejectionReason);
+      if (!success) {
+        alert('❌ Erreur lors du rejet de la demande');
+      }
+    }
   };
 
   const handleSubmitRequest = (e) => {
