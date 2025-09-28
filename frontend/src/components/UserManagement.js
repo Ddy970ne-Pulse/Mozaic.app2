@@ -133,7 +133,7 @@ const UserManagement = ({ user }) => {
       name: 'Jean Dupont',
       email: 'manager@company.com',
       role: 'manager',
-      department: 'IT',
+      department: 'Administratif',
       site: 'Siège',
       phone: '01 23 45 67 90',
       address: '456 Avenue des Champs, 75008 Paris',
@@ -142,7 +142,18 @@ const UserManagement = ({ user }) => {
       contract: 'CDI - Cadre',
       category: 'Cadre',
       isActive: true,
-      lastLogin: '2024-01-24 17:45'
+      lastLogin: '2024-01-24 17:45',
+      permissions: ['absence_approve', 'absence_view_all', 'analytics_access'],
+      personalData: {
+        birthDate: '1980-11-20',
+        birthPlace: 'Lyon',
+        nationality: 'Française',
+        maritalStatus: 'Marié',
+        emergencyContact: { name: 'Dupont Anne', relationship: 'Épouse', phone: '06 87 65 43 21' },
+        bankDetails: { iban: 'FR76 3000 6000 0187 6543 2109 876', bank: 'Crédit Agricole' },
+        socialSecurity: '1 80 11 69 001 123 45',
+        gdprConsent: { dataProcessing: true, marketing: true, consentDate: '2023-06-10', lastUpdated: '2023-12-20' }
+      }
     },
     {
       id: '3',
@@ -158,7 +169,16 @@ const UserManagement = ({ user }) => {
       contract: 'CDI - Non Cadre',
       category: 'Employé Qualifié',
       isActive: true,
-      lastLogin: '2024-01-25 08:15'
+      lastLogin: '2024-01-25 08:15',
+      permissions: [],
+      personalData: {
+        birthDate: '1990-03-12',
+        birthPlace: 'Marseille',
+        nationality: 'Française',
+        maritalStatus: 'Célibataire',
+        emergencyContact: { name: 'Leblanc Paul', relationship: 'Père', phone: '04 91 12 34 56' },
+        gdprConsent: { dataProcessing: true, marketing: false, consentDate: '2023-01-15', lastUpdated: '2023-01-15' }
+      }
     },
     {
       id: '4',
@@ -174,7 +194,15 @@ const UserManagement = ({ user }) => {
       contract: 'CDI - Non Cadre',
       category: 'Ouvrier qualifié',
       isActive: true,
-      lastLogin: '2024-01-23 16:20'
+      lastLogin: '2024-01-23 16:20',
+      permissions: [],
+      personalData: {
+        birthDate: '1975-08-30',
+        nationality: 'Française',
+        maritalStatus: 'Marié',
+        emergencyContact: { name: 'Moreau Claire', relationship: 'Épouse', phone: '06 12 34 56 78' },
+        gdprConsent: { dataProcessing: true, marketing: false, consentDate: '2023-03-20', lastUpdated: '2023-03-20' }
+      }
     }
   ];
 
@@ -204,8 +232,10 @@ const UserManagement = ({ user }) => {
     'Ouvrier qualifié', 'Ouvrier non qualifié', 'Agent administratif'
   ];
 
+  // Initialisation des données
   useEffect(() => {
     setUsers(mockUsers);
+    setAuditLogs(mockAuditLogs);
   }, []);
 
   // Filtrage des utilisateurs
@@ -215,12 +245,6 @@ const UserManagement = ({ user }) => {
     const matchesDepartment = filterDepartment === 'all' || u.department === filterDepartment;
     return matchesSearch && matchesDepartment;
   });
-
-  // Initialisation des données
-  useEffect(() => {
-    setUsers(mockUsers);
-    setAuditLogs(mockAuditLogs);
-  }, []);
 
   // Fonctions de gestion
   const handleEditUser = (userToEdit) => {
@@ -247,10 +271,40 @@ const UserManagement = ({ user }) => {
     if (selectedUser.id) {
       // Modifier utilisateur existant
       setUsers(users.map(u => u.id === selectedUser.id ? selectedUser : u));
+      
+      // Log audit
+      const auditEntry = {
+        id: Date.now().toString(),
+        timestamp: new Date().toLocaleString(),
+        action: 'USER_UPDATE',
+        userId: selectedUser.id,
+        userName: selectedUser.name,
+        performedBy: user.name,
+        details: 'Mise à jour informations utilisateur',
+        ipAddress: '192.168.1.100'
+      };
+      setAuditLogs([auditEntry, ...auditLogs]);
     } else {
       // Nouveau utilisateur
-      const newUser = {...selectedUser, id: Date.now().toString()};
+      const newUser = {
+        ...selectedUser, 
+        id: Date.now().toString(),
+        permissions: selectedUser.permissions || []
+      };
       setUsers([...users, newUser]);
+      
+      // Log audit
+      const auditEntry = {
+        id: Date.now().toString(),
+        timestamp: new Date().toLocaleString(),
+        action: 'USER_CREATED',
+        userId: newUser.id,
+        userName: newUser.name,
+        performedBy: user.name,
+        details: 'Création nouvel utilisateur',
+        ipAddress: '192.168.1.100'
+      };
+      setAuditLogs([auditEntry, ...auditLogs]);
     }
     setShowUserModal(false);
     setSelectedUser(null);
@@ -259,7 +313,19 @@ const UserManagement = ({ user }) => {
   const handleResetPassword = (userId) => {
     const resetUser = users.find(u => u.id === userId);
     if (resetUser) {
-      // Simulation de reset
+      // Log audit
+      const auditEntry = {
+        id: Date.now().toString(),
+        timestamp: new Date().toLocaleString(),
+        action: 'PASSWORD_RESET',
+        userId: userId,
+        userName: resetUser.name,
+        performedBy: user.name,
+        details: 'Réinitialisation mot de passe par administrateur',
+        ipAddress: '192.168.1.100'
+      };
+      setAuditLogs([auditEntry, ...auditLogs]);
+      
       alert(`✅ Mot de passe réinitialisé pour ${resetUser.name}.\nNouveau mot de passe temporaire envoyé par email.`);
     }
     setShowPasswordReset(false);
@@ -415,33 +481,23 @@ const UserManagement = ({ user }) => {
     }
   };
 
-  return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Gestion des Utilisateurs</h1>
-            <p className="text-gray-600">Administration des comptes et droits d'accès</p>
-          </div>
-          <button
-            onClick={() => {
-              setSelectedUser({
-                name: '', email: '', role: 'employee', department: '', site: '',
-                phone: '', address: '', children: 0, hireDate: '', contract: '',
-                category: '', isActive: true
-              });
-              setShowUserModal(true);
-            }}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
-          >
-            ➕ Nouvel Utilisateur
-          </button>
-        </div>
-      </div>
+  const renderTabContent = () => {
+    switch(activeTab) {
+      case 'users':
+        return renderUsersTab();
+      case 'recovery':
+        return renderRecoveryTab();
+      case 'audit':
+        return renderAuditTab();
+      default:
+        return renderUsersTab();
+    }
+  };
 
+  const renderUsersTab = () => (
+    <>
       {/* Filtres et recherche */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
@@ -493,10 +549,7 @@ const UserManagement = ({ user }) => {
                   Département
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Site
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dernière connexion
+                  Permissions
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Statut
@@ -523,11 +576,8 @@ const UserManagement = ({ user }) => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {userItem.department}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {userItem.site}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {userItem.lastLogin}
+                    {(userItem.permissions || []).length} permission(s)
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
@@ -541,22 +591,47 @@ const UserManagement = ({ user }) => {
                       {userItem.isActive ? '✅ Actif' : '❌ Inactif'}
                     </button>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button
-                      onClick={() => handleEditUser(userItem)}
-                      className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
-                    >
-                      ✏️ Modifier
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedUser(userItem);
-                        setShowPasswordReset(true);
-                      }}
-                      className="text-orange-600 hover:text-orange-900 transition-colors duration-200"
-                    >
-                      🔑 Reset MdP
-                    </button>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex flex-wrap gap-1">
+                      <button
+                        onClick={() => handleEditUser(userItem)}
+                        className="text-blue-600 hover:text-blue-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                        title="Modifier infos"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => handleEditPermissions(userItem)}
+                        className="text-purple-600 hover:text-purple-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                        title="Gérer permissions"
+                      >
+                        🔐
+                      </button>
+                      <button
+                        onClick={() => handleEditGdpr(userItem)}
+                        className="text-green-600 hover:text-green-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                        title="Données RGPD"
+                      >
+                        👤
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedUser(userItem);
+                          setShowPasswordReset(true);
+                        }}
+                        className="text-orange-600 hover:text-orange-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                        title="Reset MdP"
+                      >
+                        🔑
+                      </button>
+                      <button
+                        onClick={() => handleViewAudit(userItem)}
+                        className="text-gray-600 hover:text-gray-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                        title="Audit"
+                      >
+                        📋
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -564,6 +639,165 @@ const UserManagement = ({ user }) => {
           </table>
         </div>
       </div>
+    </>
+  );
+
+  const renderRecoveryTab = () => (
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+      <h2 className="text-xl font-semibold text-gray-800 mb-6">🔧 Récupération de Comptes</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="border border-gray-200 rounded-lg p-4">
+          <h3 className="font-medium text-gray-800 mb-4">🔑 Récupération Mot de Passe</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Générer un nouveau mot de passe temporaire pour un utilisateur
+          </p>
+          <button
+            onClick={() => {
+              setRecoveryType('password');
+              setShowAccountRecovery(true);
+            }}
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200"
+          >
+            Lancer récupération mot de passe
+          </button>
+        </div>
+        
+        <div className="border border-gray-200 rounded-lg p-4">
+          <h3 className="font-medium text-gray-800 mb-4">👤 Recherche Identifiant</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Retrouver les identifiants d'un utilisateur par nom ou téléphone
+          </p>
+          <button
+            onClick={() => {
+              setRecoveryType('username');
+              setShowAccountRecovery(true);
+            }}
+            className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200"
+          >
+            Rechercher identifiants
+          </button>
+        </div>
+      </div>
+      
+      <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="flex items-start space-x-3">
+          <div className="text-yellow-500 text-xl">⚠️</div>
+          <div>
+            <h4 className="font-medium text-yellow-800 mb-2">Sécurité et Audit</h4>
+            <p className="text-sm text-yellow-700">
+              Toutes les opérations de récupération de comptes sont enregistrées dans les logs d'audit.
+              Les mots de passe temporaires sont valables 24h et doivent être changés à la première connexion.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAuditTab = () => (
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold text-gray-800">📋 Journal d'Audit</h2>
+        <div className="text-sm text-gray-600">
+          {auditLogs.length} entrée(s) d'audit
+        </div>
+      </div>
+      
+      <div className="space-y-3">
+        {auditLogs.map((log) => (
+          <div key={log.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                    log.action.includes('CREATE') ? 'bg-green-100 text-green-800' :
+                    log.action.includes('UPDATE') ? 'bg-blue-100 text-blue-800' :
+                    log.action.includes('DELETE') ? 'bg-red-100 text-red-800' :
+                    log.action.includes('PASSWORD') ? 'bg-orange-100 text-orange-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {log.action}
+                  </span>
+                  <span className="text-sm font-medium text-gray-900">{log.userName}</span>
+                </div>
+                <p className="text-sm text-gray-600 mb-1">{log.details}</p>
+                <div className="flex items-center space-x-4 text-xs text-gray-500">
+                  <span>Par: {log.performedBy}</span>
+                  <span>IP: {log.ipAddress}</span>
+                </div>
+              </div>
+              <div className="text-right text-xs text-gray-500">
+                {log.timestamp}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header avec onglets */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Gestion Avancée des Utilisateurs</h1>
+            <p className="text-gray-600">Administration complète avec permissions, RGPD et audit</p>
+          </div>
+          <button
+            onClick={() => {
+              setSelectedUser({
+                name: '', email: '', role: 'employee', department: '', site: '',
+                phone: '', address: '', children: 0, hireDate: '', contract: '',
+                category: '', isActive: true, permissions: [],
+                personalData: { gdprConsent: { dataProcessing: false, marketing: false } }
+              });
+              setShowUserModal(true);
+            }}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+          >
+            ➕ Nouvel Utilisateur
+          </button>
+        </div>
+        
+        {/* Onglets */}
+        <div className="flex border-b border-gray-200 mt-6">
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 ${
+              activeTab === 'users'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            👥 Utilisateurs
+          </button>
+          <button
+            onClick={() => setActiveTab('recovery')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 ${
+              activeTab === 'recovery'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            🔧 Récupération
+          </button>
+          <button
+            onClick={() => setActiveTab('audit')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 ${
+              activeTab === 'audit'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            📋 Audit
+          </button>
+        </div>
+      </div>
+
+      {renderTabContent()}
 
       {/* Modal édition utilisateur */}
       {showUserModal && selectedUser && (
@@ -733,6 +967,405 @@ const UserManagement = ({ user }) => {
               >
                 Enregistrer
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal gestion des permissions */}
+      {showPermissionsModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-800">
+                🔐 Gestion des Permissions - {selectedUser.name}
+              </h2>
+            </div>
+            <div className="p-6">
+              {/* Templates de rôles */}
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-800 mb-3">Templates de Rôles</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {Object.entries(roleTemplates).map(([key, template]) => (
+                    <button
+                      key={key}
+                      onClick={() => applyRoleTemplate(key)}
+                      className="p-3 border border-gray-200 rounded-lg text-left hover:bg-blue-50 hover:border-blue-300 transition-colors duration-200"
+                    >
+                      <div className="font-medium text-gray-800">{template.name}</div>
+                      <div className="text-sm text-gray-600">{template.description}</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {template.permissions.length} permission(s)
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Permissions détaillées */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-800 mb-3">Permissions Détaillées</h3>
+                <div className="space-y-4">
+                  {Object.entries(
+                    Object.keys(availablePermissions).reduce((acc, perm) => {
+                      const category = availablePermissions[perm].category;
+                      if (!acc[category]) acc[category] = [];
+                      acc[category].push(perm);
+                      return acc;
+                    }, {})
+                  ).map(([category, perms]) => (
+                    <div key={category} className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-800 mb-3">{category}</h4>
+                      <div className="space-y-2">
+                        {perms.map(permission => (
+                          <label key={permission} className="flex items-center space-x-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={(selectedUser.permissions || []).includes(permission)}
+                              onChange={() => togglePermission(permission)}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">
+                              {availablePermissions[permission].name}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-200 flex justify-between items-center">
+              <div className="text-sm text-gray-600">
+                {(selectedUser.permissions || []).length} permission(s) sélectionnée(s)
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowPermissionsModal(false);
+                    setSelectedUser(null);
+                  }}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleUpdatePermissions}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                >
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal données RGPD */}
+      {showGdprModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-800">
+                👤 Données RGPD - {selectedUser.name}
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Gestion des données personnelles selon le Règlement Général sur la Protection des Données
+              </p>
+            </div>
+            <div className="p-6">
+              <div className="space-y-6">
+                {/* Données personnelles étendues */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label>
+                    <input
+                      type="date"
+                      value={selectedUser.personalData?.birthDate || ''}
+                      onChange={(e) => setSelectedUser({
+                        ...selectedUser,
+                        personalData: { ...selectedUser.personalData, birthDate: e.target.value }
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Lieu de naissance</label>
+                    <input
+                      type="text"
+                      value={selectedUser.personalData?.birthPlace || ''}
+                      onChange={(e) => setSelectedUser({
+                        ...selectedUser,
+                        personalData: { ...selectedUser.personalData, birthPlace: e.target.value }
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nationalité</label>
+                    <input
+                      type="text"
+                      value={selectedUser.personalData?.nationality || ''}
+                      onChange={(e) => setSelectedUser({
+                        ...selectedUser,
+                        personalData: { ...selectedUser.personalData, nationality: e.target.value }
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Situation familiale</label>
+                    <select
+                      value={selectedUser.personalData?.maritalStatus || ''}
+                      onChange={(e) => setSelectedUser({
+                        ...selectedUser,
+                        personalData: { ...selectedUser.personalData, maritalStatus: e.target.value }
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Sélectionner</option>
+                      <option value="Célibataire">Célibataire</option>
+                      <option value="Marié(e)">Marié(e)</option>
+                      <option value="Divorcé(e)">Divorcé(e)</option>
+                      <option value="Veuf(ve)">Veuf(ve)</option>
+                      <option value="PACS">PACS</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Contact d'urgence */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-800 mb-3">Contact d'urgence</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                      <input
+                        type="text"
+                        value={selectedUser.personalData?.emergencyContact?.name || ''}
+                        onChange={(e) => setSelectedUser({
+                          ...selectedUser,
+                          personalData: { 
+                            ...selectedUser.personalData,
+                            emergencyContact: { 
+                              ...selectedUser.personalData?.emergencyContact,
+                              name: e.target.value 
+                            }
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Relation</label>
+                      <input
+                        type="text"
+                        value={selectedUser.personalData?.emergencyContact?.relationship || ''}
+                        onChange={(e) => setSelectedUser({
+                          ...selectedUser,
+                          personalData: { 
+                            ...selectedUser.personalData,
+                            emergencyContact: { 
+                              ...selectedUser.personalData?.emergencyContact,
+                              relationship: e.target.value 
+                            }
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                      <input
+                        type="tel"
+                        value={selectedUser.personalData?.emergencyContact?.phone || ''}
+                        onChange={(e) => setSelectedUser({
+                          ...selectedUser,
+                          personalData: { 
+                            ...selectedUser.personalData,
+                            emergencyContact: { 
+                              ...selectedUser.personalData?.emergencyContact,
+                              phone: e.target.value 
+                            }
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Consentements RGPD */}
+                <div className="border border-green-200 rounded-lg p-4 bg-green-50">
+                  <h4 className="font-medium text-green-800 mb-3">Consentements RGPD</h4>
+                  <div className="space-y-3">
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedUser.personalData?.gdprConsent?.dataProcessing || false}
+                        onChange={(e) => setSelectedUser({
+                          ...selectedUser,
+                          personalData: { 
+                            ...selectedUser.personalData,
+                            gdprConsent: { 
+                              ...selectedUser.personalData?.gdprConsent,
+                              dataProcessing: e.target.checked 
+                            }
+                          }
+                        })}
+                        className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                      />
+                      <span className="text-sm text-green-700">
+                        Consentement au traitement des données personnelles
+                      </span>
+                    </label>
+                    
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedUser.personalData?.gdprConsent?.marketing || false}
+                        onChange={(e) => setSelectedUser({
+                          ...selectedUser,
+                          personalData: { 
+                            ...selectedUser.personalData,
+                            gdprConsent: { 
+                              ...selectedUser.personalData?.gdprConsent,
+                              marketing: e.target.checked 
+                            }
+                          }
+                        })}
+                        className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                      />
+                      <span className="text-sm text-green-700">
+                        Consentement aux communications marketing
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <div className="mt-3 text-xs text-green-600">
+                    Dernier consentement: {selectedUser.personalData?.gdprConsent?.lastUpdated || 'Non défini'}
+                  </div>
+                </div>
+
+                {/* Informations sensibles */}
+                <div className="border border-red-200 rounded-lg p-4 bg-red-50">
+                  <h4 className="font-medium text-red-800 mb-3">⚠️ Données Sensibles</h4>
+                  <p className="text-xs text-red-600 mb-3">
+                    Ces informations sont protégées par le RGPD et nécessitent une justification légale pour leur traitement.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">N° Sécurité Sociale</label>
+                      <input
+                        type="text"
+                        value={selectedUser.personalData?.socialSecurity || ''}
+                        onChange={(e) => setSelectedUser({
+                          ...selectedUser,
+                          personalData: { ...selectedUser.personalData, socialSecurity: e.target.value }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        placeholder="Masqué pour sécurité"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">N° Fiscal</label>
+                      <input
+                        type="text"
+                        value={selectedUser.personalData?.taxNumber || ''}
+                        onChange={(e) => setSelectedUser({
+                          ...selectedUser,
+                          personalData: { ...selectedUser.personalData, taxNumber: e.target.value }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Informations médicales</label>
+                    <textarea
+                      value={selectedUser.personalData?.medicalInfo || ''}
+                      onChange={(e) => setSelectedUser({
+                        ...selectedUser,
+                        personalData: { ...selectedUser.personalData, medicalInfo: e.target.value }
+                      })}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      placeholder="Restrictions médicales, allergies, etc."
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowGdprModal(false);
+                  setSelectedUser(null);
+                }}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleUpdateGdpr}
+                className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200"
+              >
+                Enregistrer (RGPD)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal récupération de comptes */}
+      {showAccountRecovery && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                {recoveryType === 'password' ? '🔑 Récupération Mot de Passe' : '👤 Recherche Identifiant'}
+              </h2>
+              
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const identifier = e.target.identifier.value;
+                handleAccountRecovery(recoveryType, identifier);
+              }}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {recoveryType === 'password' ? 'Email du compte' : 'Nom ou téléphone'}
+                  </label>
+                  <input
+                    type="text"
+                    name="identifier"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder={recoveryType === 'password' ? 'exemple@company.com' : 'Jean Dupont ou 01 23 45 67 89'}
+                  />
+                </div>
+                
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowAccountRecovery(false)}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                  >
+                    {recoveryType === 'password' ? 'Envoyer nouveau MdP' : 'Rechercher'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
