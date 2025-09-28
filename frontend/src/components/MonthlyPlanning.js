@@ -539,13 +539,21 @@ const MonthlyPlanning = ({ user }) => {
           
           <div className="p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {/* Filtre Mois */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Month</label>
-              <select className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white">
-                <option>janv</option><option>févr</option><option>mars</option><option>avr</option>
-                <option>mai</option><option>juin</option><option>juil</option><option>août</option>
-                <option>sept</option><option>oct</option><option>nov</option><option>déc</option>
+            {/* Département */}
+            <div className="filter-group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                Département
+              </label>
+              <select 
+                value={filterDept}
+                onChange={(e) => setFilterDept(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white shadow-sm hover:shadow-md transition-shadow focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="all">Tous les départements</option>
+                {departments.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
               </select>
             </div>
 
