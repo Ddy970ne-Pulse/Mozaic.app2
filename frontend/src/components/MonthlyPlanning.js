@@ -575,17 +575,20 @@ const MonthlyPlanning = ({ user }) => {
               </select>
             </div>
 
-            {/* Motif Absence */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Motif Absence</label>
+            {/* Catégorie */}
+            <div className="filter-group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Catégorie
+              </label>
               <select 
-                value={filterAbsenceReason}
-                onChange={(e) => setFilterAbsenceReason(e.target.value)}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white shadow-sm hover:shadow-md transition-shadow focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               >
-                <option value="all">(tous)</option>
-                {absenceReasons.map(reason => (
-                  <option key={reason} value={reason}>{reason}</option>
+                <option value="all">Toutes catégories</option>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
             </div>
