@@ -64,13 +64,34 @@ const MonthlyPlanning = ({ user }) => {
   const absenceCategories = ['Absence Programmée', 'Absentéisme'];
   const absenceReasons = ['Accident du travail / Trajet', 'Congés Sans Solde', 'Congés Trimestriels', 'Récupération', 'Congés Payés', 'Arrêt maladie', 'Formation'];
 
+  // Comprehensive absence legend based on the provided list
   const absenceColorMap = {
-    'CP': { name: 'Congés Payés', color: 'bg-blue-500', textColor: 'text-white' },
-    'RTT': { name: 'RTT', color: 'bg-green-500', textColor: 'text-white' },
-    'AM': { name: 'Arrêt Maladie', color: 'bg-red-500', textColor: 'text-white' },
-    'HS': { name: 'Heures Sup', color: 'bg-purple-500', textColor: 'text-white' },
-    'CT': { name: 'Congé Tech', color: 'bg-orange-500', textColor: 'text-white' },
-    'FM': { name: 'Formation', color: 'bg-indigo-500', textColor: 'text-white' }
+    'AT': { name: 'Accident du travail / Trajet', color: 'bg-red-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
+    'AM': { name: 'Arrêt maladie', color: 'bg-red-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
+    'NAUT': { name: 'Absence non autorisée', color: 'bg-gray-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
+    'AUT': { name: 'Absence autorisée', color: 'bg-gray-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
+    'FAM': { name: 'Évènement familiale', color: 'bg-pink-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
+    'MAT': { name: 'Congé maternité', color: 'bg-pink-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires' },
+    'PAT': { name: 'Congé paternité', color: 'bg-blue-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires' },
+    'CA': { name: 'Congés annuels', color: 'bg-blue-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables' },
+    'FO': { name: 'Congé formation', color: 'bg-indigo-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' },
+    'CSS': { name: 'Congés Sans Solde', color: 'bg-gray-700', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' },
+    'CT': { name: 'Congés Trimestriels', color: 'bg-orange-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrés' },
+    'REC': { name: 'Récupération', color: 'bg-green-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables' },
+    'RH': { name: 'Repos Hebdomadaire', color: 'bg-green-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables' },
+    'RHD': { name: 'Repos Dominical', color: 'bg-green-600', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires' },
+    'TEL': { name: 'Télétravail', color: 'bg-cyan-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' },
+    'DEL': { name: 'Délégation', color: 'bg-purple-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrés' },
+    'STG': { name: 'Stage', color: 'bg-yellow-500', textColor: 'text-black', type: 'Absence Programmée', decompte: 'Jours Calendaires' },
+    'CEX': { name: 'Congé exceptionnel', color: 'bg-amber-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' },
+    'MPRO': { name: 'Maladie Professionnelle', color: 'bg-red-700', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
+    'EMAL': { name: 'Enfants malades', color: 'bg-red-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires' },
+    'RMED': { name: 'Rendez-vous médical', color: 'bg-teal-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrés' },
+    // Deprecated codes (keeping for backward compatibility)
+    'CP': { name: 'Congés Payés', color: 'bg-blue-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables' },
+    'RTT': { name: 'RTT', color: 'bg-green-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables' },
+    'HS': { name: 'Heures Sup', color: 'bg-purple-600', textColor: 'text-white', type: 'Présence', decompte: 'Heures' },
+    'FM': { name: 'Formation', color: 'bg-indigo-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables' }
   };
 
   const holidays = [1, 15, 25]; // Jours fériés exemple
