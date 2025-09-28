@@ -280,28 +280,60 @@ const Dashboard = ({ user, onChangeView }) => {
         <h2 className="text-lg font-semibold mb-4">Actions Rapides</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <button 
-            onClick={handleGenerateReport}
+            onClick={() => {
+              console.log('🔍 Generate Report clicked');
+              if (onChangeView) {
+                console.log('✅ Calling onChangeView(analytics)');
+                onChangeView('analytics');
+              } else {
+                console.log('❌ onChangeView is not defined');
+              }
+            }}
             className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
           >
             <div className="text-2xl mb-2">📊</div>
             <div className="text-sm font-medium">Générer Rapport</div>
           </button>
           <button 
-            onClick={handleNewEmployee}
+            onClick={() => {
+              console.log('🔍 New Employee clicked');
+              if (onChangeView) {
+                console.log('✅ Calling onChangeView(user-management)');
+                onChangeView('user-management');
+              } else {
+                console.log('❌ onChangeView is not defined');
+              }
+            }}
             className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
           >
             <div className="text-2xl mb-2">👤</div>
             <div className="text-sm font-medium">Nouvel Employé</div>
           </button>
           <button 
-            onClick={handleScheduleMeeting}
+            onClick={() => {
+              console.log('🔍 Schedule Meeting clicked');
+              if (onChangeView) {
+                console.log('✅ Calling onChangeView(monthly-planning)');
+                onChangeView('monthly-planning');
+              } else {
+                console.log('❌ onChangeView is not defined');
+              }
+            }}
             className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
           >
             <div className="text-2xl mb-2">📅</div>
             <div className="text-sm font-medium">Planifier Réunion</div>
           </button>
           <button 
-            onClick={handleExportPayroll}
+            onClick={() => {
+              console.log('🔍 Export Payroll clicked');
+              if (onChangeView) {
+                console.log('✅ Calling onChangeView(hr-toolbox)');
+                onChangeView('hr-toolbox');
+              } else {
+                console.log('❌ onChangeView is not defined');
+              }
+            }}
             className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
           >
             <div className="text-2xl mb-2">💼</div>
