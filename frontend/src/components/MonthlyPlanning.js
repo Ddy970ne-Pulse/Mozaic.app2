@@ -920,6 +920,7 @@ const MonthlyPlanning = ({ user }) => {
           </div>
         )}
       </div>
+      </div>
     </div>
   );
 };
