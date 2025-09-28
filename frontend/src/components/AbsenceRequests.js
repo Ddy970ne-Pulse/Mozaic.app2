@@ -1,23 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getRequests, approveRequest, rejectRequest, subscribe, updateRequests } from '../shared/requestsData';
 
 const AbsenceRequests = ({ user }) => {
   const [activeTab, setActiveTab] = useState('pending');
   const [showNewRequest, setShowNewRequest] = useState(false);
-  const [requests, setRequests] = useState({
-    pending: [
-      {
-        id: 1,
-        employee: 'Marie Leblanc',
-        department: 'Commercial',
-        type: 'RTT',
-        startDate: '2024-02-15',
-        endDate: '2024-02-15',
-        duration: '1 jour',
-        reason: 'Rendez-vous médical',
-        submittedDate: '2024-01-10',
-        status: 'pending',
-        avatar: 'ML'
-      },
+  const [requests, setRequests] = useState(getRequests());
+
+  // Souscription aux changements d'état
+  useEffect(() => {
+    const unsubscribe = subscribe((newRequests) => {
+      setRequests(newRequests);
+    });
+
+    return unsubscribe;
+  }, []);
       {
         id: 2,
         employee: 'Pierre Martin',
