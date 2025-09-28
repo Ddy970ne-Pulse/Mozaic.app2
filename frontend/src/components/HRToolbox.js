@@ -304,6 +304,10 @@ const HRToolbox = ({ user }) => {
                         <option>Temps partiel</option>
                       </select>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <label className="text-sm font-medium text-gray-700 w-32">Congés except.:</label>
+                      <input type="number" min="0" max="10" className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Jours exceptionnels" />
+                    </div>
                     <button 
                       onClick={calculateLeaveRights}
                       className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200"
