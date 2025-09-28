@@ -427,6 +427,160 @@ const MonthlyPlanning = ({ user }) => {
     return tailwindClass === 'text-black' ? '#000000' : '#ffffff';
   };
 
+  // Fonction d'exportation du planning
+  const handleExport = () => {
+    const monthName = currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    
+    // Création du fichier CSV
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    // En-têtes
+    csvContent += `Planning Mensuel - ${monthName}\n\n`;
+    csvContent += "Employé,Département,Site,Catégorie,Contrat,";
+    
+    // Ajout des jours du mois
+    days.forEach(day => {
+      csvContent += `${day},`;
+    });
+    csvContent += "Total Absences\n";
+    
+    // Données des employés
+    filteredEmployees.forEach(employee => {
+      csvContent += `"${employee.name}","${employee.department}","${employee.site}","${employee.category}","${employee.contract}",`;
+      
+      days.forEach(day => {
+        const dayStr = day.toString();
+        const absence = employee.absences[dayStr];
+        const isWknd = isWeekend(currentMonth, day);
+        const isHol = isHoliday(day);
+        
+        if (absence) {
+          csvContent += `"${absence}",`;
+        } else if (isHol) {
+          csvContent += `"FÉRIÉ",`;
+        } else if (isWknd) {
+          csvContent += `"WE",`;
+        } else {
+          csvContent += `"",`;
+        }
+      });
+      
+      csvContent += `${getAbsenceCount(employee)}\n`;
+    });
+    
+    // Ajout de la légende
+    csvContent += "\n\nLégende des Codes d'Absence:\n";
+    Object.entries(absenceColorMap)
+      .filter(([code]) => !['CP', 'RTT', 'HS', 'FM'].includes(code))
+      .forEach(([code, info]) => {
+        csvContent += `"${code}","${info.name}","${info.type}","${info.decompte}"\n`;
+      });
+    
+    // Téléchargement
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `planning_${monthName.replace(' ', '_')}_${filteredEmployees.length}employes.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Notification
+    alert(`📊 Export réussi !\nFichier: planning_${monthName.replace(' ', '_')}_${filteredEmployees.length}employes.csv\n\nContenu: ${filteredEmployees.length} employé(s), légende des codes d'absence incluse.`);
+  };
+
+  // Fonction d'analyse du planning
+  const handleAnalyze = () => {
+    // Calculs d'analyse
+    const totalEmployees = filteredEmployees.length;
+    const totalAbsences = filteredEmployees.reduce((sum, emp) => sum + getAbsenceCount(emp), 0);
+    const avgAbsencesPerEmployee = totalAbsences / totalEmployees || 0;
+    
+    // Analyse par type d'absence
+    const absencesByType = {};
+    filteredEmployees.forEach(employee => {
+      Object.values(employee.absences).forEach(absenceCode => {
+        const absenceInfo = absenceColorMap[absenceCode];
+        if (absenceInfo) {
+          const type = absenceInfo.type;
+          absencesByType[type] = (absencesByType[type] || 0) + 1;
+        }
+      });
+    });
+    
+    // Analyse par département
+    const absencesByDept = {};
+    filteredEmployees.forEach(employee => {
+      const dept = employee.department;
+      const absenceCount = getAbsenceCount(employee);
+      if (!absencesByDept[dept]) {
+        absencesByDept[dept] = { total: 0, employees: 0 };
+      }
+      absencesByDept[dept].total += absenceCount;
+      absencesByDept[dept].employees += 1;
+    });
+    
+    // Top codes d'absence les plus utilisés
+    const absenceCodesUsage = {};
+    filteredEmployees.forEach(employee => {
+      Object.values(employee.absences).forEach(absenceCode => {
+        absenceCodesUsage[absenceCode] = (absenceCodesUsage[absenceCode] || 0) + 1;
+      });
+    });
+    
+    const topCodes = Object.entries(absenceCodesUsage)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 5);
+    
+    // Génération du rapport d'analyse
+    const monthName = currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    let analysisReport = `📈 ANALYSE DU PLANNING - ${monthName.toUpperCase()}\n\n`;
+    
+    analysisReport += `📊 STATISTIQUES GÉNÉRALES:\n`;
+    analysisReport += `• Employés analysés: ${totalEmployees}\n`;
+    analysisReport += `• Total absences: ${totalAbsences} jours\n`;
+    analysisReport += `• Moyenne par employé: ${avgAbsencesPerEmployee.toFixed(1)} jours\n`;
+    analysisReport += `• Taux d'absentéisme: ${((totalAbsences / (totalEmployees * days.length)) * 100).toFixed(1)}%\n\n`;
+    
+    analysisReport += `📋 RÉPARTITION PAR TYPE:\n`;
+    Object.entries(absencesByType).forEach(([type, count]) => {
+      const percentage = ((count / totalAbsences) * 100).toFixed(1);
+      analysisReport += `• ${type}: ${count} jours (${percentage}%)\n`;
+    });
+    
+    analysisReport += `\n🏢 ANALYSE PAR DÉPARTEMENT:\n`;
+    Object.entries(absencesByDept).forEach(([dept, data]) => {
+      const avgPerEmp = (data.total / data.employees).toFixed(1);
+      analysisReport += `• ${dept}: ${data.total} jours, ${data.employees} emp., moy: ${avgPerEmp}j\n`;
+    });
+    
+    analysisReport += `\n🔥 TOP 5 CODES LES PLUS UTILISÉS:\n`;
+    topCodes.forEach(([code, count], index) => {
+      const absenceInfo = absenceColorMap[code];
+      const percentage = ((count / totalAbsences) * 100).toFixed(1);
+      analysisReport += `${index + 1}. ${code} (${absenceInfo?.name || 'Inconnu'}): ${count} fois (${percentage}%)\n`;
+    });
+    
+    // Affichage du rapport dans une modal
+    const modal = document.createElement('div');
+    modal.innerHTML = `
+      <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 10px; max-width: 600px; max-height: 80vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+          <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-size: 20px; font-weight: bold; color: #1f2937; margin: 0;">📈 Analyse du Planning</h2>
+            <button onclick="this.closest('div').parentElement.remove()" style="background: #ef4444; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; margin-left: auto;">✕</button>
+          </div>
+          <pre style="white-space: pre-wrap; font-family: monospace; font-size: 12px; line-height: 1.4; background: #f9fafb; padding: 15px; border-radius: 5px; border: 1px solid #e5e7eb; color: #374151;">${analysisReport}</pre>
+          <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button onclick="navigator.clipboard.writeText(\`${analysisReport.replace(/`/g, '\\`')}\`).then(() => alert('📋 Rapport copié dans le presse-papier!'))" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">📋 Copier</button>
+            <button onclick="this.closest('div').parentElement.remove()" style="background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">Fermer</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  };
+
   return (
     <div className="p-6">
       {/* Header */}
