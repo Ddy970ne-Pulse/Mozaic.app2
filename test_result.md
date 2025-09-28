@@ -103,10 +103,9 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Update the "Delegation Hours" module based on the provided "motifs d'absence" list from user images.
-  Implement employee-specific access to their own delegation hours, removing global dropdowns.
-  Integrate new data into the software's parameters section.
-  Add special handling for sickness leave (arrêt maladie) with acknowledgment system and document upload capability.
+  Test CCN66 corrections in HRToolbox module. CCN66 calculations had failures on "Temps partiel" and "Congés exceptionnels". 
+  Rules have been corrected and need validation. Test with Sophie Martin (admin) account: admin@company.com / demo123.
+  Focus on leave rights calculator in "Boîte à outils RH" → "Concepts Juridiques" section.
 
 backend:
   - task: "Delegation Hours Backend API"
