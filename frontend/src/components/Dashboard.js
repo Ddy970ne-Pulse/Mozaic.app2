@@ -56,9 +56,13 @@ const Dashboard = ({ user, onChangeView }) => {
   };
 
   const handleNewEmployee = () => {
-    // Navigation vers Gestion des Utilisateurs
+    console.log('🔍 New Employee clicked, onChangeView:', !!onChangeView);
     if (onChangeView) {
+      console.log('✅ Navigating to user-management');
       onChangeView('user-management');
+    } else {
+      console.log('❌ onChangeView not available, using window navigation fallback');
+      window.dispatchEvent(new CustomEvent('navigate-to', { detail: { view: 'user-management' } }));
     }
   };
 
