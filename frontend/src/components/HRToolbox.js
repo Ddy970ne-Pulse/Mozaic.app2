@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 
 const HRToolbox = ({ user }) => {
   const [activeSection, setActiveSection] = useState('access-control');
+  const [calculationResult, setCalculationResult] = useState(null);
+  const [leaveCalculation, setLeaveCalculation] = useState(null);
+  const [ccn66TestResult, setCcn66TestResult] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [newHoliday, setNewHoliday] = useState({ name: '', date: '', type: 'company' });
 
   const sections = [
     { 
