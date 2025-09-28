@@ -1255,7 +1255,7 @@ const MonthlyPlanning = ({ user }) => {
                             {absence}
                             {(() => {
                               const absenceInfo = calculateAnyAbsenceDeduction(employee, day.toString(), absence);
-                              if (absenceInfo) {
+                              if (absenceInfo && absenceInfo.calculation && absenceInfo.dayInfo) {
                                 // Indicateur pour économie (CA) ou non décompté
                                 if (absence === 'CA' && absenceInfo.calculation.savings > 0) {
                                   return (
