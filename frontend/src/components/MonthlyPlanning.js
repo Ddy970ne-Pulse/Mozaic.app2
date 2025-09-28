@@ -645,91 +645,41 @@ const MonthlyPlanning = ({ user }) => {
               </select>
             </div>
 
-            {/* Temps de travail */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Temps de travail</label>
-              <select 
-                value={filterWorkTime}
-                onChange={(e) => setFilterWorkTime(e.target.value)}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
-              >
-                <option value="all">(tous)</option>
-                <option value="Temps Partiel">Temps Partiel</option>
-                <option value="Temps Plein">Temps Plein</option>
-              </select>
             </div>
-
-            {/* Département */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Département</label>
-              <select 
-                value={filterDept}
-                onChange={(e) => setFilterDept(e.target.value)}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
-              >
-                <option value="all">(tous)</option>
-                {departments.map(dept => (
-                  <option key={dept} value={dept}>{dept}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Deuxième ligne de filtres */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Site */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Site</label>
-              <select 
-                value={filterSite}
-                onChange={(e) => setFilterSite(e.target.value)}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
-              >
-                <option value="all">(tous)</option>
-                {sites.map(site => (
-                  <option key={site} value={site}>{site}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Type de contrat */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Type Contrat</label>
-              <select 
-                value={filterContract}
-                onChange={(e) => setFilterContract(e.target.value)}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
-              >
-                <option value="all">(tous)</option>
-                {contracts.map(contract => (
-                  <option key={contract} value={contract}>{contract}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Tri */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Trier par</label>
-              <select 
-                value={sortBy} 
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
-              >
-                <option value="name">Nom</option>
-                <option value="department">Département</option>
-                <option value="absences">Nb absences</option>
-              </select>
-            </div>
-
-            {/* Résultats */}
-            <div className="flex items-end">
-              <div className="text-xs text-gray-600">
-                {filteredEmployees.length} employé(s) affiché(s)
+            
+            {/* Tri et actions rapides */}
+            <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm font-medium text-gray-700">Tri par :</label>
+                  <select 
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-3 py-1 border border-gray-300 rounded-lg text-sm bg-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="name">Nom</option>
+                    <option value="department">Département</option>
+                    <option value="site">Site</option>
+                    <option value="absences">Nb absences</option>
+                  </select>
+                </div>
+                
+                <div className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                  {filteredEmployees.length} résultat(s) sur {employees.length}
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <button className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                  📊 Exporter
+                </button>
+                <button className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                  📈 Analyser
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
       {/* Légende redondante supprimée - voir légende améliorée en bas de page */}
 
