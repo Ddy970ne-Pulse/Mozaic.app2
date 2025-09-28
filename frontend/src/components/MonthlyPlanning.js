@@ -368,8 +368,9 @@ const MonthlyPlanning = ({ user }) => {
             <tr>
               <th class="employee-cell">Employé / Département</th>
               ${days.map(day => `
-                <th class="${isWeekend(currentMonth, day) || isHoliday(day) ? 'weekend' : ''} ${isToday(currentMonth, day) ? 'today' : ''}">
-                  ${day}${isHoliday(day) ? '<br>F' : ''}
+                <th class="${isWeekend(currentMonth, day) || isHoliday(day) ? 'weekend' : ''} ${isToday(currentMonth, day) ? 'today' : ''}" style="position: relative;">
+                  ${day}
+                  ${isHoliday(day) ? `<div style="position: absolute; bottom: 2px; right: 2px; font-size: 9px; color: red; font-weight: bold;">F</div>` : ''}
                 </th>
               `).join('')}
               <th>Total</th>
