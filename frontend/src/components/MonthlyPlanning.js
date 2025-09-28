@@ -476,6 +476,62 @@ const MonthlyPlanning = ({ user }) => {
           <div className="text-sm text-gray-600">Taux présence</div>
         </div>
       </div>
+
+      {/* Légende des absences */}
+      <div className="mt-6 bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+            <span className="text-xl mr-2">📋</span>
+            Légende des Codes d'Absence
+          </h3>
+          <div className="text-sm text-gray-600">
+            {Object.keys(absenceColorMap).length} types d'absence
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          {Object.entries(absenceColorMap)
+            .filter(([code]) => !['CP', 'RTT', 'HS', 'FM'].includes(code)) // Exclude deprecated codes from main display
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([code, info]) => (
+            <div
+              key={code}
+              className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-100 hover:shadow-md transition-shadow duration-200"
+            >
+              <div className={`w-10 h-8 rounded flex items-center justify-center text-xs font-bold ${info.color} ${info.textColor} flex-shrink-0`}>
+                {code}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-900 truncate" title={info.name}>
+                  {info.name}
+                </div>
+                <div className="text-xs text-gray-500 flex flex-col">
+                  <span className="truncate">{info.type}</span>
+                  <span className="text-xs text-gray-400">{info.decompte}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Types d'absence summary */}
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="flex flex-wrap gap-4 text-sm">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-blue-100 border border-blue-300 rounded"></div>
+              <span className="text-gray-700">Absence Programmée</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-red-100 border border-red-300 rounded"></div>
+              <span className="text-gray-700">Absentéisme</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
+              <span className="text-gray-700">Présence</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
