@@ -1175,21 +1175,43 @@ const MonthlyPlanning = ({ user }) => {
                                  })()
                                }>
                             {absence}
-                            {absence === 'CA' && (() => {
-                              const leaveInfo = getLeaveDisplayInfo(employee, day.toString(), absence);
-                              if (leaveInfo && leaveInfo.isFirstDay && leaveInfo.calculation.savings > 0) {
-                                return (
-                                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full text-xs text-white flex items-center justify-center" title={`${leaveInfo.calculation.savings}j préservés`}>
-                                    ✓
-                                  </div>
-                                );
-                              }
-                              if (leaveInfo && (leaveInfo.dayInfo.isHoliday || leaveInfo.dayInfo.isWeekend)) {
-                                return (
-                                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full text-xs text-white flex items-center justify-center" title={leaveInfo.dayInfo.isHoliday ? 'Jour férié' : 'Weekend'}>
-                                    !
-                                  </div>
-                                );
+                            {(() => {
+                              const absenceInfo = calculateAnyAbsenceDeduction(employee, day.toString(), absence);
+                              if (absenceInfo) {
+                                // Indicateur pour économie (CA) ou non décompté
+                                if (absence === 'CA' && absenceInfo.calculation.savings > 0) {
+                                  return (
+                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full text-xs text-white flex items-center justify-center" title={`${absenceInfo.calculation.savings}j préservés`}>
+                                      ✓
+                                    </div>
+                                  );
+                                }
+                                
+                                // Indicateur pour jour férié pendant absence
+                                if (absenceInfo.dayInfo.isHoliday) {
+                                  return (
+                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full text-xs text-white flex items-center justify-center" title={`Jour férié: ${absenceInfo.dayInfo.holidayName}`}>
+                                      F
+                                    </div>
+                                  );
+                                }
+                                
+                                // Indicateur pour types spéciaux (heures, non décompté)
+                                if (absenceInfo.calculation.unit === 'heures') {
+                                  return (
+                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full text-xs text-white flex items-center justify-center" title="Décompte en heures">
+                                      H
+                                    </div>
+                                  );
+                                }
+                                
+                                if (!absenceInfo.displayInfo.willBeDeducted && absence !== 'CA') {
+                                  return (
+                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full text-xs text-white flex items-center justify-center" title="Non décompté">
+                                      ✓
+                                    </div>
+                                  );
+                                }
                               }
                               return null;
                             })()}
