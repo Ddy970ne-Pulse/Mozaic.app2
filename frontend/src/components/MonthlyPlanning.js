@@ -1227,21 +1227,21 @@ const MonthlyPlanning = ({ user }) => {
                                title={
                                  (() => {
                                    const absenceInfo = calculateAnyAbsenceDeduction(employee, day.toString(), absence);
-                                   if (absenceInfo) {
+                                   if (absenceInfo && absenceInfo.rules && absenceInfo.rules.name && absenceInfo.calculation) {
                                      let tooltip = `${absenceInfo.rules.name.toUpperCase()} - ${employee.name}\n`;
-                                     tooltip += `📚 Base légale: ${absenceInfo.calculation.legalBasis}\n`;
-                                     tooltip += `📊 Décompte: ${absenceInfo.calculation.deductedAmount} ${absenceInfo.calculation.unit}\n`;
+                                     tooltip += `📚 Base légale: ${absenceInfo.calculation.legalBasis || 'Non définie'}\n`;
+                                     tooltip += `📊 Décompte: ${absenceInfo.calculation.deductedAmount || 0} ${absenceInfo.calculation.unit || 'jour(s)'}\n`;
                                      tooltip += `💰 Impact: ${getPayrollImpactDescription(absenceInfo.calculation.payrollImpact)}\n`;
                                      
                                      if (absence === 'CA' && absenceInfo.calculation.savings > 0) {
                                        tooltip += `✅ Économie: ${absenceInfo.calculation.savings}j préservés\n`;
                                      }
                                      
-                                     if (absenceInfo.dayInfo.isHoliday) {
+                                     if (absenceInfo.dayInfo && absenceInfo.dayInfo.isHoliday) {
                                        tooltip += `🎉 Jour férié: ${absenceInfo.dayInfo.holidayName}\n`;
                                      }
                                      
-                                     if (absenceInfo.displayInfo.willBeDeducted) {
+                                     if (absenceInfo.displayInfo && absenceInfo.displayInfo.willBeDeducted) {
                                        tooltip += `⚠️ Ce jour sera décompté selon les règles légales`;
                                      } else {
                                        tooltip += `✅ Ce jour ne sera pas décompté`;
