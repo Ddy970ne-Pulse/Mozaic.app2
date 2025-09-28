@@ -26,15 +26,9 @@ const Dashboard = ({ user, onChangeView }) => {
       setUpcomingEvents(newEvents);
     });
 
-    // Attacher les listeners pour les boutons d'actions rapides
-    const timer = setTimeout(() => {
-      attachQuickActionListeners();
-    }, 1000);
-
     return () => {
       unsubscribeRequests();
       unsubscribeEvents();
-      clearTimeout(timer);
     };
   }, []);
 
