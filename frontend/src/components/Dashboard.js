@@ -15,7 +15,7 @@ const Dashboard = ({ user, onChangeView }) => {
     { title: 'Heures Sup. Total', value: '234h', icon: '⏰', color: 'bg-purple-500', change: '+18h' }
   ];
 
-  // Souscription aux changements d'état
+  // Souscription aux changements d'état et initialisation de la navigation
   useEffect(() => {
     const unsubscribeRequests = subscribe((newRequests) => {
       setRequests(newRequests);
@@ -26,9 +26,15 @@ const Dashboard = ({ user, onChangeView }) => {
       setUpcomingEvents(newEvents);
     });
 
+    // Attacher les listeners pour les boutons d'actions rapides
+    const timer = setTimeout(() => {
+      attachQuickActionListeners();
+    }, 1000);
+
     return () => {
       unsubscribeRequests();
       unsubscribeEvents();
+      clearTimeout(timer);
     };
   }, []);
 
