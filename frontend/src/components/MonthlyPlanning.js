@@ -387,10 +387,12 @@ const MonthlyPlanning = ({ user }) => {
                   const absence = employee.absences[dayStr];
                   const isWknd = isWeekend(currentMonth, day);
                   const isHol = isHoliday(day);
+                  const holidayName = getHolidayName(day);
                   
                   return `
-                    <td class="${isWknd || isHol ? 'weekend' : ''} ${isToday(currentMonth, day) ? 'today' : ''}">
-                      ${absence ? `<span class="absence-code" style="background-color: ${getColorCode(absenceColorMap[absence]?.color)}; color: ${getTextColor(absenceColorMap[absence]?.textColor)}">${absence}</span>` : ''}
+                    <td class="${isWknd || isHol ? 'weekend' : ''} ${isToday(currentMonth, day) ? 'today' : ''}" style="position: relative;">
+                      ${absence ? `<span class="absence-code" style="background-color: ${getColorCode(absenceColorMap[absence]?.color)}; color: ${getTextColor(absenceColorMap[absence]?.textColor)}; padding: 2px 4px; border-radius: 3px; font-weight: bold;">${absence}</span>` : ''}
+                      ${isHol ? `<div style="position: absolute; bottom: 2px; right: 2px; font-size: 8px; color: red; font-weight: bold;" title="${holidayName}">F</div>` : ''}
                     </td>
                   `;
                 }).join('')}
