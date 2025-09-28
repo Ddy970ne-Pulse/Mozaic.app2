@@ -37,12 +37,16 @@ const Analytics = ({ user }) => {
   ];
 
   const absenceTypes = [
-    { type: 'Congés Payés', count: 568, percentage: 45.6, color: 'bg-blue-500' },
-    { type: 'RTT', count: 289, percentage: 23.2, color: 'bg-green-500' },
-    { type: 'Arrêt Maladie', count: 156, percentage: 12.5, color: 'bg-red-500' },
-    { type: 'Formation', count: 134, percentage: 10.8, color: 'bg-purple-500' },
-    { type: 'Congé Tech', count: 67, percentage: 5.4, color: 'bg-orange-500' },
-    { type: 'Autres', count: 31, percentage: 2.5, color: 'bg-gray-500' }
+    { code: 'DEL', type: 'Délégation CSE', count: 87, percentage: 5.6, color: 'bg-indigo-600', justified: true, description: 'Missions représentatives - Non comptabilisées dans absentéisme' },
+    { code: 'CP', type: 'Congés Payés', count: 654, percentage: 42.4, color: 'bg-blue-500', justified: true, description: 'Congés annuels programmés' },
+    { code: 'AM', type: 'Arrêt Maladie', count: 245, percentage: 15.9, color: 'bg-red-500', justified: false, description: 'Arrêts pour raisons médicales' },
+    { code: 'RTT', type: 'RTT/Récupération', count: 198, percentage: 12.8, color: 'bg-green-500', justified: true, description: 'Récupération et RTT' },
+    { code: 'FO', type: 'Formation', count: 156, percentage: 10.1, color: 'bg-purple-500', justified: true, description: 'Formation professionnelle' },
+    { code: 'AT', type: 'Accident Travail', count: 89, percentage: 5.8, color: 'bg-red-600', justified: false, description: 'Accidents du travail et de trajet' },
+    { code: 'MAT', type: 'Congé Maternité', count: 45, percentage: 2.9, color: 'bg-pink-500', justified: true, description: 'Congés maternité/paternité' },
+    { code: 'FAM', type: 'Événements Familiaux', count: 34, percentage: 2.2, color: 'bg-purple-300', justified: true, description: 'Événements familiaux divers' },
+    { code: 'NAUT', type: 'Absence Non Autorisée', count: 23, percentage: 1.5, color: 'bg-red-700', justified: false, description: 'Absences injustifiées' },
+    { code: 'Autres', type: 'Autres Motifs', count: 11, percentage: 0.7, color: 'bg-gray-500', justified: false, description: 'Divers motifs' }
   ];
 
   const getMaxValue = () => {
