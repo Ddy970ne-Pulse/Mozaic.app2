@@ -103,9 +103,10 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Test CCN66 corrections in HRToolbox module. CCN66 calculations had failures on "Temps partiel" and "Congés exceptionnels". 
-  Rules have been corrected and need validation. Test with Sophie Martin (admin) account: admin@company.com / demo123.
-  Focus on leave rights calculator in "Boîte à outils RH" → "Concepts Juridiques" section.
+  Test dashboard quick action buttons corrections. Dashboard buttons were inactive and have been activated with navigation functions and interactions.
+  Corrections include: 1) MonthlyPlanning.js compilation fix (duplicate absenceTypes variable), 2) Quick action buttons activated with navigation to appropriate modules, 
+  3) Approval/rejection buttons added in recent activities, 4) Hover/active animations added for visual feedback, 5) Role-based access differentiation implemented.
+  Test with Sophie Martin (admin) account: admin@company.com / demo123. Focus on dashboard interactivity and navigation functionality.
 
 backend:
   - task: "Delegation Hours Backend API"
