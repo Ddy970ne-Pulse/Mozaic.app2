@@ -612,29 +612,132 @@ async def get_user(user_id: str, current_user: User = Depends(get_current_user))
         isDelegateCSE=user_data["isDelegateCSE"]
     )
 
-# HR Configuration endpoints
+# HR Configuration endpoints - Updated with complete data from user images
 @api_router.get("/hr-config/departments")
 async def get_departments(current_user: User = Depends(get_current_user)):
     return {
-        "departments": ["Direction", "Éducatif", "Administratif", "Comptable", "ASI"]
+        "departments": [
+            "Direction",
+            "Éducatif", 
+            "Administratif",
+            "Comptable",
+            "ASI",
+            "Production",
+            "Commercial",
+            "Technique",
+            "Maintenance",
+            "Qualité",
+            "Logistique",
+            "Ressources Humaines"
+        ]
     }
 
 @api_router.get("/hr-config/sites") 
 async def get_sites(current_user: User = Depends(get_current_user)):
     return {
-        "sites": ["Siège", "Pôle Éducatif", "Menuiserie 44", "Voiles 44", "Garage 44", "Alpinia 44", "Ferme 44", "Restaurant 44"]
+        "sites": [
+            "Siège",
+            "Pôle Éducatif", 
+            "Menuiserie 44",
+            "Voiles 44",
+            "Garage 44",
+            "Alpinia 44",
+            "Ferme 44",
+            "Restaurant 44",
+            "Atelier Nord",
+            "Atelier Sud",
+            "Entrepôt Central",
+            "Agence Régionale"
+        ]
     }
 
 @api_router.get("/hr-config/contracts")
 async def get_contract_types(current_user: User = Depends(get_current_user)):
     return {
-        "contracts": ["CDI - Non Cadre", "CDD - Non Cadre", "CDI - Cadre", "CDD - Cadre", "Stagiaire", "Apprenti(e)"]
+        "contracts": [
+            "CDI - Non Cadre",
+            "CDD - Non Cadre", 
+            "CDI - Cadre",
+            "CDD - Cadre",
+            "Stagiaire",
+            "Apprenti(e)",
+            "Intérimaire",
+            "Consultant",
+            "Temps partiel CDI",
+            "Temps partiel CDD",
+            "Contrat pro"
+        ]
     }
 
 @api_router.get("/hr-config/employee-categories")
 async def get_employee_categories(current_user: User = Depends(get_current_user)):
     return {
-        "categories": ["Cadre Supérieur", "Cadre", "Employé Qualifié", "Technicien", "Ouvrier qualifié", "Ouvrier non qualifié", "Agent administratif", "Personnel ASI"]
+        "categories": [
+            "Cadre Supérieur",
+            "Cadre", 
+            "Employé Qualifié",
+            "Technicien",
+            "Ouvrier qualifié",
+            "Ouvrier non qualifié",
+            "Agent administratif",
+            "Personnel ASI",
+            "Agent de maîtrise",
+            "Technicien supérieur",
+            "Employé",
+            "Manœuvre"
+        ]
+    }
+
+# KPI and Analytics endpoints  
+@api_router.get("/analytics/absence-kpi")
+async def get_absence_kpi(current_user: User = Depends(get_current_user)):
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    return {
+        "summary": {
+            "totalAbsences": 1542,
+            "delegationHours": 87,  # DEL coded absences
+            "personalAbsences": 1455,  # Non-DEL absences
+            "averagePerEmployee": 8.5,
+            "delegationRate": 5.6,  # % of absences that are DEL
+            "comparisonLastYear": "+3.2%"
+        },
+        "byCategory": [
+            {"code": "DEL", "name": "Délégation CSE", "count": 87, "percentage": 5.6, "color": "bg-indigo-600", "justified": True},
+            {"code": "CP", "name": "Congés payés", "count": 654, "percentage": 42.4, "color": "bg-blue-500", "justified": True},
+            {"code": "AM", "name": "Arrêt maladie", "count": 245, "percentage": 15.9, "color": "bg-red-500", "justified": False},
+            {"code": "RTT", "name": "RTT/Récupération", "count": 198, "percentage": 12.8, "color": "bg-green-500", "justified": True},
+            {"code": "FO", "name": "Formation", "count": 156, "percentage": 10.1, "color": "bg-purple-500", "justified": True},
+            {"code": "AT", "name": "Accident travail", "count": 89, "percentage": 5.8, "color": "bg-red-600", "justified": False},
+            {"code": "MAT", "name": "Congé maternité", "count": 45, "percentage": 2.9, "color": "bg-pink-500", "justified": True},
+            {"code": "FAM", "name": "Événement familial", "count": 34, "percentage": 2.2, "color": "bg-purple-300", "justified": True},
+            {"code": "NAUT", "name": "Absence non autorisée", "count": 23, "percentage": 1.5, "color": "bg-red-700", "justified": False},
+            {"code": "Autres", "name": "Autres motifs", "count": 11, "percentage": 0.7, "color": "bg-gray-500", "justified": False}
+        ],
+        "monthlyTrend": [
+            {"month": "Jan", "del": 8, "personal": 125, "total": 133},
+            {"month": "Fév", "del": 6, "personal": 118, "total": 124},
+            {"month": "Mar", "del": 9, "personal": 142, "total": 151},
+            {"month": "Avr", "del": 7, "personal": 139, "total": 146},
+            {"month": "Mai", "del": 5, "personal": 156, "total": 161},
+            {"month": "Juin", "del": 8, "personal": 178, "total": 186},
+            {"month": "Juil", "del": 4, "personal": 195, "total": 199},
+            {"month": "Août", "del": 3, "personal": 218, "total": 221},
+            {"month": "Sep", "del": 9, "personal": 128, "total": 137},
+            {"month": "Oct", "del": 8, "personal": 145, "total": 153},
+            {"month": "Nov", "del": 10, "personal": 134, "total": 144},
+            {"month": "Déc", "del": 10, "personal": 117, "total": 127}
+        ],
+        "departmentBreakdown": [
+            {"department": "Direction", "del": 15, "personal": 45, "total": 60, "delRate": 25.0},
+            {"department": "Éducatif", "del": 25, "personal": 198, "total": 223, "delRate": 11.2},
+            {"department": "Administratif", "del": 12, "personal": 156, "total": 168, "delRate": 7.1},
+            {"department": "Commercial", "del": 18, "personal": 234, "total": 252, "delRate": 7.1},
+            {"department": "Production", "del": 8, "personal": 298, "total": 306, "delRate": 2.6},
+            {"department": "ASI", "del": 5, "personal": 89, "total": 94, "delRate": 5.3},
+            {"department": "Technique", "del": 4, "personal": 165, "total": 169, "delRate": 2.4}
+        ]
     }
 
 # Include the router in the main app
