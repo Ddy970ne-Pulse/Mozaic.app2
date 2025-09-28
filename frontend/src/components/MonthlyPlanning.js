@@ -192,7 +192,7 @@ const MonthlyPlanning = ({ user }) => {
                 className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
               >
                 <option value="all">(tous)</option>
-                {absenceTypes.map(type => (
+                {absenceCategories.map(type => (
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>
