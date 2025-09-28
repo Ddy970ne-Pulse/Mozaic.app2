@@ -1143,9 +1143,9 @@ const MonthlyPlanning = ({ user }) => {
                     document.body.appendChild(modal);
                   }}
                   className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium"
-                  title="Rapport détaillé du décompte des congés payés"
+                  title="Rapport complet de tous les types d'absence avec conformité légale"
                 >
-                  📋 Congés CA
+                  📋 Toutes Absences
                 </button>
               </div>
             </div>
