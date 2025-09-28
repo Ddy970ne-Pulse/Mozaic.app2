@@ -103,10 +103,26 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Test dashboard quick action buttons corrections. Dashboard buttons were inactive and have been activated with navigation functions and interactions.
-  Corrections include: 1) MonthlyPlanning.js compilation fix (duplicate absenceTypes variable), 2) Quick action buttons activated with navigation to appropriate modules, 
-  3) Approval/rejection buttons added in recent activities, 4) Hover/active animations added for visual feedback, 5) Role-based access differentiation implemented.
-  Test with Sophie Martin (admin) account: admin@company.com / demo123. Focus on dashboard interactivity and navigation functionality.
+  Test the complete advanced UserManagement module with all requested functionalities: granular permissions management, complete RGPD data, account recovery system, and audit trail.
+  
+  NEW FEATURES ADDED:
+  1. Granular permissions system with 12 permissions per category
+  2. Role templates with predefined permissions (admin/manager/employee)  
+  3. Complete RGPD management with sensitive data and consents
+  4. Recovery system (forgotten password / forgotten username)
+  5. Audit journal with complete action traceability
+  6. Tabbed interface (Users / Recovery / Audit)
+  
+  TEST ACCOUNT: Sophie Martin (admin): admin@company.com / demo123
+  
+  TESTS TO PERFORM:
+  1. Navigation and interface: Navigate to "User Management", verify interface with 3 tabs: 👥 Users / 🔧 Recovery / 📋 Audit
+  2. Permissions management (Users tab): Test 🔐 button → "Permissions Management" modal, test role templates (Admin/Manager/Employee), verify 12 permissions organized by categories, test template application + manual permission modification
+  3. RGPD data (👤 button): Test extended form with personal data, emergency contact, RGPD consents, sensitive data
+  4. Account recovery (Recovery tab): Test "Password Recovery" and "Username Search" functionalities
+  5. Audit journal (Audit tab): Verify audit logs display with actions, timestamps, users, operators, details, IP addresses, color coding by action type
+  6. Complete user actions: User info modification, password reset, status change, new user creation with permissions
+  7. Advanced features: User search/filtering, role-based access differentiation, responsive interface
 
 backend:
   - task: "Delegation Hours Backend API"
