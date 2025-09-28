@@ -611,14 +611,20 @@ const MonthlyPlanning = ({ user }) => {
               </select>
             </div>
 
-            {/* Métier */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Métier</label>
-              <select className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white">
-                <option>(tous)</option>
-                {jobs.map(job => (
-                  <option key={job} value={job}>{job}</option>
-                ))}
+            {/* Genre */}
+            <div className="filter-group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <span className="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
+                Genre
+              </label>
+              <select 
+                value={filterGender}
+                onChange={(e) => setFilterGender(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white shadow-sm hover:shadow-md transition-shadow focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              >
+                <option value="all">Tous genres</option>
+                <option value="Femme">Femme</option>
+                <option value="Homme">Homme</option>
               </select>
             </div>
 
