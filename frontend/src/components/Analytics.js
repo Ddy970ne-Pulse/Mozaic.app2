@@ -5,11 +5,14 @@ const Analytics = ({ user }) => {
   const [selectedYear, setSelectedYear] = useState(2024);
 
   const annualData = {
-    totalAbsences: 1245,
-    averagePerEmployee: 8.2,
+    totalAbsences: 1542,
+    delegationHours: 87,  // DEL coded absences
+    personalAbsences: 1455,  // Non-DEL absences  
+    averagePerEmployee: 8.5,
+    delegationRate: 5.6,  // % of absences that are DEL
     mostCommonType: 'Congés Payés',
     peakMonth: 'Août',
-    comparisonLastYear: '+5.2%'
+    comparisonLastYear: '+3.2%'
   };
 
   const monthlyData = [
