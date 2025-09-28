@@ -42,11 +42,16 @@ const Dashboard = ({ user, onChangeView }) => {
     { name: 'Opérations', employees: 24, absences: 6, percentage: 75 }
   ];
 
-  // Fonctions pour les actions rapides
+  // Fonctions pour les actions rapides - Version corrigée avec fallback
   const handleGenerateReport = () => {
-    // Navigation vers Analytics pour générer des rapports
+    console.log('🔍 Generate Report clicked, onChangeView:', !!onChangeView);
     if (onChangeView) {
+      console.log('✅ Navigating to analytics');
       onChangeView('analytics');
+    } else {
+      console.log('❌ onChangeView not available, using window navigation fallback');
+      // Fallback: forcer la navigation en modifiant le hash ou en créant un événement custom
+      window.dispatchEvent(new CustomEvent('navigate-to', { detail: { view: 'analytics' } }));
     }
   };
 
