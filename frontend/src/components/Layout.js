@@ -85,7 +85,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
         case 'settings':
           return <SettingsPage user={user} />;
         default:
-          return <Dashboard user={user} />;
+          return <Dashboard user={user} onChangeView={setCurrentView} />;
       }
     }
   };
