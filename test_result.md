@@ -195,15 +195,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Delegation Hours Backend API"
-    - "Update activity dropdown with new motifs d'absence"
-    - "Implement employee-specific access for delegation hours"
-    - "Special handling for sickness leave with acknowledgment system"
-    - "Add software parameters configuration"
-  stuck_tasks:
-    - "Delegation Hours Backend API"
+    - "CCN66 Leave Rights Calculator Interface"
+    - "CCN66 Seniority Rules Implementation"
+    - "CCN66 Part-time Proratization"
+    - "CCN66 Exceptional Leave Handling"
+    - "CCN66 Engine Testing System"
+  stuck_tasks: []
   test_all: false
-  test_priority: "stuck_first"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
