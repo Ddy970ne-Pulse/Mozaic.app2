@@ -1062,7 +1062,7 @@ const MonthlyPlanning = ({ user }) => {
                         
                         // Calculer les règles pour cette absence
                         const absenceInfo = calculateAnyAbsenceDeduction(employee, day, absenceCode);
-                        if (absenceInfo && absenceInfo.validation.errors.length > 0) {
+                        if (absenceInfo && absenceInfo.validation && absenceInfo.validation.errors && absenceInfo.validation.errors.length > 0) {
                           hasIssues = true;
                           employeeReport += `  ❌ ${day}/${currentMonth.getMonth() + 1}: ${absenceCode} - ${absenceInfo.validation.errors.join(', ')}\n`;
                         }
