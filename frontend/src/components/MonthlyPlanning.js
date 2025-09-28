@@ -693,7 +693,11 @@ const MonthlyPlanning = ({ user }) => {
                     'text-gray-700'
                   }`}>
                     <div>{day}</div>
-                    {isHoliday(day) && <div className="text-xs text-red-600">FÉRIÉ</div>}
+                    {isHoliday(day) && (
+                      <div className="text-xs text-red-600 font-semibold" title={getHolidayName(day)}>
+                        FÉRIÉ
+                      </div>
+                    )}
                   </th>
                 ))}
                 <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 bg-gray-50 border-l border-gray-200 min-w-[80px]">
