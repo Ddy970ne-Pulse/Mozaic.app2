@@ -4,6 +4,13 @@ const MonthlyPlanning = ({ user }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [sortBy, setSortBy] = useState('name');
   const [filterDept, setFilterDept] = useState('all');
+  const [filterSite, setFilterSite] = useState('all');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [filterContract, setFilterContract] = useState('all');
+  const [filterGender, setFilterGender] = useState('all');
+  const [filterWorkTime, setFilterWorkTime] = useState('all');
+  const [filterAbsenceType, setFilterAbsenceType] = useState('all');
+  const [filterAbsenceReason, setFilterAbsenceReason] = useState('all');
 
   const employees = [
     { id: 1, name: 'Sophie Martin', department: 'RH', absences: { '3': 'CP', '4': 'CP', '17': 'RTT', '24': 'AM' } },
