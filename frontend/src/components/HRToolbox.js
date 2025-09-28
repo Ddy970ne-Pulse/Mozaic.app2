@@ -315,13 +315,27 @@ const HRToolbox = ({ user }) => {
                       Calculer les Droits
                     </button>
                     {calculationResult && (
-                      <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                        <div className="text-sm text-green-800">
-                          <strong>Résultat:</strong> {calculationResult.total} jours de congés payés
+                      <div className="space-y-2">
+                        <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                          <div className="text-sm text-green-800">
+                            <strong>Résultat:</strong> {calculationResult.total} jours de congés payés
+                          </div>
+                          <div className="text-xs text-green-700 mt-1">
+                            {calculationResult.details}
+                          </div>
+                          {calculationResult.quotite && calculationResult.quotite < 1 && (
+                            <div className="text-xs text-blue-600 mt-1">
+                              Quotité: {Math.round(calculationResult.quotite * 100)}% • Brut: {calculationResult.brutTotal}j
+                            </div>
+                          )}
                         </div>
-                        <div className="text-xs text-green-700 mt-1">
-                          {calculationResult.details}
-                        </div>
+                        {calculationResult.warnings && calculationResult.warnings.length > 0 && (
+                          <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                            {calculationResult.warnings.map((warning, index) => (
+                              <div key={index} className="text-xs text-amber-700">{warning}</div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
