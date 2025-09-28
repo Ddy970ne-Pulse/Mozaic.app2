@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { calculateLeaveDeduction, validateLeaveCalculation, generateLeaveReport, LeaveCalculatorUtils } from '../shared/congesCalculator';
+import { ABSENCE_DEDUCTION_RULES, calculateAbsenceDeduction, validateAbsenceLimits, generateAbsenceReport } from '../shared/absenceRules';
 
 const MonthlyPlanning = ({ user }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
