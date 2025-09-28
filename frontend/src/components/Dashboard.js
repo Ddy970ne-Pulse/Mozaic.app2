@@ -1,20 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getRequests, getPendingRequests, getRecentActivities, approveRequest, rejectRequest, subscribe } from '../shared/requestsData';
 
 const Dashboard = ({ user, onChangeView }) => {
+  const [requests, setRequests] = useState(getRequests());
+  const [recentActivities, setRecentActivities] = useState(getRecentActivities());
+
   const stats = [
     { title: 'Employés Actifs', value: '156', icon: '👥', color: 'bg-blue-500', change: '+12' },
-    { title: 'Demandes en Attente', value: '23', icon: '📋', color: 'bg-orange-500', change: '+5' },
+    { title: 'Demandes en Attente', value: requests.pending.length.toString(), icon: '📋', color: 'bg-orange-500', change: '+5' },
     { title: 'Congés ce Mois', value: '45', icon: '🏖️', color: 'bg-green-500', change: '-3' },
     { title: 'Heures Sup. Total', value: '234h', icon: '⏰', color: 'bg-purple-500', change: '+18h' }
   ];
 
-  const recentActivities = [
-    { name: 'Marie Leblanc', action: 'Demande congés payés', date: '2024-01-15', status: 'En attente' },
-    { name: 'Jean Dupont', action: 'Validation heures sup.', date: '2024-01-15', status: 'Approuvé' },
-    { name: 'Pierre Martin', action: 'Demande RTT', date: '2024-01-14', status: 'En attente' },
-    { name: 'Claire Dubois', action: 'Congé maladie', date: '2024-01-14', status: 'Approuvé' },
-    { name: 'Lucas Bernard', action: 'Demande formation', date: '2024-01-13', status: 'En révision' }
-  ];
+  // Souscription aux changements d'état
+  useEffect(() => {
+    const unsubscribe = subscribe((newRequests) => {
+      setRequests(newRequests);
+      setRecentActivities(getRecentActivities());
+    });
+
+    return unsubscribe;
+  }, []);
 
   const upcomingEvents = [
     { event: 'Réunion équipe RH', date: '16 Jan', time: '09:00', type: 'meeting' },
