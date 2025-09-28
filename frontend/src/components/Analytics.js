@@ -102,6 +102,79 @@ const Analytics = ({ user }) => {
           </div>
         </div>
       </div>
+      
+      {/* KPI Distinction DEL vs Personnel */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm">Total Absences</p>
+              <p className="text-3xl font-bold text-gray-800">{annualData.totalAbsences}</p>
+              <p className="text-sm text-gray-500">+{annualData.comparisonLastYear} vs N-1</p>
+            </div>
+            <div className="text-4xl text-blue-500">📊</div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm">Délégation CSE</p>
+              <p className="text-3xl font-bold text-indigo-600">{annualData.delegationHours}</p>
+              <p className="text-sm text-green-600">✅ Justifiées (DEL)</p>
+            </div>
+            <div className="text-4xl text-indigo-500">🏢</div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm">Absences Personnelles</p>
+              <p className="text-3xl font-bold text-gray-700">{annualData.personalAbsences}</p>
+              <p className="text-sm text-orange-600">📋 Absentéisme classique</p>
+            </div>
+            <div className="text-4xl text-gray-500">👤</div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm">Taux Délégation</p>
+              <p className="text-3xl font-bold text-indigo-600">{annualData.delegationRate}%</p>
+              <p className="text-sm text-indigo-500">DEL / Total</p>
+            </div>
+            <div className="text-4xl text-indigo-400">⚖️</div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Explication Codification */}
+      <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl border border-indigo-200 p-6">
+        <div className="flex items-start space-x-4">
+          <div className="text-indigo-500 text-3xl">📋</div>
+          <div>
+            <h3 className="text-lg font-semibold text-indigo-800 mb-2">Codification des Absences</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="flex items-center space-x-2 mb-1">
+                  <div className="w-3 h-3 bg-indigo-600 rounded-full"></div>
+                  <span className="font-medium text-indigo-800">DEL - Délégation CSE</span>
+                </div>
+                <p className="text-indigo-700 ml-5">Missions représentatives - Non comptabilisées dans l'absentéisme</p>
+              </div>
+              <div>
+                <div className="flex items-center space-x-2 mb-1">
+                  <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+                  <span className="font-medium text-gray-800">Autres codes (AM, CP, RTT...)</span>
+                </div>
+                <p className="text-gray-700 ml-5">Absences personnelles - Comptabilisées dans l'absentéisme</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
