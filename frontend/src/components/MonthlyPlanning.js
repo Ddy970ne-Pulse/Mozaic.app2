@@ -456,7 +456,7 @@ const MonthlyPlanning = ({ user }) => {
                     className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                   >
                     📄 Format A4 Paysage
-                    <div className="text-xs text-gray-500">Recommandé pour 10-15 employés</div>
+                    <div className="text-xs text-gray-500">Recommandé pour jusqu'à 15 employés</div>
                   </button>
                   <button
                     onClick={() => {
