@@ -70,19 +70,19 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
         case 'my-space':
           return <EmployeeSpace user={user} />;
         case 'absence-requests':
-          return <AbsenceRequests user={user} />;
+          return <AbsenceRequests user={user} onChangeView={setCurrentView} />;
         case 'monthly-planning':
-          return <MonthlyPlanning user={user} />;
+          return <MonthlyPlanning user={user} onChangeView={setCurrentView} />;
         case 'analytics':
-          return <Analytics user={user} />;
+          return <Analytics user={user} onChangeView={setCurrentView} />;
         case 'overtime':
-          return <OvertimeModule user={user} />;
+          return <OvertimeModule user={user} onChangeView={setCurrentView} />;
         case 'delegation-hours':
-          return <DelegationHours user={user} />;
+          return <DelegationHours user={user} onChangeView={setCurrentView} />;
         case 'hr-toolbox':
-          return <HRToolbox user={user} />;
+          return <HRToolbox user={user} onChangeView={setCurrentView} />;
         case 'user-management':
-          return <UserManagement user={user} />;
+          return <UserManagement user={user} onChangeView={setCurrentView} />;
         case 'settings':
           return <SettingsPage user={user} />;
         default:
