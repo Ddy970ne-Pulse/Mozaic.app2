@@ -535,19 +535,22 @@ const MonthlyPlanning = ({ user }) => {
             </div>
           </div>
 
-          {/* Types d'absence summary - toujours visible */}
-          <div className="flex flex-wrap gap-4 text-sm mt-3">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-100 border border-blue-300 rounded"></div>
-              <span className="text-gray-700">Absence Programmée</span>
+          {/* Types d'absence summary - toujours visible avec distinction claire */}
+          <div className="flex flex-wrap gap-6 text-sm mt-3">
+            <div className="flex items-center space-x-2 bg-blue-50 px-3 py-1 rounded-lg border border-blue-200">
+              <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+              <span className="text-blue-800 font-medium">Absence Programmée</span>
+              <span className="text-blue-600 text-xs">(planifiée à l'avance)</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-red-100 border border-red-300 rounded"></div>
-              <span className="text-gray-700">Absentéisme</span>
+            <div className="flex items-center space-x-2 bg-red-50 px-3 py-1 rounded-lg border border-red-200">
+              <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+              <span className="text-red-800 font-medium">Absentéisme</span>
+              <span className="text-red-600 text-xs">(non planifié/subit)</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
-              <span className="text-gray-700">Présence</span>
+            <div className="flex items-center space-x-2 bg-green-50 px-3 py-1 rounded-lg border border-green-200">
+              <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+              <span className="text-green-800 font-medium">Présence</span>
+              <span className="text-green-600 text-xs">(heures sup, etc.)</span>
             </div>
           </div>
         </div>
