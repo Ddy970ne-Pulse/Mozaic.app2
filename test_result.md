@@ -103,26 +103,32 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Test the complete advanced UserManagement module with all requested functionalities: granular permissions management, complete RGPD data, account recovery system, and audit trail.
+  PHASE 1 COMPLETED: Fixed React loading issue - application now loads successfully ✅
   
-  NEW FEATURES ADDED:
-  1. Granular permissions system with 12 permissions per category
-  2. Role templates with predefined permissions (admin/manager/employee)  
-  3. Complete RGPD management with sensitive data and consents
-  4. Recovery system (forgotten password / forgotten username)
-  5. Audit journal with complete action traceability
-  6. Tabbed interface (Users / Recovery / Audit)
+  PHASE 2: Complete the absence legend in Monthly Planning module with comprehensive absence codes:
   
-  TEST ACCOUNT: Sophie Martin (admin): admin@company.com / demo123
+  FEATURES TO IMPLEMENT:
+  1. Comprehensive absence legend with all 21 absence codes from provided list
+  2. Visual legend displayed on monthly planning interface with color coding
+  3. Codes selectable when creating absences  
+  4. Specific colors for visual distinction in calendar
+  5. Complete absence types: AT, AM, NAUT, AUT, FAM, MAT, PAT, CA, FO, CSS, CT, REC, RH, RHD, TEL, DEL, STG, CEX, MPRO, EMAL, RMED
+  
+  TEST ACCOUNT: Sophie Martin (admin): sophie.martin@company.com / demo123
+  
+  IMPLEMENTATION COMPLETED:
+  1. ✅ Updated absenceColorMap with all 21 absence codes with proper colors, names, types and decompte
+  2. ✅ Added comprehensive visual legend section below statistics
+  3. ✅ Updated sample employee data to show new absence codes (CA, REC, DEL, TEL, FO, etc.)
+  4. ✅ Updated absenceReasons list to match comprehensive absence list
+  5. ✅ Added legend categorization by type (Absence Programmée, Absentéisme, Présence)
   
   TESTS TO PERFORM:
-  1. Navigation and interface: Navigate to "User Management", verify interface with 3 tabs: 👥 Users / 🔧 Recovery / 📋 Audit
-  2. Permissions management (Users tab): Test 🔐 button → "Permissions Management" modal, test role templates (Admin/Manager/Employee), verify 12 permissions organized by categories, test template application + manual permission modification
-  3. RGPD data (👤 button): Test extended form with personal data, emergency contact, RGPD consents, sensitive data
-  4. Account recovery (Recovery tab): Test "Password Recovery" and "Username Search" functionalities
-  5. Audit journal (Audit tab): Verify audit logs display with actions, timestamps, users, operators, details, IP addresses, color coding by action type
-  6. Complete user actions: User info modification, password reset, status change, new user creation with permissions
-  7. Advanced features: User search/filtering, role-based access differentiation, responsive interface
+  1. Navigation: Login and access Monthly Planning module
+  2. Absence Legend Display: Verify comprehensive legend shows all 21 absence codes with colors
+  3. Calendar Display: Confirm absence codes display correctly in calendar with proper colors
+  4. Legend Functionality: Verify legend shows full names, types, and decompte information
+  5. Responsive Design: Check legend displays properly on different screen sizes
 
 backend:
   - task: "Delegation Hours Backend API"
