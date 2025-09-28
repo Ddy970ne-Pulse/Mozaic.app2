@@ -11,6 +11,8 @@ const MonthlyPlanning = ({ user }) => {
   const [filterWorkTime, setFilterWorkTime] = useState('all');
   const [filterAbsenceType, setFilterAbsenceType] = useState('all');
   const [filterAbsenceReason, setFilterAbsenceReason] = useState('all');
+  const [showLegendDetails, setShowLegendDetails] = useState(false);
+  const [legendView, setLegendView] = useState('compact'); // 'compact' or 'detailed'
 
   const employees = [
     { 
