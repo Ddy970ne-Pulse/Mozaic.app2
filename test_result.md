@@ -175,18 +175,39 @@ frontend:
 
   - task: "Add software parameters configuration"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/components/DelegationHours.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: false
         agent: "main"
         comment: "Added comprehensive software parameters section in settings with sites, departments, employee categories, and contract types from user's second image"
-      - working: true
-        agent: "testing"
-        comment: "VERIFIED: Software parameters configuration fully implemented. Configuration tab shows 'Système de Codification des Absences' with detailed DEL codification explanation, absence codes (DEL, AM, CA, CT), and KPI impact analysis. 'Paramètres du Logiciel' section includes Sites d'affectation (Siège, Pôle Éducatif, etc.), Départements (Direction, Éducatif, Administratif, etc.), employee categories, and contract types. All parameters properly organized and accessible to admin users."
+
+  - task: "Improve CSE delegation hour cession system"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/DelegationHours.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Fixed cession modal to use availableHours instead of remainingHours, added dedicated cession button for employees in personal delegation section, corrected property references for functional hour transfers between CSE delegates"
+
+  - task: "Move absence types to AbsenceRequests module"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/AbsenceRequests.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Added comprehensive absence types (medical, family, vacation, work, other categories) with 21 different types removed from delegation module. Implemented special handling for sickness leave (AM) with acknowledgment system and document upload capability. Added optional justificatives upload for all absence types with file validation."
 
 metadata:
   created_by: "main_agent"
