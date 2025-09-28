@@ -256,44 +256,28 @@ const EmployeeSpace = ({ user }) => {
           </div>
         );
 
-      case 'payslips':
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-800">Fiches de Paie</h3>
-            </div>
-            <div className="p-6">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="text-left text-sm font-medium text-gray-500 border-b border-gray-200">
-                      <th className="pb-3">Période</th>
-                      <th className="pb-3">Salaire Brut</th>
-                      <th className="pb-3">Salaire Net</th>
-                      <th className="pb-3">Date d'émission</th>
-                      <th className="pb-3">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {employeeData.payslips.map((payslip, index) => (
-                      <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-4 font-medium text-gray-800">{payslip.month}</td>
-                        <td className="py-4 text-gray-600">{payslip.gross.toLocaleString('fr-FR')} €</td>
-                        <td className="py-4 font-medium text-green-600">{payslip.net.toLocaleString('fr-FR')} €</td>
-                        <td className="py-4 text-gray-600">{formatDate(payslip.date)}</td>
-                        <td className="py-4">
-                          <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors duration-200">
-                            Télécharger
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        );
+      // case 'payslips': // MODULE DÉSACTIVÉ
+      //   return (
+      //     <div className="space-y-6">
+      //       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+      //         <div className="flex items-center space-x-3">
+      //           <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      //             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833-.228 2.5 1.732 2.5z" />
+      //           </svg>
+      //           <div>
+      //             <h3 className="text-lg font-semibold text-yellow-800">Module Fiches de Paie Temporairement Indisponible</h3>
+      //             <p className="text-yellow-700 mt-1">
+      //               Conformément au RGPD, les fiches de paie nécessitent un coffre-fort numérique sécurisé. 
+      //               Ce module sera disponible prochainement avec les mesures de sécurité appropriées.
+      //             </p>
+      //             <p className="text-sm text-yellow-600 mt-2">
+      //               Pour consulter vos fiches de paie, veuillez contacter le service RH.
+      //             </p>
+      //           </div>
+      //         </div>
+      //       </div>
+      //     </div>
+      //   );
 
       case 'goals':
         return (
