@@ -67,9 +67,13 @@ const Dashboard = ({ user, onChangeView }) => {
   };
 
   const handleScheduleMeeting = () => {
-    // Navigation vers Planning Mensuel
+    console.log('🔍 Schedule Meeting clicked, onChangeView:', !!onChangeView);
     if (onChangeView) {
+      console.log('✅ Navigating to monthly-planning');
       onChangeView('monthly-planning');
+    } else {
+      console.log('❌ onChangeView not available, using window navigation fallback');
+      window.dispatchEvent(new CustomEvent('navigate-to', { detail: { view: 'monthly-planning' } }));
     }
   };
 
