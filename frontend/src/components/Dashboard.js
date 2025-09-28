@@ -278,6 +278,7 @@ const Dashboard = ({ user, onChangeView }) => {
       {/* Quick Actions */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white">
         <h2 className="text-lg font-semibold mb-4">Actions Rapides</h2>
+        <div className="mb-2 text-sm opacity-70">DEBUG: onChangeView = {onChangeView ? 'Available' : 'NOT Available'}</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <button 
             onClick={() => {
