@@ -16,6 +16,124 @@ code {
         monospace;
 }
 
+/* Améliorations responsive MOZAIK RH */
+@layer utilities {
+  /* Responsive containers */
+  .responsive-container {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Mobile-first grid adaptations */
+  .responsive-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+  
+  /* Responsive text sizes */
+  .responsive-title {
+    @apply text-xl sm:text-2xl lg:text-3xl font-bold;
+  }
+  
+  .responsive-subtitle {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+  
+  /* Mobile menu adaptations */
+  .mobile-menu-item {
+    @apply block sm:hidden w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200;
+  }
+  
+  /* Responsive buttons */
+  .responsive-button {
+    @apply px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3 text-sm sm:text-base font-medium rounded-lg transition-colors duration-200;
+  }
+  
+  /* Responsive cards */
+  .responsive-card {
+    @apply p-4 sm:p-6 lg:p-8 rounded-xl shadow-sm border border-gray-200 bg-white;
+  }
+  
+  /* Mobile-optimized tables */
+  .mobile-table-cell {
+    @apply block sm:table-cell px-2 py-3 sm:px-6 sm:py-4 text-sm;
+  }
+  
+  /* Responsive forms */
+  .responsive-input {
+    @apply w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+  
+  /* Touch-friendly interactive elements */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+  
+  /* Responsive spacing */
+  .responsive-section {
+    @apply space-y-4 sm:space-y-6 lg:space-y-8;
+  }
+  
+  /* Mobile navigation */
+  .mobile-nav {
+    @apply fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 sm:hidden z-50;
+  }
+  
+  /* Responsive modal */
+  .responsive-modal {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50;
+  }
+  
+  .responsive-modal-content {
+    @apply bg-white rounded-xl w-full max-w-lg sm:max-w-2xl lg:max-w-4xl max-h-screen overflow-y-auto;
+  }
+}
+
+/* Media queries pour les breakpoints personnalisés */
+@media (max-width: 640px) {
+  /* Mobile styles */
+  .mobile-only {
+    display: block !important;
+  }
+  
+  .mobile-hidden {
+    display: none !important;
+  }
+  
+  /* Stack cards vertically on mobile */
+  .card-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+  
+  /* Full width elements on mobile */
+  .mobile-full-width {
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Tablet styles */
+  .tablet-only {
+    display: block !important;
+  }
+  
+  .tablet-hidden {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  /* Desktop styles */
+  .desktop-only {
+    display: block !important;
+  }
+  
+  .desktop-hidden {
+    display: none !important;
+  }
+}
+
 
 
 @layer base {
