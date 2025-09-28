@@ -108,12 +108,38 @@ const AbsenceRequests = ({ user }) => {
   };
 
   const absenceTypes = {
-    'CP': { name: 'Congés Payés', color: 'bg-blue-500' },
-    'RTT': { name: 'RTT', color: 'bg-green-500' },
-    'AM': { name: 'Arrêt Maladie', color: 'bg-red-500' },
-    'Formation': { name: 'Formation', color: 'bg-purple-500' },
-    'CT': { name: 'Congé Tech', color: 'bg-orange-500' },
-    'Autre': { name: 'Autre', color: 'bg-gray-500' }
+    // Absences médicales
+    'AT': { name: 'Accident du travail/Trajet', color: 'bg-red-500', category: 'medical' },
+    'AM': { name: 'Arrêt maladie', color: 'bg-red-400', category: 'medical', requiresAcknowledgment: true },
+    'MPRO': { name: 'Maladie Professionnelle', color: 'bg-red-600', category: 'medical' },
+    'EMAL': { name: 'Enfants malades', color: 'bg-pink-500', category: 'medical' },
+    'RMED': { name: 'Rendez-vous médical', color: 'bg-pink-400', category: 'medical' },
+    
+    // Congés familiaux
+    'MAT': { name: 'Congé maternité', color: 'bg-purple-500', category: 'family' },
+    'PAT': { name: 'Congé paternité', color: 'bg-purple-400', category: 'family' },
+    'FAM': { name: 'Évènement familial', color: 'bg-purple-300', category: 'family' },
+    
+    // Congés et repos
+    'CP': { name: 'Congés Payés', color: 'bg-blue-500', category: 'vacation' },
+    'CA': { name: 'Congés annuels', color: 'bg-blue-400', category: 'vacation' },
+    'CT': { name: 'Congés Trimestriels', color: 'bg-blue-300', category: 'vacation' },
+    'RTT': { name: 'RTT / Récupération', color: 'bg-green-500', category: 'vacation' },
+    'REC': { name: 'Récupération', color: 'bg-green-400', category: 'vacation' },
+    'RH': { name: 'Repos Hebdomadaire', color: 'bg-green-300', category: 'vacation' },
+    'RHD': { name: 'Repos Dominical', color: 'bg-green-200', category: 'vacation' },
+    'CEX': { name: 'Congé exceptionnel', color: 'bg-indigo-500', category: 'vacation' },
+    
+    // Travail et formation
+    'TEL': { name: 'Télétravail', color: 'bg-cyan-500', category: 'work' },
+    'FO': { name: 'Formation', color: 'bg-purple-500', category: 'work' },
+    'STG': { name: 'Stage', color: 'bg-cyan-400', category: 'work' },
+    
+    // Autres absences
+    'NAUT': { name: 'Absence non autorisée', color: 'bg-red-700', category: 'other' },
+    'AUT': { name: 'Absence autorisée', color: 'bg-gray-500', category: 'other' },
+    'CSS': { name: 'Congés Sans Solde', color: 'bg-gray-600', category: 'other' },
+    'Autre': { name: 'Autre motif', color: 'bg-gray-400', category: 'other' }
   };
 
   const getStatusColor = (status) => {
