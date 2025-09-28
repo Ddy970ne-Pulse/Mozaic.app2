@@ -15,7 +15,76 @@ const UserManagement = ({ user }) => {
   const [recoveryType, setRecoveryType] = useState('password'); // 'password' ou 'username'
   const [auditLogs, setAuditLogs] = useState([]);
 
-  // Données d'exemple des utilisateurs
+  // Système de permissions granulaires
+  const availablePermissions = {
+    'user_management': { name: 'Gestion des utilisateurs', category: 'Administration' },
+    'payroll_access': { name: 'Accès données paie', category: 'Paie' },
+    'payroll_export': { name: 'Export données paie', category: 'Paie' },
+    'absence_approve': { name: 'Approuver absences', category: 'Absences' },
+    'absence_view_all': { name: 'Voir toutes les absences', category: 'Absences' },
+    'delegation_manage': { name: 'Gérer délégations CSE', category: 'Délégation' },
+    'analytics_access': { name: 'Accès analytics RH', category: 'Analytics' },
+    'planning_edit': { name: 'Modifier plannings', category: 'Planning' },
+    'overtime_approve': { name: 'Approuver heures sup', category: 'Heures sup' },
+    'reports_generate': { name: 'Générer rapports', category: 'Rapports' },
+    'gdpr_access': { name: 'Accès données RGPD', category: 'RGPD' },
+    'audit_view': { name: 'Consulter logs audit', category: 'Sécurité' }
+  };
+
+  // Templates de rôles avec permissions prédéfinies
+  const roleTemplates = {
+    'admin': {
+      name: 'Administrateur',
+      permissions: Object.keys(availablePermissions),
+      description: 'Accès complet à tous les modules'
+    },
+    'manager': {
+      name: 'Manager/RH',
+      permissions: ['absence_approve', 'absence_view_all', 'analytics_access', 'planning_edit', 'overtime_approve', 'reports_generate'],
+      description: 'Gestion équipe et approbations'
+    },
+    'employee': {
+      name: 'Employé',
+      permissions: [],
+      description: 'Accès personnel uniquement'
+    }
+  };
+
+  // Mock audit logs
+  const mockAuditLogs = [
+    {
+      id: '1',
+      timestamp: '2024-01-25 14:30:25',
+      action: 'USER_UPDATE',
+      userId: '3',
+      userName: 'Marie Leblanc',
+      performedBy: 'Sophie Martin',
+      details: 'Changement département: Commercial → Éducatif',
+      ipAddress: '192.168.1.100'
+    },
+    {
+      id: '2',
+      timestamp: '2024-01-24 09:15:10',
+      action: 'PASSWORD_RESET',
+      userId: '4',
+      userName: 'Pierre Moreau',
+      performedBy: 'Sophie Martin',
+      details: 'Réinitialisation mot de passe - Demande utilisateur',
+      ipAddress: '192.168.1.100'
+    },
+    {
+      id: '3',
+      timestamp: '2024-01-23 16:45:30',
+      action: 'PERMISSION_CHANGE',
+      userId: '2',
+      userName: 'Jean Dupont',
+      performedBy: 'Sophie Martin',
+      details: 'Ajout permission: analytics_access',
+      ipAddress: '192.168.1.100'
+    }
+  ];
+
+  // Données d'exemple des utilisateurs étendues
   const mockUsers = [
     {
       id: '1',
