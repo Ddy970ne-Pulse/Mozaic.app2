@@ -69,16 +69,30 @@ const Dashboard = ({ user, onChangeView }) => {
 
   // Fonction pour approuver une demande
   const handleApproveRequest = (activityIndex) => {
-    console.log('Approbation demande:', recentActivities[activityIndex]);
-    alert(`✅ Demande de ${recentActivities[activityIndex].name} approuvée !`);
+    const activity = recentActivities[activityIndex];
+    if (activity.originalStatus === 'pending') {
+      const success = approveRequest(activity.originalId, user.name);
+      if (success) {
+        alert(`✅ Demande de ${activity.name} approuvée !`);
+      } else {
+        alert('❌ Erreur lors de l\'approbation');
+      }
+    }
   };
 
-  // Fonction pour rejeter une demande
+  // Fonction pour rejeter une demande  
   const handleRejectRequest = (activityIndex) => {
-    const reason = prompt('Motif du rejet:');
-    if (reason) {
-      console.log('Rejet demande:', recentActivities[activityIndex], 'Motif:', reason);
-      alert(`❌ Demande de ${recentActivities[activityIndex].name} rejetée.`);
+    const activity = recentActivities[activityIndex];
+    if (activity.originalStatus === 'pending') {
+      const reason = prompt('Motif du rejet:');
+      if (reason !== null) { // L'utilisateur n'a pas annulé
+        const success = rejectRequest(activity.originalId, user.name, reason);
+        if (success) {
+          alert(`❌ Demande de ${activity.name} rejetée.`);
+        } else {
+          alert('❌ Erreur lors du rejet');
+        }
+      }
     }
   };
 
