@@ -1283,7 +1283,7 @@ const MonthlyPlanning = ({ user }) => {
                                   );
                                 }
                                 
-                                if (!absenceInfo.displayInfo.willBeDeducted && absence !== 'CA') {
+                                if (absenceInfo.displayInfo && !absenceInfo.displayInfo.willBeDeducted && absence !== 'CA') {
                                   return (
                                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full text-xs text-white flex items-center justify-center" title="Non décompté">
                                       ✓
