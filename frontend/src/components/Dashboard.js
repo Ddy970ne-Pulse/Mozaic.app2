@@ -145,7 +145,7 @@ const Dashboard = ({ user, onChangeView }) => {
                   </div>
                   
                   <div className="flex items-center space-x-3">
-                    {activity.status === 'En attente' && (user.role === 'admin' || user.role === 'manager') && (
+                    {activity.originalStatus === 'pending' && (user.role === 'admin' || user.role === 'manager') && (
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleApproveRequest(index)}
