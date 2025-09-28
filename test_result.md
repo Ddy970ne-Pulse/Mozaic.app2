@@ -284,6 +284,8 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Frontend React App Loading"
+  stuck_tasks:
     - "UserManagement Tabbed Interface"
     - "Granular Permissions System"
     - "Role Templates System"
@@ -292,9 +294,8 @@ test_plan:
     - "Audit Trail System"
     - "Advanced User Actions"
     - "User Search and Filtering"
-  stuck_tasks: []
   test_all: false
-  test_priority: "high_first"
+  test_priority: "critical_first"
 
 agent_communication:
   - agent: "main"
