@@ -53,24 +53,59 @@ const HRToolbox = ({ user }) => {
     }
   ];
 
-  // Fonction pour calculer les droits aux congés
+  // Fonction pour calculer les droits aux congés selon CCN66
   const calculateLeaveRights = () => {
-    const anciennete = document.querySelector('input[placeholder="Années"]')?.value || 0;
-    const tempsPlein = document.querySelector('select').value === 'Temps plein';
+    const ancienneteInput = document.querySelector('input[placeholder="Années"]');
+    const tempsPleinSelect = document.querySelector('select');
+    const congesExceptionnelsInput = document.querySelector('input[placeholder="Jours exceptionnels"]');
     
-    let droitsBase = 25; // Base CCN66
-    let droitsAnciennete = anciennete >= 10 ? 1 : 0;
-    let droitsTotal = droitsBase + droitsAnciennete;
+    const anciennete = parseFloat(ancienneteInput?.value) || 0;
+    const tempsPlein = tempsPleinSelect?.value === 'Temps plein';
+    const quotiteTravail = tempsPlein ? 1.0 : 0.8; // Quotité standard pour temps partiel
+    const congesExceptionnels = parseInt(congesExceptionnelsInput?.value) || 0;
+    
+    // Règles CCN66 correctes
+    let droitsBase = 25; // 25 jours ouvrables selon CCN66
+    let droitsAnciennete = 0;
+    let droitsExceptionnels = Math.min(congesExceptionnels, 4); // Maximum 4 jours exceptionnels
+    
+    // Ancienneté CCN66 : +1 jour tous les 5 ans à partir de 10 ans
+    if (anciennete >= 10) {
+      droitsAnciennete = 1; // 1er jour à 10 ans
+      if (anciennete >= 15) droitsAnciennete = 2; // 2ème jour à 15 ans
+      if (anciennete >= 20) droitsAnciennete = 3; // 3ème jour à 20 ans
+      if (anciennete >= 25) droitsAnciennete = 4; // 4ème jour à 25 ans (maximum)
+    }
+    
+    // Calcul proratisation temps partiel (CCN66)
+    let droitsBrutTotal = droitsBase + droitsAnciennete + droitsExceptionnels;
+    let droitsProrates = droitsBrutTotal;
     
     if (!tempsPlein) {
-      droitsTotal = Math.round(droitsTotal * 0.8); // Exemple proratisation
+      // Proratisation correcte selon quotité de travail
+      droitsProrates = Math.floor(droitsBrutTotal * quotiteTravail);
+    }
+    
+    let warnings = [];
+    
+    // Validation règles CCN66
+    if (congesExceptionnels > 4) {
+      warnings.push('⚠️ Congés exceptionnels limités à 4 jours maximum (CCN66)');
+    }
+    
+    if (!tempsPlein && quotiteTravail < 0.5) {
+      warnings.push('⚠️ Quotité < 50% : vérifier conditions spéciales');
     }
     
     setCalculationResult({
       base: droitsBase,
-      anciennete: droitsAnciennete, 
-      total: droitsTotal,
-      details: `${droitsBase} jours de base + ${droitsAnciennete} jour(s) d'ancienneté = ${droitsTotal} jours${!tempsPlein ? ' (proratisé temps partiel)' : ''}`
+      anciennete: droitsAnciennete,
+      exceptionnels: droitsExceptionnels, 
+      brutTotal: droitsBrutTotal,
+      total: droitsProrates,
+      quotite: quotiteTravail,
+      warnings: warnings,
+      details: `${droitsBase} jours de base + ${droitsAnciennete} jour(s) d'ancienneté + ${droitsExceptionnels} jour(s) exceptionnels = ${droitsBrutTotal} jours${!tempsPlein ? ` → ${droitsProrates} jours (proratisé ${Math.round(quotiteTravail * 100)}%)` : ''}`
     });
   };
 
