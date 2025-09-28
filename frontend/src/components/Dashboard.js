@@ -61,13 +61,9 @@ const Dashboard = ({ user, onChangeView }) => {
   };
 
   const handleExportPayroll = () => {
-    console.log('🔍 handleExportPayroll called, onChangeView:', onChangeView);
     // Navigation vers Boîte à outils RH pour l'export paie
     if (onChangeView) {
-      console.log('✅ Calling onChangeView with hr-toolbox');
       onChangeView('hr-toolbox');
-    } else {
-      console.log('❌ onChangeView is not available');
     }
   };
 
