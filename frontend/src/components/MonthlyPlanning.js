@@ -506,9 +506,39 @@ const MonthlyPlanning = ({ user }) => {
           </div>
         </div>
 
-        {/* Filtres avancés basés sur l'image fournie */}
-        <div className="mt-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-4">
+        {/* Ruban de filtres et tri amélioré */}
+        <div className="mt-6 bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-500 to-blue-600 px-6 py-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-white font-semibold flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                </svg>
+                Filtres & Tri du Planning
+              </h3>
+              <div className="flex items-center space-x-3 text-white text-sm">
+                <span>{filteredEmployees.length} employé(s) affiché(s)</span>
+                <button 
+                  onClick={() => {
+                    setFilterDept('all');
+                    setFilterSite('all');
+                    setFilterCategory('all');
+                    setFilterContract('all');
+                    setFilterGender('all');
+                    setFilterWorkTime('all');
+                    setFilterAbsenceType('all');
+                    setFilterAbsenceReason('all');
+                  }}
+                  className="px-3 py-1 bg-white/20 rounded-md hover:bg-white/30 transition-colors text-xs font-medium"
+                >
+                  Réinitialiser
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
             {/* Filtre Mois */}
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Month</label>
