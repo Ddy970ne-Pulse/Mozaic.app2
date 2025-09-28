@@ -992,21 +992,21 @@ const MonthlyPlanning = ({ user }) => {
                     
                     // Afficher dans une modal
                     const modal = document.createElement('div');
-                    modal.innerHTML = \`
+                    modal.innerHTML = `
                       <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
                         <div style="background: white; padding: 30px; border-radius: 10px; max-width: 800px; max-height: 80vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
                           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                             <h2 style="font-size: 18px; font-weight: bold; color: #1f2937; margin: 0;">📋 Rapport Congés Payés</h2>
                             <button onclick="this.closest('div').parentElement.remove()" style="background: #ef4444; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer;">✕</button>
                           </div>
-                          <pre style="white-space: pre-wrap; font-family: monospace; font-size: 11px; line-height: 1.4; background: #f9fafb; padding: 15px; border-radius: 5px; border: 1px solid #e5e7eb; color: #374151;">\${globalReport.replace(/\`/g, '\\\\`')}</pre>
+                          <pre style="white-space: pre-wrap; font-family: monospace; font-size: 11px; line-height: 1.4; background: #f9fafb; padding: 15px; border-radius: 5px; border: 1px solid #e5e7eb; color: #374151;">${globalReport.replace(/`/g, '\\`')}</pre>
                           <div style="margin-top: 20px; display: flex; gap: 10px;">
-                            <button onclick="navigator.clipboard.writeText(\\\`\${globalReport.replace(/\`/g, '\\\\\\\\`')}\\\`).then(() => alert('📋 Rapport copié!'))" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">📋 Copier</button>
+                            <button onclick="navigator.clipboard.writeText(\`${globalReport.replace(/`/g, '\\\\`')}\`).then(() => alert('📋 Rapport copié!'))" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">📋 Copier</button>
                             <button onclick="this.closest('div').parentElement.remove()" style="background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">Fermer</button>
                           </div>
                         </div>
                       </div>
-                    \`;
+                    `;
                     document.body.appendChild(modal);
                   }}
                   className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium"
