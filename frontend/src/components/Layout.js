@@ -80,6 +80,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <DelegationHours user={user} />;
         case 'hr-toolbox':
           return <HRToolbox user={user} />;
+        case 'user-management':
+          return <UserManagement user={user} />;
         case 'settings':
           return <SettingsPage user={user} />;
         default:
