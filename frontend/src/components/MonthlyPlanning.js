@@ -469,6 +469,7 @@ const MonthlyPlanning = ({ user }) => {
                     <div className="text-xs text-gray-500">Recommandé pour plus de 15 employés</div>
                   </button>
                   <div className="px-4 py-2 text-xs text-gray-500 border-t border-gray-100">
+                    • Orientation paysage optimisée<br/>
                     • En-têtes répétés sur chaque page<br/>
                     • Légende incluse automatiquement
                   </div>
