@@ -557,17 +557,20 @@ const MonthlyPlanning = ({ user }) => {
               </select>
             </div>
 
-            {/* Type Absence */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Type Absence</label>
+            {/* Site */}
+            <div className="filter-group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                Site
+              </label>
               <select 
-                value={filterAbsenceType}
-                onChange={(e) => setFilterAbsenceType(e.target.value)}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+                value={filterSite}
+                onChange={(e) => setFilterSite(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white shadow-sm hover:shadow-md transition-shadow focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="all">(tous)</option>
-                {absenceCategories.map(type => (
-                  <option key={type} value={type}>{type}</option>
+                <option value="all">Tous les sites</option>
+                {sites.map(site => (
+                  <option key={site} value={site}>{site}</option>
                 ))}
               </select>
             </div>
