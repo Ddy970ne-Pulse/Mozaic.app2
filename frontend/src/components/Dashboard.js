@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getRequests, getPendingRequests, getRecentActivities, approveRequest, rejectRequest, subscribe } from '../shared/requestsData';
 import { getUpcomingEvents, subscribe as subscribeToEvents, formatEventForDisplay, eventTypes } from '../shared/eventsData';
-import { attachQuickActionListeners, navigateToView } from '../shared/navigationHelper';
+// Navigation helper retiré pour éviter les conflits mémoire
 
 const Dashboard = ({ user, onChangeView }) => {
   const [requests, setRequests] = useState(getRequests());
