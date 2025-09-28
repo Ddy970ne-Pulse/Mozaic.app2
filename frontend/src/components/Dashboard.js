@@ -5,6 +5,7 @@ import { getUpcomingEvents, subscribe as subscribeToEvents, formatEventForDispla
 const Dashboard = ({ user, onChangeView }) => {
   const [requests, setRequests] = useState(getRequests());
   const [recentActivities, setRecentActivities] = useState(getRecentActivities());
+  const [upcomingEvents, setUpcomingEvents] = useState(getUpcomingEvents());
 
   const stats = [
     { title: 'Employés Actifs', value: '156', icon: '👥', color: 'bg-blue-500', change: '+12' },
