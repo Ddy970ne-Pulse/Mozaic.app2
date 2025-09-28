@@ -117,9 +117,14 @@ const MonthlyPlanning = ({ user }) => {
     return 0;
   });
 
-  const filteredEmployees = filterDept === 'all' 
-    ? sortedEmployees 
-    : sortedEmployees.filter(emp => emp.department === filterDept);
+  const filteredEmployees = sortedEmployees.filter(emp => {
+    return (filterDept === 'all' || emp.department === filterDept) &&
+           (filterSite === 'all' || emp.site === filterSite) &&
+           (filterCategory === 'all' || emp.category === filterCategory) &&
+           (filterContract === 'all' || emp.contract === filterContract) &&
+           (filterGender === 'all' || emp.gender === filterGender) &&
+           (filterWorkTime === 'all' || emp.workTime === filterWorkTime);
+  });
 
   const departments = [...new Set(employees.map(emp => emp.department))];
   const daysInMonth = getDaysInMonth(currentMonth);
