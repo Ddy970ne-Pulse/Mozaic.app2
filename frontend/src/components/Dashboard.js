@@ -275,72 +275,33 @@ const Dashboard = ({ user, onChangeView }) => {
         </div>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions - Version fonctionnelle finale */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white">
         <h2 className="text-lg font-semibold mb-4">Actions Rapides</h2>
-        <div className="mb-2 text-sm opacity-70">DEBUG: onChangeView = {onChangeView ? 'Available' : 'NOT Available'}</div>
-        <button 
-          onClick={() => alert('TEST BUTTON CLICKED - onChangeView: ' + (onChangeView ? 'Available' : 'NOT Available'))}
-          className="mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          🔥 TEST BUTTON - CLICK ME
-        </button>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <button 
-            onClick={() => {
-              console.log('🔍 Generate Report clicked');
-              if (onChangeView) {
-                console.log('✅ Calling onChangeView(analytics)');
-                onChangeView('analytics');
-              } else {
-                console.log('❌ onChangeView is not defined');
-              }
-            }}
+            onClick={handleGenerateReport}
             className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
           >
             <div className="text-2xl mb-2">📊</div>
             <div className="text-sm font-medium">Générer Rapport</div>
           </button>
           <button 
-            onClick={() => {
-              console.log('🔍 New Employee clicked');
-              if (onChangeView) {
-                console.log('✅ Calling onChangeView(user-management)');
-                onChangeView('user-management');
-              } else {
-                console.log('❌ onChangeView is not defined');
-              }
-            }}
+            onClick={handleNewEmployee}
             className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
           >
             <div className="text-2xl mb-2">👤</div>
             <div className="text-sm font-medium">Nouvel Employé</div>
           </button>
           <button 
-            onClick={() => {
-              console.log('🔍 Schedule Meeting clicked');
-              if (onChangeView) {
-                console.log('✅ Calling onChangeView(monthly-planning)');
-                onChangeView('monthly-planning');
-              } else {
-                console.log('❌ onChangeView is not defined');
-              }
-            }}
+            onClick={handleScheduleMeeting}
             className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
           >
             <div className="text-2xl mb-2">📅</div>
             <div className="text-sm font-medium">Planifier Réunion</div>
           </button>
           <button 
-            onClick={() => {
-              console.log('🔍 Export Payroll clicked');
-              if (onChangeView) {
-                console.log('✅ Calling onChangeView(hr-toolbox)');
-                onChangeView('hr-toolbox');
-              } else {
-                console.log('❌ onChangeView is not defined');
-              }
-            }}
+            onClick={handleExportPayroll}
             className="p-4 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 text-center hover:scale-105 active:scale-95"
           >
             <div className="text-2xl mb-2">💼</div>
