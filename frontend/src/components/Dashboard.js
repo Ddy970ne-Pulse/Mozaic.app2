@@ -51,9 +51,13 @@ const Dashboard = ({ user, onChangeView }) => {
   };
 
   const handleNewEmployee = () => {
+    console.log('🔍 handleNewEmployee called, onChangeView:', onChangeView);
     // Navigation vers Gestion des Utilisateurs
     if (onChangeView) {
+      console.log('✅ Calling onChangeView with user-management');
       onChangeView('user-management');
+    } else {
+      console.log('❌ onChangeView is not available');
     }
   };
 
