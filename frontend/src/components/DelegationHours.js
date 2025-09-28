@@ -2099,6 +2099,121 @@ const DelegationHours = ({ user }) => {
           </div>
         </div>
       )}
+
+      {/* Modal détails délégué */}
+      {selectedDelegate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-800">Détails de la Délégation</h2>
+            </div>
+            <div className="p-6">
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white">
+                  <h3 className="text-xl font-bold mb-2">{selectedDelegate.name}</h3>
+                  <p className="text-blue-100">{delegationTypes[selectedDelegate.type]?.name}</p>
+                </div>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{selectedDelegate.baseMonthlyHours}h</div>
+                    <div className="text-sm text-gray-600">Quota mensuel</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">{selectedDelegate.availableHours}h</div>
+                    <div className="text-sm text-gray-600">Disponibles</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">{selectedDelegate.totalUsed}h</div>
+                    <div className="text-sm text-gray-600">Utilisées</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">{selectedDelegate.cededHours}h</div>
+                    <div className="text-sm text-gray-600">Cédées</div>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-800 mb-3">Informations administratives</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div><strong>Département:</strong> {selectedDelegate.department}</div>
+                    <div><strong>Période:</strong> {selectedDelegate.startDate} - {selectedDelegate.endDate}</div>
+                    <div><strong>Statut:</strong> <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">{selectedDelegate.status}</span></div>
+                    <div><strong>Dernière activité:</strong> {selectedDelegate.lastActivity}</div>
+                  </div>
+                </div>
+                
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h4 className="font-medium text-green-800 mb-3">Répartition des heures</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Heures de base utilisées:</span>
+                      <span className="font-medium">{selectedDelegate.usedFromBase}h</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Heures déclarées utilisées:</span>
+                      <span className="font-medium">{selectedDelegate.usedFromReported}h</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Heures reçues utilisées:</span>
+                      <span className="font-medium">{selectedDelegate.usedFromReceived}h</span>
+                    </div>
+                    <hr className="my-2" />
+                    <div className="flex justify-between font-medium">
+                      <span>Total utilisé:</span>
+                      <span>{selectedDelegate.totalUsed}h</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-200 flex justify-end">
+              <button
+                onClick={() => setSelectedDelegate(null)}
+                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal révocation */}
+      {showRevokeModal && delegateToRevoke && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">⚠️ Révoquer la Délégation</h2>
+              <p className="text-gray-600 mb-4">
+                Êtes-vous sûr de vouloir révoquer la délégation de <strong>{delegateToRevoke.name}</strong> ?
+              </p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-amber-800">
+                  <strong>Attention :</strong> Cette action est irréversible. Toutes les heures non utilisées seront perdues.
+                </p>
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setShowRevokeModal(false);
+                    setDelegateToRevoke(null);
+                  }}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmRevokeDelegate}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
+                >
+                  Révoquer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
