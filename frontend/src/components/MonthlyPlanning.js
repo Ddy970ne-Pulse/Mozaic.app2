@@ -305,6 +305,20 @@ const MonthlyPlanning = ({ user }) => {
     return Object.keys(employee.absences).length;
   };
 
+  // Calcule le décompte réel des jours de congés (CA seulement)
+  const getRealLeaveDeduction = (employee) => {
+    const leaveCalculations = calculateEmployeeLeaveDeduction(employee);
+    let totalRequested = 0;
+    let totalDeducted = 0;
+    
+    Object.values(leaveCalculations).forEach(calc => {
+      totalRequested += calc.calculation.totalRequested;
+      totalDeducted += calc.calculation.actuallyDeducted;
+    });
+    
+    return { totalRequested, totalDeducted, savings: totalRequested - totalDeducted };
+  };
+
   // Fonction d'impression
   const handlePrint = (format = 'A4') => {
     const printContent = generatePrintContent(format);
