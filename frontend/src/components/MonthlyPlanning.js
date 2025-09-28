@@ -329,7 +329,7 @@ const MonthlyPlanning = ({ user }) => {
   };
 
   const generatePrintTable = (format) => {
-    const itemsPerPage = format === 'A3' ? 20 : 12;
+    const itemsPerPage = format === 'A3' ? 20 : 15; // A4 paysage permet plus d'employés
     const pages = [];
     
     for (let i = 0; i < filteredEmployees.length; i += itemsPerPage) {
