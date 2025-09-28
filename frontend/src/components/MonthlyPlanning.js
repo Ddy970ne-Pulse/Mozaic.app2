@@ -13,6 +13,7 @@ const MonthlyPlanning = ({ user }) => {
   const [filterAbsenceReason, setFilterAbsenceReason] = useState('all');
   const [showLegendDetails, setShowLegendDetails] = useState(false);
   const [legendView, setLegendView] = useState('compact'); // 'compact' or 'detailed'
+  const [showPrintOptions, setShowPrintOptions] = useState(false);
 
   const employees = [
     { 
