@@ -42,49 +42,28 @@ const Dashboard = ({ user, onChangeView }) => {
     { name: 'Opérations', employees: 24, absences: 6, percentage: 75 }
   ];
 
-  // Fonctions pour les actions rapides - Version corrigée avec fallback
+  // Fonctions pour les actions rapides - Version finale simple
   const handleGenerateReport = () => {
-    console.log('🔍 Generate Report clicked, onChangeView:', !!onChangeView);
     if (onChangeView) {
-      console.log('✅ Navigating to analytics');
       onChangeView('analytics');
-    } else {
-      console.log('❌ onChangeView not available, using window navigation fallback');
-      // Fallback: forcer la navigation en modifiant le hash ou en créant un événement custom
-      window.dispatchEvent(new CustomEvent('navigate-to', { detail: { view: 'analytics' } }));
     }
   };
 
   const handleNewEmployee = () => {
-    console.log('🔍 New Employee clicked, onChangeView:', !!onChangeView);
     if (onChangeView) {
-      console.log('✅ Navigating to user-management');
       onChangeView('user-management');
-    } else {
-      console.log('❌ onChangeView not available, using window navigation fallback');
-      window.dispatchEvent(new CustomEvent('navigate-to', { detail: { view: 'user-management' } }));
     }
   };
 
   const handleScheduleMeeting = () => {
-    console.log('🔍 Schedule Meeting clicked, onChangeView:', !!onChangeView);
     if (onChangeView) {
-      console.log('✅ Navigating to monthly-planning');
       onChangeView('monthly-planning');
-    } else {
-      console.log('❌ onChangeView not available, using window navigation fallback');
-      window.dispatchEvent(new CustomEvent('navigate-to', { detail: { view: 'monthly-planning' } }));
     }
   };
 
   const handleExportPayroll = () => {
-    console.log('🔍 Export Payroll clicked, onChangeView:', !!onChangeView);
     if (onChangeView) {
-      console.log('✅ Navigating to hr-toolbox');
       onChangeView('hr-toolbox');
-    } else {
-      console.log('❌ onChangeView not available, using window navigation fallback');
-      window.dispatchEvent(new CustomEvent('navigate-to', { detail: { view: 'hr-toolbox' } }));
     }
   };
 
