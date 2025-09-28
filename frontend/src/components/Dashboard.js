@@ -78,9 +78,13 @@ const Dashboard = ({ user, onChangeView }) => {
   };
 
   const handleExportPayroll = () => {
-    // Navigation vers Boîte à outils RH pour l'export paie
+    console.log('🔍 Export Payroll clicked, onChangeView:', !!onChangeView);
     if (onChangeView) {
+      console.log('✅ Navigating to hr-toolbox');
       onChangeView('hr-toolbox');
+    } else {
+      console.log('❌ onChangeView not available, using window navigation fallback');
+      window.dispatchEvent(new CustomEvent('navigate-to', { detail: { view: 'hr-toolbox' } }));
     }
   };
 
