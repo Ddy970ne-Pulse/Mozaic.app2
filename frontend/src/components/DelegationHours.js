@@ -606,7 +606,10 @@ const DelegationHours = ({ user }) => {
                     Déclarer Heures
                   </button>
                   {(user.role === 'admin' || user.role === 'manager') && (
-                    <button className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200">
+                    <button 
+                      onClick={() => handleRevokeDelegate(delegate)}
+                      className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200"
+                    >
                       Révoquer
                     </button>
                   )}
