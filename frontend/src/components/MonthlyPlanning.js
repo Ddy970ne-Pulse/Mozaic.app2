@@ -1029,8 +1029,73 @@ const MonthlyPlanning = ({ user }) => {
                 </button>
                 <button 
                   onClick={() => {
-                    // Générer un rapport global des congés payés
-                    let globalReport = `📋 RAPPORT DÉCOMPTE CONGÉS PAYÉS - ${currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()}\n\n`;
+                    // Générer un rapport global de TOUS les types d'absence
+                    let globalReport = `📋 RAPPORT COMPLET DES ABSENCES - ${currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()}\n\n`;
+                    
+                    // Statistiques globales par type d'absence
+                    const absenceStats = {};
+                    const employeesWithIssues = [];
+                    
+                    filteredEmployees.forEach(employee => {
+                      let employeeReport = '';
+                      let hasIssues = false;
+                      
+                      Object.entries(employee.absences).forEach(([day, absenceCode]) => {
+                        if (!absenceStats[absenceCode]) {
+                          absenceStats[absenceCode] = { count: 0, employees: new Set() };
+                        }
+                        absenceStats[absenceCode].count++;
+                        absenceStats[absenceCode].employees.add(employee.name);
+                        
+                        // Calculer les règles pour cette absence
+                        const absenceInfo = calculateAnyAbsenceDeduction(employee, day, absenceCode);
+                        if (absenceInfo && absenceInfo.validation.errors.length > 0) {
+                          hasIssues = true;
+                          employeeReport += `  ❌ ${day}/${currentMonth.getMonth() + 1}: ${absenceCode} - ${absenceInfo.validation.errors.join(', ')}\n`;
+                        }
+                      });
+                      
+                      if (hasIssues) {
+                        employeesWithIssues.push({ name: employee.name, report: employeeReport });
+                      }
+                    });
+                    
+                    // Ajouter les statistiques par type
+                    globalReport += `📊 STATISTIQUES PAR TYPE D'ABSENCE:\n`;
+                    Object.entries(absenceStats)
+                      .sort(([,a], [,b]) => b.count - a.count)
+                      .forEach(([code, stats]) => {
+                        const rules = ABSENCE_DEDUCTION_RULES[code] || {};
+                        globalReport += `• ${code} (${absenceColorMap[code]?.name || 'Inconnu'}): ${stats.count} jour(s), ${stats.employees.size} employé(s)\n`;
+                        globalReport += `  └─ Règle: ${rules.documentation || 'Non définie'}\n`;
+                      });
+                    
+                    globalReport += `\n📚 CONFORMITÉ LÉGALE:\n`;
+                    
+                    // Générer un rapport de conformité par type
+                    const conformityIssues = [];
+                    Object.keys(absenceStats).forEach(code => {
+                      const rules = ABSENCE_DEDUCTION_RULES[code];
+                      if (rules) {
+                        globalReport += `✅ ${code}: Conforme ${rules.legalBasis}\n`;
+                      } else {
+                        globalReport += `⚠️ ${code}: Règles à définir\n`;
+                        conformityIssues.push(code);
+                      }
+                    });
+                    
+                    if (employeesWithIssues.length > 0) {
+                      globalReport += `\n🚨 ALERTES PAR EMPLOYÉ:\n`;
+                      employeesWithIssues.forEach(emp => {
+                        globalReport += `👤 ${emp.name}:\n${emp.report}`;
+                      });
+                    }
+                    
+                    globalReport += `\n📋 LÉGENDE DES DÉCOMPTES:\n`;
+                    globalReport += `• Jours Ouvrables: Lundi au Samedi (dimanches exclus)\n`;
+                    globalReport += `• Jours Calendaires: Tous les jours y compris weekends/fériés\n`;
+                    globalReport += `• Heures: Décompte horaire (crédit d'heures)\n`;
+                    globalReport += `• Non décompté: Temps de travail effectif ou repos légal\n`;
                     
                     filteredEmployees.forEach(employee => {
                       const leaveCalcs = calculateEmployeeLeaveDeduction(employee);
