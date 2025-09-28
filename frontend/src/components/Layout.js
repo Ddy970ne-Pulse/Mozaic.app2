@@ -27,11 +27,11 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
       console.log('🔄 Custom navigation event received:', event.detail.view);
       setCurrentView(event.detail.view);
     };
-    window.addEventListener('navigate-to', handleCustomNavigation);
+    window.addEventListener('navigate-to-view', handleCustomNavigation);
 
     return () => {
       window.removeEventListener('resize', checkMobile);
-      window.removeEventListener('navigate-to', handleCustomNavigation);
+      window.removeEventListener('navigate-to-view', handleCustomNavigation);
     };
   }, []);
 
