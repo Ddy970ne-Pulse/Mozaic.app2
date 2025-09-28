@@ -54,13 +54,9 @@ const Dashboard = ({ user, onChangeView }) => {
   };
 
   const handleScheduleMeeting = () => {
-    console.log('🔍 handleScheduleMeeting called, onChangeView:', onChangeView);
     // Navigation vers Planning Mensuel
     if (onChangeView) {
-      console.log('✅ Calling onChangeView with monthly-planning');
       onChangeView('monthly-planning');
-    } else {
-      console.log('❌ onChangeView is not available');
     }
   };
 
