@@ -343,7 +343,7 @@ const MonthlyPlanning = ({ user }) => {
       <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">Légende des absences</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {Object.entries(absenceTypes).map(([code, type]) => (
+          {Object.entries(absenceColorMap).map(([code, type]) => (
             <div key={code} className="flex items-center space-x-2">
               <div className={`w-4 h-4 rounded ${type.color}`}></div>
               <span className="text-sm text-gray-700">{code} - {type.name}</span>
