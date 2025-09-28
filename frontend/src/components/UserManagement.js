@@ -266,9 +266,139 @@ const UserManagement = ({ user }) => {
   };
 
   const handleToggleUserStatus = (userId) => {
+    const userToUpdate = users.find(u => u.id === userId);
+    const newStatus = !userToUpdate.isActive;
+    
     setUsers(users.map(u => 
-      u.id === userId ? {...u, isActive: !u.isActive} : u
+      u.id === userId ? {...u, isActive: newStatus} : u
     ));
+    
+    // Log audit
+    const auditEntry = {
+      id: Date.now().toString(),
+      timestamp: new Date().toLocaleString(),
+      action: newStatus ? 'USER_ACTIVATED' : 'USER_DEACTIVATED',
+      userId: userId,
+      userName: userToUpdate.name,
+      performedBy: user.name,
+      details: newStatus ? 'Compte réactivé' : 'Compte désactivé',
+      ipAddress: '192.168.1.100'
+    };
+    setAuditLogs([auditEntry, ...auditLogs]);
+  };
+
+  // Gestion des permissions
+  const handleUpdatePermissions = () => {
+    if (selectedUser) {
+      setUsers(users.map(u => 
+        u.id === selectedUser.id ? {...u, permissions: selectedUser.permissions || []} : u
+      ));
+      
+      // Log audit
+      const auditEntry = {
+        id: Date.now().toString(),
+        timestamp: new Date().toLocaleString(),
+        action: 'PERMISSION_CHANGE',
+        userId: selectedUser.id,
+        userName: selectedUser.name,
+        performedBy: user.name,
+        details: `Mise à jour des permissions: ${(selectedUser.permissions || []).length} permission(s)`,
+        ipAddress: '192.168.1.100'
+      };
+      setAuditLogs([auditEntry, ...auditLogs]);
+      
+      setShowPermissionsModal(false);
+      setSelectedUser(null);
+    }
+  };
+
+  const togglePermission = (permission) => {
+    if (selectedUser) {
+      const currentPermissions = selectedUser.permissions || [];
+      const newPermissions = currentPermissions.includes(permission)
+        ? currentPermissions.filter(p => p !== permission)
+        : [...currentPermissions, permission];
+      
+      setSelectedUser({...selectedUser, permissions: newPermissions});
+    }
+  };
+
+  const applyRoleTemplate = (roleKey) => {
+    if (selectedUser && roleTemplates[roleKey]) {
+      setSelectedUser({
+        ...selectedUser, 
+        permissions: [...roleTemplates[roleKey].permissions],
+        role: roleKey
+      });
+    }
+  };
+
+  // Récupération de comptes
+  const handleAccountRecovery = (type, identifier) => {
+    console.log('Récupération de compte:', type, identifier);
+    
+    if (type === 'password') {
+      // Recherche par email
+      const foundUser = users.find(u => u.email.toLowerCase() === identifier.toLowerCase());
+      if (foundUser) {
+        alert(`✅ Email de récupération envoyé à ${foundUser.email}\nNouveau mot de passe temporaire généré.`);
+        
+        // Log audit
+        const auditEntry = {
+          id: Date.now().toString(),
+          timestamp: new Date().toLocaleString(),
+          action: 'PASSWORD_RECOVERY',
+          userId: foundUser.id,
+          userName: foundUser.name,
+          performedBy: 'Système auto',
+          details: `Récupération mot de passe via ${identifier}`,
+          ipAddress: '192.168.1.100'
+        };
+        setAuditLogs([auditEntry, ...auditLogs]);
+      } else {
+        alert('❌ Aucun compte trouvé avec cet email.');
+      }
+    } else if (type === 'username') {
+      // Recherche par nom ou autres critères
+      const foundUsers = users.filter(u => 
+        u.name.toLowerCase().includes(identifier.toLowerCase()) ||
+        u.phone === identifier
+      );
+      
+      if (foundUsers.length > 0) {
+        const userList = foundUsers.map(u => `${u.name} (${u.email})`).join('\n');
+        alert(`✅ Comptes trouvés:\n${userList}`);
+      } else {
+        alert('❌ Aucun compte trouvé avec ces critères.');
+      }
+    }
+    
+    setShowAccountRecovery(false);
+  };
+
+  // Mise à jour des données RGPD
+  const handleUpdateGdpr = () => {
+    if (selectedUser) {
+      setUsers(users.map(u => 
+        u.id === selectedUser.id ? {...u, personalData: selectedUser.personalData} : u
+      ));
+      
+      // Log audit
+      const auditEntry = {
+        id: Date.now().toString(),
+        timestamp: new Date().toLocaleString(),
+        action: 'GDPR_UPDATE',
+        userId: selectedUser.id,
+        userName: selectedUser.name,
+        performedBy: user.name,
+        details: 'Mise à jour des données personnelles (RGPD)',
+        ipAddress: '192.168.1.100'
+      };
+      setAuditLogs([auditEntry, ...auditLogs]);
+      
+      setShowGdprModal(false);
+      setSelectedUser(null);
+    }
   };
 
   const getRoleDisplayName = (role) => {
