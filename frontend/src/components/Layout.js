@@ -65,7 +65,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
     } else {
       switch (currentView) {
         case 'dashboard':
-          return <Dashboard user={user} />;
+          return <Dashboard user={user} onChangeView={setCurrentView} />;
         case 'my-space':
           return <EmployeeSpace user={user} />;
         case 'absence-requests':
