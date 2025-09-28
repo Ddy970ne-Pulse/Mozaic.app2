@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Dashboard = ({ user }) => {
+const Dashboard = ({ user, onChangeView }) => {
   const stats = [
     { title: 'Employés Actifs', value: '156', icon: '👥', color: 'bg-blue-500', change: '+12' },
     { title: 'Demandes en Attente', value: '23', icon: '📋', color: 'bg-orange-500', change: '+5' },
