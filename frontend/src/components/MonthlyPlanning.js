@@ -407,7 +407,7 @@ const MonthlyPlanning = ({ user }) => {
             <p className="text-gray-600">Vue d'ensemble des absences par employé</p>
           </div>
           
-          {/* Navigation mois */}
+          {/* Navigation mois et impression */}
           <div className="flex items-center space-x-4">
             <button 
               onClick={() => navigateMonth(-1)}
@@ -430,6 +430,51 @@ const MonthlyPlanning = ({ user }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
+            
+            {/* Bouton d'impression */}
+            <div className="relative">
+              <button
+                onClick={() => setShowPrintOptions(!showPrintOptions)}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                <span>Imprimer</span>
+              </button>
+              
+              {showPrintOptions && (
+                <div className="absolute right-0 top-12 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10 min-w-[200px]">
+                  <div className="px-4 py-2 text-sm font-semibold text-gray-700 border-b border-gray-100">
+                    Options d'impression
+                  </div>
+                  <button
+                    onClick={() => {
+                      handlePrint('A4');
+                      setShowPrintOptions(false);
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    📄 Format A4 Portrait
+                    <div className="text-xs text-gray-500">Recommandé pour 10-15 employés</div>
+                  </button>
+                  <button
+                    onClick={() => {
+                      handlePrint('A3');
+                      setShowPrintOptions(false);
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    📄 Format A3 Paysage  
+                    <div className="text-xs text-gray-500">Recommandé pour plus de 15 employés</div>
+                  </button>
+                  <div className="px-4 py-2 text-xs text-gray-500 border-t border-gray-100">
+                    • En-têtes répétés sur chaque page<br/>
+                    • Légende incluse automatiquement
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
