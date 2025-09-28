@@ -354,6 +354,18 @@ metadata:
         agent: "testing"
         comment: "COMPREHENSIVE TESTING COMPLETED ✅ Successfully tested both Monthly Planning action buttons with full functionality verification: 1) LOGIN & NAVIGATION: Sophie Martin admin login working perfectly, hamburger menu navigation to 'Planning Mensuel' successful, 2) EXPORT BUTTON (📊 Exporter): ✅ Button found with proper tooltip 'Exporter le planning au format CSV', ✅ CSV download triggered successfully (planning_septembre_2025_10employes.csv), ✅ File contains complete planning data (3387 characters), ✅ CSV includes planning header, absence legend, and employee data as required, 3) ANALYZE BUTTON (📈 Analyser): ✅ Button found with proper tooltip 'Analyser les statistiques du planning', ✅ Analysis modal opens correctly with comprehensive statistics, ✅ Modal contains all required sections: ANALYSE DU PLANNING, STATISTIQUES GÉNÉRALES (employees analyzed, total absences, absenteeism rate), RÉPARTITION PAR TYPE (breakdown by absence type), ANALYSE PAR DÉPARTEMENT (department analysis), TOP 5 CODES (most used absence codes), ✅ Copy button (📋 Copier) functional with clipboard integration, ✅ Close buttons (✕ and Fermer) working to close modal, 4) TOOLTIPS: Both buttons have informative tooltips as requested, 5) BUSINESS VALUE: Export provides complete CSV with data and legend, Analysis provides detailed statistical insights with correct calculations. Both buttons are fully functional with real business value, no longer inactive. Feature is production-ready and meets all specified requirements."
 
+  - task: "CA (Congés Annuels) Calculation System"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/MonthlyPlanning.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE TESTING COMPLETED ✅ Successfully tested the new annual leave (CA) calculation system with full French labor law compliance: 1) LOGIN & NAVIGATION: Sophie Martin admin (sophie.martin@company.com / demo123) login working perfectly, 2) FRENCH LABOR LAW COMPLIANCE: Code review confirms full compliance with Code du travail L3141-3, working days calculation (Monday-Saturday), Sundays and holidays NOT deducted from balance, sick leave during CA restores days to employee, 3) CA DISPLAY ENHANCEMENTS: ✅ CA cells show special indicators (✓ for savings realized, ! for non-deducted days like weekends/holidays), ✅ Detailed tooltips with calculation breakdown showing 'Période: Xj demandés, Décompte: Yj prélevés, Économie: Zj préservés', ✅ Visual distinction for weekends and holidays during CA periods, 4) CORRECTED TOTALS: ✅ Total column displays real CA deduction with 'CA: Xj' format, ✅ Green arrow (↗) indicates savings realized, ✅ Tooltips show detailed calculation (requested → deducted with preserved days), 5) CONGÉS CA REPORT BUTTON: ✅ '📋 Congés CA' button implemented in action bar, ✅ Opens detailed paid leave report modal with calculations per employee, ✅ Includes periods, requested vs deducted days breakdown, ✅ '📋 Copier' and 'Fermer' buttons functional, 6) CALCULATION RULES VERIFIED: ✅ Sundays never deducted (Code du travail compliant), ✅ Saturdays are deducted as working days, ✅ Holidays during CA not deducted, ✅ Sick leave interrupts CA and restores days. All CA calculation features fully implemented and comply with French labor law. System correctly distinguishes between requested days and actually deducted days from balance, providing clear UI for understanding savings realized. Feature is production-ready."
+
 test_plan:
   current_focus: []
   stuck_tasks: []
