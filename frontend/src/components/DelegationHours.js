@@ -751,7 +751,7 @@ const DelegationHours = ({ user }) => {
         </div>
 
         {/* Actions rapides */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Déclarer des heures</h3>
             <p className="text-gray-600 mb-4">Enregistrez vos heures de délégation effectuées</p>
@@ -763,6 +763,25 @@ const DelegationHours = ({ user }) => {
               className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200"
             >
               Déclarer mes heures
+            </button>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Céder des heures</h3>
+            <p className="text-gray-600 mb-4">Transférer des heures à un autre délégué CSE</p>
+            <button 
+              onClick={() => {
+                setNewCession({
+                  ...newCession, 
+                  fromDelegateId: userDelegation.id,
+                  fromDelegateName: userDelegation.name,
+                  fromType: userDelegation.type
+                });
+                setShowCessionModal(true);
+              }}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200"
+            >
+              🔄 Céder mes heures
             </button>
           </div>
           
