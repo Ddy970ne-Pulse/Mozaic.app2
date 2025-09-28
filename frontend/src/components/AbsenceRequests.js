@@ -172,9 +172,29 @@ const AbsenceRequests = ({ user }) => {
 
   const handleSubmitRequest = (e) => {
     e.preventDefault();
-    console.log('Submitting new request:', newRequest);
+    
+    // Create request data with proper handling
+    const requestData = {
+      ...newRequest,
+      status: newRequest.requiresAcknowledgment ? 'acknowledged' : 'pending',
+      acknowledgedBy: newRequest.requiresAcknowledgment ? user.name : null,
+      acknowledgedDate: newRequest.requiresAcknowledgment ? new Date().toISOString() : null,
+      submittedDate: new Date().toISOString(),
+      employee: user.name,
+      department: user.department || 'Non spécifié'
+    };
+    
+    console.log('Submitting new absence request:', requestData);
     setShowNewRequest(false);
-    setNewRequest({ type: 'CP', startDate: '', endDate: '', reason: '', halfDay: false });
+    setNewRequest({ 
+      type: '', 
+      startDate: '', 
+      endDate: '', 
+      reason: '', 
+      halfDay: false, 
+      documents: [], 
+      requiresAcknowledgment: false 
+    });
   };
 
   const formatDate = (dateStr) => {
