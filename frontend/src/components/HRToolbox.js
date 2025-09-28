@@ -219,14 +219,22 @@ const HRToolbox = ({ user }) => {
                         <option>Temps partiel</option>
                       </select>
                     </div>
-                    <button className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
+                    <button 
+                      onClick={calculateLeaveRights}
+                      className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200"
+                    >
                       Calculer les Droits
                     </button>
-                    <div className="p-3 bg-green-50 rounded-lg">
-                      <div className="text-sm text-green-800">
-                        <strong>Résultat:</strong> 25 jours de congés payés
+                    {calculationResult && (
+                      <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div className="text-sm text-green-800">
+                          <strong>Résultat:</strong> {calculationResult.total} jours de congés payés
+                        </div>
+                        <div className="text-xs text-green-700 mt-1">
+                          {calculationResult.details}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
