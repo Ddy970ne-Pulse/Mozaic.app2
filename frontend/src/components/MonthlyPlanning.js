@@ -13,15 +13,56 @@ const MonthlyPlanning = ({ user }) => {
   const [filterAbsenceReason, setFilterAbsenceReason] = useState('all');
 
   const employees = [
-    { id: 1, name: 'Sophie Martin', department: 'RH', absences: { '3': 'CP', '4': 'CP', '17': 'RTT', '24': 'AM' } },
-    { id: 2, name: 'Jean Dupont', department: 'IT', absences: { '10': 'CP', '11': 'CP', '12': 'CP', '25': 'HS' } },
-    { id: 3, name: 'Marie Leblanc', department: 'Commercial', absences: { '8': 'RTT', '22': 'CP', '23': 'CP' } },
-    { id: 4, name: 'Pierre Martin', department: 'Finance', absences: { '5': 'AM', '15': 'CP', '16': 'CP', '29': 'RTT' } },
-    { id: 5, name: 'Claire Dubois', department: 'Marketing', absences: { '7': 'CP', '20': 'AM', '21': 'AM' } },
-    { id: 6, name: 'Lucas Bernard', department: 'IT', absences: { '12': 'RTT', '26': 'CP', '27': 'CP', '30': 'HS' } },
-    { id: 7, name: 'Emma Rousseau', department: 'Commercial', absences: { '2': 'CP', '18': 'RTT', '31': 'AM' } },
-    { id: 8, name: 'Thomas Leroy', department: 'Operations', absences: { '9': 'CP', '19': 'CP', '28': 'RTT' } }
+    { 
+      id: 1, name: 'Sophie Martin', department: 'Direction', site: 'Siège', category: 'Cadre Supérieur', 
+      contract: 'CDI - Cadre', gender: 'Femme', workTime: 'Temps Plein', job: 'Directrice RH',
+      absences: { '3': 'CP', '4': 'CP', '17': 'RTT', '24': 'AM' } 
+    },
+    { 
+      id: 2, name: 'Jean Dupont', department: 'Administratif', site: 'Siège', category: 'Cadre', 
+      contract: 'CDI - Cadre', gender: 'Homme', workTime: 'Temps Plein', job: 'Responsable IT',
+      absences: { '10': 'CP', '11': 'CP', '12': 'CP', '25': 'DEL' } 
+    },
+    { 
+      id: 3, name: 'Marie Leblanc', department: 'Commercial', site: 'Pôle Éducatif', category: 'Employé Qualifié', 
+      contract: 'CDI - Non Cadre', gender: 'Femme', workTime: 'Temps Plein', job: 'Commerciale',
+      absences: { '8': 'RTT', '22': 'CP', '23': 'CP' } 
+    },
+    { 
+      id: 4, name: 'Pierre Martin', department: 'Comptable', site: 'Siège', category: 'Technicien', 
+      contract: 'CDI - Non Cadre', gender: 'Homme', workTime: 'Temps Partiel', job: 'Comptable',
+      absences: { '5': 'AM', '15': 'CP', '16': 'CP', '29': 'RTT' } 
+    },
+    { 
+      id: 5, name: 'Claire Dubois', department: 'Éducatif', site: 'Pôle Éducatif', category: 'Employé Qualifié', 
+      contract: 'CDD - Non Cadre', gender: 'Femme', workTime: 'Temps Plein', job: 'Éducatrice',
+      absences: { '7': 'CP', '20': 'AM', '21': 'AM' } 
+    },
+    { 
+      id: 6, name: 'Lucas Bernard', department: 'Production', site: 'Menuiserie 44', category: 'Ouvrier qualifié', 
+      contract: 'CDI - Non Cadre', gender: 'Homme', workTime: 'Temps Plein', job: 'Menuisier',
+      absences: { '12': 'RTT', '26': 'CP', '27': 'CP', '30': 'AT' } 
+    },
+    { 
+      id: 7, name: 'Emma Rousseau', department: 'ASI', site: 'Alpinia 44', category: 'Agent administratif', 
+      contract: 'CDI - Non Cadre', gender: 'Femme', workTime: 'Temps Partiel', job: 'Agent ASI',
+      absences: { '2': 'CP', '18': 'RTT', '31': 'AM' } 
+    },
+    { 
+      id: 8, name: 'Thomas Leroy', department: 'Production', site: 'Garage 44', category: 'Ouvrier qualifié', 
+      contract: 'CDI - Non Cadre', gender: 'Homme', workTime: 'Temps Plein', job: 'Mécanicien',
+      absences: { '9': 'CP', '19': 'CP', '28': 'RTT' } 
+    }
   ];
+
+  // Listes de filtres basées sur l'image fournie
+  const departments = ['Direction', 'Éducatif', 'Administratif', 'Comptable', 'ASI', 'Production', 'Commercial', 'Technique', 'Maintenance', 'Qualité'];
+  const sites = ['Siège', 'Pôle Éducatif', 'Menuiserie 44', 'Voiles 44', 'Garage 44', 'Alpinia 44', 'Ferme 44', 'Restaurant 44'];
+  const categories = ['Cadre Supérieur', 'Cadre', 'Employé Qualifié', 'Technicien', 'Ouvrier qualifié', 'Ouvrier non qualifié', 'Agent administratif', 'Personnel ASI'];
+  const contracts = ['CDI - Non Cadre', 'CDD - Non Cadre', 'CDI - Cadre', 'CDD - Cadre', 'Stagiaire', 'Apprenti(e)'];
+  const jobs = ['Directrice RH', 'Responsable IT', 'Commerciale', 'Comptable', 'Éducatrice', 'Menuisier', 'Agent ASI', 'Mécanicien', 'Chef de Service'];
+  const absenceTypes = ['Absence Programmée', 'Absentéisme'];
+  const absenceReasons = ['Accident du travail / Trajet', 'Congés Sans Solde', 'Congés Trimestriels', 'Récupération', 'Congés Payés', 'Arrêt maladie', 'Formation'];
 
   const absenceTypes = {
     'CP': { name: 'Congés Payés', color: 'bg-blue-500', textColor: 'text-white' },
