@@ -393,18 +393,38 @@ const HRToolbox = ({ user }) => {
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-medium text-gray-800 mb-3">Validation et Tests</h4>
                   <div className="space-y-3">
-                    <button className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
+                    <button 
+                      onClick={testCcn66Engine}
+                      className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                    >
                       Tester Règles CCN66
                     </button>
-                    <button className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
+                    <button 
+                      onClick={validateCcn66Engine}
+                      disabled={!ccn66TestResult}
+                      className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
                       Valider Conformité
                     </button>
-                    <div className="p-3 bg-green-50 rounded-lg">
-                      <div className="text-sm text-green-800">
-                        <strong>Dernière validation:</strong> 15/01/2024<br />
-                        <strong>Statut:</strong> Conforme CCN66 v2024
+                    {ccn66TestResult ? (
+                      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="text-sm text-blue-800 mb-2">
+                          <strong>Résultats des tests:</strong> {ccn66TestResult.passed}/{ccn66TestResult.testsRun} réussis
+                        </div>
+                        <div className="space-y-1 text-xs">
+                          {ccn66TestResult.details.map((detail, index) => (
+                            <div key={index}>{detail.test}: {detail.status}</div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="p-3 bg-green-50 rounded-lg">
+                        <div className="text-sm text-green-800">
+                          <strong>Dernière validation:</strong> 15/01/2024<br />
+                          <strong>Statut:</strong> Conforme CCN66 v2024
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
