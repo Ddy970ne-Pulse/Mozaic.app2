@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { calculateLeaveDeduction, validateLeaveCalculation, generateLeaveReport, LeaveCalculatorUtils } from '../shared/congesCalculator';
 
 const MonthlyPlanning = ({ user }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
