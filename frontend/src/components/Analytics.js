@@ -66,7 +66,7 @@ const Analytics = ({ user }) => {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Analytics & KPI Absences</h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">KPI Absences & Analytics</h1>
             <p className="text-gray-600">Analyses et tendances des absences • Période de référence: Juin {selectedYear - 1} - Mai {selectedYear}</p>
           </div>
           
