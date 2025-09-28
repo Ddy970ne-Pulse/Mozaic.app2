@@ -47,6 +47,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
   };
 
   const renderCurrentView = () => {
+    console.log('🔍 Current view in Layout:', currentView, 'User role:', user.role);
     if (user.role === 'employee') {
       switch (currentView) {
         case 'employee-dashboard':
