@@ -8,7 +8,9 @@ const AbsenceRequests = ({ user }) => {
     startDate: '',
     endDate: '',
     reason: '',
-    halfDay: false
+    halfDay: false,
+    documents: [],
+    requiresAcknowledgment: false
   });
 
   const requests = {
