@@ -357,7 +357,7 @@ const EmployeeSpace = ({ user }) => {
               { id: 'profile', name: 'Profil', icon: '👤' },
               { id: 'entitlements', name: 'Mes Droits', icon: '🏖️' },
               { id: 'documents', name: 'Documents', icon: '📝' },
-              { id: 'payslips', name: 'Fiches de Paie', icon: '💼' },
+              // { id: 'payslips', name: 'Fiches de Paie', icon: '💼' }, // Désactivé - Coffre fort numérique RGPD requis
               { id: 'goals', name: 'Objectifs', icon: '🎯' }
             ].map((tab) => (
               <button
