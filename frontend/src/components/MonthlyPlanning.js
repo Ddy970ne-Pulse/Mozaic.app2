@@ -253,39 +253,52 @@ const MonthlyPlanning = ({ user }) => {
 
   // Calcule le décompte correct pour n'importe quel type d'absence
   const calculateAnyAbsenceDeduction = (employee, day, absenceCode) => {
-    const dayNum = parseInt(day);
-    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    
-    // Pour les congés annuels, utiliser l'ancien système
-    if (absenceCode === 'CA') {
-      return getLeaveDisplayInfo(employee, day, absenceCode);
-    }
-    
-    // Pour tous les autres types d'absence
-    const absenceRules = ABSENCE_DEDUCTION_RULES[absenceCode];
-    if (!absenceRules) return null;
-    
-    // Calculer le décompte pour ce jour précis
-    const calculation = calculateAbsenceDeduction(absenceCode, dateStr, dateStr, holidays2025);
-    const validation = validateAbsenceLimits(absenceCode, calculation, employee.employeeData || {});
-    
-    return {
-      absenceCode,
-      rules: absenceRules,
-      calculation,
-      validation,
-      dayInfo: {
-        isWeekend: isWeekend(currentMonth, dayNum),
-        isHoliday: isHoliday(dayNum),
-        holidayName: getHolidayName(dayNum)
-      },
-      displayInfo: {
-        willBeDeducted: calculation.deductedAmount > 0,
-        deductionType: calculation.unit,
-        payrollImpact: calculation.payrollImpact,
-        legalBasis: calculation.legalBasis
+    try {
+      const dayNum = parseInt(day);
+      const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      
+      // Pour les congés annuels, utiliser l'ancien système
+      if (absenceCode === 'CA') {
+        return getLeaveDisplayInfo(employee, day, absenceCode);
       }
-    };
+      
+      // Pour tous les autres types d'absence
+      const absenceRules = ABSENCE_DEDUCTION_RULES[absenceCode];
+      if (!absenceRules) {
+        console.warn(`Règles d'absence non définies pour le code: ${absenceCode}`);
+        return null;
+      }
+      
+      // Calculer le décompte pour ce jour précis
+      const calculation = calculateAbsenceDeduction(absenceCode, dateStr, dateStr, holidays2025);
+      if (!calculation) {
+        console.warn(`Calcul d'absence échoué pour: ${absenceCode}`);
+        return null;
+      }
+      
+      const validation = validateAbsenceLimits(absenceCode, calculation, employee.employeeData || {});
+      
+      return {
+        absenceCode,
+        rules: absenceRules,
+        calculation,
+        validation,
+        dayInfo: {
+          isWeekend: isWeekend(currentMonth, dayNum),
+          isHoliday: isHoliday(dayNum),
+          holidayName: getHolidayName(dayNum)
+        },
+        displayInfo: {
+          willBeDeducted: calculation.deductedAmount > 0,
+          deductionType: calculation.unit,
+          payrollImpact: calculation.payrollImpact,
+          legalBasis: calculation.legalBasis
+        }
+      };
+    } catch (error) {
+      console.error(`Erreur lors du calcul d'absence pour ${absenceCode}:`, error);
+      return null;
+    }
   };
 
   // Génère l'affichage enrichi pour une cellule de congé (CA seulement)
