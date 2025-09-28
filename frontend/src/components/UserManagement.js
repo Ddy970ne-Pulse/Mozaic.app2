@@ -7,6 +7,13 @@ const UserManagement = ({ user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('all');
   const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [showGdprModal, setShowGdprModal] = useState(false);
+  const [showAccountRecovery, setShowAccountRecovery] = useState(false);
+  const [showAuditModal, setShowAuditModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('users');
+  const [recoveryType, setRecoveryType] = useState('password'); // 'password' ou 'username'
+  const [auditLogs, setAuditLogs] = useState([]);
 
   // Données d'exemple des utilisateurs
   const mockUsers = [
