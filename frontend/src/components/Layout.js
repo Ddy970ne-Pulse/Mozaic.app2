@@ -21,7 +21,18 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+
+    // Listener pour la navigation fallback depuis les boutons d'actions rapides
+    const handleCustomNavigation = (event) => {
+      console.log('🔄 Custom navigation event received:', event.detail.view);
+      setCurrentView(event.detail.view);
+    };
+    window.addEventListener('navigate-to', handleCustomNavigation);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('navigate-to', handleCustomNavigation);
+    };
   }, []);
 
   const menuItems = user.role === 'employee' ? [
