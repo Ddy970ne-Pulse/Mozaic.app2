@@ -31,12 +31,7 @@ const Dashboard = ({ user, onChangeView }) => {
     };
   }, []);
 
-  const upcomingEvents = [
-    { event: 'Réunion équipe RH', date: '16 Jan', time: '09:00', type: 'meeting' },
-    { event: 'Formation sécurité', date: '18 Jan', time: '14:00', type: 'training' },
-    { event: 'Évaluation annuelle', date: '20 Jan', time: '10:30', type: 'evaluation' },
-    { event: 'Comité d\'entreprise', date: '22 Jan', time: '16:00', type: 'committee' }
-  ];
+  // Les événements à venir sont maintenant gérés par le state et le système dynamique
 
   const departments = [
     { name: 'IT', employees: 45, absences: 5, percentage: 89 },
