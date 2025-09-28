@@ -172,7 +172,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
       {/* Menu iPad Style */}
       {showMenu && (
         <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm" onClick={() => setShowMenu(false)}>
-          <div className="absolute inset-6 bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 overflow-y-auto">
+          <div className="absolute inset-6 bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-xl flex items-center justify-center transform rotate-12">
