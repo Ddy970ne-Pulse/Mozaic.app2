@@ -401,9 +401,9 @@ const MonthlyPlanning = ({ user }) => {
                       }`}>
                         {absence ? (
                           <div className={`w-8 h-8 mx-auto rounded text-xs font-bold flex items-center justify-center ${
-                            absenceTypes[absence]?.color || 'bg-gray-500'
-                          } ${absenceTypes[absence]?.textColor || 'text-white'}`}
-                               title={`${absenceTypes[absence]?.name || absence} - ${employee.name}`}>
+                            absenceColorMap[absence]?.color || 'bg-gray-500'
+                          } ${absenceColorMap[absence]?.textColor || 'text-white'}`}
+                               title={`${absenceColorMap[absence]?.name || absence} - ${employee.name}`}>
                             {absence}
                           </div>
                         ) : (
