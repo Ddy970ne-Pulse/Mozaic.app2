@@ -313,25 +313,57 @@ const Analytics = ({ user }) => {
         {/* Répartition par type */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-800">Répartition par Type</h2>
+            <h2 className="text-xl font-semibold text-gray-800">Répartition par Type d'Absence</h2>
+            <p className="text-sm text-gray-600 mt-1">Distinction DEL (Délégation CSE) vs Absentéisme Personnel</p>
           </div>
           <div className="p-6">
             <div className="space-y-4">
               {absenceTypes.map((type, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">{type.type}</span>
-                    <span className="text-sm text-gray-500">{type.percentage}%</span>
+                <div key={index} className="border rounded-lg p-3 hover:bg-gray-50 transition-colors duration-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-4 h-4 rounded-full ${type.color}`}></div>
+                      <span className="font-medium text-gray-800">{type.code}</span>
+                      <span className="text-gray-700">{type.type}</span>
+                      {type.justified ? (
+                        <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                          ✅ Justifiée
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+                          ⚠️ Absentéisme
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <span className="text-gray-600">{type.count} absences</span>
+                      <span className="font-semibold text-gray-800">{type.percentage}%</span>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${type.color}`}
-                      style={{ width: `${type.percentage}%` }}
-                    ></div>
-                  </div>
-                  <div className="text-xs text-gray-500">{type.count} absences</div>
+                  {type.description && (
+                    <p className="text-xs text-gray-500 ml-7">{type.description}</p>
+                  )}
                 </div>
               ))}
+            </div>
+            
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="text-center p-3 bg-indigo-50 rounded-lg">
+                  <div className="text-indigo-600 font-semibold">
+                    {absenceTypes.filter(t => t.justified).reduce((sum, t) => sum + t.count, 0)}
+                  </div>
+                  <div className="text-indigo-700">Absences Justifiées</div>
+                  <div className="text-xs text-indigo-600">DEL + Congés programmés</div>
+                </div>
+                <div className="text-center p-3 bg-orange-50 rounded-lg">
+                  <div className="text-orange-600 font-semibold">
+                    {absenceTypes.filter(t => !t.justified).reduce((sum, t) => sum + t.count, 0)}
+                  </div>
+                  <div className="text-orange-700">Absentéisme</div>
+                  <div className="text-xs text-orange-600">Maladie + Non autorisées</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
