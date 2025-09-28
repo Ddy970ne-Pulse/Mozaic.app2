@@ -114,24 +114,44 @@ const Dashboard = ({ user, onChangeView }) => {
             <div className="space-y-4">
               {recentActivities.map((activity, index) => (
                 <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-4 flex-1">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                       {activity.name.split(' ').map(n => n[0]).join('')}
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="font-medium text-gray-800">{activity.name}</p>
                       <p className="text-sm text-gray-600">{activity.action}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-gray-500">{activity.date}</p>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                      activity.status === 'Approuvé' ? 'bg-green-100 text-green-800' :
-                      activity.status === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-blue-100 text-blue-800'
-                    }`}>
-                      {activity.status}
-                    </span>
+                  
+                  <div className="flex items-center space-x-3">
+                    {activity.status === 'En attente' && (user.role === 'admin' || user.role === 'manager') && (
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleApproveRequest(index)}
+                          className="px-3 py-1 bg-green-500 text-white text-xs rounded-full hover:bg-green-600 transition-colors duration-200"
+                        >
+                          ✅ Approuver
+                        </button>
+                        <button
+                          onClick={() => handleRejectRequest(index)}
+                          className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition-colors duration-200"
+                        >
+                          ❌ Rejeter
+                        </button>
+                      </div>
+                    )}
+                    
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500">{activity.date}</p>
+                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                        activity.status === 'Approuvé' ? 'bg-green-100 text-green-800' :
+                        activity.status === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {activity.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
