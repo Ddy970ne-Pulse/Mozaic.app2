@@ -174,6 +174,229 @@ const MonthlyPlanning = ({ user }) => {
     return Object.keys(employee.absences).length;
   };
 
+  // Fonction d'impression
+  const handlePrint = (format = 'A4') => {
+    const printContent = generatePrintContent(format);
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const generatePrintContent = (format) => {
+    const orientation = format === 'A3' ? 'landscape' : 'portrait';
+    const pageSize = format === 'A3' ? 'A3' : 'A4';
+    
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Planning Mensuel - ${currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</title>
+          <style>
+            @page {
+              size: ${pageSize} ${orientation};
+              margin: 1cm;
+            }
+            
+            body {
+              font-family: Arial, sans-serif;
+              font-size: ${format === 'A3' ? '10px' : '8px'};
+              line-height: 1.2;
+              margin: 0;
+              padding: 0;
+            }
+            
+            .print-header {
+              text-align: center;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #333;
+              padding-bottom: 10px;
+            }
+            
+            .print-title {
+              font-size: ${format === 'A3' ? '18px' : '14px'};
+              font-weight: bold;
+              margin-bottom: 5px;
+            }
+            
+            .print-subtitle {
+              font-size: ${format === 'A3' ? '12px' : '10px'};
+              color: #666;
+            }
+            
+            .print-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 15px;
+              page-break-inside: avoid;
+            }
+            
+            .print-table th,
+            .print-table td {
+              border: 1px solid #ddd;
+              padding: ${format === 'A3' ? '4px' : '2px'};
+              text-align: center;
+            }
+            
+            .print-table th {
+              background-color: #f0f0f0;
+              font-weight: bold;
+              font-size: ${format === 'A3' ? '9px' : '7px'};
+            }
+            
+            .print-table .employee-cell {
+              text-align: left;
+              font-weight: bold;
+              min-width: ${format === 'A3' ? '120px' : '100px'};
+            }
+            
+            .absence-code {
+              font-weight: bold;
+              padding: 1px 2px;
+              border-radius: 2px;
+              font-size: ${format === 'A3' ? '8px' : '6px'};
+            }
+            
+            .print-legend {
+              margin-top: 15px;
+              page-break-inside: avoid;
+            }
+            
+            .legend-title {
+              font-weight: bold;
+              margin-bottom: 8px;
+              font-size: ${format === 'A3' ? '12px' : '10px'};
+            }
+            
+            .legend-grid {
+              display: grid;
+              grid-template-columns: repeat(${format === 'A3' ? '6' : '4'}, 1fr);
+              gap: 5px;
+            }
+            
+            .legend-item {
+              font-size: ${format === 'A3' ? '8px' : '6px'};
+              display: flex;
+              align-items: center;
+              gap: 3px;
+            }
+            
+            .legend-color {
+              width: 12px;
+              height: 12px;
+              border-radius: 2px;
+            }
+            
+            @media print {
+              body { -webkit-print-color-adjust: exact; }
+              .page-break { page-break-before: always; }
+            }
+            
+            .weekend, .holiday {
+              background-color: #f5f5f5 !important;
+            }
+            
+            .today {
+              background-color: #e3f2fd !important;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <div class="print-title">MOZAIK RH - Planning Mensuel</div>
+            <div class="print-subtitle">${currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })} • ${filteredEmployees.length} employé(s)</div>
+          </div>
+          
+          ${generatePrintTable(format)}
+          
+          <div class="print-legend">
+            <div class="legend-title">Légende des Codes d'Absence</div>
+            <div class="legend-grid">
+              ${Object.entries(absenceColorMap)
+                .filter(([code]) => !['CP', 'RTT', 'HS', 'FM'].includes(code))
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([code, info]) => `
+                  <div class="legend-item">
+                    <div class="legend-color" style="background-color: ${getColorCode(info.color)};"></div>
+                    <span>${code} - ${info.name}</span>
+                  </div>
+                `).join('')}
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  };
+
+  const generatePrintTable = (format) => {
+    const itemsPerPage = format === 'A3' ? 20 : 12;
+    const pages = [];
+    
+    for (let i = 0; i < filteredEmployees.length; i += itemsPerPage) {
+      const pageEmployees = filteredEmployees.slice(i, i + itemsPerPage);
+      
+      pages.push(`
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th class="employee-cell">Employé / Département</th>
+              ${days.map(day => `
+                <th class="${isWeekend(currentMonth, day) || isHoliday(day) ? 'weekend' : ''} ${isToday(currentMonth, day) ? 'today' : ''}">
+                  ${day}${isHoliday(day) ? '<br>F' : ''}
+                </th>
+              `).join('')}
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pageEmployees.map(employee => `
+              <tr>
+                <td class="employee-cell">
+                  <strong>${employee.name}</strong><br>
+                  <small>${employee.department}</small>
+                </td>
+                ${days.map(day => {
+                  const dayStr = day.toString();
+                  const absence = employee.absences[dayStr];
+                  const isWknd = isWeekend(currentMonth, day);
+                  const isHol = isHoliday(day);
+                  
+                  return `
+                    <td class="${isWknd || isHol ? 'weekend' : ''} ${isToday(currentMonth, day) ? 'today' : ''}">
+                      ${absence ? `<span class="absence-code" style="background-color: ${getColorCode(absenceColorMap[absence]?.color)}; color: ${getTextColor(absenceColorMap[absence]?.textColor)}">${absence}</span>` : ''}
+                    </td>
+                  `;
+                }).join('')}
+                <td><strong>${getAbsenceCount(employee)}j</strong></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        ${i + itemsPerPage < filteredEmployees.length ? '<div class="page-break"></div>' : ''}
+      `);
+    }
+    
+    return pages.join('');
+  };
+
+  const getColorCode = (tailwindClass) => {
+    const colorMap = {
+      'bg-red-600': '#dc2626', 'bg-red-500': '#ef4444', 'bg-red-400': '#f87171', 'bg-red-700': '#b91c1c',
+      'bg-blue-500': '#3b82f6', 'bg-blue-400': '#60a5fa', 'bg-blue-600': '#2563eb', 'bg-blue-300': '#93c5fd',
+      'bg-gray-600': '#4b5563', 'bg-gray-400': '#9ca3af', 'bg-gray-700': '#374151',
+      'bg-pink-500': '#ec4899', 'bg-pink-400': '#f472b6', 'bg-purple-500': '#a855f7', 'bg-purple-600': '#9333ea',
+      'bg-green-400': '#4ade80', 'bg-green-500': '#22c55e', 'bg-green-600': '#16a34a', 'bg-green-300': '#86efac', 'bg-green-200': '#bbf7d0',
+      'bg-orange-500': '#f97316', 'bg-indigo-500': '#6366f1', 'bg-indigo-600': '#4f46e5',
+      'bg-cyan-500': '#06b6d4', 'bg-cyan-400': '#22d3ee', 'bg-teal-500': '#14b8a6',
+      'bg-yellow-500': '#eab308', 'bg-amber-500': '#f59e0b'
+    };
+    return colorMap[tailwindClass] || '#6b7280';
+  };
+
+  const getTextColor = (tailwindClass) => {
+    return tailwindClass === 'text-black' ? '#000000' : '#ffffff';
+  };
+
   return (
     <div className="p-6">
       {/* Header */}
