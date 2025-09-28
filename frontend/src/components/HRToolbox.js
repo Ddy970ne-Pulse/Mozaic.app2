@@ -479,14 +479,26 @@ const HRToolbox = ({ user }) => {
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-medium text-gray-800 mb-3">Actions Rapides</h4>
                   <div className="space-y-3">
-                    <button className="w-full bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600 transition-colors duration-200">
-                      Générer Export Complet
+                    <button 
+                      onClick={() => exportPayrollData('excel')}
+                      disabled={isExporting}
+                      className="w-full bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                      {isExporting ? 'Export en cours...' : 'Générer Export Complet'}
                     </button>
-                    <button className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
-                      Export Heures Sup Uniquement
+                    <button 
+                      onClick={() => exportPayrollData('csv')}
+                      disabled={isExporting}
+                      className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                      {isExporting ? 'Export en cours...' : 'Export Heures Sup Uniquement'}
                     </button>
-                    <button className="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors duration-200">
-                      Export Absences Uniquement
+                    <button 
+                      onClick={() => exportPayrollData('xml')}
+                      disabled={isExporting}
+                      className="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                      {isExporting ? 'Export en cours...' : 'Export Absences Uniquement'}
                     </button>
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-sm text-gray-600">
