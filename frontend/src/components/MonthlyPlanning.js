@@ -1131,21 +1131,32 @@ const MonthlyPlanning = ({ user }) => {
                             absence === 'CA' ? 'relative' : ''
                           }`}
                                title={
-                                 absence === 'CA' ? 
-                                   (() => {
-                                     const leaveInfo = getLeaveDisplayInfo(employee, day.toString(), absence);
-                                     if (leaveInfo) {
-                                       const calc = leaveInfo.calculation;
-                                       return `CONGÉS PAYÉS - ${employee.name}\n` +
-                                              `Période: ${calc.totalRequested}j demandés\n` +
-                                              `Décompte: ${calc.actuallyDeducted}j prélevés\n` +
-                                              (calc.savings > 0 ? `Économie: ${calc.savings}j préservés\n` : '') +
-                                              (leaveInfo.dayInfo.isHoliday ? `⚠️ Jour férié: ${leaveInfo.dayInfo.holidayName}` : '') +
-                                              (leaveInfo.dayInfo.isWeekend && !leaveInfo.dayInfo.isHoliday ? '⚠️ Weekend (non décompté)' : '');
+                                 (() => {
+                                   const absenceInfo = calculateAnyAbsenceDeduction(employee, day.toString(), absence);
+                                   if (absenceInfo) {
+                                     let tooltip = `${absenceInfo.rules.name.toUpperCase()} - ${employee.name}\n`;
+                                     tooltip += `📚 Base légale: ${absenceInfo.calculation.legalBasis}\n`;
+                                     tooltip += `📊 Décompte: ${absenceInfo.calculation.deductedAmount} ${absenceInfo.calculation.unit}\n`;
+                                     tooltip += `💰 Impact: ${getPayrollImpactDescription(absenceInfo.calculation.payrollImpact)}\n`;
+                                     
+                                     if (absence === 'CA' && absenceInfo.calculation.savings > 0) {
+                                       tooltip += `✅ Économie: ${absenceInfo.calculation.savings}j préservés\n`;
                                      }
-                                     return `${absenceColorMap[absence]?.name || absence} - ${employee.name}`;
-                                   })() :
-                                   `${absenceColorMap[absence]?.name || absence} - ${employee.name}`
+                                     
+                                     if (absenceInfo.dayInfo.isHoliday) {
+                                       tooltip += `🎉 Jour férié: ${absenceInfo.dayInfo.holidayName}\n`;
+                                     }
+                                     
+                                     if (absenceInfo.displayInfo.willBeDeducted) {
+                                       tooltip += `⚠️ Ce jour sera décompté selon les règles légales`;
+                                     } else {
+                                       tooltip += `✅ Ce jour ne sera pas décompté`;
+                                     }
+                                     
+                                     return tooltip;
+                                   }
+                                   return `${absenceColorMap[absence]?.name || absence} - ${employee.name}`;
+                                 })()
                                }>
                             {absence}
                             {absence === 'CA' && (() => {
