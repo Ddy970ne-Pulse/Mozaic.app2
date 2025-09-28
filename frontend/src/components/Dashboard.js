@@ -39,7 +39,7 @@ const Dashboard = ({ user, onChangeView }) => {
   ];
 
   // Fonctions pour les actions rapides
-  const handleGenerateRequest = () => {
+  const handleGenerateReport = () => {
     // Navigation vers Analytics pour générer des rapports
     if (onChangeView) {
       onChangeView('analytics');
