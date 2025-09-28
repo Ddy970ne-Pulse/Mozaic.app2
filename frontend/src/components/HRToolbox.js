@@ -279,7 +279,10 @@ const HRToolbox = ({ user }) => {
                       { name: 'Assomption', date: '15 août', fixed: true },
                       { name: 'Toussaint', date: '1er novembre', fixed: true },
                       { name: 'Armistice 1918', date: '11 novembre', fixed: true },
-                      { name: 'Noël', date: '25 décembre', fixed: true }
+                      { name: 'Noël', date: '25 décembre', fixed: true },
+                      { name: 'Vendredi Saint', date: '29 mars', fixed: false },
+                      { name: 'Fête des Rois', date: '6 janvier', fixed: true },
+                      { name: 'Saint-Étienne', date: '26 décembre', fixed: true }
                     ].map((holiday, index) => (
                       <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div>
