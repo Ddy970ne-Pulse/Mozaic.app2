@@ -1071,13 +1071,30 @@ const MonthlyPlanning = ({ user }) => {
                     );
                   })}
                   <td className="px-4 py-4 text-center font-semibold text-gray-800 bg-gray-50 border-l border-gray-200">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      getAbsenceCount(employee) > 5 ? 'bg-red-100 text-red-800' :
-                      getAbsenceCount(employee) > 2 ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {getAbsenceCount(employee)} j
-                    </span>
+                    <div className="flex flex-col items-center space-y-1">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        getAbsenceCount(employee) > 5 ? 'bg-red-100 text-red-800' :
+                        getAbsenceCount(employee) > 2 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {getAbsenceCount(employee)} j
+                      </span>
+                      {(() => {
+                        const leaveDeduction = getRealLeaveDeduction(employee);
+                        if (leaveDeduction.totalRequested > 0) {
+                          return (
+                            <span className={`text-xs px-1 py-0.5 rounded ${
+                              leaveDeduction.savings > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+                            }`}
+                                  title={`Congés: ${leaveDeduction.totalRequested}j demandés → ${leaveDeduction.totalDeducted}j décomptés${leaveDeduction.savings > 0 ? ` (${leaveDeduction.savings}j préservés)` : ''}`}>
+                              CA: {leaveDeduction.totalDeducted}j
+                              {leaveDeduction.savings > 0 && <span className="text-green-600">↗</span>}
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
                   </td>
                 </tr>
               ))}
