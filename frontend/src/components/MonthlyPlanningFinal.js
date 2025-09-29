@@ -143,6 +143,17 @@ const MonthlyPlanningFinal = ({ user }) => {
     return unsubscribe;
   }, [selectedYear, selectedMonth]);
 
+  // Recharger les données d'astreinte quand le mois/année change
+  useEffect(() => {
+    try {
+      const onCallDataForMonth = getOnCallDataForMonthlyPlanning(selectedMonth, selectedYear);
+      setOnCallData(onCallDataForMonth);
+    } catch (error) {
+      console.error('Erreur chargement astreintes pour nouvelle période:', error);
+      setOnCallData({});
+    }
+  }, [selectedMonth, selectedYear]);
+
   // Fonction pour mettre à jour le planning avec les demandes approuvées
   const updatePlanningFromRequests = (requestsList) => {
     if (!Array.isArray(requestsList) || requestsList.length === 0) {
