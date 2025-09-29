@@ -773,11 +773,11 @@ const MonthlyPlanningFinal = ({ user }) => {
         </div>
       </div>
 
-      {/* Légende des 21 motifs */}
+      {/* Légende des 21 motifs et astreintes */}
       {showLegendDetails && (
         <div className="mb-6 p-4 bg-white rounded-lg shadow">
           <h3 className="font-semibold mb-4 text-gray-800">📋 Légende Complète des 21 Motifs d'Absence</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
             {Object.entries(absenceColorMap).map(([code, info]) => (
               <div key={code} className="flex items-center space-x-3 p-3 border rounded">
                 <span className={`${info.color} ${info.textColor} px-2 py-1 rounded text-sm font-bold min-w-[50px] text-center`}>
@@ -789,6 +789,27 @@ const MonthlyPlanningFinal = ({ user }) => {
                 </div>
               </div>
             ))}
+          </div>
+          
+          {/* Section Astreintes */}
+          <div className="border-t border-gray-200 pt-4">
+            <h4 className="font-semibold mb-3 text-gray-800">🔔 Astreintes</h4>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div className="flex items-center space-x-3 mb-2">
+                <div 
+                  className="w-8 h-4 rounded"
+                  style={{ backgroundColor: onCallBandColor }}
+                ></div>
+                <div className="flex-1">
+                  <div className="font-medium text-sm">Bande d'astreinte</div>
+                  <div className="text-xs text-gray-600">Affichée sous les codes d'absence • Couleur: Orange sanguine</div>
+                </div>
+              </div>
+              <div className="text-xs text-orange-700 bg-orange-100 rounded p-2 mt-2">
+                <strong>📋 Conformité CCN66:</strong> Les astreintes respectent les limites légales par catégorie d'employé.
+                Accédez au module "Gérer Astreintes" pour plus de détails.
+              </div>
+            </div>
           </div>
         </div>
       )}
