@@ -499,7 +499,7 @@ const MonthlyPlanningImproved = ({ user }) => {
         <div className="bg-white p-4 rounded-lg shadow">
           <h4 className="font-semibold text-gray-800 mb-2">🔄 Synchronisation</h4>
           <div className="text-sm text-gray-600">
-            <div>Demandes approuvées: {requests.filter(r => r.status === 'approved').length}</div>
+            <div>Demandes approuvées: {Array.isArray(requests) ? requests.filter(r => r.status === 'approved').length : 0}</div>
             <div>Dernière MAJ: {new Date().toLocaleTimeString('fr-FR')}</div>
           </div>
         </div>
