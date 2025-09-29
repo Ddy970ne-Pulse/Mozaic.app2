@@ -139,6 +139,7 @@ const MonthlyPlanningFinal = ({ user }) => {
     });
     
     loadRequests();
+    loadOnCallData();
     return unsubscribe;
   }, [selectedYear, selectedMonth]);
 
