@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { calculateLeaveDeduction, validateLeaveCalculation, generateLeaveReport, LeaveCalculatorUtils } from '../shared/congesCalculatorSafe';
 import { ABSENCE_DEDUCTION_RULES, calculateAbsenceDeduction, validateAbsenceLimits, generateAbsenceReport } from '../shared/absenceRulesSafe';
 import { getRequests, subscribe } from '../shared/requestsData';
+import { getOnCallDataForMonthlyPlanning, onCallBandColor } from '../shared/onCallData';
 
 const MonthlyPlanningFinal = ({ user }) => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
