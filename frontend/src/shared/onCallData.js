@@ -109,6 +109,7 @@ export const employeesOnCallData = [
 
 // Assignations d'astreintes existantes pour 2025
 export const currentOnCallAssignments = [
+  // Janvier 2025
   {
     id: 1,
     employeeId: 1,
@@ -157,6 +158,7 @@ export const currentOnCallAssignments = [
     assignedAt: '2024-12-22T16:45:00Z',
     notes: 'En attente de confirmation'
   },
+  // Février 2025
   {
     id: 5,
     employeeId: 1,
@@ -168,6 +170,67 @@ export const currentOnCallAssignments = [
     assignedBy: 'Direction',
     assignedAt: '2024-12-19T11:20:00Z',
     notes: ''
+  },
+  // Septembre 2025 - Pour démonstration des bandes d'astreinte
+  {
+    id: 6,
+    employeeId: 1,
+    employeeName: 'Sophie Martin',
+    startDate: '2025-09-03',
+    endDate: '2025-09-03',
+    type: 'single',
+    status: 'confirmed',
+    assignedBy: 'Direction',
+    assignedAt: '2025-08-25T10:00:00Z',
+    notes: 'Astreinte jour unique'
+  },
+  {
+    id: 7,
+    employeeId: 2,
+    employeeName: 'Jean Dupont',
+    startDate: '2025-09-08',
+    endDate: '2025-09-08',
+    type: 'single',
+    status: 'confirmed',
+    assignedBy: 'RH',
+    assignedAt: '2025-08-20T14:30:00Z',
+    notes: 'Astreinte lundi'
+  },
+  {
+    id: 8,
+    employeeId: 3,
+    employeeName: 'Marie Leblanc',
+    startDate: '2025-09-12',
+    endDate: '2025-09-13',
+    type: 'weekend',
+    status: 'confirmed',
+    assignedBy: 'Direction',
+    assignedAt: '2025-08-15T09:15:00Z',
+    notes: 'Astreinte week-end'
+  },
+  {
+    id: 9,
+    employeeId: 6,
+    employeeName: 'Lucas Bernard',
+    startDate: '2025-09-15',
+    endDate: '2025-09-15',
+    type: 'single',
+    status: 'confirmed',
+    assignedBy: 'Direction',
+    assignedAt: '2025-08-10T11:00:00Z',
+    notes: 'Astreinte éducateur spécialisé'
+  },
+  {
+    id: 10,
+    employeeId: 7,
+    employeeName: 'Emma Rousseau',
+    startDate: '2025-09-22',
+    endDate: '2025-09-22',
+    type: 'single',
+    status: 'confirmed',
+    assignedBy: 'RH',
+    assignedAt: '2025-08-12T16:45:00Z',
+    notes: 'Astreinte TEL'
   }
 ];
 
