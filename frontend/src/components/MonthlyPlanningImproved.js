@@ -97,6 +97,11 @@ const MonthlyPlanningImproved = ({ user }) => {
 
   // Fonction pour mettre à jour le planning avec les demandes approuvées
   const updatePlanningFromRequests = (requestsList) => {
+    if (!Array.isArray(requestsList)) {
+      console.warn('requestsList is not an array:', requestsList);
+      return;
+    }
+    
     setEmployees(prevEmployees => {
       return prevEmployees.map(employee => {
         const employeeRequests = requestsList.filter(req => 
