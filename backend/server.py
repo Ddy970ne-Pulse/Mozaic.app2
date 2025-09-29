@@ -492,6 +492,41 @@ class AbsenceRequest(BaseModel):
     acknowledgedBy: Optional[str] = None
     acknowledgedDate: Optional[str] = None
 
+# On-Call Management Models
+class OnCallAssignment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    employeeId: str
+    employeeName: str
+    startDate: str
+    endDate: str
+    type: str  # single, weekend, holiday, night
+    status: str = "confirmed"  # pending, confirmed, cancelled
+    assignedBy: str
+    assignedAt: str
+    notes: Optional[str] = ""
+
+class OnCallEmployee(BaseModel):
+    id: str
+    name: str
+    email: str
+    category: str  # management, administrative, specialized_educators, technical_educators
+    department: str
+    currentYearOnCallDays: int = 0
+    phone: Optional[str] = ""
+    emergencyContact: Optional[str] = ""
+    lastOnCallDate: Optional[str] = None
+
+class OnCallValidationRequest(BaseModel):
+    employeeId: str
+    startDate: str
+    endDate: str
+
+class OnCallValidationResponse(BaseModel):
+    isValid: bool
+    errors: List[str] = []
+    warnings: List[str] = []
+    stats: Optional[Dict[str, Any]] = None
+
 # Absence Requests endpoints
 @api_router.get("/absence-requests", response_model=List[dict])
 async def get_absence_requests(current_user: User = Depends(get_current_user)):
