@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Dashboard from './Dashboard';
 import EmployeeDashboard from './EmployeeDashboard';
-import MonthlyPlanning from './MonthlyPlanning';
+import MonthlyPlanningSafe from './MonthlyPlanningSafe';
 import HRToolbox from './HRToolbox';
 import AbsenceRequests from './AbsenceRequests';
 import EmployeeSpace from './EmployeeSpace';
