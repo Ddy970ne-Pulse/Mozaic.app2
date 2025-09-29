@@ -4,7 +4,7 @@ import { ABSENCE_DEDUCTION_RULES, calculateAbsenceDeduction, validateAbsenceLimi
 import { getRequests, subscribe } from '../shared/requestsData';
 import { getOnCallDataForMonthlyPlanning, onCallBandColor } from '../shared/onCallData';
 
-const MonthlyPlanningFinal = ({ user }) => {
+const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [showLegendDetails, setShowLegendDetails] = useState(false);
