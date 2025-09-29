@@ -7,7 +7,7 @@ const MonthlyPlanningImproved = ({ user }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showLegendDetails, setShowLegendDetails] = useState(false);
   const [showPrintOptions, setShowPrintOptions] = useState(false);
-  const [requests, setRequests] = useState(getRequests());
+  const [requests, setRequests] = useState(getRequests() || []);
   const [employees, setEmployees] = useState([
     { 
       id: 1, name: 'Sophie Martin', department: 'Direction', site: 'Siège', 
