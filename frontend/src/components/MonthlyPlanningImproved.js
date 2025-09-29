@@ -85,12 +85,14 @@ const MonthlyPlanningImproved = ({ user }) => {
   // Synchro avec les demandes d'absence approuvées
   useEffect(() => {
     const unsubscribe = subscribe((newRequests) => {
-      setRequests(newRequests);
-      updatePlanningFromRequests(newRequests);
+      const safeRequests = Array.isArray(newRequests) ? newRequests : [];
+      setRequests(safeRequests);
+      updatePlanningFromRequests(safeRequests);
     });
     
     // Mise à jour initiale
-    updatePlanningFromRequests(requests);
+    const initialRequests = Array.isArray(requests) ? requests : [];
+    updatePlanningFromRequests(initialRequests);
     
     return unsubscribe;
   }, []);
