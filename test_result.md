@@ -107,12 +107,17 @@ user_problem_statement: |
   
   PHASE 3 NEW: Implementation of On-Call Management System (Gestion des Astreintes) with Monthly Planning integration:
   
-  FEATURES TO IMPLEMENT:
-  1. Comprehensive absence legend with all 21 absence codes from provided list
-  2. Visual legend displayed on monthly planning interface with color coding
-  3. Codes selectable when creating absences  
-  4. Specific colors for visual distinction in calendar
-  5. Complete absence types: AT, AM, NAUT, AUT, FAM, MAT, PAT, CA, FO, CSS, CT, REC, RH, RHD, TEL, DEL, STG, CEX, MPRO, EMAL, RMED
+  ON-CALL MANAGEMENT FEATURES IMPLEMENTED:
+  1. ✅ Complete On-Call Management module with CCN66 compliance
+  2. ✅ Manual assignment with CCN66 validation (60j management, 45j admin, 50j educators)
+  3. ✅ Separate export planning for security company (CSV format)
+  4. ✅ Orange sanguine color bands integrated in Monthly Planning under absence cells
+  5. ✅ Visible to all employees (public access like other planning modules)
+  6. ✅ Bidirectional navigation between Monthly Planning and On-Call Management
+  7. ✅ Automatic integration of confirmed on-call assignments in monthly calendar
+  8. ✅ Employee categories: management, administrative, specialized_educators, technical_educators
+  9. ✅ Conflict detection and rest period validation (48h minimum between assignments)
+  10. ✅ Complete backend API with validation endpoints and security export
   
   TEST ACCOUNT: Sophie Martin (admin): sophie.martin@company.com / demo123
   
