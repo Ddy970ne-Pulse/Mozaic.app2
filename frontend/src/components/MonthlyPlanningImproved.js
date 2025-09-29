@@ -11,27 +11,39 @@ const MonthlyPlanningImproved = ({ user }) => {
   const [employees, setEmployees] = useState([
     { 
       id: 1, name: 'Sophie Martin', department: 'Direction', site: 'Siège', 
-      job: 'Directrice RH', absences: {}, totalAbsenceDays: 0
+      job: 'Directrice RH', 
+      absences: { '3': 'CA', '4': 'CA', '15': 'REC', '22': 'TEL' }, 
+      totalAbsenceDays: 4
     },
     { 
       id: 2, name: 'Jean Dupont', department: 'Administratif', site: 'Siège',
-      job: 'Responsable IT', absences: {}, totalAbsenceDays: 0
+      job: 'Responsable IT', 
+      absences: { '8': 'RTT', '12': 'CA', '13': 'CA', '26': 'AM' }, 
+      totalAbsenceDays: 4
     },
     { 
       id: 3, name: 'Marie Leblanc', department: 'Commercial', site: 'Pôle Éducatif',
-      job: 'Commerciale', absences: {}, totalAbsenceDays: 0
+      job: 'Commerciale', 
+      absences: { '5': 'AT', '6': 'AT', '19': 'CA', '20': 'CA', '21': 'CA' }, 
+      totalAbsenceDays: 5
     },
     { 
       id: 4, name: 'Pierre Martin', department: 'Comptable', site: 'Siège',
-      job: 'Comptable', absences: {}, totalAbsenceDays: 0
+      job: 'Comptable', 
+      absences: { '11': 'REC', '17': 'FAM', '25': 'TEL', '29': 'CA' }, 
+      totalAbsenceDays: 4
     },
     { 
       id: 5, name: 'Claire Dubois', department: 'Éducatif', site: 'Pôle Éducatif',
-      job: 'Éducatrice', absences: {}, totalAbsenceDays: 0
+      job: 'Éducatrice', 
+      absences: { '2': 'MAT', '3': 'MAT', '4': 'MAT', '7': 'MAT', '8': 'MAT', '9': 'MAT', '10': 'MAT' }, 
+      totalAbsenceDays: 7
     },
     { 
       id: 6, name: 'Lucas Bernard', department: 'Production', site: 'Menuiserie 44',
-      job: 'Menuisier', absences: {}, totalAbsenceDays: 0
+      job: 'Menuisier', 
+      absences: { '14': 'CT', '16': 'REC', '23': 'CA', '24': 'CA', '30': 'CSS' }, 
+      totalAbsenceDays: 5
     }
   ]);
 
