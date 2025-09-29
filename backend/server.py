@@ -784,6 +784,250 @@ async def get_absence_kpi(current_user: User = Depends(get_current_user)):
         ]
     }
 
+# On-Call Management endpoints
+@api_router.get("/on-call/employees", response_model=List[OnCallEmployee])
+async def get_on_call_employees(current_user: User = Depends(get_current_user)):
+    """Récupérer la liste des employés éligibles aux astreintes avec leurs quotas"""
+    # Données mockées avec les catégories CCN66
+    mock_employees = [
+        {
+            "id": "1",
+            "name": "Sophie Martin",
+            "email": "sophie.martin@company.com",
+            "category": "management",
+            "department": "Direction",
+            "currentYearOnCallDays": 25,
+            "phone": "06.12.34.56.78",
+            "emergencyContact": "06.87.65.43.21",
+            "lastOnCallDate": "2024-12-15"
+        },
+        {
+            "id": "2",
+            "name": "Jean Dupont",
+            "email": "jean.dupont@company.com",
+            "category": "administrative",
+            "department": "Administration",
+            "currentYearOnCallDays": 18,
+            "phone": "06.23.45.67.89",
+            "emergencyContact": "06.98.76.54.32",
+            "lastOnCallDate": "2024-12-08"
+        },
+        {
+            "id": "3",
+            "name": "Marie Leblanc",
+            "email": "marie.leblanc@company.com",
+            "category": "specialized_educators",
+            "department": "Éducation",
+            "currentYearOnCallDays": 32,
+            "phone": "06.34.56.78.90",
+            "emergencyContact": "06.09.87.65.43",
+            "lastOnCallDate": "2024-12-22"
+        },
+        {
+            "id": "4",
+            "name": "Pierre Moreau",
+            "email": "pierre.moreau@company.com",
+            "category": "technical_educators",
+            "department": "Technique",
+            "currentYearOnCallDays": 15,
+            "phone": "06.45.67.89.01",
+            "emergencyContact": "06.10.98.76.54",
+            "lastOnCallDate": "2024-11-30"
+        },
+        {
+            "id": "5",
+            "name": "Claire Dubois",
+            "email": "claire.dubois@company.com",
+            "category": "administrative",
+            "department": "Comptabilité",
+            "currentYearOnCallDays": 28,
+            "phone": "06.56.78.90.12",
+            "emergencyContact": "06.21.09.87.65",
+            "lastOnCallDate": "2024-12-10"
+        }
+    ]
+    return [OnCallEmployee(**emp) for emp in mock_employees]
+
+@api_router.get("/on-call/assignments", response_model=List[OnCallAssignment])
+async def get_on_call_assignments(
+    month: Optional[int] = None, 
+    year: Optional[int] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Récupérer les assignations d'astreinte pour une période donnée"""
+    # Données mockées d'assignations d'astreintes
+    mock_assignments = [
+        {
+            "id": "1",
+            "employeeId": "1",
+            "employeeName": "Sophie Martin",
+            "startDate": "2025-01-05",
+            "endDate": "2025-01-06",
+            "type": "weekend",
+            "status": "confirmed",
+            "assignedBy": "Direction",
+            "assignedAt": "2024-12-20T10:00:00Z",
+            "notes": "Astreinte week-end standard"
+        },
+        {
+            "id": "2",
+            "employeeId": "2",
+            "employeeName": "Jean Dupont",
+            "startDate": "2025-01-12",
+            "endDate": "2025-01-13",
+            "type": "weekend",
+            "status": "confirmed",
+            "assignedBy": "RH",
+            "assignedAt": "2024-12-18T14:30:00Z",
+            "notes": ""
+        },
+        {
+            "id": "3",
+            "employeeId": "3",
+            "employeeName": "Marie Leblanc",
+            "startDate": "2025-01-19",
+            "endDate": "2025-01-19",
+            "type": "single",
+            "status": "confirmed",
+            "assignedBy": "Direction",
+            "assignedAt": "2024-12-15T09:15:00Z",
+            "notes": "Astreinte exceptionnelle"
+        },
+        {
+            "id": "4",
+            "employeeId": "4",
+            "employeeName": "Pierre Moreau",
+            "startDate": "2025-01-25",
+            "endDate": "2025-01-26",
+            "type": "weekend",
+            "status": "pending",
+            "assignedBy": "RH",
+            "assignedAt": "2024-12-22T16:45:00Z",
+            "notes": "En attente de confirmation"
+        }
+    ]
+    
+    assignments = [OnCallAssignment(**assignment) for assignment in mock_assignments]
+    
+    # Filtrer par mois/année si spécifiés
+    if month is not None and year is not None:
+        filtered_assignments = []
+        for assignment in assignments:
+            assignment_date = datetime.fromisoformat(assignment.startDate.replace('Z', '+00:00'))
+            if assignment_date.month == month and assignment_date.year == year:
+                filtered_assignments.append(assignment)
+        return filtered_assignments
+    
+    return assignments
+
+@api_router.post("/on-call/assignments", response_model=OnCallAssignment)
+async def create_on_call_assignment(
+    assignment: OnCallAssignment,
+    current_user: User = Depends(get_current_user)
+):
+    """Créer une nouvelle assignation d'astreinte"""
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # En production, ici on validerait et sauvegarderait en base
+    assignment.assignedBy = current_user.name
+    assignment.assignedAt = datetime.now().isoformat()
+    return assignment
+
+@api_router.post("/on-call/validate", response_model=OnCallValidationResponse)
+async def validate_on_call_assignment(
+    validation: OnCallValidationRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Valider une assignation d'astreinte selon les règles CCN66"""
+    # Limites CCN66 par catégorie
+    ccn66_limits = {
+        "management": 60,
+        "administrative": 45,
+        "specialized_educators": 50,
+        "technical_educators": 50
+    }
+    
+    # Récupérer les infos de l'employé (mockées)
+    employee_data = {
+        "1": {"category": "management", "currentDays": 25, "name": "Sophie Martin"},
+        "2": {"category": "administrative", "currentDays": 18, "name": "Jean Dupont"},
+        "3": {"category": "specialized_educators", "currentDays": 32, "name": "Marie Leblanc"},
+        "4": {"category": "technical_educators", "currentDays": 15, "name": "Pierre Moreau"},
+        "5": {"category": "administrative", "currentDays": 28, "name": "Claire Dubois"}
+    }
+    
+    employee = employee_data.get(validation.employeeId)
+    if not employee:
+        return OnCallValidationResponse(
+            isValid=False,
+            errors=["Employé non trouvé"]
+        )
+    
+    # Calcul du nombre de jours demandés
+    start_date = datetime.fromisoformat(validation.startDate)
+    end_date = datetime.fromisoformat(validation.endDate)
+    new_days = (end_date - start_date).days + 1
+    
+    errors = []
+    warnings = []
+    
+    # Vérification limite CCN66
+    max_days = ccn66_limits[employee["category"]]
+    total_after = employee["currentDays"] + new_days
+    
+    if total_after > max_days:
+        errors.append(
+            f"⚠️ LIMITE CCN66 DÉPASSÉE: {employee['name']} dépasserait sa limite annuelle "
+            f"({max_days} jours max, actuellement {employee['currentDays']} + {new_days} = {total_after})"
+        )
+    elif total_after > max_days * 0.9:
+        warnings.append(
+            f"⚡ ATTENTION: {employee['name']} s'approche de sa limite annuelle "
+            f"({round((total_after / max_days) * 100)}%)"
+        )
+    
+    return OnCallValidationResponse(
+        isValid=len(errors) == 0,
+        errors=errors,
+        warnings=warnings,
+        stats={
+            "employeeName": employee["name"],
+            "category": employee["category"],
+            "currentDays": employee["currentDays"],
+            "newDays": new_days,
+            "totalAfter": total_after,
+            "maxDays": max_days,
+            "percentageUsed": round((total_after / max_days) * 100, 1)
+        }
+    )
+
+@api_router.get("/on-call/export/{month}/{year}")
+async def export_on_call_planning(
+    month: int,
+    year: int,
+    current_user: User = Depends(get_current_user)
+):
+    """Exporter le planning d'astreintes pour l'entreprise de sécurité"""
+    # En production, ici on récupérerait les vraies données
+    return {
+        "month": month,
+        "year": year,
+        "assignments": [
+            {
+                "startDate": "2025-01-05",
+                "endDate": "2025-01-06",
+                "employeeName": "Sophie Martin",
+                "employeePhone": "06.12.34.56.78",
+                "emergencyContact": "Service Direction",
+                "type": "Week-end",
+                "notes": ""
+            }
+        ],
+        "generatedAt": datetime.now().isoformat(),
+        "generatedBy": current_user.name
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
