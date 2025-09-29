@@ -441,7 +441,7 @@ const MonthlyPlanningImproved = ({ user }) => {
           🖨️ Imprimer Planning
         </button>
         <button
-          onClick={() => updatePlanningFromRequests(requests)}
+          onClick={() => updatePlanningFromRequests(Array.isArray(requests) ? requests : [])}
           className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
         >
           🔄 Actualiser depuis Demandes
