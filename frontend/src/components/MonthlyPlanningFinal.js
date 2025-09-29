@@ -12,6 +12,7 @@ const MonthlyPlanningFinal = ({ user }) => {
   const [printFormat, setPrintFormat] = useState('A4'); // A4 ou A3
   const [requests, setRequests] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [onCallData, setOnCallData] = useState({});
 
   // Liste complète des 21 motifs d'absence selon l'image
   const absenceColorMap = {
