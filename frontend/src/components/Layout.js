@@ -194,7 +194,11 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
               {menuItems.map((item, index) => (
                 <button
                   key={item.id}
-                  onClick={() => {
+                  data-testid={`menu-${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log(`Navigating to ${item.id}`);
                     setCurrentView(item.id);
                     setShowMenu(false);
                   }}
