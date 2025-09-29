@@ -107,7 +107,7 @@ const MonthlyPlanningFinal = ({ user }) => {
     setEmployees(employeesWithData);
   }, []);
 
-  // Synchro avec les demandes d'absence approuvées
+  // Synchro avec les demandes d'absence approuvées et les astreintes
   useEffect(() => {
     const loadRequests = () => {
       try {
@@ -118,6 +118,17 @@ const MonthlyPlanningFinal = ({ user }) => {
       } catch (error) {
         console.error('Erreur chargement demandes:', error);
         setRequests([]);
+      }
+    };
+
+    // Charger les données d'astreinte
+    const loadOnCallData = () => {
+      try {
+        const onCallDataForMonth = getOnCallDataForMonthlyPlanning(selectedMonth, selectedYear);
+        setOnCallData(onCallDataForMonth);
+      } catch (error) {
+        console.error('Erreur chargement astreintes:', error);
+        setOnCallData({});
       }
     };
 
