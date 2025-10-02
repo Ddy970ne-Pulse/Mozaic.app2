@@ -119,48 +119,68 @@ const OnCallManagement = ({ user, onChangeView }) => {
     return errors;
   };
 
+  // Obtenir le numéro de semaine d'une date (dimanche = début de semaine)
+  const getWeekNumber = (date) => {
+    const dayOfWeek = date.getDay(); // 0 = dimanche, 6 = samedi
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - dayOfWeek); // Revenir au dimanche
+    return `${startOfWeek.getFullYear()}-W${Math.ceil(startOfWeek.getDate() / 7)}-${startOfWeek.getMonth()}`;
+  };
+
+  // Obtenir toutes les dates d'une semaine (dimanche au samedi)
+  const getWeekDates = (day) => {
+    const date = new Date(currentYear, currentMonth, day);
+    const dayOfWeek = date.getDay(); // 0 = dimanche, 6 = samedi
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - dayOfWeek); // Dimanche
+    
+    const weekDates = [];
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(startOfWeek);
+      currentDate.setDate(startOfWeek.getDate() + i);
+      
+      // Vérifier si la date est dans le mois courant
+      if (currentDate.getMonth() === currentMonth) {
+        weekDates.push(`${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`);
+      }
+    }
+    return weekDates;
+  };
+
   const handleDateClick = (day) => {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     
-    if (!isSelecting) {
-      // Mode sélection simple (ancien comportement)
+    if (selectionMode === 'single') {
+      // Mode jour unique
       if (selectedDates.includes(dateStr)) {
         setSelectedDates(selectedDates.filter(date => date !== dateStr));
       } else {
         setSelectedDates([...selectedDates, dateStr]);
       }
-    }
-  };
-
-  const handleDateMouseDown = (day) => {
-    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    setIsSelecting(true);
-    setSelectionStart(dateStr);
-    setSelectedDates([dateStr]);
-  };
-
-  const handleDateMouseEnter = (day) => {
-    if (isSelecting && selectionStart) {
-      const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const startDate = new Date(selectionStart);
-      const currentDate = new Date(dateStr);
+    } else if (selectionMode === 'week') {
+      // Mode semaine complète (dimanche au samedi)
+      const weekDates = getWeekDates(day);
+      const allSelected = weekDates.every(date => selectedDates.includes(date));
       
-      // Générer toutes les dates entre le début et la fin de la sélection
-      const dates = [];
-      const start = startDate <= currentDate ? startDate : currentDate;
-      const end = startDate <= currentDate ? currentDate : startDate;
-      
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        dates.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+      if (allSelected) {
+        // Désélectionner toute la semaine
+        setSelectedDates(selectedDates.filter(date => !weekDates.includes(date)));
+      } else {
+        // Sélectionner toute la semaine
+        const newSelection = [...new Set([...selectedDates, ...weekDates])];
+        setSelectedDates(newSelection);
       }
-      
-      setSelectedDates(dates);
     }
   };
 
-  const handleDateMouseUp = () => {
-    setIsSelecting(false);
-    setSelectionStart(null);
+  const handleDateHover = (day) => {
+    if (selectionMode === 'week') {
+      setHoveredWeek(getWeekNumber(new Date(currentYear, currentMonth, day)));
+    }
+  };
+
+  const handleDateLeave = () => {
+    setHoveredWeek(null);
   };
 
   const handleAssignOnCall = () => {
