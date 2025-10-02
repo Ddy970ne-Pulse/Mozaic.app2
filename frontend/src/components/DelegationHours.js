@@ -620,41 +620,37 @@ const DelegationHours = ({ user }) => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Crédit de Base</label>
-                    <div className="text-blue-600 font-medium mt-1">{delegate.baseMonthlyHours}h</div>
-                    <div className="text-xs text-gray-500">Selon effectif</div>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Heures Reportées</label>
-                    <div className="text-purple-600 font-medium mt-1">+{delegate.reportedHours}h</div>
-                    <div className="text-xs text-gray-500">Du mois précédent</div>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Cédées/Reçues</label>
-                    <div className="font-medium mt-1">
-                      {delegate.cededHours > 0 && <span className="text-red-600">-{delegate.cededHours}h </span>}
-                      {delegate.receivedHours > 0 && <span className="text-green-600">+{delegate.receivedHours}h</span>}
-                      {delegate.cededHours === 0 && delegate.receivedHours === 0 && <span className="text-gray-400">0h</span>}
-                    </div>
-                    <div className="text-xs text-gray-500">Cessions</div>
+                    <label className="text-sm font-medium text-gray-500">Heures de base</label>
+                    <div className="text-2xl font-bold text-gray-800 mt-1">{delegate.monthlyHours}h</div>
+                    <div className="text-xs text-gray-500">Allocation mensuelle</div>
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium text-gray-500">Utilisées</label>
-                    <div className="text-orange-600 font-medium mt-1">{delegate.totalUsed}h</div>
+                    <div className="text-2xl font-bold text-orange-600 mt-1">
+                      {hoursBalances[delegate.id]?.used || 0}h
+                    </div>
                     <div className="text-xs text-gray-500">
-                      R:{delegate.usedFromReceived} | B:{delegate.usedFromReported} | C:{delegate.usedFromBase}h
+                      Approuvées ce mois
                     </div>
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium text-gray-500">Disponibles</label>
-                    <div className="text-green-600 font-medium mt-1">{delegate.availableHours}h</div>
-                    <div className="text-xs text-gray-500">Utilisables</div>
+                    <div className="text-green-600 font-medium mt-1">
+                      {hoursBalances[delegate.id]?.available || delegate.monthlyHours}h
+                    </div>
+                    <div className="text-xs text-gray-500">Encore utilisables</div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Total</label>
+                    <div className="text-blue-600 font-medium mt-1">
+                      {hoursBalances[delegate.id]?.total || delegate.monthlyHours}h
+                    </div>
+                    <div className="text-xs text-gray-500">Base + Reçues - Cédées</div>
                   </div>
                 </div>
                 
