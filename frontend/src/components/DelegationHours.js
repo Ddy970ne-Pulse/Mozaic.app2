@@ -711,14 +711,14 @@ const DelegationHours = ({ user }) => {
                 </div>
                 
                 {/* Alerte dépassement exceptionnel */}
-                {delegate.totalUsed > (delegate.baseMonthlyHours + delegate.reportedHours + delegate.receivedHours - delegate.cededHours) && (
+                {hoursBalances[delegate.id] && hoursBalances[delegate.id].used > hoursBalances[delegate.id].total && (
                   <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <span className="text-amber-500">⚠️</span>
                       <div>
                         <div className="text-sm font-medium text-amber-800">Dépassement Exceptionnel</div>
                         <div className="text-xs text-amber-700">
-                          +{delegate.totalUsed - (delegate.baseMonthlyHours + delegate.reportedHours + delegate.receivedHours - delegate.cededHours)}h 
+                          +{hoursBalances[delegate.id].used - hoursBalances[delegate.id].total}h 
                           au-delà du crédit normal (Art. L2315-9 CT)
                         </div>
                       </div>
