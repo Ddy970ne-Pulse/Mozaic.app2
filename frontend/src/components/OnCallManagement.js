@@ -112,17 +112,7 @@ const OnCallManagement = ({ user, onChangeView }) => {
       }
     });
 
-    // Vérification du repos minimum (48h entre deux astreintes selon le droit du travail)
-    const sortedDates = dates.sort();
-    for (let i = 0; i < sortedDates.length - 1; i++) {
-      const date1 = new Date(sortedDates[i]);
-      const date2 = new Date(sortedDates[i + 1]);
-      const diffHours = (date2 - date1) / (1000 * 60 * 60);
-      
-      if (diffHours < 48) {
-        errors.push(`⏰ REPOS INSUFFISANT: Repos minimum de 48h requis entre ${sortedDates[i]} et ${sortedDates[i + 1]}`);
-      }
-    }
+    // Note: Règle du repos de 48h retirée à la demande de l'utilisateur
 
     return errors;
   };
