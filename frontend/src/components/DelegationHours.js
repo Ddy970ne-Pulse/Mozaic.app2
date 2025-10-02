@@ -218,7 +218,7 @@ const DelegationHours = ({ user }) => {
   };
 
   const delegationTypes = {
-    'CSE': { name: 'Membre CSE', baseHours: 10, color: 'bg-blue-500' },
+    'CSE': { name: 'Membre CSE', baseHours: 22, color: 'bg-blue-500' }, // Code du Travail: 22h pour entreprise 250+ salariés
     'DS': { name: 'Délégué Syndical', baseHours: 15, color: 'bg-green-500' },
     'RSS': { name: 'Représentant Syndical', baseHours: 4, color: 'bg-purple-500' },
     'CHSCT': { name: 'Membre CHSCT', baseHours: 5, color: 'bg-orange-500' }
