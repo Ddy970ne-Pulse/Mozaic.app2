@@ -663,23 +663,17 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
             const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const hasOnCall = isInOnCallWeek(item.id, dateStr);
             
+            // Priorité : Absence > Astreinte > Vide (même logique que l'affichage)
+            const displayCode = absence || (hasOnCall ? 'AST' : '');
             let cellClass = '';
-            let content_cell = '';
-            let onCallIndicator = '';
             
-            if (absence) {
-              cellClass = `absence-${absence}`;
-              content_cell = absence;
+            if (displayCode) {
+              cellClass = `absence-${displayCode}`;
             } else if (isWknd || isHol) {
               cellClass = 'weekend';
             }
             
-            // Ajouter indicateur d'astreinte pour toute la semaine
-            if (hasOnCall) {
-              onCallIndicator = '<div style="height: 3px; background-color: #dc2626; margin-top: 2px; border-radius: 1px;" title="Astreinte semaine"></div>';
-            }
-            
-            content += `<td class="absence-code ${cellClass}">${content_cell}${onCallIndicator}</td>`;
+            content += `<td class="absence-code ${cellClass}">${displayCode}</td>`;
           });
           content += '</tr>';
         }
