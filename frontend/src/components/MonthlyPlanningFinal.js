@@ -658,8 +658,13 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
             const isWknd = isWeekend(day);
             const isHol = isHoliday(day);
             
+            // Vérifier si ce jour fait partie d'une semaine d'astreinte
+            const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const hasOnCall = isInOnCallWeek(item.id, dateStr);
+            
             let cellClass = '';
             let content_cell = '';
+            let onCallIndicator = '';
             
             if (absence) {
               cellClass = `absence-${absence}`;
@@ -668,7 +673,12 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               cellClass = 'weekend';
             }
             
-            content += `<td class="absence-code ${cellClass}">${content_cell}</td>`;
+            // Ajouter indicateur d'astreinte pour toute la semaine
+            if (hasOnCall) {
+              onCallIndicator = '<div style="height: 3px; background-color: #dc2626; margin-top: 2px; border-radius: 1px;" title="Astreinte semaine"></div>';
+            }
+            
+            content += `<td class="absence-code ${cellClass}">${content_cell}${onCallIndicator}</td>`;
           });
           content += '</tr>';
         }
