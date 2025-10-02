@@ -62,12 +62,12 @@ const OnCallManagement = ({ user, onChangeView }) => {
     }
   ];
 
-  // Données d'astreintes existantes (mockées)
+  // Assignations d'astreintes octobre 2025
   const existingOnCallAssignments = [
-    { employeeId: 1, employeeName: 'Sophie Martin', startDate: '2025-01-05', endDate: '2025-01-06', type: 'weekend' },
-    { employeeId: 2, employeeName: 'Jean Dupont', startDate: '2025-01-12', endDate: '2025-01-13', type: 'weekend' },
-    { employeeId: 3, employeeName: 'Marie Leblanc', startDate: '2025-01-19', endDate: '2025-01-19', type: 'single' },
-    { employeeId: 4, employeeName: 'Pierre Moreau', startDate: '2025-01-25', endDate: '2025-01-26', type: 'weekend' }
+    ...october2025OnCallAssignments.filter(assignment => {
+      const assignmentDate = new Date(assignment.startDate);
+      return assignmentDate.getMonth() === currentMonth && assignmentDate.getFullYear() === currentYear;
+    })
   ];
 
   const months = [
