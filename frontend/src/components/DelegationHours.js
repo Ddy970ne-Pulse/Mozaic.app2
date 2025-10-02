@@ -983,7 +983,9 @@ const DelegationHours = ({ user }) => {
                         </div>
                       </div>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(usage.status)}`}>
-                        {usage.status === 'pending' ? 'En attente' : 'Approuvé'}
+                        {usage.status === 'pending' ? '⏳ En attente' : 
+                         usage.status === 'approved' ? '✅ Approuvé' : 
+                         usage.status === 'rejected' ? '❌ Refusé' : usage.status}
                       </span>
                     </div>
                     <p className="text-sm text-gray-600">{usage.description}</p>
