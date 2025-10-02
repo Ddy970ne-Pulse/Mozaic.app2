@@ -127,8 +127,8 @@ const OvertimeModule = ({ user }) => {
   const [filterDept, setFilterDept] = useState('Tous');
 
   const filteredData = filterDept === 'Tous' 
-    ? overtimeData 
-    : overtimeData.filter(emp => emp.department === filterDept);
+    ? currentOvertimeData 
+    : currentOvertimeData.filter(emp => emp.department === filterDept);
 
   const totalStats = {
     totalAccumulated: filteredData.reduce((sum, emp) => sum + emp.accumulated, 0),
