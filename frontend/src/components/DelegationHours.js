@@ -795,8 +795,9 @@ const DelegationHours = ({ user }) => {
                         <>
                           <button 
                             onClick={() => {
-                              if (confirm(`Approuver l'utilisation de ${usage.hours}h pour "${usage.activity}" par ${usage.delegateName} ?`)) {
-                                alert('Demande approuvée avec succès !');
+                              if (confirm(`Approuver l'utilisation de ${usage.hours}h pour "${usage.activity}" par ${usage.delegateName} ?\n\nCeci impactera les soldes d'heures de délégation.`)) {
+                                const message = approveUsageRequest(usage.id);
+                                alert(message);
                               }
                             }}
                             className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs transition-colors duration-200"
@@ -806,8 +807,9 @@ const DelegationHours = ({ user }) => {
                           <button 
                             onClick={() => {
                               const reason = prompt(`Motif du refus pour "${usage.activity}" par ${usage.delegateName} :`);
-                              if (reason) {
-                                alert(`Demande refusée. Motif : ${reason}`);
+                              if (reason && reason.trim()) {
+                                const message = rejectUsageRequest(usage.id, reason);
+                                alert(message);
                               }
                             }}
                             className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs transition-colors duration-200"
@@ -815,6 +817,16 @@ const DelegationHours = ({ user }) => {
                             Refuser
                           </button>
                         </>
+                      )}
+                      {usage.status === 'approved' && (
+                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                          ✅ Approuvé par {usage.approvedBy} le {formatDate(usage.approvedDate)}
+                        </span>
+                      )}
+                      {usage.status === 'rejected' && (
+                        <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs" title={`Motif: ${usage.rejectionReason}`}>
+                          ❌ Refusé par {usage.rejectedBy} le {formatDate(usage.rejectedDate)}
+                        </span>
                       )}
                       <button className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors duration-200">
                         Détails
