@@ -535,10 +535,10 @@ const OnCallManagement = ({ user, onChangeView }) => {
             </div>
           </div>
           <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded">
-            💡 <strong>Instructions:</strong> 
-            {selectionMode === 'single' 
-              ? ' Cliquez sur les dates individuelles pour les sélectionner ou désélectionner'
-              : ' Cliquez sur n\'importe quel jour d\'une semaine pour sélectionner/désélectionner la semaine complète (Dimanche → Samedi)'
+            💡 <strong>Mode Astreintes Cadres:</strong> 
+            {selectionMode === 'week' 
+              ? ' Cliquez sur n\'importe quel jour d\'une semaine pour assigner l\'astreinte complète (Dimanche → Samedi). Mode recommandé pour les cadres.'
+              : ' Mode jour unique activé - Cliquez sur les dates individuelles pour les astreintes exceptionnelles.'
             }
           </div>
         </div>
