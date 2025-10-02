@@ -8,6 +8,7 @@ import { october2025FullPlanning, generateMonthlyReport } from '../shared/octobe
 const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [isTestMode, setIsTestMode] = useState(false);
   const [showLegendDetails, setShowLegendDetails] = useState(false);
   const [showPrintOptions, setShowPrintOptions] = useState(false);
   const [printFormat, setPrintFormat] = useState('A4'); // A4 ou A3
