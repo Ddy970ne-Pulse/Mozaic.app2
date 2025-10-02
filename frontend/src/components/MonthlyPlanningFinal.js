@@ -233,6 +233,31 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     return categoryMap[category] || category;
   };
 
+  // Fonction pour vérifier si un jour fait partie d'une semaine d'astreinte
+  const isInOnCallWeek = (employeeId, checkDate) => {
+    const employeeOnCallData = onCallData[employeeId] || [];
+    
+    // Pour chaque assignation d'astreinte de l'employé
+    return employeeOnCallData.some(onCall => {
+      const assignmentDate = new Date(onCall.date);
+      const checkingDate = new Date(checkDate);
+      
+      // Calculer le début et la fin de la semaine d'astreinte (dimanche à samedi)
+      const assignmentDayOfWeek = assignmentDate.getDay(); // 0 = dimanche, 6 = samedi
+      
+      // Trouver le dimanche de cette semaine d'astreinte
+      const weekStart = new Date(assignmentDate);
+      weekStart.setDate(assignmentDate.getDate() - assignmentDayOfWeek);
+      
+      // Trouver le samedi de cette semaine d'astreinte  
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      
+      // Vérifier si la date à tester est dans cette semaine d'astreinte
+      return checkingDate >= weekStart && checkingDate <= weekEnd;
+    });
+  };
+
   // Fonction d'export complète des données du mois
   const exportMonthlyData = () => {
     const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
