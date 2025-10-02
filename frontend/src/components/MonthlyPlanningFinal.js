@@ -180,6 +180,31 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     
     setEmployees(testEmployees);
     
+    // Charger les données d'astreinte pour octobre 2025
+    const octoberOnCallData = {};
+    october2025FullPlanning.onCallAssignments.forEach(assignment => {
+      if (!octoberOnCallData[assignment.employeeId]) {
+        octoberOnCallData[assignment.employeeId] = [];
+      }
+      
+      // Générer toutes les dates de l'assignation
+      const startDate = new Date(assignment.startDate);
+      const endDate = new Date(assignment.endDate);
+      const currentDate = new Date(startDate);
+      
+      while (currentDate <= endDate) {
+        octoberOnCallData[assignment.employeeId].push({
+          date: currentDate.toISOString().split('T')[0],
+          type: assignment.type,
+          status: assignment.status,
+          notes: assignment.notes || ''
+        });
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    });
+    
+    setOnCallData(octoberOnCallData);
+    
     // Afficher les statistiques du test
     const stats = october2025FullPlanning.statistics;
     alert(`📊 DONNÉES TEST OCTOBRE 2025 CHARGÉES
@@ -190,6 +215,9 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
 ⏰ Heures supplémentaires: ${stats.totalOvertimeHours}h  
 🔔 Jours astreinte: ${stats.totalOnCallDays}
 🔄 Heures récupération: ${stats.totalRecuperationHours}h
+
+✨ ASTREINTES INTÉGRÉES dans le planning !
+🟠 Bandes oranges visibles sous les absences
 
 Vous pouvez maintenant tester toutes les fonctionnalités !`);
   };
