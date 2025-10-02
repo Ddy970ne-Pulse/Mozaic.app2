@@ -225,23 +225,40 @@ const OnCallManagement = ({ user, onChangeView }) => {
         return dayDate >= assignmentStart && dayDate <= assignmentEnd;
       });
 
+      const currentDate = new Date(currentYear, currentMonth, day);
+      const currentWeek = getWeekNumber(currentDate);
+      const isHoveredWeek = hoveredWeek === currentWeek && selectionMode === 'week';
+      const weekDates = getWeekDates(day);
+      const isWeekFullySelected = weekDates.length > 0 && weekDates.every(date => selectedDates.includes(date));
+
       days.push(
         <div
           key={day}
           onClick={() => handleDateClick(day)}
-          onMouseDown={() => handleDateMouseDown(day)}
-          onMouseEnter={() => handleDateMouseEnter(day)}
-          onMouseUp={handleDateMouseUp}
+          onMouseEnter={() => handleDateHover(day)}
+          onMouseLeave={handleDateLeave}
           className={`
-            h-8 w-8 flex items-center justify-center text-sm cursor-pointer rounded-md transition-all select-none
+            h-8 w-8 flex items-center justify-center text-sm cursor-pointer rounded-md transition-all select-none relative
             ${isSelected ? 'bg-orange-500 text-white font-bold' : ''}
             ${existingAssignment ? 'bg-red-200 text-red-800' : ''}
             ${isWeekend && !existingAssignment && !isSelected ? 'bg-blue-100 text-blue-800' : ''}
-            ${!isSelected && !existingAssignment && !isWeekend ? 'hover:bg-gray-200' : ''}
+            ${isHoveredWeek && !existingAssignment && !isSelected ? 'bg-orange-200 border-2 border-orange-400' : ''}
+            ${isWeekFullySelected && selectionMode === 'week' ? 'ring-2 ring-orange-300' : ''}
+            ${!isSelected && !existingAssignment && !isWeekend && !isHoveredWeek ? 'hover:bg-gray-200' : ''}
           `}
-          title={existingAssignment ? `Assigné à ${existingAssignment.employeeName}` : ''}
+          title={
+            existingAssignment 
+              ? `Assigné à ${existingAssignment.employeeName}` 
+              : selectionMode === 'week' 
+                ? `Semaine du ${getWeekDates(day)[0]?.split('-').reverse().join('/')} (dim-sam)`
+                : `Sélection jour unique`
+          }
         >
           {day}
+          {/* Indicateur de sélection semaine */}
+          {selectionMode === 'week' && isWeekFullySelected && (
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></div>
+          )}
         </div>
       );
     }
