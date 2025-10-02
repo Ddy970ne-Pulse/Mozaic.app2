@@ -460,9 +460,44 @@ const OnCallManagement = ({ user, onChangeView }) => {
 
       {/* Calendrier principal */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Calendrier d'astreintes - {months[currentMonth]} {currentYear}
-        </h2>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Calendrier d'astreintes - {months[currentMonth]} {currentYear}
+          </h2>
+          
+          {/* Mode de sélection */}
+          <div className="flex items-center space-x-2 mt-3 md:mt-0">
+            <span className="text-sm text-gray-600">Mode :</span>
+            <button
+              onClick={() => {
+                setSelectionMode('single');
+                setSelectedDates([]);
+                setHoveredWeek(null);
+              }}
+              className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                selectionMode === 'single' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              📅 Jour unique
+            </button>
+            <button
+              onClick={() => {
+                setSelectionMode('week');
+                setSelectedDates([]);
+                setHoveredWeek(null);
+              }}
+              className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                selectionMode === 'week' 
+                  ? 'bg-orange-500 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              📆 Semaine (Dim-Sam)
+            </button>
+          </div>
+        </div>
         
         {/* Légende et instructions */}
         <div className="mb-4">
@@ -479,9 +514,17 @@ const OnCallManagement = ({ user, onChangeView }) => {
               <div className="w-4 h-4 bg-blue-100 rounded"></div>
               <span>Week-ends</span>
             </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Semaine complète</span>
+            </div>
           </div>
           <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded">
-            💡 <strong>Astuce:</strong> Cliquez sur une date pour sélection simple, ou maintenez enfoncé et glissez pour sélectionner une période
+            💡 <strong>Instructions:</strong> 
+            {selectionMode === 'single' 
+              ? ' Cliquez sur les dates individuelles pour les sélectionner ou désélectionner'
+              : ' Cliquez sur n\'importe quel jour d\'une semaine pour sélectionner/désélectionner la semaine complète (Dimanche → Samedi)'
+            }
           </div>
         </div>
 
