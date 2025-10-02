@@ -551,18 +551,20 @@ const OnCallManagement = ({ user, onChangeView }) => {
           </div>
         </div>
 
-        {/* Sélection rapide des semaines courantes */}
+        {/* Sélection rapide des semaines pour cadres */}
         {selectionMode === 'week' && (
-          <div className="mb-4 p-3 bg-orange-50 rounded-lg">
-            <div className="text-sm font-medium text-gray-700 mb-2">🚀 Sélection rapide semaines :</div>
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-4 p-4 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg">
+            <div className="text-sm font-bold text-orange-800 mb-3 flex items-center">
+              👔 <span className="ml-2">Assignation Astreintes Cadres - Sélection Rapide par Semaine</span>
+            </div>
+            <div className="flex flex-wrap gap-3">
               {(() => {
                 const today = new Date();
                 const currentDate = new Date(currentYear, currentMonth, 1);
                 const weeks = [];
                 
-                // Générer les 4 premières semaines du mois
-                for (let week = 0; week < 4; week++) {
+                // Générer toutes les semaines du mois
+                for (let week = 0; week < 5; week++) {
                   const startOfWeek = new Date(currentDate);
                   startOfWeek.setDate(1 + (week * 7));
                   
@@ -570,19 +572,22 @@ const OnCallManagement = ({ user, onChangeView }) => {
                   const dayOfWeek = startOfWeek.getDay();
                   startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek);
                   
-                  // Vérifier que le dimanche est dans le mois courant ou proche
-                  if (startOfWeek.getMonth() === currentMonth || 
-                      (startOfWeek.getMonth() === currentMonth - 1 && startOfWeek.getDate() > 25)) {
+                  // Vérifier que la semaine contient des jours du mois courant
+                  const endOfWeek = new Date(startOfWeek);
+                  endOfWeek.setDate(startOfWeek.getDate() + 6);
+                  
+                  if (startOfWeek.getMonth() === currentMonth || endOfWeek.getMonth() === currentMonth) {
+                    const weekDates = getWeekDates(Math.max(1, startOfWeek.getDate()));
                     
-                    const endOfWeek = new Date(startOfWeek);
-                    endOfWeek.setDate(startOfWeek.getDate() + 6);
-                    
-                    weeks.push({
-                      start: startOfWeek,
-                      end: endOfWeek,
-                      label: `Sem. ${week + 1}`,
-                      dates: getWeekDates(startOfWeek.getDate() > 0 ? startOfWeek.getDate() : 1)
-                    });
+                    if (weekDates.length > 0) {
+                      weeks.push({
+                        start: startOfWeek,
+                        end: endOfWeek,
+                        label: `Semaine ${week + 1}`,
+                        dates: weekDates,
+                        period: `${startOfWeek.getDate()}/${startOfWeek.getMonth() + 1} → ${endOfWeek.getDate()}/${endOfWeek.getMonth() + 1}`
+                      });
+                    }
                   }
                 }
                 
@@ -593,17 +598,21 @@ const OnCallManagement = ({ user, onChangeView }) => {
                       const newSelection = [...new Set([...selectedDates, ...week.dates])];
                       setSelectedDates(newSelection);
                     }}
-                    className="px-3 py-1 bg-white border border-orange-300 rounded-lg text-sm hover:bg-orange-100 transition-colors"
+                    className="px-4 py-3 bg-white border-2 border-orange-300 rounded-lg text-sm font-medium hover:bg-orange-100 hover:border-orange-400 transition-all shadow-sm"
                   >
-                    {week.label} ({week.start.getDate()}/{week.start.getMonth() + 1})
+                    <div className="text-orange-700 font-bold">{week.label}</div>
+                    <div className="text-xs text-gray-600">{week.period}</div>
+                    <div className="text-xs text-orange-600">{week.dates.length} jours</div>
                   </button>
                 ));
               })()}
+              
               <button
                 onClick={() => setSelectedDates([])}
-                className="px-3 py-1 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm hover:bg-red-200 transition-colors"
+                className="px-4 py-3 bg-red-100 border-2 border-red-300 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 hover:border-red-400 transition-all shadow-sm"
               >
-                🗑️ Vider
+                <div className="font-bold">🗑️ Effacer</div>
+                <div className="text-xs">Tout vider</div>
               </button>
             </div>
           </div>
