@@ -316,10 +316,22 @@ const EmployeeSpace = ({ user }) => {
                 </div>
                 
                 <div className="flex space-x-2">
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200">
+                  <button 
+                    onClick={() => alert(`Détails de l'objectif: ${goal.title}\nProgression: ${goal.progress}%\nÉchéance: ${formatDate(goal.deadline)}\nStatut: ${getStatusText(goal.status)}`)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                  >
                     Voir Détails
                   </button>
-                  <button className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200">
+                  <button 
+                    onClick={() => {
+                      const newProgress = prompt(`Mettre à jour le progrès pour "${goal.title}"`, goal.progress);
+                      if (newProgress !== null) {
+                        const progress = Math.max(0, Math.min(100, parseInt(newProgress) || 0));
+                        alert(`Progrès mis à jour: ${progress}%`);
+                      }
+                    }}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                  >
                     Mettre à Jour
                   </button>
                 </div>
