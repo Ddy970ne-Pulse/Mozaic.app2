@@ -1296,6 +1296,21 @@ const DelegationHours = ({ user }) => {
           <h2 className="text-lg font-semibold text-gray-800">Configuration des Types de Délégation</h2>
         </div>
         <div className="p-6">
+          <div className="mb-4 flex justify-between items-center">
+            <p className="text-sm text-gray-600">Gérer les types de délégation et leurs paramètres</p>
+            <button 
+              onClick={() => {
+                const name = prompt('Nom du nouveau type de délégation:');
+                const hours = prompt('Heures de base par mois:', '10');
+                if (name && hours) {
+                  alert(`Nouveau type "${name}" créé avec ${hours}h/mois`);
+                }
+              }}
+              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm"
+            >
+              + Ajouter Type
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {Object.entries(delegationTypes).map(([key, type]) => (
               <div key={key} className="border border-gray-200 rounded-lg p-4">
@@ -1311,13 +1326,67 @@ const DelegationHours = ({ user }) => {
                     <span className="text-gray-600">Heures de base:</span>
                     <span className="font-medium">{type.baseHours}h/mois</span>
                   </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Couleur:</span>
+                    <div className={`w-6 h-4 rounded ${type.color}`}></div>
+                  </div>
                   <div className="flex justify-between">
-                    <button className="text-blue-600 hover:text-blue-800 text-sm">Modifier</button>
-                    <button className="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
+                    <button 
+                      onClick={() => {
+                        const newHours = prompt(`Nouvelles heures pour "${type.name}":`, type.baseHours);
+                        if (newHours) {
+                          alert(`"${type.name}" mis à jour: ${newHours}h/mois`);
+                        }
+                      }}
+                      className="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      Modifier
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (confirm(`Supprimer le type "${type.name}" ?`)) {
+                          alert(`Type "${type.name}" supprimé`);
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-800 text-sm"
+                    >
+                      Supprimer
+                    </button>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+          
+          {/* Configuration des seuils d'effectif */}
+          <div className="mt-8 border-t border-gray-200 pt-6">
+            <h4 className="font-medium text-gray-800 mb-4">Configuration des seuils d'effectif</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm">Effectif actuel de l'entreprise:</span>
+                  <input type="number" defaultValue="85" className="w-16 px-2 py-1 border rounded text-sm" />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm">Heures supplémentaires autorisées:</span>
+                  <select className="px-2 py-1 border rounded text-sm">
+                    <option>20% maximum</option>
+                    <option>30% maximum</option>
+                    <option>50% maximum</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm">Report maximum (mois):</span>
+                  <input type="number" defaultValue="12" className="w-16 px-2 py-1 border rounded text-sm" />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm">Validation automatique:</span>
+                  <input type="checkbox" className="rounded" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
