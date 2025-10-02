@@ -10,7 +10,7 @@ const OnCallManagement = ({ user, onChangeView }) => {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [validationErrors, setValidationErrors] = useState([]);
-  const [selectionMode, setSelectionMode] = useState('single'); // 'single', 'week', 'range'
+  const [selectionMode, setSelectionMode] = useState('week'); // 'week' par défaut pour les cadres
   const [hoveredWeek, setHoveredWeek] = useState(null);
 
   // Données mockées des employés avec catégories pour la démonstration
