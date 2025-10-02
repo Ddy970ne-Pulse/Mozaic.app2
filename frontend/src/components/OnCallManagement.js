@@ -528,10 +528,70 @@ const OnCallManagement = ({ user, onChangeView }) => {
           </div>
         </div>
 
+        {/* Sélection rapide des semaines courantes */}
+        {selectionMode === 'week' && (
+          <div className="mb-4 p-3 bg-orange-50 rounded-lg">
+            <div className="text-sm font-medium text-gray-700 mb-2">🚀 Sélection rapide semaines :</div>
+            <div className="flex flex-wrap gap-2">
+              {(() => {
+                const today = new Date();
+                const currentDate = new Date(currentYear, currentMonth, 1);
+                const weeks = [];
+                
+                // Générer les 4 premières semaines du mois
+                for (let week = 0; week < 4; week++) {
+                  const startOfWeek = new Date(currentDate);
+                  startOfWeek.setDate(1 + (week * 7));
+                  
+                  // Trouver le dimanche de cette semaine
+                  const dayOfWeek = startOfWeek.getDay();
+                  startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek);
+                  
+                  // Vérifier que le dimanche est dans le mois courant ou proche
+                  if (startOfWeek.getMonth() === currentMonth || 
+                      (startOfWeek.getMonth() === currentMonth - 1 && startOfWeek.getDate() > 25)) {
+                    
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    
+                    weeks.push({
+                      start: startOfWeek,
+                      end: endOfWeek,
+                      label: `Sem. ${week + 1}`,
+                      dates: getWeekDates(startOfWeek.getDate() > 0 ? startOfWeek.getDate() : 1)
+                    });
+                  }
+                }
+                
+                return weeks.map((week, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      const newSelection = [...new Set([...selectedDates, ...week.dates])];
+                      setSelectedDates(newSelection);
+                    }}
+                    className="px-3 py-1 bg-white border border-orange-300 rounded-lg text-sm hover:bg-orange-100 transition-colors"
+                  >
+                    {week.label} ({week.start.getDate()}/{week.start.getMonth() + 1})
+                  </button>
+                ));
+              })()}
+              <button
+                onClick={() => setSelectedDates([])}
+                className="px-3 py-1 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm hover:bg-red-200 transition-colors"
+              >
+                🗑️ Vider
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* En-têtes des jours */}
         <div className="grid grid-cols-7 gap-1 mb-2">
-          {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(day => (
-            <div key={day} className="h-8 flex items-center justify-center text-sm font-medium text-gray-700">
+          {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map((day, index) => (
+            <div key={day} className={`h-8 flex items-center justify-center text-sm font-medium ${
+              index === 0 ? 'text-red-600' : index === 6 ? 'text-blue-600' : 'text-gray-700'
+            }`}>
               {day}
             </div>
           ))}
