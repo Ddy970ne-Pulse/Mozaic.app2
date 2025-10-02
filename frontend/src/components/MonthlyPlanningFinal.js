@@ -205,6 +205,72 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     return categoryMap[category] || category;
   };
 
+  // Fonction d'export complète des données du mois
+  const exportMonthlyData = () => {
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    
+    if (isTestMode) {
+      // Export des données de test avec rapport complet
+      const report = generateMonthlyReport();
+      
+      const exportData = {
+        ...report,
+        detailledData: {
+          absences: october2025FullPlanning.absences,
+          delegationHours: october2025FullPlanning.delegationHours,
+          overtimeHours: october2025FullPlanning.overtimeHours,
+          onCallAssignments: october2025FullPlanning.onCallAssignments,
+          recuperations: october2025FullPlanning.recuperations
+        }
+      };
+      
+      const jsonContent = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `MOZAIK_RH_Export_Complet_Octobre_2025.json`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      alert('📊 Export complet généré ! Fichier JSON avec toutes les données de test téléchargé.');
+      
+    } else {
+      // Export des données actuelles (planning normal)
+      const currentData = {
+        period: `${monthNames[selectedMonth]} ${selectedYear}`,
+        generated: new Date().toISOString(),
+        employees: employees.map(emp => ({
+          name: emp.name,
+          category: emp.category,
+          totalAbsenceDays: emp.totalAbsenceDays,
+          absences: emp.absences
+        })),
+        onCallData: onCallData,
+        summary: {
+          totalEmployees: employees.length,
+          totalAbsenceDays: employees.reduce((sum, emp) => sum + emp.totalAbsenceDays, 0),
+          employeesByCategory: employees.reduce((acc, emp) => {
+            acc[emp.category] = (acc[emp.category] || 0) + 1;
+            return acc;
+          }, {})
+        }
+      };
+      
+      const jsonContent = JSON.stringify(currentData, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `MOZAIK_RH_Planning_${monthNames[selectedMonth]}_${selectedYear}.json`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      alert(`📊 Planning ${monthNames[selectedMonth]} ${selectedYear} exporté !`);
+    }
+  };
+
   // Fonction pour mettre à jour le planning avec les demandes approuvées
   const updatePlanningFromRequests = (requestsList) => {
     if (!Array.isArray(requestsList) || requestsList.length === 0) {
