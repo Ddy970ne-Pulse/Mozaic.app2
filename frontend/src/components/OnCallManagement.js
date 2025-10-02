@@ -210,8 +210,11 @@ const OnCallManagement = ({ user, onChangeView }) => {
         <div
           key={day}
           onClick={() => handleDateClick(day)}
+          onMouseDown={() => handleDateMouseDown(day)}
+          onMouseEnter={() => handleDateMouseEnter(day)}
+          onMouseUp={handleDateMouseUp}
           className={`
-            h-8 w-8 flex items-center justify-center text-sm cursor-pointer rounded-md transition-all
+            h-8 w-8 flex items-center justify-center text-sm cursor-pointer rounded-md transition-all select-none
             ${isSelected ? 'bg-orange-500 text-white font-bold' : ''}
             ${existingAssignment ? 'bg-red-200 text-red-800' : ''}
             ${isWeekend && !existingAssignment && !isSelected ? 'bg-blue-100 text-blue-800' : ''}
