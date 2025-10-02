@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 const EmployeeSpace = ({ user }) => {
   const [activeTab, setActiveTab] = useState('profile');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editedProfile, setEditedProfile] = useState({});
 
   const employeeData = {
     profile: {
