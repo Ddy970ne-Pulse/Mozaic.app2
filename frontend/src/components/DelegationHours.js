@@ -58,9 +58,9 @@ const DelegationHours = ({ user }) => {
       },
       {
         id: 2,
-        name: 'Pierre Moreau',
-        type: 'DS',
-        monthlyHours: 15,
+        name: 'Pierre Moreau', 
+        type: 'CSE',
+        monthlyHours: 22,
         usedHours: 0,
         receivedHours: 0,
         transferredHours: 0,
