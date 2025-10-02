@@ -61,7 +61,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       
       // Administratifs
       { id: 3, name: 'Marie Leblanc', category: 'Administratifs', absences: {}, totalAbsenceDays: 0 },
-      { id: 4, name: 'Pierre Martin', category: 'Administratifs', absences: {}, totalAbsenceDays: 0 },
+      { id: 4, name: 'Pierre Moreau', category: 'Éducateurs techniques', absences: {}, totalAbsenceDays: 0 },
       { id: 5, name: 'Claire Dubois', category: 'Administratifs', absences: {}, totalAbsenceDays: 0 },
       
       // Éducateurs spécialisés
