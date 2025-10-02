@@ -83,7 +83,47 @@ const OvertimeModule = ({ user }) => {
     }
   ];
 
-  const departments = ['Tous', ...new Set(overtimeData.map(emp => emp.department))];
+  // Générer les données de test d'octobre 2025
+  const generateOctober2025Data = () => {
+    return testEmployees.map(emp => {
+      // Heures supplémentaires pour cet employé
+      const empOvertimeHours = october2025OvertimeHours.filter(ot => ot.employeeId === emp.id);
+      const empRecuperations = october2025Recuperations.filter(rec => rec.employeeId === emp.id);
+      
+      const accumulated = empOvertimeHours.reduce((sum, ot) => sum + ot.hours, 0);
+      const recovered = empRecuperations.reduce((sum, rec) => sum + rec.hours, 0);
+      const balance = accumulated - recovered;
+      
+      return {
+        id: emp.id,
+        name: emp.name,
+        department: emp.department,
+        accumulated,
+        recovered,
+        balance,
+        thisMonth: accumulated, // Tout vient d'octobre 2025
+        details: [
+          ...empOvertimeHours.map(ot => ({
+            date: ot.date,
+            hours: ot.hours,
+            type: 'accumulated',
+            reason: ot.reason,
+            validated: ot.validated
+          })),
+          ...empRecuperations.map(rec => ({
+            date: rec.date,
+            hours: -rec.hours, // Négatif pour la récupération
+            type: 'recovered', 
+            reason: rec.reason,
+            validated: rec.validated
+          }))
+        ]
+      };
+    });
+  };
+
+  const currentOvertimeData = isTestMode ? generateOctober2025Data() : overtimeData;
+  const departments = ['Tous', ...new Set(currentOvertimeData.map(emp => emp.department))];
   const [filterDept, setFilterDept] = useState('Tous');
 
   const filteredData = filterDept === 'Tous' 
