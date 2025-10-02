@@ -40,6 +40,140 @@ const DelegationHours = ({ user }) => {
     date: new Date().toISOString().split('T')[0]
   });
 
+  // Initialisation des données au chargement
+  React.useEffect(() => {
+    // Initialiser les délégués
+    const initialDelegates = [
+      {
+        id: 1,
+        name: 'Marie Leblanc',
+        type: 'CSE',
+        monthlyHours: 10,
+        usedHours: 0,
+        receivedHours: 0,
+        transferredHours: 0,
+        status: 'active',
+        startDate: '2024-01-01',
+        endDate: '2024-12-31'
+      },
+      {
+        id: 2,
+        name: 'Pierre Moreau',
+        type: 'DS',
+        monthlyHours: 15,
+        usedHours: 0,
+        receivedHours: 0,
+        transferredHours: 0,
+        status: 'active',
+        startDate: '2024-01-01',
+        endDate: '2024-12-31'
+      },
+      {
+        id: 3,
+        name: 'Claire Dubois',
+        type: 'RSS',
+        monthlyHours: 4,
+        usedHours: 0,
+        receivedHours: 0,
+        transferredHours: 0,
+        status: 'active',
+        startDate: '2024-01-01',
+        endDate: '2024-12-31'
+      }
+    ];
+
+    // Initialiser l'historique des utilisations
+    const initialUsageHistory = [
+      {
+        id: 1,
+        delegateId: 1,
+        delegateName: 'Marie Leblanc',
+        date: '2024-01-15',
+        hours: 2.5,
+        activity: 'Réunion CSE',
+        description: 'Réunion mensuelle du comité social et économique',
+        status: 'pending',
+        requestedBy: 'Marie Leblanc',
+        requestedDate: '2024-01-15',
+        approvedBy: null,
+        approvedDate: null
+      },
+      {
+        id: 2,
+        delegateId: 1,
+        delegateName: 'Marie Leblanc',
+        date: '2024-01-10',
+        hours: 3,
+        activity: 'Formation syndicale',
+        description: 'Formation sur les droits des salariés',
+        status: 'pending',
+        requestedBy: 'Marie Leblanc',
+        requestedDate: '2024-01-10',
+        approvedBy: null,
+        approvedDate: null
+      },
+      {
+        id: 3,
+        delegateId: 2,
+        delegateName: 'Pierre Moreau',
+        date: '2024-01-12',
+        hours: 4,
+        activity: 'Négociation collective',
+        description: 'Participation aux négociations annuelles',
+        status: 'pending',
+        requestedBy: 'Pierre Moreau',
+        requestedDate: '2024-01-12',
+        approvedBy: null,
+        approvedDate: null
+      },
+      {
+        id: 4,
+        delegateId: 3,
+        delegateName: 'Claire Dubois',
+        date: '2024-01-08',
+        hours: 1.5,
+        activity: 'Représentation syndicale',
+        description: 'Entretien disciplinaire en tant que représentant',
+        status: 'approved',
+        requestedBy: 'Claire Dubois',
+        requestedDate: '2024-01-08',
+        approvedBy: 'Sophie Martin',
+        approvedDate: '2024-01-09'
+      }
+    ];
+
+    setDelegates(initialDelegates);
+    setUsageHistory(initialUsageHistory);
+
+    // Calculer les soldes initiaux
+    calculateBalances(initialDelegates, initialUsageHistory);
+  }, []);
+
+  // Fonction pour calculer les soldes d'heures
+  const calculateBalances = (delegatesList, usagesList) => {
+    const balances = {};
+    
+    delegatesList.forEach(delegate => {
+      const approvedUsages = usagesList.filter(usage => 
+        usage.delegateId === delegate.id && usage.status === 'approved'
+      );
+      
+      const totalUsedHours = approvedUsages.reduce((sum, usage) => sum + usage.hours, 0);
+      const availableHours = delegate.monthlyHours + delegate.receivedHours - delegate.transferredHours - totalUsedHours;
+      
+      balances[delegate.id] = {
+        monthlyAllocation: delegate.monthlyHours,
+        used: totalUsedHours,
+        received: delegate.receivedHours,
+        transferred: delegate.transferredHours,
+        available: Math.max(0, availableHours),
+        total: delegate.monthlyHours + delegate.receivedHours - delegate.transferredHours
+      };
+    });
+    
+    setHoursBalances(balances);
+  };
+
   const delegationTypes = {
     'CSE': { name: 'Membre CSE', baseHours: 10, color: 'bg-blue-500' },
     'DS': { name: 'Délégué Syndical', baseHours: 15, color: 'bg-green-500' },
