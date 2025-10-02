@@ -1,73 +1,76 @@
 <analysis>
-The AI engineer's work in this trajectory primarily focused on stabilizing the MOZAIK RH application, particularly addressing critical frontend navigation and rendering issues, and then refining the Monthly Planning module. Initially, a  blocked access to , which was resolved by adding robust null checks in  and . This was followed by a prolonged struggle with non-functional quick action buttons and general menu navigation, leading to deep debugging, temporary solutions like  (later discarded due to memory leaks), and multiple full system restarts to clear persistent cache issues. A critical memory leak and high CPU usage were traced to  and  calls within the debugging attempts, which were subsequently removed. The core navigation system for the hamburger menu was eventually fixed by resolving an event name mismatch between  and . Finally, after the application became stable, the focus shifted to implementing detailed user feedback for the Monthly Planning module's visual design, absence list completeness, printing options, and automatic filling from approved requests, culminating in the creation of  and related safe versions of calculation modules.
+The trajectory details the evolution of the MOZAIK RH application from a buggy state to a feature-rich, stable platform. The initial work involved critical bug fixing, addressing a  in the  module and resolving severe navigation and memory leak issues that crippled the application.
+
+Once stable, the primary focus shifted to a major feature development: the On-Call (Astreintes) Management module. This was an iterative process driven entirely by user feedback. It started with creating the backend endpoints and a basic frontend UI. User requests then led to a complete refactoring of the date selection logic to be week-based (Sunday-Saturday), a UI overhaul to prioritize this mode for managers, and a fix to ensure the on-call visualization in the main planning view covered the entire week.
+
+The most significant recent change was a user-suggested pivot from displaying on-call duties as a separate colored band to integrating them directly into the calendar grid using a uniform AST code, like other absences. This created a more coherent and professional UI.
+
+Simultaneously, the AI addressed a backlog of bugs in other modules (, , ), notably refactoring  from using static data to being fully state-driven, which fixed non-functional approval buttons and incorrect hour balance calculations. A comprehensive test suite for October 2025 was also created to validate the interconnectedness of all modules. The final user interaction was a query about deployment, indicating the development phase is considered complete.
 </analysis>
 
 <product_requirements>
-The MOZAIK RH system aims to be a comprehensive HR management solution adhering to French labor law (CCN66), featuring a modern, responsive UI (iPad-style planning/menu). Core features include Holiday Management, Leave Entitlements, Overtime, HR Validation, Payroll Export, and Statistics. Specific requirements covered: mobile responsiveness, functional Settings, correct logo display, differentiated demo accounts, working logout, and role-based dashboards. A Delegation Hours module was required with admin designation and legal compliance. Subsequent updates added  for administrators. Recent requests focused on activating Approuver/Refuser buttons, enhancing absence legend aesthetics, synchronizing dashboard/absence data, printing planning in landscape, updating holidays, improving sort ribbon UI, disabling Payslips for RGPD, enhancing medical document security, activating Exporter/Analyser buttons, and implementing accurate French labor law calculations for annual leave (CA) and all other absence types. Latest user feedback includes: adjusting the Monthly Planning visual to a specific image, automatically populating the planning with approved absence requests, providing A4/A3 landscape printing with header repetition, allowing distinct year/month selection, fixing the Actualiser depuis demandes button, replacing the print text with an icon, removing department/job details, and grouping employees by administrative/educational/technical/managerial categories. The absence motif list needs to be complete (21 codes).
+The core product, MOZAIK RH, is a comprehensive Human Resources management application designed to comply with French labor law (CCN66). The primary goal of the documented work was to build and refine a new On-Call Management (Gestion des Astreintes) module.
+
+Initial requirements for this module included manual assignment of on-call duties, compliance checks against CCN66 regulations, a blood-orange color scheme, and automatic integration into the main monthly planning view.
+
+User feedback drove the evolution of these requirements:
+1.  **Selection Logic:** The assignment process must be based on full weeks (Sunday to Saturday), as this reflects the operational reality for managers.
+2.  **UI/UX:** The interface should be optimized for managers, making week-based selection the default and most prominent option.
+3.  **Visual Consistency:** The initial implementation of a colored band under calendar cells was deemed inconsistent. The final requirement was to unify the display, representing on-call duties with a dedicated AST code directly within the calendar cell, identical in format to other absence types (e.g., CA for leave).
+
+Additionally, the work addressed fixing numerous bugs in existing modules like  (non-functional approval buttons, incorrect balance calculations) and implementing a comprehensive test scenario for October 2025 to ensure all systems work together correctly.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack Development**: React (frontend), FastAPI (backend), MongoDB (database).
--   **UI/UX**: Tailwind CSS, responsive design, React hooks (useState, useEffect), event propagation.
--   **State Management**: Centralized shared state ().
--   **Authentication/Authorization**: JWT-based role-based access control.
--   **Legal Compliance**: Deep integration of French labor law (CCN66) for HR calculations.
--   **Document Security**: Security measures for document uploads.
--   **Printing**: Frontend-driven print functionality with orientation and pagination.
+- **Full-Stack Development**: React for the frontend, FastAPI (Python) for the backend, and MongoDB for the database.
+- **React State Management**: Extensive use of React Hooks (, ) to manage component-level state and drive UI updates, replacing hardcoded data structures.
+- **API Development**: Creation of RESTful APIs with FastAPI and Pydantic models for data validation and serialization.
+- **UI/UX Refinement**: Iterative development process based on direct user feedback, focusing on conditional rendering, dynamic CSS, and improving user workflows (e.g., week vs. day selection).
+- **Test Data Management**: Creation of a dedicated test data file () and Test Mode toggles within components to facilitate robust, scenario-based testing.
 </key_technical_concepts>
 
 <code_architecture>
-The application uses a React frontend, FastAPI backend, and MongoDB database.
+The application follows a standard monorepo structure with a React frontend and a FastAPI backend.
 
 
 
--   ****: Manages routing and authentication.
-    -   **Summary**: Handles user authentication state and renders  or .
-    -   **Changes**: Ensures  is set to 'dashboard' after login.
--   ****: Defines the main application layout, menu, and header.
-    -   **Summary**: Dynamically renders components based on menu selection and user role.
-    -   **Changes**: Extensive modifications to ensure  prop is passed to all rendered components. Added event listeners for custom navigation (later removed/refactored). Implemented  on menu items to prevent click conflicts with menu overlay. Temporarily imported and rendered , , , , and  during debugging and feature integration.
--   ****: Displays monthly planning.
-    -   **Summary**: Central module for HR planning, tracking absences, and employee schedules.
-    -   **Changes**: Fixed  by adding null checks for  and  before accessing properties. Added error handling in tooltip and indicator generation, and analysis sections. This is the original, now modified, component.
--   ****: Main dashboard view.
-    -   **Summary**: Provides an overview of HR statistics, recent activities, and quick actions.
-    -   **Changes**: Fixed issue where  prop was not consistently passed. Added and later removed various debug logs, alerts, and test buttons during navigation troubleshooting. Integrated  for dynamic upcoming events.
--   ****:
-    -   **Summary**: Implements detailed logic for calculating annual leave.
-    -   **Changes**: None directly, but  was created as a secured version to prevent potential infinite loops.
--   ****:
-    -   **Summary**: Defines rules and calculation logic for other absence types.
-    -   **Changes**: None directly, but  was created as a secured version to prevent potential infinite loops.
--   ** (NEW)**:
-    -   **Summary**: Centralized module for managing and providing dynamic event data.
-    -   **Importance**: Replaces hardcoded upcoming events in the Dashboard.
--   ** (NEW, DELETED)**:
-    -   **Summary**: Temporary helper for custom DOM-based navigation events.
-    -   **Importance**: Created to troubleshoot React navigation issues, later removed due to causing memory leaks and not resolving the core problem.
--   ** (NEW)**:
-    -   **Summary**: The latest iteration of the Monthly Planning component, aiming to integrate all user-requested visual and functional improvements.
-    -   **Importance**: Incorporates the complete list of absence motifs, visual adjustments from user-provided images, automatic planning from approved requests, and prepares for advanced printing.
+-   ** (New)**
+    -   **Importance**: This is the core component for the new on-call management feature. It contains the UI and logic for assigning on-call duties.
+    -   **Changes**: Created from scratch and heavily modified. The logic was completely refactored from a simple day-picker to a sophisticated week-based selection system (Sunday-Saturday) set as the default. The UI was updated with toggles for selection mode, quick-select buttons for weeks, and specific labels for managers.
+
+-   ****
+    -   **Importance**: This is the central planning view where all employee absences and on-call duties are displayed. It's the most critical component for data visualization.
+    -   **Changes**: This file underwent the most significant changes. Initially, it was modified to render on-call duties as a colored band beneath the calendar cells. This logic was then corrected to display the band across the entire on-call week. Finally, it was completely refactored to remove the band system and instead render an AST code directly in the calendar cell, unifying the display with other absence types. This required updating the rendering logic for both the screen and print views, as well as the component's legend.
+
+-   ****
+    -   **Importance**: Manages employee delegation hours, a legally sensitive module.
+    -   **Changes**: A major refactor was performed to fix non-functional approval/rejection buttons. The component was changed from using static, hardcoded arrays to a fully state-driven model using  and . New handler functions (, ) were added to correctly update the status of requests and recalculate employee hour balances in real-time.
+
+-   ****
+    -   **Importance**: The main entry point for the FastAPI backend, defining all API routes and data models.
+    -   **Changes**: New Pydantic models (, ) and API endpoints (, , ) were added to support creating and retrieving on-call assignments from the database.
+
+-   ** (New)**
+    -   **Importance**: Centralizes the logic and data for on-call assignments on the frontend.
+    -   **Changes**: Created to hold mock data for on-call duties and was later updated to include the test data for October 2025, ensuring consistency with the main test data file.
+
+-   ** (New)**
+    -   **Importance**: A critical file for end-to-end testing, containing a comprehensive set of data for a full month of activities.
+    -   **Changes**: Created to hold a rich dataset including absences, on-call duties, overtime hours, and delegation requests for all employees for October 2025. This data is loaded into various modules via Test Mode buttons.
 </code_architecture>
 
 <pending_tasks>
--   Complete the list of absence reasons (21 motifs) in .
--   Implement A4/A3 landscape printing with header repetition across multiple pages for the planning module.
--   Allow distinct year and month selection for the planning display.
--   Fix the Actualiser depuis demandes button and ensure correct automatic filling of planning from pre-validated requests.
--   Replace the Imprimer text button with a suitable icon.
--   Modify the planning view to remove department/job details and regroup employees based on categories (administrative, specialized educators, technical educators, management).
--   Adjust the visual design of the  module according to the user-provided reference image.
+- The user has asked how to deploy the site (comment déployer le site). This is the only pending task.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer successfully resolved a series of critical frontend issues that were blocking the application's functionality. The initial  in the  module was fixed by adding comprehensive null and undefined checks. Subsequently, persistent navigation and click propagation issues affecting both the quick action buttons on the Dashboard and the hamburger menu items were diagnosed and addressed. This involved extensive debugging of  prop passing, temporary attempts with custom  events (which were later removed due to memory leaks and high CPU usage), and numerous system restarts to clear build caches.
+The most recent work was a significant and successful refactoring of the on-call duty display within the main  component, based on the user's request for a more uniform interface.
 
-A critical memory leak leading to application freezes and 99%+ CPU usage was identified and resolved by removing problematic  and  calls introduced during debugging. The fundamental menu navigation now functions correctly, allowing access to different modules.
+Previously, on-call periods were shown as a colored band underneath the calendar days. The final implementation replaced this system entirely. A new absence code, AST (for Astreinte), was created with a distinct orange color. The component's rendering logic, for both the interactive screen view and the static print view, was rewritten to check if a given day falls within an on-call week. If it does, the AST code is rendered directly inside the calendar cell, stylistically identical to other absence codes like CA (leave) or AM (sick leave). The legend was also updated to include the new AST code.
 
-Most recently, the user provided detailed feedback for the  module, focusing on its visual design, the completeness of the absence motif list, printing requirements, dynamic data filling from approved requests, and employee grouping. In response, a new component, , was created, along with  and  to prevent recurrence of infinite loop issues. The  error has been fixed, and the Monthly Planning module now loads and displays correctly with its basic structure, legend, and print button, ready for further refinement as per the user's latest detailed requirements. The planning is currently empty as it relies on approved requests which haven't been simulated yet.
+This change successfully unified the visual language of the planning grid, making it more coherent and professional. The implementation was validated with screenshots showing a comprehensive test scenario for October 2025, where AST codes were correctly displayed across full weeks for multiple employees, alongside their other absences.
 </current_work>
 
 <optional_next_step>
-The next step is to replace the current  with  in  to implement the latest user-requested visual and functional improvements for the Monthly Planning module.
+I will provide the user with instructions on how to deploy the application.
 </optional_next_step>
