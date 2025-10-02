@@ -772,40 +772,32 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                       const absence = employee.absences[day.toString()];
                       const isWknd = isWeekend(day);
                       const isHol = isHoliday(day);
-                      const absenceInfo = absence ? absenceColorMap[absence] : null;
                       
                       // Vérifier si ce jour fait partie d'une semaine d'astreinte pour cet employé
                       const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                       const hasOnCall = isInOnCallWeek(employee.id, dateStr);
                       
+                      // Priorité : Absence > Astreinte > Vide
+                      const displayCode = absence || (hasOnCall ? 'AST' : null);
+                      const codeInfo = displayCode ? absenceColorMap[displayCode] : null;
+                      
                       return (
                         <td 
                           key={day} 
-                          className={`border border-gray-200 px-1 py-1 text-center text-xs relative ${
-                            isWknd && !absence ? 'bg-gray-50' : 
-                            isHol && !absence ? 'bg-red-25' : ''
+                          className={`border border-gray-200 px-1 py-1 text-center text-xs ${
+                            isWknd && !displayCode ? 'bg-gray-50' : 
+                            isHol && !displayCode ? 'bg-red-25' : ''
                           }`}
                         >
-                          <div className="relative">
-                            {/* Code d'absence */}
-                            {absenceInfo && (
-                              <span 
-                                className={`${absenceInfo.color} ${absenceInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help block mb-1`}
-                                title={`${absenceInfo.name} - ${employee.name} - ${absenceInfo.type} - ${absenceInfo.decompte}`}
-                              >
-                                {absence}
-                              </span>
-                            )}
-                            
-                            {/* Bande d'astreinte orange sanguine sous l'absence */}
-                            {hasOnCall && (
-                              <div 
-                                className="absolute bottom-0 left-0 right-0 h-1 rounded-sm cursor-help"
-                                style={{ backgroundColor: onCallBandColor }}
-                                title={`🔔 Astreinte - ${employee.name}`}
-                              ></div>
-                            )}
-                          </div>
+                          {/* Code uniforme : absence ou astreinte */}
+                          {codeInfo && (
+                            <span 
+                              className={`${codeInfo.color} ${codeInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help`}
+                              title={`${codeInfo.name} - ${employee.name} - ${codeInfo.type} - ${codeInfo.decompte}${hasOnCall && absence ? ' + Astreinte semaine' : ''}`}
+                            >
+                              {displayCode}
+                            </span>
+                          )}
                         </td>
                       );
                     })}
