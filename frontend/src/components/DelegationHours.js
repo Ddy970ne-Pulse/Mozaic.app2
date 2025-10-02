@@ -8,6 +8,11 @@ const DelegationHours = ({ user }) => {
   const [showAddUsage, setShowAddUsage] = useState(false);
   const [showCessionModal, setShowCessionModal] = useState(false);
   const [selectedDelegate, setSelectedDelegate] = useState(null);
+  
+  // États pour la gestion dynamique des données
+  const [usageHistory, setUsageHistory] = useState([]);
+  const [delegates, setDelegates] = useState([]);
+  const [hoursBalances, setHoursBalances] = useState({});
   const [newDelegate, setNewDelegate] = useState({
     employeeId: '',
     name: '',
