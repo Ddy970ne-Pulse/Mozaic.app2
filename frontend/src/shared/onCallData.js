@@ -107,9 +107,12 @@ export const employeesOnCallData = [
   }
 ];
 
-// Assignations d'astreintes existantes pour 2025
+// Import des données de test d'octobre 2025
+import { october2025OnCallAssignments } from './october2025TestData';
+
+// Assignations d'astreintes existantes pour 2025 - Incluant les données de test octobre
 export const currentOnCallAssignments = [
-  // Janvier 2025
+  // Données de base (janvier-février)
   {
     id: 1,
     employeeId: 1,
@@ -126,112 +129,16 @@ export const currentOnCallAssignments = [
     id: 2,
     employeeId: 2,
     employeeName: 'Jean Dupont',
-    startDate: '2025-01-12',
-    endDate: '2025-01-13',
+    startDate: '2025-02-12',
+    endDate: '2025-02-13',
     type: 'weekend',
     status: 'confirmed',
     assignedBy: 'RH',
     assignedAt: '2024-12-18T14:30:00Z',
     notes: ''
   },
-  {
-    id: 3,
-    employeeId: 3,
-    employeeName: 'Marie Leblanc',
-    startDate: '2025-01-19',
-    endDate: '2025-01-19',
-    type: 'single',
-    status: 'confirmed',
-    assignedBy: 'Direction',
-    assignedAt: '2024-12-15T09:15:00Z',
-    notes: 'Astreinte exceptionnelle'
-  },
-  {
-    id: 4,
-    employeeId: 4,
-    employeeName: 'Pierre Moreau',
-    startDate: '2025-01-25',
-    endDate: '2025-01-26',
-    type: 'weekend',
-    status: 'pending',
-    assignedBy: 'RH',
-    assignedAt: '2024-12-22T16:45:00Z',
-    notes: 'En attente de confirmation'
-  },
-  // Février 2025
-  {
-    id: 5,
-    employeeId: 1,
-    employeeName: 'Sophie Martin',
-    startDate: '2025-02-01',
-    endDate: '2025-02-02',
-    type: 'weekend',
-    status: 'confirmed',
-    assignedBy: 'Direction',
-    assignedAt: '2024-12-19T11:20:00Z',
-    notes: ''
-  },
-  // Septembre 2025 - Pour démonstration des bandes d'astreinte
-  {
-    id: 6,
-    employeeId: 1,
-    employeeName: 'Sophie Martin',
-    startDate: '2025-09-03',
-    endDate: '2025-09-03',
-    type: 'single',
-    status: 'confirmed',
-    assignedBy: 'Direction',
-    assignedAt: '2025-08-25T10:00:00Z',
-    notes: 'Astreinte jour unique'
-  },
-  {
-    id: 7,
-    employeeId: 2,
-    employeeName: 'Jean Dupont',
-    startDate: '2025-09-08',
-    endDate: '2025-09-08',
-    type: 'single',
-    status: 'confirmed',
-    assignedBy: 'RH',
-    assignedAt: '2025-08-20T14:30:00Z',
-    notes: 'Astreinte lundi'
-  },
-  {
-    id: 8,
-    employeeId: 3,
-    employeeName: 'Marie Leblanc',
-    startDate: '2025-09-12',
-    endDate: '2025-09-13',
-    type: 'weekend',
-    status: 'confirmed',
-    assignedBy: 'Direction',
-    assignedAt: '2025-08-15T09:15:00Z',
-    notes: 'Astreinte week-end'
-  },
-  {
-    id: 9,
-    employeeId: 6,
-    employeeName: 'Lucas Bernard',
-    startDate: '2025-09-15',
-    endDate: '2025-09-15',
-    type: 'single',
-    status: 'confirmed',
-    assignedBy: 'Direction',
-    assignedAt: '2025-08-10T11:00:00Z',
-    notes: 'Astreinte éducateur spécialisé'
-  },
-  {
-    id: 10,
-    employeeId: 7,
-    employeeName: 'Emma Rousseau',
-    startDate: '2025-09-22',
-    endDate: '2025-09-22',
-    type: 'single',
-    status: 'confirmed',
-    assignedBy: 'RH',
-    assignedAt: '2025-08-12T16:45:00Z',
-    notes: 'Astreinte TEL'
-  }
+  // Données de test octobre 2025
+  ...october2025OnCallAssignments
 ];
 
 // Fonction pour calculer les statistiques d'astreinte
