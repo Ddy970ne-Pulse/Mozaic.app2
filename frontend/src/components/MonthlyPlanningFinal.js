@@ -3,6 +3,7 @@ import { calculateLeaveDeduction, validateLeaveCalculation, generateLeaveReport,
 import { ABSENCE_DEDUCTION_RULES, calculateAbsenceDeduction, validateAbsenceLimits, generateAbsenceReport } from '../shared/absenceRulesSafe';
 import { getRequests, subscribe } from '../shared/requestsData';
 import { getOnCallDataForMonthlyPlanning, onCallBandColor } from '../shared/onCallData';
+import { october2025FullPlanning, generateMonthlyReport } from '../shared/october2025TestData';
 
 const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
