@@ -55,23 +55,14 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   // Initialisation des employés par catégorie
   useEffect(() => {
     const initialEmployees = [
-      // Cadres de direction
       { id: 1, name: 'Sophie Martin', category: 'Cadres de direction', absences: {}, totalAbsenceDays: 0 },
       { id: 2, name: 'Jean Dupont', category: 'Personnels administratifs', absences: {}, totalAbsenceDays: 0 },
-      
-      // Administratifs
       { id: 3, name: 'Marie Leblanc', category: 'Éducateurs spécialisés', absences: {}, totalAbsenceDays: 0 },
       { id: 4, name: 'Pierre Moreau', category: 'Éducateurs techniques', absences: {}, totalAbsenceDays: 0 },
       { id: 5, name: 'Claire Dubois', category: 'Personnels administratifs', absences: {}, totalAbsenceDays: 0 },
-      
-      // Éducateurs spécialisés
       { id: 6, name: 'Lucas Bernard', category: 'Éducateurs spécialisés', absences: {}, totalAbsenceDays: 0 },
       { id: 7, name: 'Emma Rousseau', category: 'Éducateurs techniques', absences: {}, totalAbsenceDays: 0 },
-      { id: 8, name: 'Thomas Petit', category: 'Cadres de direction', absences: {}, totalAbsenceDays: 0 },
-      
-      // Éducateurs techniques
-      { id: 9, name: 'Julie Moreau', category: 'Éducateurs techniques', absences: {}, totalAbsenceDays: 0 },
-      { id: 10, name: 'Antoine Petit', category: 'Éducateurs techniques', absences: {}, totalAbsenceDays: 0 }
+      { id: 8, name: 'Thomas Petit', category: 'Cadres de direction', absences: {}, totalAbsenceDays: 0 }
     ];
 
     // Ajouter quelques données de test pour démonstration
