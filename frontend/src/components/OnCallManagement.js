@@ -409,6 +409,19 @@ const OnCallManagement = ({ user, onChangeView }) => {
                 <option key={year} value={year}>{year}</option>
               ))}
             </select>
+
+            {(currentMonth !== 9 || currentYear !== 2025) && (
+              <button
+                onClick={() => {
+                  setCurrentMonth(9); // Octobre
+                  setCurrentYear(2025);
+                  alert('🧪 Basculé sur Octobre 2025 avec données de test complètes !');
+                }}
+                className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm transition-colors"
+              >
+                🧪 Test Oct 2025
+              </button>
+            )}
           </div>
         </div>
       </div>
