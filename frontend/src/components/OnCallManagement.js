@@ -631,18 +631,53 @@ const OnCallManagement = ({ user, onChangeView }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Dates sélectionnées
+                  Période sélectionnée
                 </label>
                 <div className="text-sm text-gray-600">
                   {selectedDates.length > 0 ? (
                     <>
-                      {selectedDates.sort().join(', ')}
-                      <div className="mt-1 text-blue-600">
-                        Total: {selectedDates.length} jour(s)
+                      {selectionMode === 'week' ? (
+                        <div>
+                          {/* Grouper les dates par semaine */}
+                          {(() => {
+                            const weeks = {};
+                            selectedDates.forEach(dateStr => {
+                              const date = new Date(dateStr);
+                              const weekKey = getWeekNumber(date);
+                              if (!weeks[weekKey]) weeks[weekKey] = [];
+                              weeks[weekKey].push(dateStr);
+                            });
+                            
+                            return Object.entries(weeks).map(([weekKey, dates]) => {
+                              const sortedDates = dates.sort();
+                              const startDate = sortedDates[0];
+                              const endDate = sortedDates[sortedDates.length - 1];
+                              return (
+                                <div key={weekKey} className="mb-1 p-2 bg-orange-50 rounded">
+                                  <strong>📆 Semaine:</strong> {startDate} → {endDate}
+                                  <span className="text-orange-600 ml-2">({dates.length} jour(s))</span>
+                                </div>
+                              );
+                            });
+                          })()}
+                        </div>
+                      ) : (
+                        <div>
+                          📅 <strong>Jours individuels:</strong> {selectedDates.sort().join(', ')}
+                        </div>
+                      )}
+                      <div className="mt-2 text-blue-600 font-medium">
+                        🕐 Total: {selectedDates.length} jour(s) d'astreinte
                       </div>
                     </>
                   ) : (
-                    'Aucune date sélectionnée'
+                    <div className="text-gray-400 italic">
+                      Aucune période sélectionnée
+                      <br />
+                      <span className="text-xs">
+                        Retournez au calendrier pour sélectionner des {selectionMode === 'week' ? 'semaines' : 'jours'}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
