@@ -133,7 +133,13 @@ const EmployeeSpace = ({ user }) => {
                   </div>
                 </div>
                 
-                <button className="w-full mt-6 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors duration-200">
+                <button 
+                  onClick={() => {
+                    setEditedProfile(employeeData.profile);
+                    setShowEditModal(true);
+                  }}
+                  className="w-full mt-6 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors duration-200"
+                >
                   Modifier les Informations
                 </button>
               </div>
