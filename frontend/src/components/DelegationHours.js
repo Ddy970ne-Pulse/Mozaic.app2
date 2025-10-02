@@ -787,7 +787,9 @@ const DelegationHours = ({ user }) => {
                   <td className="py-4 text-gray-600 max-w-xs truncate">{usage.description}</td>
                   <td className="py-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(usage.status)}`}>
-                      {usage.status === 'pending' ? 'En attente' : 'Approuvé'}
+                      {usage.status === 'pending' ? '⏳ En attente' : 
+                       usage.status === 'approved' ? '✅ Approuvé' : 
+                       usage.status === 'rejected' ? '❌ Refusé' : usage.status}
                     </span>
                   </td>
                   <td className="py-4">
