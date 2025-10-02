@@ -201,33 +201,109 @@ const OnCallManagement = ({ user, onChangeView }) => {
   };
 
   const exportSecurityCompanyPlanning = () => {
-    // Génération du planning pour l'entreprise de sécurité
-    const planningData = {
-      month: months[currentMonth],
-      year: currentYear,
-      assignments: existingOnCallAssignments.map(assignment => ({
-        employee: assignment.employeeName,
-        startDate: assignment.startDate,
-        endDate: assignment.endDate,
-        contact: '06.XX.XX.XX.XX', // Numéro d'astreinte
-        backup: 'Service Direction' // Contact de secours
-      }))
-    };
+    // Génération du planning au format du document de référence
+    const monthName = months[currentMonth];
+    const assignments = existingOnCallAssignments.filter(assignment => {
+      const assignmentDate = new Date(assignment.startDate);
+      return assignmentDate.getMonth() === currentMonth && assignmentDate.getFullYear() === currentYear;
+    });
 
-    // Simulation d'export (en production, cela générerait un PDF/CSV)
-    const csvContent = `Date de début,Date de fin,Employé de garde,Contact,Contact secours\n` +
-      planningData.assignments.map(assignment => 
-        `${assignment.startDate},${assignment.endDate},${assignment.employee},${assignment.contact},${assignment.backup}`
-      ).join('\n');
+    // Création du contenu au format du PDF de référence
+    let htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>ASTREINTES CADRES ${monthName.toUpperCase()} ${currentYear}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .organization { font-size: 12px; margin-bottom: 10px; }
+          .title { font-size: 18px; font-weight: bold; margin: 20px 0; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { border: 1px solid black; padding: 8px; text-align: left; }
+          th { background-color: #f5f5f5; font-weight: bold; }
+          .signature { margin-top: 50px; text-align: right; }
+          .date-created { font-size: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="organization">
+            ASSOCIATION POUR L'AIDE À L'ENFANCE ET À L'ADOLESCENCE<br>
+            CENTRE D'ADAPTATION À LA VIE ACTIVE (CAVA)<br>
+            Adresse: 123 Rue de l'Innovation, 75001 Paris<br>
+            Tél: 01.XX.XX.XX.XX - Email: contact@cava.fr
+          </div>
+          <div class="title">ASTREINTES CADRES</div>
+          <div class="title">${monthName.toUpperCase()} ${currentYear}</div>
+        </div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%">Employé</th>
+              <th style="width: 25%">${monthName.toUpperCase()}</th>
+              <th style="width: 25%">Contact</th>
+              <th style="width: 25%">Remarques</th>
+            </tr>
+          </thead>
+          <tbody>`;
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    // Ajouter tous les employés, même ceux sans astreintes
+    employees.forEach(employee => {
+      const employeeAssignments = assignments.filter(a => a.employeeId === employee.id);
+      let periodsText = '';
+      
+      if (employeeAssignments.length > 0) {
+        periodsText = employeeAssignments.map(assignment => {
+          const startDate = new Date(assignment.startDate);
+          const endDate = new Date(assignment.endDate);
+          
+          if (assignment.startDate === assignment.endDate) {
+            // Jour unique
+            return `${startDate.getDate().toString().padStart(2, '0')}/${(startDate.getMonth() + 1).toString().padStart(2, '0')}`;
+          } else {
+            // Période
+            return `${startDate.getDate().toString().padStart(2, '0')}/${(startDate.getMonth() + 1).toString().padStart(2, '0')} au ${endDate.getDate().toString().padStart(2, '0')}/${(endDate.getMonth() + 1).toString().padStart(2, '0')}`;
+          }
+        }).join('<br>');
+      }
+
+      htmlContent += `
+            <tr>
+              <td><strong>${employee.name.toUpperCase()}</strong></td>
+              <td>${periodsText}</td>
+              <td>06.XX.XX.XX.XX</td>
+              <td>${employee.categoryLabel}</td>
+            </tr>`;
+    });
+
+    htmlContent += `
+          </tbody>
+        </table>
+        
+        <div class="signature">
+          <p>Le Directeur</p>
+          <br><br><br>
+          <p>Signature et cachet</p>
+          <div class="date-created">
+            Document créé le ${new Date().toLocaleDateString('fr-FR')}
+          </div>
+        </div>
+      </body>
+      </html>`;
+
+    // Créer et télécharger le fichier HTML
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `planning_astreintes_${months[currentMonth]}_${currentYear}_securite.csv`;
+    a.download = `ASTREINTES_CADRES_${monthName.toUpperCase()}_${currentYear}.html`;
     a.click();
     window.URL.revokeObjectURL(url);
 
+    alert(`Planning d'astreintes exporté au format officiel pour ${monthName} ${currentYear}`);
     setShowExportModal(false);
   };
 
