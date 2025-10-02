@@ -381,11 +381,19 @@ const OnCallManagement = ({ user, onChangeView }) => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              🔔 Gestion des Astreintes
+              🔔 Gestion des Astreintes Cadres
             </h1>
             <p className="text-gray-600">
-              Planification et suivi des astreintes - Conforme CCN66 et droit du travail
+              Planification par semaines complètes (Dimanche → Samedi) - Conforme CCN66 et droit du travail
             </p>
+            <div className="mt-2 flex items-center space-x-2 text-sm">
+              <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded">
+                👔 Personnel d'encadrement
+              </span>
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                📆 Sélection par semaine recommandée
+              </span>
+            </div>
           </div>
           
           <div className="flex flex-wrap items-center gap-3">
