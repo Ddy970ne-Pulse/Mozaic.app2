@@ -559,7 +559,8 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                 'bg-blue-500': '#3b82f6', 'bg-blue-400': '#60a5fa', 'bg-indigo-500': '#6366f1',
                 'bg-green-500': '#10b981', 'bg-yellow-400': '#fbbf24', 'bg-yellow-300': '#fde047',
                 'bg-cyan-500': '#06b6d4', 'bg-cyan-400': '#22d3ee', 'bg-orange-500': '#f97316',
-                'bg-teal-500': '#14b8a6', 'bg-violet-500': '#8b5cf6', 'bg-emerald-500': '#10b981'
+                'bg-teal-500': '#14b8a6', 'bg-violet-500': '#8b5cf6', 'bg-emerald-500': '#10b981',
+                'bg-orange-600': '#ea580c'
               };
               const bgColor = colorMap[info.color] || '#6b7280';
               const textColor = info.textColor.includes('white') ? 'white' : 'black';
