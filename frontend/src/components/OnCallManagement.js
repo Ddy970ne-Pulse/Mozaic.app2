@@ -479,9 +479,23 @@ const OnCallManagement = ({ user, onChangeView }) => {
             Calendrier d'astreintes - {months[currentMonth]} {currentYear}
           </h2>
           
-          {/* Mode de sélection */}
+          {/* Mode de sélection - Privilégier semaine pour cadres */}
           <div className="flex items-center space-x-2 mt-3 md:mt-0">
-            <span className="text-sm text-gray-600">Mode :</span>
+            <span className="text-sm text-gray-600">Astreintes Cadres :</span>
+            <button
+              onClick={() => {
+                setSelectionMode('week');
+                setSelectedDates([]);
+                setHoveredWeek(null);
+              }}
+              className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${
+                selectionMode === 'week' 
+                  ? 'bg-orange-500 text-white shadow-md' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              📆 Semaine Complète (Dim→Sam)
+            </button>
             <button
               onClick={() => {
                 setSelectionMode('single');
@@ -491,24 +505,11 @@ const OnCallManagement = ({ user, onChangeView }) => {
               className={`px-3 py-1 text-sm rounded-lg transition-colors ${
                 selectionMode === 'single' 
                   ? 'bg-blue-500 text-white' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
+              title="Mode jour unique pour astreintes exceptionnelles"
             >
-              📅 Jour unique
-            </button>
-            <button
-              onClick={() => {
-                setSelectionMode('week');
-                setSelectedDates([]);
-                setHoveredWeek(null);
-              }}
-              className={`px-3 py-1 text-sm rounded-lg transition-colors ${
-                selectionMode === 'week' 
-                  ? 'bg-orange-500 text-white' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              📆 Semaine (Dim-Sam)
+              📅 Jour Unique
             </button>
           </div>
         </div>
