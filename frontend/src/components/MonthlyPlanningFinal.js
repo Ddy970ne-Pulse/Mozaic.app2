@@ -807,6 +807,31 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         >
           🔔 Gérer Astreintes
         </button>
+
+        {!isTestMode && (
+          <button
+            onClick={loadOctober2025TestData}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            🧪 Charger Test Octobre 2025
+          </button>
+        )}
+        
+        {isTestMode && (
+          <div className="flex items-center space-x-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-lg text-sm">
+            <span>🧪</span>
+            <span>Mode Test Actif</span>
+            <button
+              onClick={() => {
+                setIsTestMode(false);
+                window.location.reload();
+              }}
+              className="ml-2 text-purple-600 hover:text-purple-800 underline"
+            >
+              Désactiver
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Info intégration */}
