@@ -174,6 +174,49 @@ const DelegationHours = ({ user }) => {
     setHoursBalances(balances);
   };
 
+  // Fonction pour approuver une demande d'heures
+  const approveUsageRequest = (usageId) => {
+    const updatedHistory = usageHistory.map(usage => {
+      if (usage.id === usageId && usage.status === 'pending') {
+        return {
+          ...usage,
+          status: 'approved',
+          approvedBy: user.name,
+          approvedDate: new Date().toISOString().split('T')[0]
+        };
+      }
+      return usage;
+    });
+    
+    setUsageHistory(updatedHistory);
+    calculateBalances(delegates, updatedHistory);
+    
+    const approvedUsage = usageHistory.find(u => u.id === usageId);
+    return `✅ Demande approuvée : ${approvedUsage.hours}h pour "${approvedUsage.activity}" - ${approvedUsage.delegateName}`;
+  };
+
+  // Fonction pour refuser une demande d'heures
+  const rejectUsageRequest = (usageId, reason) => {
+    const updatedHistory = usageHistory.map(usage => {
+      if (usage.id === usageId && usage.status === 'pending') {
+        return {
+          ...usage,
+          status: 'rejected',
+          rejectedBy: user.name,
+          rejectedDate: new Date().toISOString().split('T')[0],
+          rejectionReason: reason
+        };
+      }
+      return usage;
+    });
+    
+    setUsageHistory(updatedHistory);
+    calculateBalances(delegates, updatedHistory);
+    
+    const rejectedUsage = usageHistory.find(u => u.id === usageId);
+    return `❌ Demande refusée : ${rejectedUsage.hours}h pour "${rejectedUsage.activity}" - ${rejectedUsage.delegateName}. Motif : ${reason}`;
+  };
+
   const delegationTypes = {
     'CSE': { name: 'Membre CSE', baseHours: 10, color: 'bg-blue-500' },
     'DS': { name: 'Délégué Syndical', baseHours: 15, color: 'bg-green-500' },
