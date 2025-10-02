@@ -428,19 +428,24 @@ const OnCallManagement = ({ user, onChangeView }) => {
           Calendrier d'astreintes - {months[currentMonth]} {currentYear}
         </h2>
         
-        {/* Légende */}
-        <div className="flex flex-wrap gap-4 mb-4 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-orange-500 rounded"></div>
-            <span>Dates sélectionnées</span>
+        {/* Légende et instructions */}
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-4 mb-2 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-orange-500 rounded"></div>
+              <span>Dates sélectionnées</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-red-200 rounded"></div>
+              <span>Astreintes assignées</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-100 rounded"></div>
+              <span>Week-ends</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-200 rounded"></div>
-            <span>Astreintes assignées</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-blue-100 rounded"></div>
-            <span>Week-ends</span>
+          <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded">
+            💡 <strong>Astuce:</strong> Cliquez sur une date pour sélection simple, ou maintenez enfoncé et glissez pour sélectionner une période
           </div>
         </div>
 
