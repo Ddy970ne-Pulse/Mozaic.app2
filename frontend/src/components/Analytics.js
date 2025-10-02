@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 const Analytics = ({ user }) => {
   const [viewMode, setViewMode] = useState('annual'); // annual or monthly
   const [selectedYear, setSelectedYear] = useState(2024);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
 
   const annualData = {
     totalAbsences: 1542,
