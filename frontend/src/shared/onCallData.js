@@ -107,10 +107,7 @@ export const employeesOnCallData = [
   }
 ];
 
-// Import des données de test d'octobre 2025
-import { october2025OnCallAssignments } from './october2025TestData';
-
-// Assignations d'astreintes existantes pour 2025 - Incluant les données de test octobre
+// Assignations d'astreintes existantes pour 2025 - Incluant octobre 2025
 export const currentOnCallAssignments = [
   // Données de base (janvier-février)
   {
@@ -137,8 +134,79 @@ export const currentOnCallAssignments = [
     assignedAt: '2024-12-18T14:30:00Z',
     notes: ''
   },
-  // Données de test octobre 2025
-  ...october2025OnCallAssignments
+  // Octobre 2025 - Données de test complètes
+  {
+    id: 11,
+    employeeId: 1,
+    employeeName: 'Sophie Martin',
+    startDate: '2025-10-01',
+    endDate: '2025-10-01',
+    type: 'single',
+    status: 'confirmed',
+    assignedBy: 'Direction',
+    assignedAt: '2025-09-25T10:00:00Z',
+    notes: 'Astreinte 1er octobre'
+  },
+  {
+    id: 12,
+    employeeId: 3,
+    employeeName: 'Marie Leblanc',
+    startDate: '2025-10-05',
+    endDate: '2025-10-05',
+    type: 'single',
+    status: 'confirmed',
+    assignedBy: 'Direction',
+    assignedAt: '2025-09-28T14:00:00Z',
+    notes: 'Astreinte samedi'
+  },
+  {
+    id: 13,
+    employeeId: 8,
+    employeeName: 'Thomas Petit',
+    startDate: '2025-10-11',
+    endDate: '2025-10-12',
+    type: 'weekend',
+    status: 'confirmed',
+    assignedBy: 'Direction',
+    assignedAt: '2025-10-05T16:00:00Z',
+    notes: 'Astreinte week-end management'
+  },
+  {
+    id: 14,
+    employeeId: 4,
+    employeeName: 'Pierre Moreau',
+    startDate: '2025-10-15',
+    endDate: '2025-10-15',
+    type: 'single',
+    status: 'confirmed',
+    assignedBy: 'RH',
+    assignedAt: '2025-10-10T09:00:00Z',
+    notes: 'Astreinte mardi éducateur'
+  },
+  {
+    id: 15,
+    employeeId: 1,
+    employeeName: 'Sophie Martin',
+    startDate: '2025-10-25',
+    endDate: '2025-10-26',
+    type: 'weekend',
+    status: 'confirmed',
+    assignedBy: 'Direction',
+    assignedAt: '2025-10-18T11:30:00Z',
+    notes: 'Astreinte week-end fin octobre'
+  },
+  {
+    id: 16,
+    employeeId: 6,
+    employeeName: 'Lucas Bernard',
+    startDate: '2025-10-29',
+    endDate: '2025-10-29',
+    type: 'single',
+    status: 'confirmed',
+    assignedBy: 'RH',
+    assignedAt: '2025-10-22T15:45:00Z',
+    notes: 'Astreinte éducateur spécialisé'
+  }
 ];
 
 // Fonction pour calculer les statistiques d'astreinte
