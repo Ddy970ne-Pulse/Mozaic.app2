@@ -320,21 +320,7 @@ export const validateOnCallAssignment = (employeeId, startDate, endDate) => {
     );
   }
 
-  // Vérification du repos minimum entre astreintes (48h selon le droit du travail)
-  if (employee.lastOnCallDate) {
-    const lastDate = new Date(employee.lastOnCallDate);
-    const daysSinceLastOnCall = Math.ceil((start - lastDate) / (1000 * 60 * 60 * 24));
-    
-    if (daysSinceLastOnCall < 2) {
-      errors.push(
-        `⏰ REPOS INSUFFISANT: Repos minimum de 48h requis depuis la dernière astreinte (${employee.lastOnCallDate})`
-      );
-    } else if (daysSinceLastOnCall < 7) {
-      warnings.push(
-        `🔔 INFO: Seulement ${daysSinceLastOnCall} jour(s) depuis la dernière astreinte`
-      );
-    }
-  }
+  // Note: Règle du repos de 48h retirée à la demande de l'utilisateur
 
   return {
     isValid: errors.length === 0,
