@@ -684,10 +684,25 @@ const DelegationHours = ({ user }) => {
                     <div className="flex space-x-2">
                       {usage.status === 'pending' && (user.role === 'admin' || user.role === 'manager') && (
                         <>
-                          <button className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs transition-colors duration-200">
+                          <button 
+                            onClick={() => {
+                              if (confirm(`Approuver l'utilisation de ${usage.hours}h pour "${usage.activity}" par ${usage.delegateName} ?`)) {
+                                alert('Demande approuvée avec succès !');
+                              }
+                            }}
+                            className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs transition-colors duration-200"
+                          >
                             Approuver
                           </button>
-                          <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs transition-colors duration-200">
+                          <button 
+                            onClick={() => {
+                              const reason = prompt(`Motif du refus pour "${usage.activity}" par ${usage.delegateName} :`);
+                              if (reason) {
+                                alert(`Demande refusée. Motif : ${reason}`);
+                              }
+                            }}
+                            className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs transition-colors duration-200"
+                          >
                             Refuser
                           </button>
                         </>
