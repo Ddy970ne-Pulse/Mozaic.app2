@@ -117,14 +117,51 @@ const OnCallManagement = ({ user, onChangeView }) => {
     return errors;
   };
 
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState(null);
+
   const handleDateClick = (day) => {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     
-    if (selectedDates.includes(dateStr)) {
-      setSelectedDates(selectedDates.filter(date => date !== dateStr));
-    } else {
-      setSelectedDates([...selectedDates, dateStr]);
+    if (!isSelecting) {
+      // Mode sélection simple (ancien comportement)
+      if (selectedDates.includes(dateStr)) {
+        setSelectedDates(selectedDates.filter(date => date !== dateStr));
+      } else {
+        setSelectedDates([...selectedDates, dateStr]);
+      }
     }
+  };
+
+  const handleDateMouseDown = (day) => {
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    setIsSelecting(true);
+    setSelectionStart(dateStr);
+    setSelectedDates([dateStr]);
+  };
+
+  const handleDateMouseEnter = (day) => {
+    if (isSelecting && selectionStart) {
+      const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const startDate = new Date(selectionStart);
+      const currentDate = new Date(dateStr);
+      
+      // Générer toutes les dates entre le début et la fin de la sélection
+      const dates = [];
+      const start = startDate <= currentDate ? startDate : currentDate;
+      const end = startDate <= currentDate ? currentDate : startDate;
+      
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        dates.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+      }
+      
+      setSelectedDates(dates);
+    }
+  };
+
+  const handleDateMouseUp = () => {
+    setIsSelecting(false);
+    setSelectionStart(null);
   };
 
   const handleAssignOnCall = () => {
