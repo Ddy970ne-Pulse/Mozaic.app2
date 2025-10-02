@@ -66,8 +66,8 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       
       // Éducateurs spécialisés
       { id: 6, name: 'Lucas Bernard', category: 'Éducateurs spécialisés', absences: {}, totalAbsenceDays: 0 },
-      { id: 7, name: 'Emma Rousseau', category: 'Éducateurs spécialisés', absences: {}, totalAbsenceDays: 0 },
-      { id: 8, name: 'Thomas Leroy', category: 'Éducateurs spécialisés', absences: {}, totalAbsenceDays: 0 },
+      { id: 7, name: 'Emma Rousseau', category: 'Éducateurs techniques', absences: {}, totalAbsenceDays: 0 },
+      { id: 8, name: 'Thomas Petit', category: 'Cadres de direction', absences: {}, totalAbsenceDays: 0 },
       
       // Éducateurs techniques
       { id: 9, name: 'Julie Moreau', category: 'Éducateurs techniques', absences: {}, totalAbsenceDays: 0 },
