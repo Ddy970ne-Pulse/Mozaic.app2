@@ -147,6 +147,64 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     }
   }, [selectedMonth, selectedYear]);
 
+  // Fonction pour activer le mode test octobre 2025
+  const loadOctober2025TestData = () => {
+    setSelectedMonth(9); // Octobre
+    setSelectedYear(2025);
+    setIsTestMode(true);
+    
+    // Charger les employés avec leurs absences pré-remplies
+    const testEmployees = october2025FullPlanning.employees.map(emp => {
+      const employeeAbsences = {};
+      let totalDays = 0;
+      
+      // Ajouter les absences pour cet employé
+      october2025FullPlanning.absences
+        .filter(abs => abs.employeeId === emp.id)
+        .forEach(absence => {
+          absence.dates.forEach(date => {
+            const day = new Date(date).getDate();
+            employeeAbsences[day] = absence.type;
+            totalDays++;
+          });
+        });
+      
+      return {
+        id: emp.id,
+        name: emp.name,
+        category: getCategoryLabel(emp.category),
+        absences: employeeAbsences,
+        totalAbsenceDays: totalDays
+      };
+    });
+    
+    setEmployees(testEmployees);
+    
+    // Afficher les statistiques du test
+    const stats = october2025FullPlanning.statistics;
+    alert(`📊 DONNÉES TEST OCTOBRE 2025 CHARGÉES
+    
+✅ Employés: ${october2025FullPlanning.employees.length}
+📅 Jours d'absence: ${stats.totalAbsenceDays}
+⚖️ Heures délégation: ${stats.totalDelegationHours}h
+⏰ Heures supplémentaires: ${stats.totalOvertimeHours}h  
+🔔 Jours astreinte: ${stats.totalOnCallDays}
+🔄 Heures récupération: ${stats.totalRecuperationHours}h
+
+Vous pouvez maintenant tester toutes les fonctionnalités !`);
+  };
+
+  // Fonction utilitaire pour les catégories
+  const getCategoryLabel = (category) => {
+    const categoryMap = {
+      'management': 'Cadres de direction',
+      'administrative': 'Personnels administratifs', 
+      'specialized_educators': 'Éducateurs spécialisés',
+      'technical_educators': 'Éducateurs techniques'
+    };
+    return categoryMap[category] || category;
+  };
+
   // Fonction pour mettre à jour le planning avec les demandes approuvées
   const updatePlanningFromRequests = (requestsList) => {
     if (!Array.isArray(requestsList) || requestsList.length === 0) {
