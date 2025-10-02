@@ -996,18 +996,21 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
             <h4 className="font-semibold mb-3 text-gray-800">🔔 Astreintes</h4>
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
               <div className="flex items-center space-x-3 mb-2">
-                <div 
-                  className="w-8 h-4 rounded"
-                  style={{ backgroundColor: onCallBandColor }}
-                ></div>
+                <span className="bg-orange-600 text-white px-2 py-1 rounded text-sm font-bold min-w-[50px] text-center">
+                  AST
+                </span>
                 <div className="flex-1">
-                  <div className="font-medium text-sm">Bande d'astreinte</div>
-                  <div className="text-xs text-gray-600">Affichée sous les codes d'absence • Couleur: Orange sanguine</div>
+                  <div className="font-medium text-sm">Astreinte</div>
+                  <div className="text-xs text-gray-600">Astreinte cadres • Temps travaillé</div>
                 </div>
               </div>
               <div className="text-xs text-orange-700 bg-orange-100 rounded p-2 mt-2">
                 <strong>📋 Conformité CCN66:</strong> Les astreintes respectent les limites légales par catégorie d'employé.
                 Accédez au module "Gérer Astreintes" pour plus de détails.
+              </div>
+              <div className="text-xs text-blue-700 bg-blue-100 rounded p-2 mt-2">
+                <strong>ℹ️ Nouveau:</strong> Les astreintes s'affichent maintenant avec le code "AST" comme les autres absences, 
+                uniformisant l'affichage du planning mensuel.
               </div>
             </div>
           </div>
