@@ -57,7 +57,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     const initialEmployees = [
       // Cadres de direction
       { id: 1, name: 'Sophie Martin', category: 'Cadres de direction', absences: {}, totalAbsenceDays: 0 },
-      { id: 2, name: 'Jean Dupont', category: 'Cadres de direction', absences: {}, totalAbsenceDays: 0 },
+      { id: 2, name: 'Jean Dupont', category: 'Personnels administratifs', absences: {}, totalAbsenceDays: 0 },
       
       // Administratifs
       { id: 3, name: 'Marie Leblanc', category: 'Administratifs', absences: {}, totalAbsenceDays: 0 },
