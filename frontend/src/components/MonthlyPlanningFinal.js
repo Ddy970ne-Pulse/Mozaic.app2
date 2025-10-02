@@ -854,6 +854,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         </div>
         
         <button
+          onClick={exportMonthlyData}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+        >
+          <span>📊</span>
+          <span>Export Complet</span>
+        </button>
+        
+        <button
           onClick={() => {
             console.log('Actualisation demandée, requests:', requests);
             updatePlanningFromRequests(requests);
