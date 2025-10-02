@@ -763,10 +763,9 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                       const isHol = isHoliday(day);
                       const absenceInfo = absence ? absenceColorMap[absence] : null;
                       
-                      // Vérifier s'il y a une astreinte ce jour-là pour cet employé
+                      // Vérifier si ce jour fait partie d'une semaine d'astreinte pour cet employé
                       const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                      const employeeOnCallData = onCallData[employee.id] || [];
-                      const hasOnCall = employeeOnCallData.some(onCall => onCall.date === dateStr);
+                      const hasOnCall = isInOnCallWeek(employee.id, dateStr);
                       
                       return (
                         <td 
