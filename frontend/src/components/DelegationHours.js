@@ -657,40 +657,30 @@ const DelegationHours = ({ user }) => {
                 <div className="mb-4">
                   <div className="flex justify-between text-sm mb-2">
                     <span>Utilisation du crédit total</span>
-                    <span>{getUsagePercentage(delegate.totalUsed, delegate.baseMonthlyHours + delegate.reportedHours + delegate.receivedHours - delegate.cededHours)}%</span>
+                    <span>
+                      {hoursBalances[delegate.id] ? 
+                        Math.round((hoursBalances[delegate.id].used / hoursBalances[delegate.id].total) * 100) : 0}%
+                    </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
-                    {/* Barre segmentée par source */}
-                    <div className="h-3 rounded-full flex overflow-hidden">
-                      {/* Heures reçues utilisées */}
-                      {delegate.usedFromReceived > 0 && (
-                        <div 
-                          className="bg-green-500" 
-                          style={{ width: `${(delegate.usedFromReceived / (delegate.baseMonthlyHours + delegate.reportedHours + delegate.receivedHours - delegate.cededHours)) * 100}%` }}
-                          title={`${delegate.usedFromReceived}h depuis heures reçues`}
-                        ></div>
-                      )}
-                      {/* Heures reportées utilisées */}
-                      {delegate.usedFromReported > 0 && (
-                        <div 
-                          className="bg-purple-500" 
-                          style={{ width: `${(delegate.usedFromReported / (delegate.baseMonthlyHours + delegate.reportedHours + delegate.receivedHours - delegate.cededHours)) * 100}%` }}
-                          title={`${delegate.usedFromReported}h depuis heures reportées`}
-                        ></div>
-                      )}
-                      {/* Heures de base utilisées */}
-                      {delegate.usedFromBase > 0 && (
-                        <div 
-                          className="bg-blue-500" 
-                          style={{ width: `${(delegate.usedFromBase / (delegate.baseMonthlyHours + delegate.reportedHours + delegate.receivedHours - delegate.cededHours)) * 100}%` }}
-                          title={`${delegate.usedFromBase}h depuis crédit de base`}
-                        ></div>
-                      )}
-                    </div>
+                    <div 
+                      className={`h-3 rounded-full transition-all duration-300 ${
+                        hoursBalances[delegate.id] && (hoursBalances[delegate.id].used / hoursBalances[delegate.id].total) > 0.8 
+                          ? 'bg-red-500' 
+                          : hoursBalances[delegate.id] && (hoursBalances[delegate.id].used / hoursBalances[delegate.id].total) > 0.6 
+                            ? 'bg-orange-500' 
+                            : 'bg-blue-500'
+                      }`}
+                      style={{ 
+                        width: `${hoursBalances[delegate.id] ? 
+                          Math.min(100, (hoursBalances[delegate.id].used / hoursBalances[delegate.id].total) * 100) : 0}%` 
+                      }}
+                      title={`${hoursBalances[delegate.id]?.used || 0}h utilisées sur ${hoursBalances[delegate.id]?.total || delegate.monthlyHours}h disponibles`}
+                    ></div>
                   </div>
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>🟢 Reçues | 🟣 Reportées | 🔵 Base</span>
-                    <span>Total: {delegate.baseMonthlyHours + delegate.reportedHours + delegate.receivedHours - delegate.cededHours}h</span>
+                    <span>{hoursBalances[delegate.id]?.used || 0}h utilisées</span>
+                    <span>{hoursBalances[delegate.id]?.available || delegate.monthlyHours}h restantes</span>
                   </div>
                 </div>
                 
