@@ -5,6 +5,7 @@ const OvertimeModule = ({ user }) => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [viewMode, setViewMode] = useState('summary');
   const [filterPeriod, setFilterPeriod] = useState('current-month');
+  const [isTestMode, setIsTestMode] = useState(false);
 
   const overtimeData = [
     {
