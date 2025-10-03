@@ -687,22 +687,23 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     const daysInMonth = getDaysInMonth();
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
     const monthName = `${monthNames[selectedMonth]} ${selectedYear}`;
+    const totalEmployees = Object.values(groupedEmployees).reduce((acc, emps) => acc + emps.length, 0);
     
     let content = `
       <div class="page-header">
         <h1>Planning Mensuel - ${monthName}</h1>
+        <div class="subtitle">MOZAIK RH • ${totalEmployees} employés • ${Object.keys(groupedEmployees).length} départements</div>
       </div>
     `;
 
-    // Calculer combien d'employés par page
-    const employeesPerPage = printFormat === 'A4' ? 15 : 25;
+    // Calculer combien d'employés par page (plus généreux pour lisibilité)
+    const employeesPerPage = printFormat === 'A4' ? 12 : 20;
     const allEmployees = Object.entries(groupedEmployees).flatMap(([category, emps]) => [
       { isCategory: true, name: category },
       ...emps
     ]);
 
     let currentPage = 0;
-    let employeeCount = 0;
 
     // Générer les pages
     for (let startIdx = 0; startIdx < allEmployees.length; startIdx += employeesPerPage) {
@@ -711,13 +712,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         content += `
           <div class="page-header">
             <h1>Planning Mensuel - ${monthName} (suite)</h1>
+            <div class="subtitle">Page ${currentPage + 1}</div>
           </div>
         `;
       }
 
-      content += '<table>';
+      content += '<table class="planning-table">';
       
-      // Header avec en-tête des colonnes
+      // Header avec en-tête des colonnes - style interface
       content += `
         <thead class="table-header">
           <tr>
@@ -727,12 +729,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               const dayName = getDayName(day);
               const isWknd = isWeekend(day);
               const isHol = isHoliday(day);
-              const cellClass = isWknd || isHol ? 'day-header weekend' : 'day-header';
+              let headerClass = 'day-header';
+              if (isWknd) headerClass += ' weekend-header';
+              if (isHol) headerClass += ' holiday-header';
               
-              return `<th class="${cellClass}">
-                <div>${dayName}</div>
+              return `<th class="${headerClass}">
+                <div><strong>${dayName}</strong></div>
                 <div>${day}</div>
-                ${isHol ? '<div style="color: red;">F</div>' : ''}
+                ${isHol ? '<div><strong>F</strong></div>' : ''}
               </th>`;
             }).join('')}
           </tr>
@@ -746,14 +750,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
       
       pageEmployees.forEach(item => {
         if (item.isCategory) {
-          // Ligne de catégorie
+          // Ligne de catégorie - style interface
           content += `
-            <tr>
+            <tr class="category-row">
               <td class="category-header" colspan="${days.length + 2}">${item.name}</td>
             </tr>
           `;
         } else {
-          // Ligne employé
+          // Ligne employé avec alternance
           content += '<tr>';
           content += `<td class="employee-name">${item.name}</td>`;
           content += `<td class="absence-days">${item.totalAbsenceDays}</td>`;
@@ -771,13 +775,20 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
             const displayCode = absence || (hasOnCall ? 'AST' : '');
             let cellClass = '';
             
-            if (displayCode) {
-              cellClass = `absence-${displayCode}`;
-            } else if (isWknd || isHol) {
-              cellClass = 'weekend';
+            // Style de la cellule selon le contexte
+            if (!displayCode && isWknd) {
+              cellClass = 'weekend-cell';
+            } else if (!displayCode && isHol) {
+              cellClass = 'holiday-cell';
             }
             
-            content += `<td class="absence-code ${cellClass}">${displayCode}</td>`;
+            // Contenu de la cellule
+            let cellContent = '';
+            if (displayCode) {
+              cellContent = `<span class="absence-badge absence-${displayCode}">${displayCode}</span>`;
+            }
+            
+            content += `<td class="${cellClass}">${cellContent}</td>`;
           });
           content += '</tr>';
         }
@@ -787,8 +798,8 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
       currentPage++;
     }
 
-    // Légende sur la dernière page
-    content += generatePrintableLegend();
+    // Nouvelle légende compacte sur la dernière page
+    content += generateModernLegend();
     
     return content;
   };
