@@ -58,6 +58,16 @@ const Analytics = ({ user }) => {
     { month: 'Déc', cp: 38, rtt: 16, am: 8, formation: 4, autres: 6 }
   ];
 
+  // Données de rotation par département
+  const departmentTurnover = [
+    { name: 'Ventes', employees: 32, departures: 5, turnoverRate: 38, trend: '+5.2%' },
+    { name: 'Succès du client', employees: 18, departures: 3, turnoverRate: 23, trend: '+1.8%' },
+    { name: 'Ressources humaines', employees: 12, departures: 2, turnoverRate: 15, trend: '-0.5%' },
+    { name: 'Opérations', employees: 24, departures: 1, turnoverRate: 7, trend: '-2.1%' },
+    { name: 'Produit', employees: 16, departures: 1, turnoverRate: 7, trend: '+0.9%' },
+    { name: 'Marketing', employees: 20, departures: 1, turnoverRate: 10, trend: '+2.3%' }
+  ];
+
   const departmentStats = [
     { name: 'IT', employees: 45, absences: 278, rate: 6.2, trend: '+2.1%' },
     { name: 'Commercial', employees: 32, absences: 245, rate: 7.7, trend: '+1.8%' },
