@@ -1045,6 +1045,15 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                   </label>
                 </div>
               </div>
+              
+              <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                <div className="text-sm font-medium text-blue-800 mb-1">💡 Pour voir les couleurs à l'impression :</div>
+                <div className="text-xs text-blue-700">
+                  • Chrome/Edge : Clic droit → Imprimer → Plus de paramètres → ☑️ Graphiques d'arrière-plan<br/>
+                  • Firefox : Fichier → Imprimer → ☑️ Imprimer les arrière-plans<br/>
+                  • Safari : Fichier → Imprimer → ☑️ Imprimer les arrière-plans
+                </div>
+              </div>
               <button
                 onClick={() => {
                   handlePrint();
