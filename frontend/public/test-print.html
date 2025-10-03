@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Impression Améliorée Planning MOZAIK RH</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 20px;
+            color: #374151;
+            background: white;
+        }
+        .preview-container {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: white;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #1e40af;
+            padding-bottom: 15px;
+        }
+        .page-header h1 {
+            margin: 0 0 5px 0;
+            font-size: 22px;
+            color: #1e40af;
+            font-weight: 700;
+        }
+        .page-header .subtitle {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+        .planning-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .planning-table thead th {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 8px 4px;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: 600;
+            font-size: 11px;
+            color: #374151;
+        }
+        .planning-table td {
+            border: 1px solid #e5e7eb;
+            padding: 6px 3px;
+            text-align: center;
+            vertical-align: middle;
+            background: white;
+        }
+        .employee-name {
+            text-align: left !important;
+            width: 140px;
+            font-weight: 600;
+            background: white !important;
+            font-size: 12px;
+            color: #1f2937;
+        }
+        .category-header {
+            background: #eff6ff !important;
+            color: #1e40af !important;
+            font-weight: 700 !important;
+            text-align: center !important;
+            font-size: 12px !important;
+            padding: 10px !important;
+            border: 2px solid #bfdbfe !important;
+        }
+        .absence-days {
+            width: 45px;
+            font-weight: bold;
+            font-size: 13px;
+            background: #f9fafb !important;
+            color: #1f2937;
+        }
+        .day-header {
+            width: 28px;
+            font-size: 10px;
+            line-height: 1.2;
+        }
+        .weekend-header {
+            background: #f3f4f6 !important;
+            color: #6b7280 !important;
+        }
+        .holiday-header {
+            background: #fef2f2 !important;
+            color: #dc2626 !important;
+        }
+        .weekend-cell {
+            background: #fafafa !important;
+        }
+        .holiday-cell {
+            background: #fef7f7 !important;
+        }
+        .absence-badge {
+            display: inline-block;
+            padding: 3px 5px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 9px;
+            line-height: 1;
+            min-width: 22px;
+            text-align: center;
+        }
+        .planning-table tbody tr:nth-child(even):not(.category-row) {
+            background: #fafafa;
+        }
+        .legend-section {
+            margin-top: 25px;
+            border-top: 2px solid #e5e7eb;
+            padding-top: 15px;
+        }
+        .legend-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .legend-categories {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        .legend-category {
+            flex: 1;
+            min-width: 0;
+        }
+        .legend-category-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 5px;
+            text-align: center;
+            border-bottom: 1px solid #d1d5db;
+            padding-bottom: 2px;
+        }
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+        }
+        .legend-badge {
+            display: inline-block;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 700;
+            font-size: 7px;
+            line-height: 1;
+            min-width: 18px;
+            text-align: center;
+        }
+        
+        /* Couleurs des codes */
+        .ca { background-color: #3b82f6; color: white; }
+        .am { background-color: #ef4444; color: white; }
+        .rec { background-color: #10b981; color: white; }
+        .del { background-color: #8b5cf6; color: white; }
+        .tel { background-color: #06b6d4; color: white; }
+        .ast { background-color: #ea580c; color: white; }
+        
+        .comparison {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .comparison > div {
+            flex: 1;
+        }
+        .comparison h3 {
+            color: #1f2937;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .old-style {
+            font-family: Arial;
+            font-size: 10px;
+            color: #000;
+        }
+        .old-style table {
+            border: 1px solid #333;
+        }
+        .old-style th, .old-style td {
+            border: 1px solid #333;
+            padding: 2px;
+            background: #f0f0f0;
+        }
+        .print-btn {
+            background: #1e40af;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .print-btn:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <h1>🖨️ Aperçu des Améliorations d'Impression - Planning MOZAIK RH</h1>
+    
+    <button class="print-btn" onclick="window.print()">🖨️ Tester l'Impression</button>
+    
+    <div class="comparison">
+        <div>
+            <h3>❌ Ancienne Version (Basique)</h3>
+            <div class="old-style">
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <h2>Planning Mensuel - Septembre 2025</h2>
+                </div>
+                <table>
+                    <tr>
+                        <th>Employé</th>
+                        <th>Jours</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                    </tr>
+                    <tr>
+                        <td>Sophie Martin</td>
+                        <td>4</td>
+                        <td></td>
+                        <td>CA</td>
+                        <td>CA</td>
+                    </tr>
+                </table>
+                <p>• Police Arial basique • Pas de couleurs • Mise en page condensée</p>
+            </div>
+        </div>
+        
+        <div>
+            <h3>✅ Nouvelle Version (Moderne)</h3>
+            <div class="preview-container">
+                <div class="page-header">
+                    <h1>Planning Mensuel - Septembre 2025</h1>
+                    <div class="subtitle">MOZAIK RH • 10 employés • 5 départements</div>
+                </div>
+                
+                <table class="planning-table">
+                    <thead>
+                        <tr>
+                            <th class="employee-name">Employé</th>
+                            <th class="absence-days">Jours<br>Absence</th>
+                            <th class="day-header weekend-header">
+                                <div><strong>Dim</strong></div>
+                                <div>1</div>
+                            </th>
+                            <th class="day-header">
+                                <div><strong>Lun</strong></div>
+                                <div>2</div>
+                            </th>
+                            <th class="day-header">
+                                <div><strong>Mar</strong></div>
+                                <div>3</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="category-row">
+                            <td class="category-header" colspan="5">Cadres de direction</td>
+                        </tr>
+                        <tr>
+                            <td class="employee-name">Sophie Martin</td>
+                            <td class="absence-days">4</td>
+                            <td class="weekend-cell"></td>
+                            <td><span class="absence-badge ca">CA</span></td>
+                            <td><span class="absence-badge ca">CA</span></td>
+                        </tr>
+                        <tr>
+                            <td class="employee-name">Jean Dupont</td>
+                            <td class="absence-days">2</td>
+                            <td class="weekend-cell"></td>
+                            <td><span class="absence-badge rec">REC</span></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="legend-section">
+                    <div class="legend-title">Légende des Codes d'Absence</div>
+                    <div class="legend-categories">
+                        <div class="legend-category">
+                            <div class="legend-category-title">Congés & Temps Libre</div>
+                            <div class="legend-items">
+                                <span class="legend-badge ca">CA</span>
+                                <span class="legend-badge rec">REC</span>
+                            </div>
+                        </div>
+                        <div class="legend-category">
+                            <div class="legend-category-title">Santé & Accidents</div>
+                            <div class="legend-items">
+                                <span class="legend-badge am">AM</span>
+                            </div>
+                        </div>
+                        <div class="legend-category">
+                            <div class="legend-category-title">Formation & Travail</div>
+                            <div class="legend-items">
+                                <span class="legend-badge del">DEL</span>
+                                <span class="legend-badge tel">TEL</span>
+                                <span class="legend-badge ast">AST</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #15803d; margin-top: 0;">✅ Améliorations Apportées</h3>
+        <ul style="color: #166534;">
+            <li><strong>Design moderne</strong> : Police système, couleurs harmonieuses, espacement optimisé</li>
+            <li><strong>En-tête professionnel</strong> : Titre stylisé, sous-titre informatif, bordure bleue</li>
+            <li><strong>Tableau amélioré</strong> : Bordures subtiles, alternance de lignes, badges colorés</li>
+            <li><strong>Légende réorganisée</strong> : Catégories thématiques, layout horizontal compact</li>
+            <li><strong>Codes visuels</strong> : Badges arrondis colorés comme dans l'interface</li>
+            <li><strong>Week-ends/Fériés</strong> : Distinction visuelle claire avec arrière-plans colorés</li>
+        </ul>
+    </div>
+    
+    <div style="background: #eff6ff; padding: 15px; border-radius: 8px;">
+        <h3 style="color: #1e40af; margin-top: 0;">🎯 Fidélité à l'Interface</h3>
+        <p style="color: #1e3a8a;">
+            Le nouveau design d'impression reproduit fidèlement l'apparence du logiciel avec les mêmes couleurs, 
+            typographie, et organisation visuelle. La légende horizontale est plus compacte et professionnelle.
+        </p>
+    </div>
+    
+    <script>
+        // Test d'impression automatique lors du clic
+        console.log('✅ Page de test d\'impression chargée');
+    </script>
+</body>
+</html>
