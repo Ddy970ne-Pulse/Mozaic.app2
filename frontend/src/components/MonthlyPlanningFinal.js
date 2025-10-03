@@ -650,7 +650,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               text-align: center;
             }
             
-            /* Styles spécifiques pour chaque code d'absence */
+            /* FORCE des couleurs à l'impression - très important */
+            * {
+              -webkit-print-color-adjust: exact !important;
+              color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            
+            /* Styles spécifiques pour chaque code d'absence - AVEC bordures pour impression N&B */
             ${Object.entries(absenceColorMap).map(([code, info]) => {
               const colorMap = {
                 'bg-red-500': '#ef4444', 'bg-red-400': '#f87171', 'bg-red-600': '#dc2626', 'bg-red-700': '#b91c1c',
@@ -667,9 +674,30 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               
               return `.absence-${code}, .legend-${code} { 
                 background-color: ${bgColor} !important; 
-                color: ${textColor} !important; 
+                color: ${textColor} !important;
+                border: 2px solid ${bgColor} !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
               }`;
             }).join('\n')}
+            
+            /* Alternative pour impression N&B si couleurs ne passent pas */
+            @media print {
+              .absence-badge, .legend-badge {
+                border: 2px solid #333 !important;
+                font-weight: 900 !important;
+                background: white !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact !important;
+              }
+              
+              /* Patterns distinctifs pour impression N&B */
+              .absence-CA, .legend-CA { background: linear-gradient(45deg, #3b82f6 25%, transparent 25%) !important; }
+              .absence-AM, .legend-AM { background: linear-gradient(90deg, #ef4444 50%, white 50%) !important; }
+              .absence-REC, .legend-REC { background: repeating-linear-gradient(45deg, #10b981, #10b981 2px, white 2px, white 4px) !important; }
+              .absence-AST, .legend-AST { background: radial-gradient(circle, #ea580c 30%, white 30%) !important; }
+            }
           </style>
         </head>
         <body>
