@@ -643,6 +643,138 @@ const Analytics = ({ user }) => {
               </div>
             </div>
           </div>
+          {/* Graphiques de comparaison avancés */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Graphique circulaire dynamique */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-800">Répartition Dynamique</h3>
+                  <select 
+                    value={dataMetric} 
+                    onChange={(e) => setDataMetric(e.target.value)}
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="reasons">Par motif de départ</option>
+                    <option value="departments">Par département</option>
+                    <option value="demographics">Par démographie</option>
+                  </select>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-2 gap-4">
+                  {dataMetric === 'departments' ? 
+                    departmentTurnover.slice(0, 4).map((dept, index) => (
+                      <div key={index} className="text-center p-4 bg-gray-50 rounded-lg">
+                        <div className="text-2xl font-bold" style={{ color: dept.turnoverRate > 25 ? '#ef4444' : '#10b981' }}>
+                          {dept.turnoverRate}%
+                        </div>
+                        <div className="text-sm text-gray-600">{dept.name}</div>
+                        <div className="text-xs text-gray-500">{dept.departures} départs</div>
+                      </div>
+                    )) :
+                    [
+                      { label: 'Volontaire', value: 60, color: '#10b981' },
+                      { label: 'Regrettable', value: 25, color: '#ef4444' },
+                      { label: 'Non regrettable', value: 10, color: '#3b82f6' },
+                      { label: 'Termination', value: 5, color: '#dc2626' }
+                    ].map((reason, index) => (
+                      <div key={index} className="text-center p-4 bg-gray-50 rounded-lg">
+                        <div className="text-2xl font-bold" style={{ color: reason.color }}>
+                          {reason.value}%
+                        </div>
+                        <div className="text-sm text-gray-600">{reason.label}</div>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+
+            {/* Indicateurs de performance en temps réel */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-800">Indicateurs Performance</h3>
+                <p className="text-sm text-gray-600 mt-1">Mise à jour en temps réel selon vos sélections</p>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-red-800">Départements à risque</span>
+                  </div>
+                  <span className="text-lg font-bold text-red-600">
+                    {departmentTurnover.filter(d => d.turnoverRate > 25).length}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-orange-800">Surveillance requise</span>
+                  </div>
+                  <span className="text-lg font-bold text-orange-600">
+                    {departmentTurnover.filter(d => d.turnoverRate > 15 && d.turnoverRate <= 25).length}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-green-800">Performance stable</span>
+                  </div>
+                  <span className="text-lg font-bold text-green-600">
+                    {departmentTurnover.filter(d => d.turnoverRate <= 15).length}
+                  </span>
+                </div>
+                
+                {/* Prédictions */}
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                  <h4 className="text-sm font-semibold text-blue-800 mb-2">🔮 Prédictions</h4>
+                  <div className="space-y-2 text-sm text-blue-700">
+                    <div>• Tendance Q4 2025: <span className="font-medium">+2.1%</span></div>
+                    <div>• Pic attendu: <span className="font-medium">Décembre 2025</span></div>
+                    <div>• Département critique: <span className="font-medium">Ventes</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions rapides */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="p-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Actions Recommandées</h3>
+                  <p className="text-sm text-gray-600 mt-1">Basées sur l'analyse actuelle de vos données</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button 
+                    onClick={() => {setDataMetric('departments'); setChartType('comparison');}}
+                    className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors text-sm font-medium"
+                  >
+                    📊 Analyser par département
+                  </button>
+                  <button 
+                    onClick={() => {setDataMetric('turnover_rate'); setTimeRange('quarterly');}}
+                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium"
+                  >
+                    📈 Vue trimestrielle
+                  </button>
+                  <button 
+                    onClick={() => {setDataMetric('reasons'); setChartType('distribution');}}
+                    className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium"
+                  >
+                    🥧 Analyse motifs
+                  </button>
+                  <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+                    📋 Rapport complet
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </>
       )}
       
