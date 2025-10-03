@@ -104,24 +104,36 @@ const Analytics = ({ user }) => {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">KPI Absences & Analytics</h1>
-            <p className="text-gray-600">Analyses et tendances des absences • Période de référence: Juin {selectedYear - 1} - Mai {selectedYear}</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Rapports Standard</h1>
+            <p className="text-gray-600">
+              {viewMode === 'turnover' && `Roulement du personnel • Période: ${turnoverData.periodLabel}`}
+              {viewMode === 'absences' && `Analyses des absences • Période de référence: Juin ${selectedYear - 1} - Mai ${selectedYear}`}
+              {viewMode === 'monthly' && `Vue mensuelle détaillée • ${selectedYear}`}
+            </p>
           </div>
           
           <div className="flex items-center space-x-4">
             <div className="flex bg-gray-100 rounded-lg p-1">
               <button
-                onClick={() => setViewMode('annual')}
+                onClick={() => setViewMode('turnover')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                  viewMode === 'annual' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
+                  viewMode === 'turnover' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
-                Vue Annuelle
+                Roulement Personnel
+              </button>
+              <button
+                onClick={() => setViewMode('absences')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  viewMode === 'absences' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Absences
               </button>
               <button
                 onClick={() => setViewMode('monthly')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                  viewMode === 'monthly' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
+                  viewMode === 'monthly' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
                 Vue Mensuelle
