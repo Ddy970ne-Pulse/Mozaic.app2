@@ -321,13 +321,170 @@ const Analytics = ({ user }) => {
             </div>
           </div>
 
-          {/* Graphique de tendance amélioré */}
+          {/* Section Graphiques Dynamiques Interactifs */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-800">Analyse Dynamique Interactive</h2>
+                  <p className="text-sm text-gray-600 mt-1">Personnalisez votre analyse avec les sélecteurs ci-dessous</p>
+                </div>
+                
+                {/* Contrôles dynamiques */}
+                <div className="flex flex-wrap gap-3">
+                  {/* Type de graphique */}
+                  <div className="flex flex-col">
+                    <label className="text-xs font-medium text-gray-500 mb-1">Type de graphique</label>
+                    <select 
+                      value={chartType} 
+                      onChange={(e) => setChartType(e.target.value)}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      {chartOptions.types.map(type => (
+                        <option key={type.value} value={type.value}>
+                          {type.icon} {type.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Métrique à analyser */}
+                  <div className="flex flex-col">
+                    <label className="text-xs font-medium text-gray-500 mb-1">Métrique à analyser</label>
+                    <select 
+                      value={dataMetric} 
+                      onChange={(e) => setDataMetric(e.target.value)}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      {chartOptions.metrics.map(metric => (
+                        <option key={metric.value} value={metric.value}>
+                          {metric.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Période d'analyse */}
+                  <div className="flex flex-col">
+                    <label className="text-xs font-medium text-gray-500 mb-1">Période</label>
+                    <select 
+                      value={timeRange} 
+                      onChange={(e) => setTimeRange(e.target.value)}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      {chartOptions.timeRanges.map(range => (
+                        <option key={range.value} value={range.value}>
+                          {range.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Filtre département */}
+                  <div className="flex flex-col">
+                    <label className="text-xs font-medium text-gray-500 mb-1">Département</label>
+                    <select 
+                      value={departmentFilter} 
+                      onChange={(e) => setDepartmentFilter(e.target.value)}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="all">Tous les départements</option>
+                      {departmentTurnover.map(dept => (
+                        <option key={dept.name} value={dept.name}>
+                          {dept.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Graphique dynamique généré */}
+            <div className="p-6">
+              <div className="mb-4">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Analyse actuelle : 
+                  </span>
+                  <span className={`text-sm font-semibold ${chartOptions.metrics.find(m => m.value === dataMetric)?.color}`}>
+                    {chartOptions.metrics.find(m => m.value === dataMetric)?.label}
+                  </span>
+                  <span className="text-sm text-gray-500">•</span>
+                  <span className="text-sm text-gray-600">
+                    {chartOptions.types.find(t => t.value === chartType)?.label}
+                  </span>
+                  <span className="text-sm text-gray-500">•</span>
+                  <span className="text-sm text-gray-600">
+                    {timeRange === 'monthly' ? 'Vue mensuelle' : timeRange === 'quarterly' ? 'Vue trimestrielle' : 'Vue annuelle'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Rendu du graphique selon les sélections */}
+              <div className="space-y-4">
+                {getDynamicChartData().map((item, index) => {
+                  const maxValue = Math.max(...getDynamicChartData().map(d => d.value));
+                  const percentage = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
+                  
+                  return (
+                    <div key={index} className="group hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700 min-w-[120px]">
+                          {item.period}
+                        </span>
+                        <div className="flex items-center space-x-3">
+                          <span className="text-sm text-gray-500">
+                            {item.label}
+                          </span>
+                          {dataMetric === 'turnover_rate' && item.value > 15 && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              ⚠️ Attention
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div 
+                          className="h-full rounded-full transition-all duration-500 ease-out"
+                          style={{ 
+                            width: `${percentage}%`,
+                            backgroundColor: item.color,
+                            boxShadow: percentage > 80 ? '0 0 8px rgba(239, 68, 68, 0.3)' : 'none'
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Actions et exports */}
+              <div className="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between">
+                <div className="flex items-center space-x-4 text-sm text-gray-600">
+                  <span>📊 {getDynamicChartData().length} éléments analysés</span>
+                  <span>•</span>
+                  <span>🎯 Seuil d'alerte: {dataMetric === 'turnover_rate' ? '15%' : '3 départs'}</span>
+                </div>
+                <div className="flex space-x-2">
+                  <button className="px-3 py-1 text-xs border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                    📊 Exporter CSV
+                  </button>
+                  <button className="px-3 py-1 text-xs border border-emerald-300 text-emerald-600 rounded-md hover:bg-emerald-50 transition-colors">
+                    📈 Rapport détaillé
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Graphique de tendance statique (ancien) */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div className="xl:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-800">Évolution Mensuelle du Roulement</h2>
+                    <h2 className="text-lg font-semibold text-gray-800">Évolution Mensuelle du Roulement (Détaillée)</h2>
                     <p className="text-sm text-gray-600 mt-1">Répartition par motif de départ • {turnoverData.periodLabel}</p>
                   </div>
                   <div className="flex items-center space-x-2 text-sm">
