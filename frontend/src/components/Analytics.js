@@ -175,7 +175,266 @@ const Analytics = ({ user }) => {
           </div>
         </div>
       </div>
+
+      {/* Sélecteur de période pour roulement du personnel */}
+      {viewMode === 'turnover' && (
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+          <div className="flex items-center space-x-4">
+            <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="oct2024-oct2025">oct 2024 - oct 2025</option>
+              <option value="jan2024-dec2024">jan 2024 - déc 2024</option>
+              <option value="jul2023-jun2024">jul 2023 - jun 2024</option>
+            </select>
+            <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="all">Tous les employés</option>
+              <option value="permanent">Employés permanents</option>
+              <option value="temporary">Employés temporaires</option>
+            </select>
+            <div className="flex items-center space-x-2">
+              <input type="checkbox" id="benchmark" className="rounded" />
+              <label htmlFor="benchmark" className="text-sm text-gray-600">Show Benchmark</label>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rapport de Roulement du Personnel */}
+      {viewMode === 'turnover' && (
+        <>
+          {/* KPI Cards pour Roulement */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative overflow-hidden">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">Taux de Rotation Total</p>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-4xl font-bold text-gray-800">{turnoverData.totalTurnoverRate}%</p>
+                    <div className="flex items-center text-red-600">
+                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm font-medium">+3.2%</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">{turnoverData.totalDepartures} • {turnoverData.periodLabel}</p>
+                </div>
+                <div className="text-4xl">🔄</div>
+              </div>
+              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-red-200 to-red-600"></div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative overflow-hidden">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">Roulement Moyen par Mois</p>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-4xl font-bold text-gray-800">{turnoverData.monthlyAverageRate}%</p>
+                    <div className="flex items-center text-green-600">
+                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l2.293-2.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm font-medium">Stable</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">{turnoverData.monthlyAverageDepartures}</p>
+                </div>
+                <div className="text-4xl">📈</div>
+              </div>
+              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-green-200 to-green-600"></div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative overflow-hidden">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">Taux de Rotation - 30 Jours</p>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-4xl font-bold text-gray-800">{turnoverData.last30DaysRate}%</p>
+                    <div className="flex items-center text-orange-600">
+                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm font-medium">+0.4%</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">{turnoverData.last30DaysDepartures}</p>
+                </div>
+                <div className="text-4xl">⏱️</div>
+              </div>
+              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-orange-200 to-orange-600"></div>
+            </div>
+          </div>
+
+          {/* Graphique de tendance amélioré */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="xl:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-800">Évolution Mensuelle du Roulement</h2>
+                    <p className="text-sm text-gray-600 mt-1">Répartition par motif de départ • {turnoverData.periodLabel}</p>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span className="text-gray-600">Pic en Oct 2024</span>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  {turnoverMonthlyData.map((month, index) => {
+                    const maxRate = Math.max(...turnoverMonthlyData.map(m => m.rate));
+                    return (
+                      <div key={index}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700 w-20">{month.month}</span>
+                          <div className="flex items-center space-x-4">
+                            <span className="text-sm text-gray-500">{month.total} départs</span>
+                            <span className="text-sm font-bold text-gray-800">{month.rate}%</span>
+                          </div>
+                        </div>
+                        <div className="flex h-6 bg-gray-100 rounded-lg overflow-hidden">
+                          {month.volontaire > 0 && (
+                            <div 
+                              className="bg-green-500" 
+                              style={{ width: `${(month.volontaire / (maxRate / 10)) * 100}%` }}
+                              title={`Volontaire: ${month.volontaire}`}
+                            ></div>
+                          )}
+                          {month.regrettable > 0 && (
+                            <div 
+                              className="bg-red-500" 
+                              style={{ width: `${(month.regrettable / (maxRate / 10)) * 100}%` }}
+                              title={`Regrettable: ${month.regrettable}`}
+                            ></div>
+                          )}
+                          {month.nonRegrettable > 0 && (
+                            <div 
+                              className="bg-blue-500" 
+                              style={{ width: `${(month.nonRegrettable / (maxRate / 10)) * 100}%` }}
+                              title={`Non regrettable: ${month.nonRegrettable}`}
+                            ></div>
+                          )}
+                          {month.nonSpecifie > 0 && (
+                            <div 
+                              className="bg-gray-400" 
+                              style={{ width: `${(month.nonSpecifie / (maxRate / 10)) * 100}%` }}
+                              title={`Non spécifié: ${month.nonSpecifie}`}
+                            ></div>
+                          )}
+                          {month.termination > 0 && (
+                            <div 
+                              className="bg-red-700" 
+                              style={{ width: `${(month.termination / (maxRate / 10)) * 100}%` }}
+                              title={`Termination: ${month.termination}`}
+                            ></div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* Légende améliorée */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-200">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-green-500 rounded"></div>
+                    <span className="text-xs text-gray-600">Volontaire</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-red-500 rounded"></div>
+                    <span className="text-xs text-gray-600">Regrettable</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                    <span className="text-xs text-gray-600">Non regrettable</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-gray-400 rounded"></div>
+                    <span className="text-xs text-gray-600">Non spécifié</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-red-700 rounded"></div>
+                    <span className="text-xs text-gray-600">Termination</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Données démographiques améliorées */}
+            <div className="space-y-6">
+              {/* Sexe */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-800">Sexe</h3>
+                  <button className="text-emerald-600 text-sm hover:underline">Aperçu des détails</button>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Homme</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-20 h-3 bg-gray-200 rounded-full">
+                        <div className="w-11/20 h-full bg-blue-500 rounded-full"></div>
+                      </div>
+                      <span className="text-sm font-medium">53%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Femme</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-20 h-3 bg-gray-200 rounded-full">
+                        <div className="w-9/20 h-full bg-pink-500 rounded-full"></div>
+                      </div>
+                      <span className="text-sm font-medium">46%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Âge */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-800">Âge</h3>
+                  <button className="text-emerald-600 text-sm hover:underline">Aperçu des détails</button>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">25-34 ans</span>
+                    <span className="text-sm font-medium">46%</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">35-44 ans</span>
+                    <span className="text-sm font-medium">30%</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">18-24 ans</span>
+                    <span className="text-sm font-medium">23%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Département */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-800">Département</h3>
+                  <button className="text-emerald-600 text-sm hover:underline">Aperçu des détails</button>
+                </div>
+                <div className="space-y-3">
+                  {departmentTurnover.slice(0, 5).map((dept, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">{dept.name}</span>
+                      <span className="text-sm font-medium">{dept.turnoverRate}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
       
+      {/* Section Absences (vue existante) */}
+      {viewMode === 'absences' && (
+        <>
       {/* KPI Distinction DEL vs Personnel */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
