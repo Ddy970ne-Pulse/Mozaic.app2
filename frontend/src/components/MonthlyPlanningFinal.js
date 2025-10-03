@@ -794,8 +794,8 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     
     let content = `
       <div class="page-header">
-        <h1>Planning Mensuel - ${monthName}</h1>
-        <div class="subtitle">MOZAIK RH • ${totalEmployees} employés • ${Object.keys(groupedEmployees).length} départements</div>
+        <h1>${periodTitle}</h1>
+        <div class="subtitle">MOZAIK RH • ${totalEmployees} employés • ${Object.keys(groupedEmployees).length} départements • ${dateRange.length} jours</div>
       </div>
     `;
 
