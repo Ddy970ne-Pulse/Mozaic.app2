@@ -98,68 +98,26 @@ const Dashboard = ({ user, onChangeView }) => {
   };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-full">
-      {/* Dashboard BambooHR 2025 - Insights Consolidés */}
-      
-      {/* Section Accueil Personnalisée */}
-      <div className="mb-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Bonjour, {user.name} 👋</h2>
-              <p className="text-gray-600">Voici un aperçu de votre journée</p>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-500">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-              <div className="text-xs text-emerald-600 font-medium mt-1">🟢 Système opérationnel</div>
-            </div>
+    <div className="space-y-6">
+      {/* Header du Dashboard - Style Original */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Tableau de Bord</h1>
+            <p className="text-gray-600">Aperçu général de votre activité RH</p>
           </div>
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex space-x-3">
             <button 
-              onClick={() => onChangeView('monthly-planning')}
-              className="flex items-center p-4 bg-emerald-50 rounded-2xl border border-emerald-200 hover:bg-emerald-100 transition-all duration-200 group"
+              onClick={() => onChangeView && onChangeView('monthly-planning')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
             >
-              <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mr-4 group-hover:scale-105 transition-transform">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div className="text-left">
-                <div className="font-semibold text-gray-900">Planning Mensuel</div>
-                <div className="text-sm text-gray-600">Voir les absences</div>
-              </div>
+              📅 Planning
             </button>
-
             <button 
-              onClick={() => onChangeView('employee-space')}
-              className="flex items-center p-4 bg-blue-50 rounded-2xl border border-blue-200 hover:bg-blue-100 transition-all duration-200 group"
+              onClick={() => onChangeView && onChangeView('analytics')}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
             >
-              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mr-4 group-hover:scale-105 transition-transform">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div className="text-left">
-                <div className="font-semibold text-gray-900">Mon Espace</div>
-                <div className="text-sm text-gray-600">Profil & demandes</div>
-              </div>
-            </button>
-
-            <button 
-              onClick={() => onChangeView('analytics')}
-              className="flex items-center p-4 bg-purple-50 rounded-2xl border border-purple-200 hover:bg-purple-100 transition-all duration-200 group"
-            >
-              <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mr-4 group-hover:scale-105 transition-transform">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <div className="text-left">
-                <div className="font-semibold text-gray-900">Analytics</div>
-                <div className="text-sm text-gray-600">Tableaux de bord</div>
-              </div>
+              📊 Analytics
             </button>
           </div>
         </div>
