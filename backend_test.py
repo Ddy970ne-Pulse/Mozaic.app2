@@ -182,41 +182,65 @@ class BackendTester:
                 
         self.results["delegation_hours"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["delegation_hours"]["details"]) else "fail"
         
-    def test_data_retrieval(self):
+    def test_data_retrieval(self, auth_token=None):
         """Test data retrieval endpoints for users, delegations, HR info"""
         print("\n=== Testing Data Retrieval ===")
         
-        # Check for user data endpoints
-        user_endpoints = ["/users", "/user", "/employees", "/employee", "/staff"]
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
         
-        for endpoint in user_endpoints:
+        # Test user endpoints
+        try:
+            response = requests.get(f"{API_URL}/users", headers=headers, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("data_retrieval", True, f"GET /users works, returned {len(data)} users")
+                
+                # Check for Sophie Martin specifically
+                sophie_found = any(user.get('name') == 'Sophie Martin' for user in data)
+                if sophie_found:
+                    self.log_result("data_retrieval", True, "Sophie Martin user found in users list")
+                else:
+                    self.log_result("data_retrieval", False, "Sophie Martin user not found in users list")
+            else:
+                self.log_result("data_retrieval", False, f"GET /users returned {response.status_code}")
+        except Exception as e:
+            self.log_result("data_retrieval", False, f"Error testing /users: {str(e)}")
+                
+        # Test HR configuration endpoints
+        hr_endpoints = [
+            "/hr-config/departments",
+            "/hr-config/sites", 
+            "/hr-config/contracts",
+            "/hr-config/employee-categories"
+        ]
+        
+        for endpoint in hr_endpoints:
             try:
-                response = requests.get(f"{API_URL}{endpoint}", timeout=5)
+                response = requests.get(f"{API_URL}{endpoint}", headers=headers, timeout=5)
                 if response.status_code == 200:
                     data = response.json()
-                    self.log_result("data_retrieval", True, f"GET {endpoint} works, returned {len(data) if isinstance(data, list) else 'object'} items")
-                elif response.status_code == 401:
-                    self.log_result("data_retrieval", True, f"GET {endpoint} requires authentication (401) - endpoint exists")
-                elif response.status_code != 404:
+                    self.log_result("data_retrieval", True, f"GET {endpoint} works, returned data")
+                else:
                     self.log_result("data_retrieval", False, f"GET {endpoint} returned {response.status_code}")
             except Exception as e:
                 self.log_result("data_retrieval", False, f"Error testing {endpoint}: {str(e)}")
                 
-        # Check for HR data endpoints
-        hr_endpoints = ["/departments", "/sites", "/contracts", "/categories", "/parameters"]
+        # Test on-call management endpoints for monthly planning integration
+        oncall_endpoints = [
+            "/on-call/employees",
+            "/on-call/assignments"
+        ]
         
-        for endpoint in hr_endpoints:
+        for endpoint in oncall_endpoints:
             try:
-                response = requests.get(f"{API_URL}{endpoint}", timeout=5)
+                response = requests.get(f"{API_URL}{endpoint}", headers=headers, timeout=5)
                 if response.status_code == 200:
                     data = response.json()
-                    self.log_result("data_retrieval", True, f"GET {endpoint} works, returned data")
-                elif response.status_code == 401:
-                    self.log_result("data_retrieval", True, f"GET {endpoint} requires authentication - endpoint exists")
-                elif response.status_code != 404:
+                    self.log_result("data_retrieval", True, f"GET {endpoint} works, returned {len(data) if isinstance(data, list) else 'object'} items")
+                else:
                     self.log_result("data_retrieval", False, f"GET {endpoint} returned {response.status_code}")
-            except:
-                continue
+            except Exception as e:
+                self.log_result("data_retrieval", False, f"Error testing {endpoint}: {str(e)}")
                 
         self.results["data_retrieval"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["data_retrieval"]["details"]) else "fail"
         
