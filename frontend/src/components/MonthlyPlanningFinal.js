@@ -858,7 +858,7 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
           // Ligne de catégorie - style interface
           content += `
             <tr class="category-row">
-              <td class="category-header" colspan="${days.length + 2}">${item.name}</td>
+              <td class="category-header" colspan="${dateRange.length + 2}">${item.name}</td>
             </tr>
           `;
         } else {
