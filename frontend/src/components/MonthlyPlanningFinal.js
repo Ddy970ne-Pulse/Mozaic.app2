@@ -1077,12 +1077,16 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                 </div>
               </div>
               
-              <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded">
-                <div className="text-sm font-medium text-blue-800 mb-1">💡 Pour voir les couleurs à l'impression :</div>
-                <div className="text-xs text-blue-700">
-                  • Chrome/Edge : Clic droit → Imprimer → Plus de paramètres → ☑️ Graphiques d'arrière-plan<br/>
-                  • Firefox : Fichier → Imprimer → ☑️ Imprimer les arrière-plans<br/>
-                  • Safari : Fichier → Imprimer → ☑️ Imprimer les arrière-plans
+              <div className="mb-3 p-3 bg-orange-50 border border-orange-200 rounded">
+                <div className="text-sm font-medium text-orange-800 mb-2">🎨 COULEURS RENFORCÉES POUR IMPRESSION</div>
+                <div className="text-xs text-orange-700 mb-2">
+                  Les couleurs sont automatiquement assombries à l'impression pour un meilleur contraste sur papier.
+                </div>
+                <div className="text-xs text-orange-600">
+                  <strong>Activez les arrière-plans dans votre navigateur :</strong><br/>
+                  • Chrome/Edge : ☑️ Graphiques d'arrière-plan<br/>
+                  • Firefox : ☑️ Imprimer les arrière-plans<br/>
+                  • Safari : ☑️ Imprimer les arrière-plans
                 </div>
               </div>
               <button
