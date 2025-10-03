@@ -462,98 +462,198 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
           <style>
             @page { 
               size: ${printFormat} landscape; 
-              margin: 0.5cm; 
+              margin: 0.8cm; 
             }
             body { 
-              font-family: Arial, sans-serif; 
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
               margin: 0; 
-              font-size: ${printFormat === 'A4' ? '8px' : '10px'}; 
+              font-size: ${printFormat === 'A4' ? '10px' : '12px'}; 
+              color: #374151;
+              background: white;
             }
+            
+            /* En-tête moderne */
             .page-header {
               text-align: center; 
-              margin-bottom: 15px;
+              margin-bottom: 20px;
               page-break-inside: avoid;
+              border-bottom: 3px solid #1e40af;
+              padding-bottom: 15px;
             }
             .page-header h1 { 
-              margin: 0; 
-              font-size: ${printFormat === 'A4' ? '14px' : '18px'}; 
+              margin: 0 0 5px 0; 
+              font-size: ${printFormat === 'A4' ? '18px' : '22px'};
+              color: #1e40af;
+              font-weight: 700;
             }
-            table { 
+            .page-header .subtitle {
+              color: #6b7280;
+              font-size: ${printFormat === 'A4' ? '11px' : '13px'};
+              margin: 5px 0;
+            }
+            
+            /* Table moderne - similaire à l'interface */
+            .planning-table { 
               width: 100%; 
               border-collapse: collapse; 
               page-break-inside: auto;
+              background: white;
+              border-radius: 8px;
+              overflow: hidden;
+              box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
             .table-header {
               page-break-inside: avoid;
               page-break-after: avoid;
             }
-            th, td { 
-              border: 1px solid #333; 
-              padding: 2px; 
+            
+            /* En-têtes de colonne - style interface */
+            .planning-table thead th { 
+              background: #f9fafb;
+              border: 1px solid #e5e7eb;
+              padding: ${printFormat === 'A4' ? '6px 3px' : '8px 4px'};
               text-align: center; 
               vertical-align: middle;
+              font-weight: 600;
+              font-size: ${printFormat === 'A4' ? '9px' : '11px'};
+              color: #374151;
             }
-            th { 
-              background-color: #f0f0f0; 
-              font-weight: bold; 
-              font-size: ${printFormat === 'A4' ? '7px' : '9px'};
+            
+            /* Cellules du tableau */
+            .planning-table td { 
+              border: 1px solid #e5e7eb;
+              padding: ${printFormat === 'A4' ? '4px 2px' : '6px 3px'};
+              text-align: center; 
+              vertical-align: middle;
+              background: white;
             }
+            
+            /* Colonne employé */
             .employee-name { 
-              text-align: left; 
-              width: ${printFormat === 'A4' ? '80px' : '120px'}; 
-              font-weight: bold; 
-              background-color: #f9f9f9;
+              text-align: left !important;
+              width: ${printFormat === 'A4' ? '100px' : '140px'}; 
+              font-weight: 600;
+              background: white !important;
+              font-size: ${printFormat === 'A4' ? '10px' : '12px'};
+              color: #1f2937;
             }
+            
+            /* En-têtes de catégorie - style interface */
             .category-header {
-              background-color: #e0e0e0 !important;
-              font-weight: bold;
-              text-align: center;
-              font-size: ${printFormat === 'A4' ? '8px' : '10px'};
+              background: #eff6ff !important;
+              color: #1e40af !important;
+              font-weight: 700 !important;
+              text-align: center !important;
+              font-size: ${printFormat === 'A4' ? '10px' : '12px'} !important;
+              padding: ${printFormat === 'A4' ? '8px' : '10px'} !important;
+              border: 2px solid #bfdbfe !important;
             }
+            
+            /* Colonne jours d'absence */
             .absence-days { 
-              width: ${printFormat === 'A4' ? '25px' : '35px'}; 
+              width: ${printFormat === 'A4' ? '35px' : '45px'}; 
               font-weight: bold;
+              font-size: ${printFormat === 'A4' ? '11px' : '13px'};
+              background: #f9fafb !important;
+              color: #1f2937;
             }
+            
+            /* En-têtes des jours */
             .day-header { 
-              width: ${printFormat === 'A4' ? '18px' : '25px'}; 
-              font-size: ${printFormat === 'A4' ? '6px' : '8px'};
+              width: ${printFormat === 'A4' ? '22px' : '28px'}; 
+              font-size: ${printFormat === 'A4' ? '8px' : '10px'};
+              line-height: 1.2;
             }
-            .weekend { background-color: #f5f5f5; }
-            .holiday { background-color: #ffe6e6; }
-            .absence-code { 
-              font-weight: bold; 
-              font-size: ${printFormat === 'A4' ? '6px' : '8px'};
-              padding: 1px;
+            
+            /* Week-end et jours fériés - style interface */
+            .weekend-header { 
+              background: #f3f4f6 !important; 
+              color: #6b7280 !important;
             }
-            .legend { 
-              margin-top: 15px; 
-              page-break-inside: avoid;
+            .holiday-header { 
+              background: #fef2f2 !important; 
+              color: #dc2626 !important;
+            }
+            .weekend-cell { 
+              background: #fafafa !important; 
+            }
+            .holiday-cell { 
+              background: #fef7f7 !important; 
+            }
+            
+            /* Codes d'absence - badges arrondis comme l'interface */
+            .absence-badge { 
+              display: inline-block;
+              padding: ${printFormat === 'A4' ? '2px 4px' : '3px 5px'};
+              border-radius: 4px;
+              font-weight: 700;
               font-size: ${printFormat === 'A4' ? '7px' : '9px'};
-            }
-            .legend-grid {
-              display: grid;
-              grid-template-columns: repeat(${printFormat === 'A4' ? '3' : '4'}, 1fr);
-              gap: 5px;
-            }
-            .legend-item { 
-              border: 1px solid #ccc; 
-              padding: 3px; 
-              display: flex;
-              align-items: center;
-            }
-            .legend-code {
-              min-width: 30px;
+              line-height: 1;
+              min-width: ${printFormat === 'A4' ? '18px' : '22px'};
               text-align: center;
-              font-weight: bold;
-              margin-right: 5px;
-              padding: 2px;
             }
+            
+            /* Alternance de lignes */
+            .planning-table tbody tr:nth-child(even):not(.category-row) {
+              background: #fafafa;
+            }
+            
+            /* Saut de page */
             .page-break { page-break-before: always; }
             
-            /* Styles spécifiques pour les codes d'absence */
+            /* Nouvelle légende horizontale compacte */
+            .legend-section { 
+              margin-top: 25px; 
+              page-break-inside: avoid;
+              border-top: 2px solid #e5e7eb;
+              padding-top: 15px;
+            }
+            .legend-title {
+              font-size: ${printFormat === 'A4' ? '12px' : '14px'};
+              font-weight: 700;
+              color: #1f2937;
+              margin-bottom: 10px;
+              text-align: center;
+            }
+            .legend-categories {
+              display: flex;
+              justify-content: space-between;
+              gap: 15px;
+            }
+            .legend-category {
+              flex: 1;
+              min-width: 0;
+            }
+            .legend-category-title {
+              font-size: ${printFormat === 'A4' ? '9px' : '11px'};
+              font-weight: 600;
+              color: #4b5563;
+              margin-bottom: 5px;
+              text-align: center;
+              border-bottom: 1px solid #d1d5db;
+              padding-bottom: 2px;
+            }
+            .legend-items {
+              display: flex;
+              flex-wrap: wrap;
+              gap: ${printFormat === 'A4' ? '3px' : '4px'};
+              justify-content: center;
+            }
+            .legend-badge {
+              display: inline-block;
+              padding: ${printFormat === 'A4' ? '1px 3px' : '2px 4px'};
+              border-radius: 3px;
+              font-weight: 700;
+              font-size: ${printFormat === 'A4' ? '6px' : '7px'};
+              line-height: 1;
+              min-width: ${printFormat === 'A4' ? '16px' : '18px'};
+              text-align: center;
+            }
+            
+            /* Styles spécifiques pour chaque code d'absence */
             ${Object.entries(absenceColorMap).map(([code, info]) => {
               const colorMap = {
-                'bg-red-500': '#ef4444', 'bg-red-400': '#f87171', 'bg-red-600': '#dc2626',
+                'bg-red-500': '#ef4444', 'bg-red-400': '#f87171', 'bg-red-600': '#dc2626', 'bg-red-700': '#b91c1c',
                 'bg-gray-600': '#4b5563', 'bg-gray-400': '#9ca3af', 'bg-gray-500': '#6b7280',
                 'bg-purple-500': '#8b5cf6', 'bg-pink-500': '#ec4899', 'bg-pink-400': '#f472b6',
                 'bg-blue-500': '#3b82f6', 'bg-blue-400': '#60a5fa', 'bg-indigo-500': '#6366f1',
@@ -565,7 +665,10 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               const bgColor = colorMap[info.color] || '#6b7280';
               const textColor = info.textColor.includes('white') ? 'white' : 'black';
               
-              return `.absence-${code} { background-color: ${bgColor}; color: ${textColor}; }`;
+              return `.absence-${code}, .legend-${code} { 
+                background-color: ${bgColor} !important; 
+                color: ${textColor} !important; 
+              }`;
             }).join('\n')}
           </style>
         </head>
