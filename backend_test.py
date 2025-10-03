@@ -130,51 +130,55 @@ class BackendTester:
             
         self.results["authentication"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["authentication"]["details"]) else "fail"
         
-    def test_delegation_hours(self):
+    def test_delegation_hours(self, auth_token=None):
         """Test delegation hours module endpoints"""
         print("\n=== Testing Delegation Hours Module ===")
         
-        # Check for delegation hours related endpoints
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
+        
+        # Test actual delegation endpoints from server.py
         delegation_endpoints = [
-            "/delegation", "/delegation-hours", "/delegations", "/hours", 
-            "/absence", "/absences", "/leave", "/motifs", "/delegation/hours"
+            "/delegation/delegates",
+            "/delegation/usage", 
+            "/delegation/cessions",
+            "/absence-types",
+            "/absence-requests"
         ]
         
-        found_delegation_endpoint = False
         for endpoint in delegation_endpoints:
             try:
-                response = requests.get(f"{API_URL}{endpoint}", timeout=5)
-                if response.status_code != 404:
-                    found_delegation_endpoint = True
-                    self.log_result("delegation_hours", True, f"Found delegation endpoint: {endpoint} (status: {response.status_code})")
-                    
-                    # If it's a GET endpoint that works, try to get data
-                    if response.status_code == 200:
-                        try:
-                            data = response.json()
-                            self.log_result("delegation_hours", True, f"GET {endpoint} returned data: {len(data) if isinstance(data, list) else 'object'}")
-                        except:
-                            self.log_result("delegation_hours", True, f"GET {endpoint} returned non-JSON response")
-            except:
-                continue
-                
-        if not found_delegation_endpoint:
-            self.log_result("delegation_hours", False, "No delegation hours endpoints found. Expected endpoints for absence types, delegation management, etc.")
-            
-        # Test for specific absence types mentioned in requirements
-        absence_types = ["arrêt maladie", "congé", "formation", "mission"]
-        for absence_type in absence_types:
-            try:
-                response = requests.get(f"{API_URL}/absence-types", timeout=5)
+                response = requests.get(f"{API_URL}{endpoint}", headers=headers, timeout=5)
                 if response.status_code == 200:
                     data = response.json()
-                    if any(absence_type.lower() in str(item).lower() for item in data):
-                        self.log_result("delegation_hours", True, f"Found absence type: {absence_type}")
-                    else:
-                        self.log_result("delegation_hours", False, f"Absence type not found: {absence_type}")
-                    break
-            except:
-                continue
+                    self.log_result("delegation_hours", True, f"GET {endpoint} works, returned {len(data) if isinstance(data, list) else 'object'} items")
+                elif response.status_code == 401:
+                    self.log_result("delegation_hours", True, f"GET {endpoint} requires authentication (endpoint exists)")
+                elif response.status_code == 403:
+                    self.log_result("delegation_hours", True, f"GET {endpoint} requires proper permissions (endpoint exists)")
+                else:
+                    self.log_result("delegation_hours", False, f"GET {endpoint} returned {response.status_code}")
+            except Exception as e:
+                self.log_result("delegation_hours", False, f"Error testing {endpoint}: {str(e)}")
+                
+        # Test specific absence types for monthly planning
+        try:
+            response = requests.get(f"{API_URL}/absence-types", headers=headers, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                required_codes = ["CA", "AM", "REC", "DEL", "TEL", "FO", "CT", "MAT", "STG"]
+                found_codes = []
+                for item in data:
+                    if isinstance(item, dict) and item.get('code') in required_codes:
+                        found_codes.append(item.get('code'))
+                
+                if found_codes:
+                    self.log_result("delegation_hours", True, f"Found absence codes for monthly planning: {', '.join(found_codes)}")
+                else:
+                    self.log_result("delegation_hours", False, "No required absence codes found for monthly planning")
+            else:
+                self.log_result("delegation_hours", False, f"Cannot retrieve absence types: {response.status_code}")
+        except Exception as e:
+            self.log_result("delegation_hours", False, f"Error testing absence types: {str(e)}")
                 
         self.results["delegation_hours"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["delegation_hours"]["details"]) else "fail"
         
