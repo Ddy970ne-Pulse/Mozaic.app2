@@ -12,6 +12,11 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const [showLegendDetails, setShowLegendDetails] = useState(false);
   const [showPrintOptions, setShowPrintOptions] = useState(false);
   const [printFormat, setPrintFormat] = useState('A4'); // A4 ou A3
+  
+  // Nouvelle fonctionnalité : Période personnalisée
+  const [useCustomPeriod, setUseCustomPeriod] = useState(false);
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
   const [requests, setRequests] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [onCallData, setOnCallData] = useState({});
