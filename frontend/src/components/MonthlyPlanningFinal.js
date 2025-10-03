@@ -838,29 +838,41 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
   };
 
   const generateModernLegend = () => {
-    // Regrouper les codes par catégorie pour une légende plus organisée
-    const categories = {
-      'Congés & Temps Libre': ['CA', 'RTT', 'CT', 'REC', 'RH', 'RHD'],
-      'Congés Spéciaux': ['MAT', 'PAT', 'FAM', 'FO', 'CEX', 'CSS'],
-      'Santé & Accidents': ['AM', 'AT', 'MPRO', 'EMAL', 'RMED'],
-      'Formation & Travail': ['STG', 'DEL', 'TEL', 'AST'],
-      'Absences': ['NAUT', 'AUT']
-    };
-
+    // Légende simplifiée et claire - TABLE FORMAT
+    const mainCodes = ['CA', 'AM', 'REC', 'AST', 'DEL', 'TEL', 'MAT', 'AT', 'FO', 'CT'];
+    
     return `
       <div class="legend-section">
-        <div class="legend-title">Légende des Codes d'Absence</div>
-        <div class="legend-categories">
-          ${Object.entries(categories).map(([categoryName, codes]) => `
-            <div class="legend-category">
-              <div class="legend-category-title">${categoryName}</div>
-              <div class="legend-items">
-                ${codes.filter(code => absenceColorMap[code]).map(code => 
-                  `<span class="legend-badge legend-${code}" title="${absenceColorMap[code].name}">${code}</span>`
-                ).join('')}
-              </div>
-            </div>
-          `).join('')}
+        <div class="legend-title">Codes d'Absence - Significations</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <tr style="background: #f8f9fa; font-weight: 600;">
+            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Code</td>
+            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Signification</td>
+            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Type</td>
+            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Code</td>
+            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Signification</td>
+            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Type</td>
+          </tr>
+          ${Array.from({length: Math.ceil(mainCodes.length/2)}, (_, i) => {
+            const leftCode = mainCodes[i*2];
+            const rightCode = mainCodes[i*2 + 1];
+            const leftInfo = absenceColorMap[leftCode];
+            const rightInfo = rightCode ? absenceColorMap[rightCode] : null;
+            
+            return `
+              <tr>
+                <td style="border: 1px solid #dee2e6; padding: 6px; font-weight: bold; text-align: center; background: #f1f5f9;">${leftCode}</td>
+                <td style="border: 1px solid #dee2e6; padding: 6px;">${leftInfo?.name || ''}</td>
+                <td style="border: 1px solid #dee2e6; padding: 6px; font-size: ${printFormat === 'A4' ? '7px' : '8px'}; color: #6b7280;">${leftInfo?.type || ''}</td>
+                <td style="border: 1px solid #dee2e6; padding: 6px; font-weight: bold; text-align: center; background: #f1f5f9;">${rightCode || ''}</td>
+                <td style="border: 1px solid #dee2e6; padding: 6px;">${rightInfo?.name || ''}</td>
+                <td style="border: 1px solid #dee2e6; padding: 6px; font-size: ${printFormat === 'A4' ? '7px' : '8px'}; color: #6b7280;">${rightInfo?.type || ''}</td>
+              </tr>
+            `;
+          }).join('')}
+        </table>
+        <div style="margin-top: 8px; font-size: ${printFormat === 'A4' ? '7px' : '8px'}; color: #6b7280; text-align: center;">
+          Planning généré le ${new Date().toLocaleDateString('fr-FR')} • MOZAIK RH • Conforme CCN66
         </div>
       </div>
     `;
