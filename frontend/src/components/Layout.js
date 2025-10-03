@@ -106,54 +106,77 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        <div className="flex items-center justify-between px-4 py-3">
+    <div className="min-h-screen bg-gray-25">
+      {/* Header Modern - Inspiré BambooHR */}
+      <header className="bg-white shadow-sm border-b border-gray-200/60 sticky top-0 z-40 backdrop-blur-sm bg-white/95">
+        <div className="flex items-center justify-between px-6 py-4">
           {/* Menu Button & Logo */}
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="relative w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95"
+              className="relative p-2.5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl text-white hover:from-blue-700 hover:to-blue-800 transition-all duration-250 shadow-lg hover:shadow-xl transform hover:scale-105 group"
+              aria-label="Menu"
             >
               <div className="flex flex-col space-y-1">
                 <div className={`w-4 h-0.5 bg-white transition-all duration-300 ${showMenu ? 'rotate-45 translate-y-1.5' : ''}`}></div>
                 <div className={`w-4 h-0.5 bg-white transition-all duration-300 ${showMenu ? 'opacity-0' : ''}`}></div>
                 <div className={`w-4 h-0.5 bg-white transition-all duration-300 ${showMenu ? '-rotate-45 -translate-y-1.5' : ''}`}></div>
               </div>
-              {/* Indicateurs colorés */}
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+              {/* Badge de statut */}
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full ring-2 ring-white animate-pulse"></div>
             </button>
             
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-lg flex items-center justify-center transform rotate-12">
-                <span className="text-white font-bold text-sm transform -rotate-12">M</span>
+            <div className="flex items-center space-x-4">
+              {/* Logo moderne */}
+              <div className="relative">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">M</span>
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full ring-2 ring-white"></div>
               </div>
+              
               {!isMobile && (
-                <div>
-                  <h1 className="text-xl font-bold text-gray-800">{getCurrentPageTitle()}</h1>
-                  <p className="text-sm text-gray-500">MOZAIK RH</p>
+                <div className="flex flex-col">
+                  <h1 className="text-xl font-bold text-gray-900 tracking-tight">{getCurrentPageTitle()}</h1>
+                  <p className="text-sm text-gray-500 font-medium">MOZAIK RH • Gestion moderne</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* User Info & Actions */}
-          <div className={`flex items-center ${isMobile ? 'space-x-3' : 'space-x-6'}`}>
+          {/* User Info & Actions - Style moderne */}
+          <div className={`flex items-center ${isMobile ? 'space-x-2' : 'space-x-4'}`}>
+            {/* Notifications */}
             {!isMobile && (
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-700">{user.name}</p>
-                <p className="text-xs text-gray-500">{user.role} • {user.department}</p>
+              <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-3.5-3.5a8.38 8.38 0 010-11L21 8h-5M9 17H4l3.5-3.5a8.38 8.38 0 010-11L3 8h5" />
+                </svg>
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+            )}
+            
+            {/* User profile */}
+            {!isMobile && (
+              <div className="flex items-center space-x-3 bg-gray-50 rounded-xl px-4 py-2 border border-gray-200/60">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-semibold text-sm">{user.name.charAt(0)}</span>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-gray-900">{user.name}</p>
+                  <p className="text-xs text-gray-500">{user.role} • {user.department}</p>
+                </div>
               </div>
             )}
             
-            <div className="flex items-center space-x-2">
+            {/* Actions */}
+            <div className="flex items-center space-x-1">
               <button
                 onClick={() => setCurrentView('settings')}
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all duration-200"
+                className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 group"
                 title="Paramètres"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -161,7 +184,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
               
               <button
                 onClick={onLogout}
-                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200"
+                className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
                 title="Déconnexion"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
