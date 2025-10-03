@@ -756,6 +756,64 @@ const Analytics = ({ user }) => {
           </div>
         </div>
       </div>
+        </>
+      )}
+      
+      {/* Vue Mensuelle */}
+      {viewMode === 'monthly' && (
+        <>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-gray-800">Vue Mensuelle Détaillée</h2>
+              <p className="text-gray-600 mt-2">Sélectionnez un mois spécifique pour voir les détails complets</p>
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                {['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'].map((month, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedMonth(index)}
+                    className={`p-3 rounded-lg border transition-all duration-200 ${
+                      selectedMonth === index 
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700' 
+                        : 'border-gray-200 hover:border-emerald-300'
+                    }`}
+                  >
+                    {month} {selectedYear}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Données mensuelle détaillée */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Détails pour {['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'][selectedMonth]} {selectedYear}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-blue-700">{monthlyData[selectedMonth]?.cp || 0}</div>
+                <div className="text-sm text-blue-600">Congés Payés</div>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-green-700">{monthlyData[selectedMonth]?.rtt || 0}</div>
+                <div className="text-sm text-green-600">RTT</div>
+              </div>
+              <div className="bg-red-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-red-700">{monthlyData[selectedMonth]?.am || 0}</div>
+                <div className="text-sm text-red-600">Arrêts Maladie</div>
+              </div>
+              <div className="bg-purple-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-purple-700">{monthlyData[selectedMonth]?.formation || 0}</div>
+                <div className="text-sm text-purple-600">Formation</div>
+              </div>
+              <div className="bg-orange-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-orange-700">{monthlyData[selectedMonth]?.autres || 0}</div>
+                <div className="text-sm text-orange-600">Autres</div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
