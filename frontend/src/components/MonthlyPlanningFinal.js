@@ -446,13 +446,13 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     return new Date(selectedYear, selectedMonth, day).getDay();
   };
 
-  const isWeekend = (day) => {
-    const dayOfWeek = getDayOfWeek(day);
-    return dayOfWeek === 0 || dayOfWeek === 6;
+  const isWeekend = (day, month = selectedMonth, year = selectedYear) => {
+    const date = new Date(year, month, day);
+    return date.getDay() === 0 || date.getDay() === 6;
   };
 
-  const isHoliday = (day) => {
-    const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const isHoliday = (day, month = selectedMonth, year = selectedYear) => {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     return holidays2025.includes(dateStr);
   };
 
