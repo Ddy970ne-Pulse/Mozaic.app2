@@ -226,8 +226,6 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
       </header>
 
       {/* Menu BambooHR Style - Overlay complet */}
-
-      {/* Menu BambooHR Style - Overlay complet */}
       {showMenu && (
         <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm">
           <div className="absolute inset-6 bg-white rounded-3xl shadow-2xl overflow-hidden">
