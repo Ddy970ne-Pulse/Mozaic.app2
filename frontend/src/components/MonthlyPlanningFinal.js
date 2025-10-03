@@ -733,9 +733,9 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               if (isHol) headerClass += ' holiday-header';
               
               return `<th class="${headerClass}">
-                <div><strong>${dayName}</strong></div>
-                <div>${day}</div>
-                ${isHol ? '<div><strong>F</strong></div>' : ''}
+                <div style="font-weight: bold; margin-bottom: 1px;">${dayName}</div>
+                <div style="font-size: ${printFormat === 'A4' ? '10px' : '12px'};">${day}</div>
+                ${isHol ? '<div style="color: #dc2626; font-weight: bold; font-size: 8px;">F</div>' : ''}
               </th>`;
             }).join('')}
           </tr>
