@@ -777,10 +777,20 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
   };
 
   const generatePrintableContent = () => {
-    const daysInMonth = getDaysInMonth();
-    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    const monthName = `${monthNames[selectedMonth]} ${selectedYear}`;
+    const dateRange = getDateRange();
     const totalEmployees = Object.values(groupedEmployees).reduce((acc, emps) => acc + emps.length, 0);
+    
+    // Titre adaptatif selon le mode
+    let periodTitle;
+    if (useCustomPeriod && customStartDate && customEndDate) {
+      const startDate = new Date(customStartDate);
+      const endDate = new Date(customEndDate);
+      const startStr = startDate.toLocaleDateString('fr-FR');
+      const endStr = endDate.toLocaleDateString('fr-FR');
+      periodTitle = `Planning Personnalisé - ${startStr} au ${endStr}`;
+    } else {
+      periodTitle = `Planning Mensuel - ${monthNames[selectedMonth]} ${selectedYear}`;
+    }
     
     let content = `
       <div class="page-header">
