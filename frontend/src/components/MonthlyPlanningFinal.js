@@ -585,16 +585,17 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               background: #fef7f7 !important; 
             }
             
-            /* Codes d'absence - badges arrondis comme l'interface */
+            /* Codes d'absence - badges plus lisibles */
             .absence-badge { 
               display: inline-block;
-              padding: ${printFormat === 'A4' ? '2px 4px' : '3px 5px'};
-              border-radius: 4px;
+              padding: ${printFormat === 'A4' ? '3px 5px' : '4px 6px'};
+              border-radius: 3px;
               font-weight: 700;
-              font-size: ${printFormat === 'A4' ? '7px' : '9px'};
-              line-height: 1;
-              min-width: ${printFormat === 'A4' ? '18px' : '22px'};
+              font-size: ${printFormat === 'A4' ? '8px' : '10px'};
+              line-height: 1.2;
+              min-width: ${printFormat === 'A4' ? '20px' : '24px'};
               text-align: center;
+              border: 1px solid rgba(0,0,0,0.2) !important;
             }
             
             /* Alternance de lignes */
