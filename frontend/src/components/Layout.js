@@ -196,63 +196,106 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
         </div>
       </header>
 
-      {/* Menu iPad Style */}
+      {/* Menu Navigation Moderne - Style BambooHR */}
       {showMenu && (
-        <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm">
-          <div className="absolute inset-6 bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 overflow-y-auto">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-xl flex items-center justify-center transform rotate-12">
-                  <span className="text-white font-bold transform -rotate-12">M</span>
+        <div className="fixed inset-0 z-50 bg-gray-900/30 backdrop-blur-sm">
+          <div className="absolute inset-4 bg-white rounded-2xl shadow-2xl border border-gray-200/20 overflow-hidden">
+            {/* Header du menu */}
+            <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-8 py-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
+                    <span className="text-white font-bold text-xl">M</span>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">MOZAIK RH</h2>
+                    <p className="text-blue-100/80 text-sm">Plateforme de gestion moderne</p>
+                  </div>
                 </div>
-                <h2 className="text-2xl font-bold text-white">MOZAIK RH</h2>
+                <button
+                  onClick={() => setShowMenu(false)}
+                  className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 backdrop-blur-sm"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <button
-                onClick={() => setShowMenu(false)}
-                className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all duration-200"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
             </div>
             
-            <div className={`grid gap-6 ${isMobile ? 'grid-cols-2' : 'grid-cols-4'}`}>
-              {menuItems.map((item, index) => (
-                <button
-                  key={item.id}
-                  data-testid={`menu-${item.id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log(`Navigating to ${item.id}`);
-                    setCurrentView(item.id);
-                    setShowMenu(false);
-                  }}
-                  className={`group relative p-6 bg-gradient-to-br ${item.color} rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden`}
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                    animation: 'fadeInUp 0.6s ease-out forwards'
-                  }}
-                >
-                  <div className="text-center relative z-10">
-                    <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300">
-                      {item.icon}
+            {/* Grid de navigation */}
+            <div className="p-8 overflow-y-auto max-h-[calc(100vh-200px)]">
+              <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'}`}>
+                {menuItems.map((item, index) => (
+                  <button
+                    key={item.id}
+                    data-testid={`menu-${item.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log(`Navigating to ${item.id}`);
+                      setCurrentView(item.id);
+                      setShowMenu(false);
+                    }}
+                    className={`group relative overflow-hidden rounded-xl p-6 text-left transition-all duration-300 hover:scale-102 hover:shadow-lg ${
+                      currentView === item.id
+                        ? 'bg-blue-50 border-2 border-blue-200 shadow-md'
+                        : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent hover:border-gray-200'
+                    }`}
+                    style={{
+                      animationDelay: `${index * 30}ms`
+                    }}
+                  >
+                    {/* Icône et contenu */}
+                    <div className="relative z-10">
+                      <div className={`mb-3 text-2xl transition-transform duration-300 ${
+                        currentView === item.id ? 'transform scale-110' : 'group-hover:scale-105'
+                      }`}>
+                        {item.icon}
+                      </div>
+                      <h3 className={`font-semibold text-sm leading-tight ${
+                        currentView === item.id ? 'text-blue-900' : 'text-gray-900'
+                      }`}>
+                        {item.name}
+                      </h3>
                     </div>
-                    <h3 className="text-white font-semibold text-sm leading-tight">
-                      {item.name}
-                    </h3>
-                  </div>
-                  
-                  {/* Active indicator */}
-                  {currentView === item.id && (
-                    <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                  )}
-                  
-                  {/* Hover effect */}
-                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </button>
-              ))}
+                    
+                    {/* Gradient d'arrière-plan */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${item.color} ${
+                      currentView === item.id ? 'opacity-10' : 'opacity-0 group-hover:opacity-5'
+                    } transition-opacity duration-300`}></div>
+                    
+                    {/* Indicateur actif */}
+                    {currentView === item.id && (
+                      <div className="absolute top-3 right-3 w-3 h-3 bg-blue-500 rounded-full">
+                        <div className="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-75"></div>
+                      </div>
+                    )}
+                    
+                    {/* Bordure animée */}
+                    <div className={`absolute inset-0 border-2 rounded-xl transition-all duration-300 ${
+                      currentView === item.id 
+                        ? 'border-blue-300' 
+                        : 'border-transparent group-hover:border-gray-300'
+                    }`}></div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer moderne */}
+            <div className="bg-gray-50 px-8 py-4 border-t border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3 text-sm text-gray-600">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                  <span className="font-medium">Système opérationnel</span>
+                  <span className="text-gray-400">•</span>
+                  <span>{user.name}</span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  © 2025 MOZAIK RH
+                </div>
+              </div>
             </div>
           </div>
         </div>
