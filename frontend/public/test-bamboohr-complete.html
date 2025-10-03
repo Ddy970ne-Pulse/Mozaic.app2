@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOZAIK RH - Style BambooHR Complet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hover\:scale-105:hover { transform: scale(1.05); }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .animate-float { animation: float 2s ease-in-out infinite; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header BambooHR Style - Bannière Verte Dominante -->
+    <header class="bg-green-800 text-white sticky top-0 z-40 shadow-lg">
+        <div class="px-6 py-4">
+            <!-- Bannière Utilisateur Principale - Style BambooHR -->
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-4">
+                    <!-- Avatar utilisateur circulaire -->
+                    <div class="w-16 h-16 bg-white rounded-full p-1 shadow-lg animate-float">
+                        <div class="w-full h-full bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">🐼</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col">
+                        <h1 class="text-3xl font-bold text-white">Sophie Martin</h1>
+                        <p class="text-green-100 text-lg font-medium">Sr. HR Administrator</p>
+                    </div>
+                </div>
+                
+                <!-- Actions Utilisateur -->
+                <div class="flex items-center space-x-3">
+                    <button class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 backdrop-blur-sm">
+                        Demander une modification
+                    </button>
+                    
+                    <button class="p-2 text-white hover:bg-white/20 rounded-lg transition-all duration-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Navigation Principale Horizontale - Style BambooHR -->
+            <div class="flex items-center space-x-1 bg-white/10 backdrop-blur-sm rounded-xl p-2">
+                <button class="px-4 py-2 rounded-lg font-medium text-white hover:bg-white/20 transition-all duration-200">
+                    <span class="mr-2">🏠</span>Personnel
+                </button>
+                <button class="px-4 py-2 rounded-lg font-medium text-white hover:bg-white/20 transition-all duration-200">
+                    <span class="mr-2">💼</span>Job
+                </button>
+                <button class="px-4 py-2 rounded-lg font-medium text-white hover:bg-white/20 transition-all duration-200">
+                    <span class="mr-2">🏖️</span>Congés
+                </button>
+                <button class="px-4 py-2 rounded-lg font-medium text-white hover:bg-white/20 transition-all duration-200">
+                    <span class="mr-2">📄</span>Documents
+                </button>
+                <button class="px-4 py-2 rounded-lg font-medium text-white hover:bg-white/20 transition-all duration-200">
+                    <span class="mr-2">🏥</span>Avantages
+                </button>
+                <button class="bg-white text-green-800 shadow-md px-4 py-2 rounded-lg font-medium transition-all duration-200">
+                    <span class="mr-2">💰</span>Paie Info
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Layout 3-colonnes BambooHR -->
+    <div class="flex min-h-screen">
+        <!-- Sidebar Gauche - Style BambooHR -->
+        <div class="w-80 bg-white shadow-sm border-r border-gray-200 p-6">
+            <!-- Section Home -->
+            <div class="mb-8">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Accueil</h3>
+                </div>
+            </div>
+
+            <!-- Time Clock - Style BambooHR -->
+            <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-6 h-6 text-green-600">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                            <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
+                        </svg>
+                    </div>
+                    <h4 class="font-bold text-gray-900">Pointeuse</h4>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <div class="text-3xl font-bold text-gray-900 mb-1">8h 05m</div>
+                    <div class="text-sm text-gray-600">Aujourd'hui</div>
+                </div>
+                
+                <button class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-full transition-colors duration-200 mb-4 hover:scale-105 transform transition-transform">
+                    Pointer
+                </button>
+                
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Cette semaine</span>
+                        <span class="font-semibold">32h 15m</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Ce mois</span>
+                        <span class="font-semibold">142h 30m</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Congés - Style BambooHR -->
+            <div class="bg-gray-50 rounded-xl p-6">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-6 h-6 text-green-600">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-3V2h-2v2H8V2H6v2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H3V9h14v11z"/>
+                        </svg>
+                    </div>
+                    <h4 class="font-bold text-gray-900">Congés</h4>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Vacances</span>
+                        <span class="font-semibold text-sm">15 jours</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Jours maladie</span>
+                        <span class="font-semibold text-sm">3 jours</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenu Principal - Centre -->
+        <div class="flex-1 p-8">
+            <!-- Section principale - Style BambooHR -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">MOZAIK RH SE</h2>
+                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                        <span>1er avril 2025 - 30 avril 2025</span>
+                        <span>•</span>
+                        <span>Période de paie actuelle</span>
+                    </div>
+                </div>
+                
+                <!-- Graphique de tendance - Style BambooHR -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <div class="text-sm text-gray-600 mb-1">Salaire Brut Total</div>
+                            <div class="text-3xl font-bold text-gray-900">5 085,04 €</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-600 mb-1">Prochaine paie</div>
+                            <div class="text-lg font-semibold text-gray-900">1 avril 2025</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Simulation graphique linéaire -->
+                    <div class="bg-gray-50 rounded-lg p-6 h-32 flex items-end space-x-1">
+                        <div class="flex-1 bg-green-500 rounded-t opacity-80" style="height: 40%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t opacity-90" style="height: 60%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t opacity-70" style="height: 45%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t opacity-95" style="height: 75%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t opacity-85" style="height: 50%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t" style="height: 80%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t opacity-90" style="height: 65%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t" style="height: 90%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t opacity-85" style="height: 70%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t" style="height: 85%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t opacity-90" style="height: 75%"></div>
+                        <div class="flex-1 bg-green-500 rounded-t" style="height: 100%"></div>
+                    </div>
+                </div>
+                
+                <!-- Détails financiers -->
+                <div class="grid grid-cols-3 gap-6">
+                    <div>
+                        <div class="text-sm text-gray-600 mb-1">Salaire brut</div>
+                        <div class="text-xl font-bold text-gray-900">4 550,00 €</div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-600 mb-1">Taxes</div>
+                        <div class="text-xl font-bold text-pink-600">618,85 €</div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-600 mb-1">Déductions</div>
+                        <div class="text-xl font-bold text-orange-600">50,00 €</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Droite - Cards BambooHR -->
+        <div class="w-80 p-6 space-y-6">
+            <!-- Card Vitals -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="font-bold text-gray-900 mb-4">Vitals</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">📞 portable</span>
+                        <span class="font-medium">06.12.34.56.78</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">✉️ Email</span>
+                        <span class="font-medium">sophie@company.fr</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">📍 Statut</span>
+                        <span class="font-medium text-green-600">Actif</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">🏢 Département</span>
+                        <span class="font-medium">Direction</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">📍 Lieu</span>
+                        <span class="font-medium">Paris</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Benefits -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="font-bold text-gray-900 mb-4">Avantages</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="font-medium text-gray-900 mb-1">Mutuelle Santé</div>
+                        <div class="text-sm text-gray-600 mb-1">Effective: 1er janvier 2025</div>
+                        <div class="text-sm text-gray-600 mb-3">Fréquence: Mensuelle</div>
+                        <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 transform">
+                            S'inscrire
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Graphique Circulaire -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="font-bold text-gray-900 mb-4">Cumul Année</h3>
+                <div class="relative flex justify-center mb-4">
+                    <!-- Simulation graphique circulaire -->
+                    <div class="w-32 h-32 relative">
+                        <svg class="w-full h-full" viewBox="0 0 100 100">
+                            <!-- Cercle de base -->
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+                            <!-- Segments colorés -->
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#22c55e" stroke-width="8" 
+                                    stroke-dasharray="75 251" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#ec4899" stroke-width="8" 
+                                    stroke-dasharray="50 251" stroke-dashoffset="-75" transform="rotate(-90 50 50)"/>
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#f97316" stroke-width="8" 
+                                    stroke-dasharray="25 251" stroke-dashoffset="-125" transform="rotate(-90 50 50)"/>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-lg font-bold text-gray-900">67 600 €</div>
+                                <div class="text-xs text-gray-600">Total Brut</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span class="text-gray-600">En poche</span>
+                        </div>
+                        <span class="font-semibold">2 379 €</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-pink-500 rounded-full"></div>
+                            <span class="text-gray-600">Taxes</span>
+                        </div>
+                        <span class="font-semibold">1 198,46 €</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                            <span class="text-gray-600">Déductions</span>
+                        </div>
+                        <span class="font-semibold">150 €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast d'information -->
+    <div class="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-3 animate-float">
+        <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+        <div>
+            <div class="font-semibold">MOZAIK RH - Style BambooHR</div>
+            <div class="text-sm text-green-100">Interface complètement adaptée</div>
+        </div>
+    </div>
+
+    <script>
+        // Animation d'entrée pour les cartes
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('[class*="rounded-xl"]');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease-out';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
