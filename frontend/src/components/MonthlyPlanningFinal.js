@@ -1015,13 +1015,17 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                     <td className="border border-gray-200 px-2 py-2 text-center font-bold text-lg">
                       {employee.totalAbsenceDays}
                     </td>
-                    {days.map(day => {
-                      const absence = employee.absences[day.toString()];
-                      const isWknd = isWeekend(day);
-                      const isHol = isHoliday(day);
+                    {dateRange.map((dateObj, index) => {
+                      const dayKey = useCustomPeriod ? 
+                        `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}` :
+                        dateObj.day.toString();
+                      
+                      const absence = employee.absences[dayKey] || employee.absences[dateObj.day.toString()];
+                      const isWknd = isWeekend(dateObj.day, dateObj.month, dateObj.year);
+                      const isHol = isHoliday(dateObj.day, dateObj.month, dateObj.year);
                       
                       // Vérifier si ce jour fait partie d'une semaine d'astreinte pour cet employé
-                      const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                      const dateStr = `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
                       const hasOnCall = isInOnCallWeek(employee.id, dateStr);
                       
                       // Priorité : Absence > Astreinte > Vide
@@ -1030,7 +1034,7 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                       
                       return (
                         <td 
-                          key={day} 
+                          key={`${dateObj.year}-${dateObj.month}-${dateObj.day}`} 
                           className={`border border-gray-200 px-1 py-1 text-center text-xs ${
                             isWknd && !displayCode ? 'bg-gray-50' : 
                             isHol && !displayCode ? 'bg-red-25' : ''
