@@ -536,6 +536,8 @@ test_plan:
   last_backend_test: "2025-01-27 - Monthly Planning & Print Support"
   bamboohr_transformation_complete: true
   last_bamboohr_test: "2025-01-27 - Complete BambooHR Transformation"
+  original_style_restoration_complete: true
+  last_original_style_test: "2025-01-27 - Original MOZAIK RH Style with Dynamic Graphics"
 
 agent_communication:
   - agent: "main"
