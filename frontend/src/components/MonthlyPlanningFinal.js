@@ -558,11 +558,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               color: #1f2937;
             }
             
-            /* En-têtes des jours */
+            /* En-têtes des jours - LISIBLES HORIZONTALEMENT */
             .day-header { 
-              width: ${printFormat === 'A4' ? '22px' : '28px'}; 
-              font-size: ${printFormat === 'A4' ? '8px' : '10px'};
-              line-height: 1.2;
+              width: ${printFormat === 'A4' ? '32px' : '40px'}; 
+              font-size: ${printFormat === 'A4' ? '9px' : '11px'};
+              line-height: 1.1;
+              padding: 4px 2px !important;
+              writing-mode: initial !important;
+              transform: none !important;
             }
             
             /* Week-end et jours fériés - style interface */
