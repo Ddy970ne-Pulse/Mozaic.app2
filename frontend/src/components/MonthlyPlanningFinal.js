@@ -972,21 +972,23 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                 <div className="text-xs">Jours</div>
                 <div className="text-xs">Absence</div>
               </th>
-              {days.map(day => {
-                const dayName = getDayName(day);
-                const isWknd = isWeekend(day);
-                const isHol = isHoliday(day);
+              {dateRange.map((dateObj, index) => {
+                const dayName = getDayName(dateObj);
+                const isWknd = isWeekend(dateObj.day, dateObj.month, dateObj.year);
+                const isHol = isHoliday(dateObj.day, dateObj.month, dateObj.year);
                 
                 return (
                   <th 
-                    key={day} 
+                    key={`${dateObj.year}-${dateObj.month}-${dateObj.day}`} 
                     className={`border border-gray-200 px-1 py-2 text-center text-xs font-medium min-w-[32px] ${
                       isWknd ? 'bg-gray-100 text-gray-500' : 
                       isHol ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-700'
                     }`}
                   >
                     <div className="font-bold">{dayName}</div>
-                    <div className="text-sm">{day}</div>
+                    <div className="text-sm">
+                      {useCustomPeriod ? `${dateObj.day}/${dateObj.month + 1}` : dateObj.day}
+                    </div>
                     {isHol && <div className="text-xs text-red-500 font-bold">F</div>}
                   </th>
                 );
