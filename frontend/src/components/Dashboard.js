@@ -124,20 +124,36 @@ const Dashboard = ({ user, onChangeView }) => {
       </div>
 
       <div className="space-y-6">
-        {/* Stats Cards */}
+        {/* Stats Cards Modernes */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
+          <div key={index} className="group bg-white rounded-xl p-6 shadow-sm border border-gray-200/60 hover:shadow-lg hover:border-blue-200 transition-all duration-300 hover:-translate-y-0.5">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">{stat.title}</p>
-                <p className="text-3xl font-bold text-gray-800">{stat.value}</p>
-                <p className={`text-sm mt-1 ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                  {stat.change} ce mois
-                </p>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">{stat.title}</p>
+                <p className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</p>
+                <div className="flex items-center">
+                  <span className={`text-sm font-medium flex items-center px-2 py-1 rounded-full ${
+                    stat.change.startsWith('+') 
+                      ? 'text-emerald-700 bg-emerald-50' 
+                      : 'text-red-700 bg-red-50'
+                  }`}>
+                    {stat.change.startsWith('+') ? (
+                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M7 17l9.2-9.2M17 17V7H7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 7l-9.2 9.2M7 7v10h10" />
+                      </svg>
+                    )}
+                    {stat.change}
+                  </span>
+                </div>
               </div>
-              <div className={`w-12 h-12 rounded-lg ${stat.color} flex items-center justify-center text-white text-xl`}>
-                {stat.icon}
+              <div className={`relative w-16 h-16 ${stat.color} rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105`}>
+                <span className="relative z-10">{stat.icon}</span>
+                <div className={`absolute inset-0 ${stat.color} rounded-xl opacity-20 group-hover:opacity-30 transition-opacity duration-300`}></div>
               </div>
             </div>
           </div>
