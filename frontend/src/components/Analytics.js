@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
 
 const Analytics = ({ user }) => {
-  const [viewMode, setViewMode] = useState('annual'); // annual or monthly
+  const [viewMode, setViewMode] = useState('turnover'); // turnover, absences, monthly
   const [selectedYear, setSelectedYear] = useState(2024);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+
+  // Données de roulement du personnel (Personnel Turnover)
+  const turnoverData = {
+    totalTurnoverRate: 26.2,
+    totalDepartures: 13,
+    monthlyAverageRate: 2.0,
+    monthlyAverageDepartures: 1,
+    last30DaysRate: 2.4,
+    last30DaysDepartures: 2,
+    periodLabel: 'Oct 2024 - Oct 2025',
+    comparisonLastYear: '+3.2%',
+    trend: 'increasing'
+  };
 
   const annualData = {
     totalAbsences: 1542,
