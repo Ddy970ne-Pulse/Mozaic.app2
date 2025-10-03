@@ -1017,7 +1017,7 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               <React.Fragment key={category}>
                 {/* En-tête de catégorie */}
                 <tr className="bg-blue-50">
-                  <td colSpan={days.length + 2} className="border border-gray-200 px-3 py-2 font-bold text-blue-800 text-center">
+                  <td colSpan={dateRange.length + 2} className="border border-gray-200 px-3 py-2 font-bold text-blue-800 text-center">
                     {category}
                   </td>
                 </tr>
