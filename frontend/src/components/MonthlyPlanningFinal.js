@@ -621,14 +621,79 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               text-align: left;
             }
             
-            /* FORCE des couleurs à l'impression - très important */
+            /* FORCE des couleurs à l'impression - SOLUTION RENFORCÉE */
             * {
               -webkit-print-color-adjust: exact !important;
               color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
             
-            /* Styles spécifiques pour chaque code d'absence - AVEC bordures pour impression N&B */
+            /* MODE IMPRESSION : Couleurs renforcées pour visibility papier */
+            @media print {
+              /* Règles générales impression */
+              .absence-badge, .legend-badge {
+                border: 2px solid #000 !important;
+                font-weight: 900 !important;
+                font-size: ${printFormat === 'A4' ? '9px' : '11px'} !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              
+              /* COULEURS SOMBRES SPÉCIFIQUES POUR IMPRESSION */
+              .absence-CA, .legend-CA { 
+                background-color: #1e3a8a !important; 
+                color: white !important;
+                border: 2px solid #1e3a8a !important;
+              }
+              .absence-AM, .legend-AM { 
+                background-color: #b91c1c !important; 
+                color: white !important;
+                border: 2px solid #b91c1c !important;
+              }
+              .absence-REC, .legend-REC { 
+                background-color: #166534 !important; 
+                color: white !important;
+                border: 2px solid #166534 !important;
+              }
+              .absence-AST, .legend-AST { 
+                background-color: #9a3412 !important; 
+                color: white !important;
+                border: 2px solid #9a3412 !important;
+              }
+              .absence-DEL, .legend-DEL { 
+                background-color: #581c87 !important; 
+                color: white !important;
+                border: 2px solid #581c87 !important;
+              }
+              .absence-TEL, .legend-TEL { 
+                background-color: #0f766e !important; 
+                color: white !important;
+                border: 2px solid #0f766e !important;
+              }
+              .absence-CT, .legend-CT { 
+                background-color: #c2410c !important; 
+                color: white !important;
+                border: 2px solid #c2410c !important;
+              }
+              .absence-AT, .legend-AT { 
+                background-color: #7c2d12 !important; 
+                color: white !important;
+                border: 2px solid #7c2d12 !important;
+              }
+              .absence-MAT, .legend-MAT { 
+                background-color: #be185d !important; 
+                color: white !important;
+                border: 2px solid #be185d !important;
+              }
+              .absence-FO, .legend-FO { 
+                background-color: #365314 !important; 
+                color: white !important;
+                border: 2px solid #365314 !important;
+              }
+            }
+            
+            /* COULEURS ÉCRAN (normales) - plus claires pour interface */
             ${Object.entries(absenceColorMap).map(([code, info]) => {
               const colorMap = {
                 'bg-red-500': '#ef4444', 'bg-red-400': '#f87171', 'bg-red-600': '#dc2626', 'bg-red-700': '#b91c1c',
@@ -646,29 +711,12 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               return `.absence-${code}, .legend-${code} { 
                 background-color: ${bgColor} !important; 
                 color: ${textColor} !important;
-                border: 2px solid ${bgColor} !important;
+                border: 1px solid rgba(0,0,0,0.2) !important;
                 -webkit-print-color-adjust: exact !important;
                 color-adjust: exact !important;
                 print-color-adjust: exact !important;
               }`;
             }).join('\n')}
-            
-            /* Alternative pour impression N&B si couleurs ne passent pas */
-            @media print {
-              .absence-badge, .legend-badge {
-                border: 2px solid #333 !important;
-                font-weight: 900 !important;
-                background: white !important;
-                color: #000 !important;
-                -webkit-print-color-adjust: exact !important;
-              }
-              
-              /* Patterns distinctifs pour impression N&B */
-              .absence-CA, .legend-CA { background: linear-gradient(45deg, #3b82f6 25%, transparent 25%) !important; }
-              .absence-AM, .legend-AM { background: linear-gradient(90deg, #ef4444 50%, white 50%) !important; }
-              .absence-REC, .legend-REC { background: repeating-linear-gradient(45deg, #10b981, #10b981 2px, white 2px, white 4px) !important; }
-              .absence-AST, .legend-AST { background: radial-gradient(circle, #ea580c 30%, white 30%) !important; }
-            }
           </style>
         </head>
         <body>
