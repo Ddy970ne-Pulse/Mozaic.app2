@@ -461,9 +461,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     return holidayNames[dateStr] || '';
   };
 
-  const getDayName = (day) => {
-    const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-    return dayNames[getDayOfWeek(day)];
+  const getDayName = (dateObj) => {
+    const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    if (typeof dateObj === 'object' && dateObj.fullDate) {
+      return days[dateObj.fullDate.getDay()];
+    }
+    // Fallback pour compatibilité
+    const date = new Date(selectedYear, selectedMonth, dateObj);
+    return days[date.getDay()];
   };
 
   // Génération des options d'années et mois
