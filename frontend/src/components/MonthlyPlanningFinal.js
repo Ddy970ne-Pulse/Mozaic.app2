@@ -804,15 +804,28 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     return content;
   };
 
-  const generatePrintableLegend = () => {
+  const generateModernLegend = () => {
+    // Regrouper les codes par catégorie pour une légende plus organisée
+    const categories = {
+      'Congés & Temps Libre': ['CA', 'RTT', 'CT', 'REC', 'RH', 'RHD'],
+      'Congés Spéciaux': ['MAT', 'PAT', 'FAM', 'FO', 'CEX', 'CSS'],
+      'Santé & Accidents': ['AM', 'AT', 'MPRO', 'EMAL', 'RMED'],
+      'Formation & Travail': ['STG', 'DEL', 'TEL', 'AST'],
+      'Absences': ['NAUT', 'AUT']
+    };
+
     return `
-      <div class="legend">
-        <h3>Légende des Codes d'Absence</h3>
-        <div class="legend-grid">
-          ${Object.entries(absenceColorMap).map(([code, info]) => `
-            <div class="legend-item">
-              <span class="legend-code absence-${code}">${code}</span>
-              <span>${info.name}</span>
+      <div class="legend-section">
+        <div class="legend-title">Légende des Codes d'Absence</div>
+        <div class="legend-categories">
+          ${Object.entries(categories).map(([categoryName, codes]) => `
+            <div class="legend-category">
+              <div class="legend-category-title">${categoryName}</div>
+              <div class="legend-items">
+                ${codes.filter(code => absenceColorMap[code]).map(code => 
+                  `<span class="legend-badge legend-${code}" title="${absenceColorMap[code].name}">${code}</span>`
+                ).join('')}
+              </div>
             </div>
           `).join('')}
         </div>
