@@ -606,53 +606,19 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
             /* Saut de page */
             .page-break { page-break-before: always; }
             
-            /* Nouvelle légende horizontale compacte */
+            /* Légende tableau - CLAIRE ET PROFESSIONNELLE */
             .legend-section { 
-              margin-top: 25px; 
+              margin-top: 20px; 
               page-break-inside: avoid;
-              border-top: 2px solid #e5e7eb;
+              border-top: 1px solid #d1d5db;
               padding-top: 15px;
             }
             .legend-title {
-              font-size: ${printFormat === 'A4' ? '12px' : '14px'};
-              font-weight: 700;
-              color: #1f2937;
-              margin-bottom: 10px;
-              text-align: center;
-            }
-            .legend-categories {
-              display: flex;
-              justify-content: space-between;
-              gap: 15px;
-            }
-            .legend-category {
-              flex: 1;
-              min-width: 0;
-            }
-            .legend-category-title {
-              font-size: ${printFormat === 'A4' ? '9px' : '11px'};
+              font-size: ${printFormat === 'A4' ? '11px' : '13px'};
               font-weight: 600;
-              color: #4b5563;
-              margin-bottom: 5px;
-              text-align: center;
-              border-bottom: 1px solid #d1d5db;
-              padding-bottom: 2px;
-            }
-            .legend-items {
-              display: flex;
-              flex-wrap: wrap;
-              gap: ${printFormat === 'A4' ? '3px' : '4px'};
-              justify-content: center;
-            }
-            .legend-badge {
-              display: inline-block;
-              padding: ${printFormat === 'A4' ? '1px 3px' : '2px 4px'};
-              border-radius: 3px;
-              font-weight: 700;
-              font-size: ${printFormat === 'A4' ? '6px' : '7px'};
-              line-height: 1;
-              min-width: ${printFormat === 'A4' ? '16px' : '18px'};
-              text-align: center;
+              color: #374151;
+              margin-bottom: 8px;
+              text-align: left;
             }
             
             /* FORCE des couleurs à l'impression - très important */
