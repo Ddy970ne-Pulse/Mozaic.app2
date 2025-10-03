@@ -98,66 +98,217 @@ const Dashboard = ({ user, onChangeView }) => {
   };
 
   return (
-    <div className="p-6 bg-gray-25 min-h-screen">
-      {/* Header moderne */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Tableau de Bord</h1>
-              <p className="text-gray-600 mt-1 font-medium">Vue d'ensemble de votre organisation</p>
+    <div className="bg-gray-50 min-h-screen">
+      {/* Layout 3-colonnes BambooHR */}
+      <div className="flex">
+        {/* Sidebar Gauche - Style BambooHR */}
+        <div className="w-80 bg-white shadow-sm border-r border-gray-200 min-h-screen p-6">
+          {/* Section Home */}
+          <div className="mb-8">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Accueil</h3>
             </div>
           </div>
-          <div className="bg-white rounded-xl px-4 py-3 border border-gray-200/60 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-            <p className="text-xs text-gray-500 flex items-center space-x-1">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-              <span>Mise à jour il y a 5 min</span>
-            </p>
+
+          {/* Time Clock - Style BambooHR */}
+          <div className="bg-gray-50 rounded-xl p-6 mb-8">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-6 h-6 text-green-600">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                  <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
+                </svg>
+              </div>
+              <h4 className="font-bold text-gray-900">Pointeuse</h4>
+            </div>
+            
+            <div className="text-center mb-4">
+              <div className="text-3xl font-bold text-gray-900 mb-1">8h 05m</div>
+              <div className="text-sm text-gray-600">Aujourd'hui</div>
+            </div>
+            
+            <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-full transition-colors duration-200 mb-4">
+              Pointer
+            </button>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Cette semaine</span>
+                <span className="font-semibold">32h 15m</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Ce mois</span>
+                <span className="font-semibold">142h 30m</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Congés - Style BambooHR */}
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-6 h-6 text-green-600">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-3V2h-2v2H8V2H6v2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H3V9h14v11z"/>
+                </svg>
+              </div>
+              <h4 className="font-bold text-gray-900">Congés</h4>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Vacances</span>
+                <span className="font-semibold text-sm">15 jours</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Jours maladie</span>
+                <span className="font-semibold text-sm">3 jours</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="space-y-6">
-        {/* Stats Cards Modernes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <div key={index} className="group bg-white rounded-xl p-6 shadow-sm border border-gray-200/60 hover:shadow-lg hover:border-blue-200 transition-all duration-300 hover:-translate-y-0.5">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">{stat.title}</p>
-                <p className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</p>
-                <div className="flex items-center">
-                  <span className={`text-sm font-medium flex items-center px-2 py-1 rounded-full ${
-                    stat.change.startsWith('+') 
-                      ? 'text-emerald-700 bg-emerald-50' 
-                      : 'text-red-700 bg-red-50'
-                  }`}>
-                    {stat.change.startsWith('+') ? (
-                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M7 17l9.2-9.2M17 17V7H7" />
-                      </svg>
-                    ) : (
-                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 7l-9.2 9.2M7 7v10h10" />
-                      </svg>
-                    )}
-                    {stat.change}
-                  </span>
+        {/* Contenu Principal - Centre */}
+        <div className="flex-1 p-8">
+          {/* Section principale - Style BambooHR */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">MOZAIK RH SE</h2>
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <span>1er avril 2025 - 30 avril 2025</span>
+                <span>•</span>
+                <span>Période de paie actuelle</span>
+              </div>
+            </div>
+            
+            {/* Graphique de tendance - Style BambooHR */}
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Salaire Brut Total</div>
+                  <div className="text-3xl font-bold text-gray-900">5 085,04 €</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm text-gray-600 mb-1">Prochaine paie</div>
+                  <div className="text-lg font-semibold text-gray-900">1 avril 2025</div>
                 </div>
               </div>
-              <div className={`relative w-16 h-16 ${stat.color} rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105`}>
-                <span className="relative z-10">{stat.icon}</span>
-                <div className={`absolute inset-0 ${stat.color} rounded-xl opacity-20 group-hover:opacity-30 transition-opacity duration-300`}></div>
+              
+              {/* Simulation graphique linéaire */}
+              <div className="bg-gray-50 rounded-lg p-6 h-32 flex items-end space-x-2">
+                {[40, 60, 45, 75, 50, 80, 65, 90, 70, 85, 75, 100].map((height, index) => (
+                  <div key={index} className="flex-1 bg-green-500 rounded-t" style={{height: `${height}%`}}></div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Détails financiers */}
+            <div className="grid grid-cols-3 gap-6">
+              <div>
+                <div className="text-sm text-gray-600 mb-1">Salaire brut</div>
+                <div className="text-xl font-bold text-gray-900">4 550,00 €</div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-600 mb-1">Taxes</div>
+                <div className="text-xl font-bold text-pink-600">618,85 €</div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-600 mb-1">Déductions</div>
+                <div className="text-xl font-bold text-orange-600">50,00 €</div>
               </div>
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Sidebar Droite - Cards BambooHR */}
+        <div className="w-80 p-6 space-y-6">
+          {/* Card Vitals */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="font-bold text-gray-900 mb-4">Vitals</h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">📞 portable</span>
+                <span className="font-medium">06.12.34.56.78</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">✉️ Email</span>
+                <span className="font-medium">sophie@company.fr</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">📍 Statut</span>
+                <span className="font-medium text-green-600">Actif</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">🏢 Département</span>
+                <span className="font-medium">Direction</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">📍 Lieu</span>
+                <span className="font-medium">Paris</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card Benefits */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="font-bold text-gray-900 mb-4">Avantages</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="font-medium text-gray-900 mb-1">Mutuelle Santé</div>
+                <div className="text-sm text-gray-600 mb-1">Effective: 1er janvier 2025</div>
+                <div className="text-sm text-gray-600 mb-3">Fréquence: Mensuelle</div>
+                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200">
+                  S'inscrire
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Card Graphique Circulaire */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="font-bold text-gray-900 mb-4">Cumul Année</h3>
+            <div className="relative flex justify-center mb-4">
+              {/* Simulation graphique circulaire */}
+              <div className="w-32 h-32 rounded-full border-8 border-gray-200 relative">
+                <div className="absolute inset-0 rounded-full border-8 border-green-500" style={{clipPath: 'polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%)'}}></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-gray-900">67 600 €</div>
+                    <div className="text-xs text-gray-600">Total Brut</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-600">En poche</span>
+                </div>
+                <span className="font-semibold">2 379 €</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
+                  <span className="text-gray-600">Taxes</span>
+                </div>
+                <span className="font-semibold">1 198,46 €</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                  <span className="text-gray-600">Déductions</span>
+                </div>
+                <span className="font-semibold">150 €</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
