@@ -264,30 +264,86 @@ class BackendTester:
                 
         self.results["data_retrieval"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["data_retrieval"]["details"]) else "fail"
         
+    def test_monthly_planning_support(self, auth_token=None):
+        """Test endpoints that support monthly planning and print functionality"""
+        print("\n=== Testing Monthly Planning Support ===")
+        
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
+        
+        # Test analytics endpoint for planning data
+        try:
+            response = requests.get(f"{API_URL}/analytics/absence-kpi", headers=headers, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("monthly_planning", True, "Analytics KPI endpoint works for planning statistics")
+                
+                # Check for required data structure
+                if 'byCategory' in data and 'monthlyTrend' in data:
+                    self.log_result("monthly_planning", True, "Analytics data contains monthly trends and categories for planning")
+                else:
+                    self.log_result("monthly_planning", False, "Analytics data missing required planning structure")
+            else:
+                self.log_result("monthly_planning", False, f"Analytics KPI endpoint returned {response.status_code}")
+        except Exception as e:
+            self.log_result("monthly_planning", False, f"Error testing analytics endpoint: {str(e)}")
+            
+        # Test on-call export functionality (for enhanced print features)
+        try:
+            response = requests.get(f"{API_URL}/on-call/export/9/2025", headers=headers, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("monthly_planning", True, "On-call export endpoint works (supports enhanced print functionality)")
+            else:
+                self.log_result("monthly_planning", False, f"On-call export endpoint returned {response.status_code}")
+        except Exception as e:
+            self.log_result("monthly_planning", False, f"Error testing on-call export: {str(e)}")
+            
+        # Test on-call validation (CCN66 compliance)
+        try:
+            validation_data = {
+                "employeeId": "1",
+                "startDate": "2025-01-15",
+                "endDate": "2025-01-16"
+            }
+            response = requests.post(f"{API_URL}/on-call/validate", json=validation_data, headers=headers, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("monthly_planning", True, "On-call validation endpoint works (CCN66 compliance)")
+            else:
+                self.log_result("monthly_planning", False, f"On-call validation returned {response.status_code}")
+        except Exception as e:
+            self.log_result("monthly_planning", False, f"Error testing on-call validation: {str(e)}")
+            
+        self.results["monthly_planning"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["monthly_planning"]["details"]) else "fail"
+
     def run_all_tests(self):
         """Run all backend tests"""
-        print(f"Starting MOZAIK RH Backend Tests")
+        print(f"Starting MOZAIK RH Backend Tests - Focus on Monthly Planning & Print Support")
         print(f"Backend URL: {BASE_URL}")
         print(f"API URL: {API_URL}")
-        print("=" * 50)
+        print("=" * 70)
+        
+        # Initialize monthly_planning results
+        self.results["monthly_planning"] = {"status": "unknown", "details": []}
         
         # Run tests in order
         api_healthy = self.test_api_health()
         
         if api_healthy:
-            self.test_authentication()
-            self.test_delegation_hours()
-            self.test_data_retrieval()
+            auth_token = self.test_authentication()
+            self.test_delegation_hours(auth_token)
+            self.test_data_retrieval(auth_token)
+            self.test_monthly_planning_support(auth_token)
         else:
             print("Skipping other tests due to API health issues")
             
         # Determine overall status
-        categories = ["api_health", "authentication", "delegation_hours", "data_retrieval"]
+        categories = ["api_health", "authentication", "delegation_hours", "data_retrieval", "monthly_planning"]
         passed_tests = sum(1 for cat in categories if self.results[cat]["status"] == "pass")
         
         if passed_tests == len(categories):
             self.results["overall_status"] = "pass"
-        elif passed_tests >= 1:
+        elif passed_tests >= 3:  # At least API health, auth, and one other
             self.results["overall_status"] = "partial"
         else:
             self.results["overall_status"] = "fail"
