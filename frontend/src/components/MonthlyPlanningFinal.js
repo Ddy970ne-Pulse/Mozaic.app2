@@ -606,19 +606,19 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
             /* Saut de page */
             .page-break { page-break-before: always; }
             
-            /* Légende tableau - CLAIRE ET PROFESSIONNELLE */
+            /* Légende COMPACTE - optimisée pour 30 salariés */
             .legend-section { 
-              margin-top: 20px; 
+              margin-top: ${printFormat === 'A4' ? '12px' : '15px'}; 
               page-break-inside: avoid;
               border-top: 1px solid #d1d5db;
-              padding-top: 15px;
+              padding-top: ${printFormat === 'A4' ? '8px' : '10px'};
             }
             .legend-title {
-              font-size: ${printFormat === 'A4' ? '11px' : '13px'};
+              font-size: ${printFormat === 'A4' ? '9px' : '11px'};
               font-weight: 600;
               color: #374151;
-              margin-bottom: 8px;
-              text-align: left;
+              margin-bottom: ${printFormat === 'A4' ? '4px' : '6px'};
+              text-align: center;
             }
             
             /* FORCE des couleurs à l'impression - SOLUTION RENFORCÉE */
