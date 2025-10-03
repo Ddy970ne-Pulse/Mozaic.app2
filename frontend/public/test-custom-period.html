@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Période Personnalisée - Planning MOZAIK RH</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 20px;
+            color: #374151;
+            line-height: 1.6;
+        }
+        
+        .feature-showcase {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .example {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            background: white;
+        }
+        
+        .example.highlight {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .period-selector {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .date-input {
+            padding: 8px 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            margin: 0 5px;
+            font-size: 14px;
+        }
+        
+        .date-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+        
+        .btn {
+            background: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #2563eb;
+        }
+        
+        .btn-success {
+            background: #10b981;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .demo-calendar {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .demo-header {
+            background: #f8fafc;
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 600;
+            text-align: center;
+            color: #1f2937;
+        }
+        
+        .demo-dates {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            gap: 5px;
+        }
+        
+        .demo-date {
+            padding: 5px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 12px;
+            min-width: 35px;
+            text-align: center;
+        }
+        
+        .demo-date.highlight {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .demo-date.weekend {
+            background: #f1f5f9;
+            color: #6b7280;
+        }
+        
+        .benefits {
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .benefits h3 {
+            color: #1e40af;
+            margin: 0 0 15px 0;
+        }
+        
+        .benefits ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .benefits li {
+            color: #1e3a8a;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>📅 Période Personnalisée - Planning MOZAIK RH</h1>
+    
+    <div class="feature-showcase">
+        <h2 style="margin: 0 0 15px 0;">🎯 Nouvelle Fonctionnalité</h2>
+        <p style="font-size: 18px; margin: 0;">
+            Imprimez des plannings sur des périodes personnalisées qui ne correspondent pas aux mois calendaires
+        </p>
+    </div>
+    
+    <div class="examples">
+        <div class="example">
+            <h3>📊 Mode Mensuel Classique</h3>
+            <div class="demo-calendar">
+                <div class="demo-header">Septembre 2025 (30 jours)</div>
+                <div class="demo-dates">
+                    <div class="demo-date weekend">Dim 1</div>
+                    <div class="demo-date">Lun 2</div>
+                    <div class="demo-date">Mar 3</div>
+                    <div class="demo-date">...</div>
+                    <div class="demo-date">Lun 30</div>
+                </div>
+            </div>
+            <p><strong>Limite :</strong> Plannings mensuels complets uniquement</p>
+        </div>
+        
+        <div class="example highlight">
+            <h3>🎯 Mode Période Personnalisée</h3>
+            <div class="demo-calendar">
+                <div class="demo-header">20/09/2025 au 20/10/2025 (31 jours)</div>
+                <div class="demo-dates">
+                    <div class="demo-date weekend highlight">Sam 20/9</div>
+                    <div class="demo-date weekend highlight">Dim 21/9</div>
+                    <div class="demo-date highlight">Lun 22/9</div>
+                    <div class="demo-date highlight">...</div>
+                    <div class="demo-date weekend highlight">Dim 19/10</div>
+                    <div class="demo-date highlight">Lun 20/10</div>
+                </div>
+            </div>
+            <p><strong>Avantage :</strong> Plannings adaptés aux cycles de travail réels</p>
+        </div>
+    </div>
+    
+    <div class="period-selector">
+        <h3 style="margin: 0 0 15px 0;">🛠️ Test Interactif</h3>
+        <div>
+            <span style="font-weight: 600;">Période d'exemple : </span>
+            <input type="date" class="date-input" id="startDate" value="2025-09-20">
+            <span style="margin: 0 10px; font-weight: 600;">au</span>
+            <input type="date" class="date-input" id="endDate" value="2025-10-20">
+        </div>
+        <div style="margin-top: 15px;">
+            <button class="btn" onclick="calculatePeriod()">📊 Calculer la période</button>
+            <button class="btn btn-success" onclick="showExample()">🎯 Voir exemple concret</button>
+        </div>
+        <div id="result" style="margin-top: 15px; font-weight: 600;"></div>
+    </div>
+    
+    <div class="benefits">
+        <h3>✅ Cas d'usage typiques</h3>
+        <ul>
+            <li><strong>Cycles de paie :</strong> Du 16 du mois au 15 du mois suivant</li>
+            <li><strong>Trimestres décalés :</strong> 1er décembre au 28 février</li>
+            <li><strong>Projets temporaires :</strong> 3 semaines spécifiques</li>
+            <li><strong>Périodes de formation :</strong> Stages sur mesure</li>
+            <li><strong>Planning de transition :</strong> Chevauchement d'équipes</li>
+            <li><strong>Audit temporel :</strong> Vérification sur période ciblée</li>
+        </ul>
+    </div>
+    
+    <div style="background: #10b981; color: white; padding: 20px; border-radius: 10px; text-align: center; margin: 30px 0;">
+        <h3 style="margin: 0 0 10px 0;">🚀 Comment l'utiliser dans MOZAIK RH</h3>
+        <div style="display: flex; justify-content: space-around; text-align: left; flex-wrap: wrap;">
+            <div style="margin: 10px;">
+                <div><strong>1️⃣ Accès</strong></div>
+                <div style="font-size: 14px;">Planning Mensuel<br>→ Cocher "Période personnalisée"</div>
+            </div>
+            <div style="margin: 10px;">
+                <div><strong>2️⃣ Sélection</strong></div>
+                <div style="font-size: 14px;">Choisir date début<br>→ Choisir date fin</div>
+            </div>
+            <div style="margin: 10px;">
+                <div><strong>3️⃣ Impression</strong></div>
+                <div style="font-size: 14px;">Bouton Imprimer<br>→ Format A4/A3</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function calculatePeriod() {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            
+            if (startDate && endDate && startDate <= endDate) {
+                const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                const startStr = startDate.toLocaleDateString('fr-FR');
+                const endStr = endDate.toLocaleDateString('fr-FR');
+                
+                document.getElementById('result').innerHTML = `
+                    ✅ Période : ${startStr} au ${endStr}<br>
+                    📊 Durée : ${days} jours<br>
+                    🖨️ Planning personnalisé prêt !
+                `;
+            } else {
+                document.getElementById('result').innerHTML = '❌ Veuillez sélectionner des dates valides';
+            }
+        }
+        
+        function showExample() {
+            document.getElementById('startDate').value = '2025-09-20';
+            document.getElementById('endDate').value = '2025-10-20';
+            calculatePeriod();
+        }
+        
+        // Calcul initial
+        calculatePeriod();
+    </script>
+</body>
+</html>
