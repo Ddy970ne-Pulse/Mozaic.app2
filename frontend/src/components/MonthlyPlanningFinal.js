@@ -403,7 +403,43 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
   const getCurrentDate = () => new Date(selectedYear, selectedMonth, 1);
   
   const getDaysInMonth = () => {
+    if (useCustomPeriod && customStartDate && customEndDate) {
+      const startDate = new Date(customStartDate);
+      const endDate = new Date(customEndDate);
+      return Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    }
     return new Date(selectedYear, selectedMonth + 1, 0).getDate();
+  };
+
+  const getDateRange = () => {
+    if (useCustomPeriod && customStartDate && customEndDate) {
+      const startDate = new Date(customStartDate);
+      const endDate = new Date(customEndDate);
+      const dates = [];
+      
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        dates.push({
+          day: d.getDate(),
+          month: d.getMonth(),
+          year: d.getFullYear(),
+          fullDate: new Date(d)
+        });
+      }
+      return dates;
+    }
+    
+    // Mode mensuel classique
+    const days = [];
+    const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push({
+        day: i,
+        month: selectedMonth,
+        year: selectedYear,
+        fullDate: new Date(selectedYear, selectedMonth, i)
+      });
+    }
+    return days;
   };
 
   const getDayOfWeek = (day) => {
