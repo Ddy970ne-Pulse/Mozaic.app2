@@ -225,124 +225,28 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
         )}
       </header>
 
-      {/* Menu BambooHR Style - Overlay complet */}
-      {showMenu && (
-        <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm">
-          <div className="absolute inset-6 bg-white rounded-3xl shadow-2xl overflow-hidden">
-            {/* Header vert du menu - Identique à BambooHR */}
-            <div className="bg-green-800 px-8 py-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-white rounded-full p-1 shadow-lg">
-                    <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-2xl">🐼</span>
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="text-3xl font-bold text-white">MOZAIK RH</h2>
-                    <p className="text-green-100 text-lg">Plateforme de gestion moderne</p>
-                  </div>
-                </div>
+      {/* Mobile Menu Overlay - Style Original Simple */}
+      {showMenu && isMobile && (
+        <div className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50">
+          <div className="absolute top-16 left-0 right-0 bg-white shadow-lg">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {menuItems.map((item) => (
                 <button
-                  onClick={() => setShowMenu(false)}
-                  className="p-3 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-all duration-200"
+                  key={item.id}
+                  onClick={() => {
+                    setCurrentView(item.id);
+                    setShowMenu(false);
+                  }}
+                  className={`flex items-center w-full px-3 py-2 rounded-md text-base font-medium ${
+                    currentView === item.id
+                      ? 'text-blue-700 bg-blue-100'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
                 >
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <span className="mr-2">{item.icon}</span>
+                  {item.name}
                 </button>
-              </div>
-            </div>
-            
-            {/* Contenu du menu - Style BambooHR */}
-            <div className="p-8 overflow-y-auto max-h-[calc(100vh-280px)]">
-              <div className={`grid gap-6 ${isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'}`}>
-                {menuItems.map((item, index) => (
-                  <button
-                    key={item.id}
-                    data-testid={`menu-${item.id}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log(`Navigating to ${item.id}`);
-                      setCurrentView(item.id);
-                      setShowMenu(false);
-                    }}
-                    className={`group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 ${
-                      currentView === item.id
-                        ? 'border-green-300 shadow-lg bg-green-50'
-                        : 'border-gray-200 hover:border-green-200 shadow-sm'
-                    }`}
-                    style={{
-                      animationDelay: `${index * 50}ms`
-                    }}
-                  >
-                    {/* Icône principale */}
-                    <div className={`mb-4 text-4xl transition-transform duration-300 ${
-                      currentView === item.id ? 'transform scale-110' : 'group-hover:scale-105'
-                    }`}>
-                      {item.icon}
-                    </div>
-                    
-                    {/* Titre du module */}
-                    <h3 className={`font-bold text-lg leading-tight mb-2 ${
-                      currentView === item.id ? 'text-green-800' : 'text-gray-900'
-                    }`}>
-                      {item.name}
-                    </h3>
-                    
-                    {/* Description (optionnelle) */}
-                    <p className="text-sm text-gray-500">
-                      {item.id === 'dashboard' && 'Vue d\'ensemble'}
-                      {item.id === 'monthly-planning' && 'Planning et absences'}
-                      {item.id === 'on-call-management' && 'Gestion astreintes'}
-                      {item.id === 'my-space' && 'Espace personnel'}
-                      {item.id === 'delegation-hours' && 'Délégation RH'}
-                      {item.id === 'analytics' && 'Rapports KPI'}
-                      {item.id === 'user-management' && 'Utilisateurs'}
-                      {item.id === 'overtime' && 'Heures sup.'}
-                      {item.id === 'absence-requests' && 'Demandes'}
-                      {item.id === 'hr-toolbox' && 'Outils RH'}
-                    </p>
-                    
-                    {/* Indicateur actif - Style BambooHR */}
-                    {currentView === item.id && (
-                      <div className="absolute top-4 right-4 w-4 h-4 bg-green-500 rounded-full">
-                        <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-75"></div>
-                      </div>
-                    )}
-                    
-                    {/* Effet de survol */}
-                    <div className={`absolute inset-0 rounded-2xl transition-all duration-300 ${
-                      currentView === item.id 
-                        ? 'bg-green-500/5' 
-                        : 'group-hover:bg-green-500/5'
-                    }`}></div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Footer style BambooHR */}
-            <div className="bg-gray-50 px-8 py-6 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                  <div>
-                    <span className="text-sm font-semibold text-gray-900">{user.name}</span>
-                    <span className="text-sm text-gray-500 ml-2">• {user.role}</span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-6 text-sm text-gray-500">
-                  <button 
-                    onClick={onLogout}
-                    className="hover:text-gray-900 transition-colors duration-200"
-                  >
-                    Déconnexion
-                  </button>
-                  <span>© 2025 MOZAIK RH</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
