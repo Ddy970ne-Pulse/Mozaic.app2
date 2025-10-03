@@ -98,11 +98,29 @@ const Dashboard = ({ user, onChangeView }) => {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Tableau de Bord RH</h1>
-        <p className="text-gray-600">Vue d'ensemble de votre organisation • {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    <div className="p-6 bg-gray-25 min-h-screen">
+      {/* Header moderne */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Tableau de Bord</h1>
+              <p className="text-gray-600 mt-1 font-medium">Vue d'ensemble de votre organisation</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl px-4 py-3 border border-gray-200/60 shadow-sm">
+            <p className="text-sm font-semibold text-gray-900">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p className="text-xs text-gray-500 flex items-center space-x-1">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+              <span>Mise à jour il y a 5 min</span>
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Stats Cards */}
