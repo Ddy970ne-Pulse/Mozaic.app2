@@ -88,47 +88,67 @@ class BackendTester:
         """Test authentication endpoints for different user types"""
         print("\n=== Testing Authentication ===")
         
-        # Test accounts from review request
+        # Test accounts from review request - focus on Sophie Martin as specified
         test_accounts = [
+            {"email": "sophie.martin@company.com", "password": "demo123", "role": "admin", "name": "Sophie Martin"},
             {"email": "admin@company.com", "password": "demo123", "role": "admin", "name": "Sophie Martin"},
             {"email": "manager@company.com", "password": "demo123", "role": "manager", "name": "Jean Dupont"},
             {"email": "marie.leblanc@company.com", "password": "demo123", "role": "employee", "name": "Marie Leblanc"},
             {"email": "pierre.moreau@company.com", "password": "demo123", "role": "employee", "name": "Pierre Moreau"}
         ]
         
-        # Check for common authentication endpoints
-        auth_endpoints = ["/login", "/auth/login", "/authenticate", "/signin", "/auth"]
+        # Check for authentication endpoint
+        auth_endpoint = "/auth/login"
+        auth_token = None
         
-        found_auth_endpoint = False
-        for endpoint in auth_endpoints:
-            try:
-                response = requests.post(f"{API_URL}{endpoint}", json={"email": "test", "password": "test"}, timeout=5)
-                if response.status_code != 404:
-                    found_auth_endpoint = True
-                    self.log_result("authentication", True, f"Found authentication endpoint: {endpoint}")
-                    
-                    # Test with demo accounts
-                    for account in test_accounts:
-                        try:
-                            auth_response = requests.post(
-                                f"{API_URL}{endpoint}", 
-                                json={"email": account["email"], "password": account["password"]}, 
-                                timeout=5
-                            )
-                            if auth_response.status_code == 200:
-                                self.log_result("authentication", True, f"Login successful for {account['name']} ({account['role']})")
-                            else:
-                                self.log_result("authentication", False, f"Login failed for {account['name']}: {auth_response.status_code}")
-                        except Exception as e:
-                            self.log_result("authentication", False, f"Error testing login for {account['name']}: {str(e)}")
-                    break
-            except:
-                continue
+        try:
+            # Test with Sophie Martin first (as specified in review request)
+            sophie_account = test_accounts[0]  # sophie.martin@company.com
+            auth_response = requests.post(
+                f"{API_URL}{auth_endpoint}", 
+                json={"email": sophie_account["email"], "password": sophie_account["password"]}, 
+                timeout=5
+            )
+            if auth_response.status_code == 200:
+                auth_data = auth_response.json()
+                auth_token = auth_data.get('token')
+                self.log_result("authentication", True, f"✅ Sophie Martin login successful (sophie.martin@company.com / demo123)")
                 
-        if not found_auth_endpoint:
-            self.log_result("authentication", False, "No authentication endpoints found. Tested: /login, /auth/login, /authenticate, /signin, /auth")
+                # Test /auth/me endpoint
+                if auth_token:
+                    me_response = requests.get(
+                        f"{API_URL}/auth/me", 
+                        headers={"Authorization": f"Bearer {auth_token}"}, 
+                        timeout=5
+                    )
+                    if me_response.status_code == 200:
+                        user_data = me_response.json()
+                        self.log_result("authentication", True, f"User profile retrieval works: {user_data.get('name', 'Unknown')}")
+                    else:
+                        self.log_result("authentication", False, f"/auth/me returned {me_response.status_code}")
+            else:
+                self.log_result("authentication", False, f"Sophie Martin login failed: {auth_response.status_code}")
+                
+            # Test other accounts
+            for account in test_accounts[1:]:
+                try:
+                    auth_response = requests.post(
+                        f"{API_URL}{auth_endpoint}", 
+                        json={"email": account["email"], "password": account["password"]}, 
+                        timeout=5
+                    )
+                    if auth_response.status_code == 200:
+                        self.log_result("authentication", True, f"Login successful for {account['name']} ({account['role']})")
+                    else:
+                        self.log_result("authentication", False, f"Login failed for {account['name']}: {auth_response.status_code}")
+                except Exception as e:
+                    self.log_result("authentication", False, f"Error testing login for {account['name']}: {str(e)}")
+                    
+        except Exception as e:
+            self.log_result("authentication", False, f"Error testing authentication: {str(e)}")
             
         self.results["authentication"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["authentication"]["details"]) else "fail"
+        return auth_token
         
     def test_delegation_hours(self, auth_token=None):
         """Test delegation hours module endpoints"""
