@@ -519,13 +519,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               color: #374151;
             }
             
-            /* Cellules du tableau */
+            /* Cellules du tableau - PLUS D'ESPACEMENT */
             .planning-table td { 
-              border: 1px solid #e5e7eb;
-              padding: ${printFormat === 'A4' ? '4px 2px' : '6px 3px'};
+              border: 1px solid #d1d5db;
+              padding: ${printFormat === 'A4' ? '6px 3px' : '8px 4px'};
               text-align: center; 
               vertical-align: middle;
               background: white;
+              line-height: 1.3;
             }
             
             /* Colonne employé */
