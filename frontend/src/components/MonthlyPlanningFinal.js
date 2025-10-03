@@ -519,14 +519,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               color: #374151;
             }
             
-            /* Cellules du tableau - PLUS D'ESPACEMENT */
+            /* Cellules du tableau - ESPACEMENT OPTIMISÉ pour 30 employés */
             .planning-table td { 
               border: 1px solid #d1d5db;
-              padding: ${printFormat === 'A4' ? '6px 3px' : '8px 4px'};
+              padding: ${printFormat === 'A4' ? '3px 2px' : '5px 3px'};
               text-align: center; 
               vertical-align: middle;
               background: white;
-              line-height: 1.3;
+              line-height: 1.2;
             }
             
             /* Colonne employé */
