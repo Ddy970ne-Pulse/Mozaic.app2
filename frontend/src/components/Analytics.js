@@ -29,6 +29,20 @@ const Analytics = ({ user }) => {
     comparisonLastYear: '+3.2%'
   };
 
+  // Données de roulement mensuel (avec raisons de départ)
+  const turnoverMonthlyData = [
+    { month: 'Oct 2024', volontaire: 4, regrettable: 1, nonRegrettable: 0, nonSpecifie: 0, involontaire: 0, termination: 0, total: 5, rate: 44.4 },
+    { month: 'Nov', volontaire: 0, regrettable: 0, nonRegrettable: 0, nonSpecifie: 0, involontaire: 0, termination: 0, total: 0, rate: 0 },
+    { month: 'Déc', volontaire: 1, regrettable: 0, nonRegrettable: 1, nonSpecifie: 0, involontaire: 0, termination: 0, total: 2, rate: 1.8 },
+    { month: 'Jan 2025', volontaire: 0, regrettable: 0, nonRegrettable: 0, nonSpecifie: 0, involontaire: 0, termination: 0, total: 0, rate: 0 },
+    { month: 'Fév', volontaire: 1, regrettable: 1, nonRegrettable: 0, nonSpecifie: 0, involontaire: 0, termination: 0, total: 2, rate: 1.8 },
+    { month: 'Mar', volontaire: 1, regrettable: 0, nonRegrettable: 0, nonSpecifie: 0, involontaire: 0, termination: 1, total: 2, rate: 1.8 },
+    { month: 'Avr', volontaire: 0, regrettable: 0, nonRegrettable: 0, nonSpecifie: 0, involontaire: 0, termination: 0, total: 0, rate: 0 },
+    { month: 'Mai', volontaire: 0, regrettable: 1, nonRegrettable: 0, nonSpecifie: 0, involontaire: 0, termination: 0, total: 1, rate: 0.9 },
+    { month: 'Sep', volontaire: 0, regrettable: 0, nonRegrettable: 0, nonSpecifie: 1, involontaire: 0, termination: 0, total: 1, rate: 0.9 },
+    { month: 'Oct 2025', volontaire: 0, regrettable: 0, nonRegrettable: 0, nonSpecifie: 0, involontaire: 0, termination: 0, total: 0, rate: 0 }
+  ];
+
   const monthlyData = [
     { month: 'Jan', cp: 45, rtt: 12, am: 8, formation: 5, autres: 3 },
     { month: 'Fév', cp: 38, rtt: 15, am: 12, formation: 7, autres: 2 },
