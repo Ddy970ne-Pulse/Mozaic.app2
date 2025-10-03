@@ -163,13 +163,50 @@
             text-align: center;
         }
         
+        /* Force l'impression des couleurs */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        
         /* Couleurs des codes */
-        .ca { background-color: #3b82f6; color: white; }
-        .am { background-color: #ef4444; color: white; }
-        .rec { background-color: #10b981; color: white; }
-        .del { background-color: #8b5cf6; color: white; }
-        .tel { background-color: #06b6d4; color: white; }
-        .ast { background-color: #ea580c; color: white; }
+        .ca { 
+            background-color: #3b82f6 !important; 
+            color: white !important; 
+            border: 2px solid #3b82f6 !important;
+            -webkit-print-color-adjust: exact !important;
+        }
+        .am { 
+            background-color: #ef4444 !important; 
+            color: white !important; 
+            border: 2px solid #ef4444 !important;
+            -webkit-print-color-adjust: exact !important;
+        }
+        .rec { 
+            background-color: #10b981 !important; 
+            color: white !important; 
+            border: 2px solid #10b981 !important;
+            -webkit-print-color-adjust: exact !important;
+        }
+        .del { 
+            background-color: #8b5cf6 !important; 
+            color: white !important; 
+            border: 2px solid #8b5cf6 !important;
+            -webkit-print-color-adjust: exact !important;
+        }
+        .tel { 
+            background-color: #06b6d4 !important; 
+            color: white !important; 
+            border: 2px solid #06b6d4 !important;
+            -webkit-print-color-adjust: exact !important;
+        }
+        .ast { 
+            background-color: #ea580c !important; 
+            color: white !important; 
+            border: 2px solid #ea580c !important;
+            -webkit-print-color-adjust: exact !important;
+        }
         
         .comparison {
             display: flex;
