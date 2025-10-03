@@ -867,13 +867,17 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
           content += `<td class="employee-name">${item.name}</td>`;
           content += `<td class="absence-days">${item.totalAbsenceDays}</td>`;
           
-          days.forEach(day => {
-            const absence = item.absences[day.toString()];
-            const isWknd = isWeekend(day);
-            const isHol = isHoliday(day);
+          dateRange.forEach(dateObj => {
+            const dayKey = useCustomPeriod ? 
+              `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}` :
+              dateObj.day.toString();
+            
+            const absence = item.absences[dayKey] || item.absences[dateObj.day.toString()];
+            const isWknd = isWeekend(dateObj.day, dateObj.month, dateObj.year);
+            const isHol = isHoliday(dateObj.day, dateObj.month, dateObj.year);
             
             // Vérifier si ce jour fait partie d'une semaine d'astreinte
-            const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dateStr = `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
             const hasOnCall = isInOnCallWeek(item.id, dateStr);
             
             // Priorité : Absence > Astreinte > Vide (même logique que l'affichage)
