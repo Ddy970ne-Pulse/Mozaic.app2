@@ -828,17 +828,19 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
           <tr>
             <th class="employee-name">Employé</th>
             <th class="absence-days">Jours<br>Absence</th>
-            ${days.map(day => {
-              const dayName = getDayName(day);
-              const isWknd = isWeekend(day);
-              const isHol = isHoliday(day);
+            ${dateRange.map(dateObj => {
+              const dayName = getDayName(dateObj);
+              const isWknd = isWeekend(dateObj.day, dateObj.month, dateObj.year);
+              const isHol = isHoliday(dateObj.day, dateObj.month, dateObj.year);
               let headerClass = 'day-header';
               if (isWknd) headerClass += ' weekend-header';
               if (isHol) headerClass += ' holiday-header';
               
               return `<th class="${headerClass}">
                 <div style="font-weight: bold; margin-bottom: 1px;">${dayName}</div>
-                <div style="font-size: ${printFormat === 'A4' ? '10px' : '12px'};">${day}</div>
+                <div style="font-size: ${printFormat === 'A4' ? '10px' : '12px'};">
+                  ${useCustomPeriod ? `${dateObj.day}/${dateObj.month + 1}` : dateObj.day}
+                </div>
                 ${isHol ? '<div style="color: #dc2626; font-weight: bold; font-size: 8px;">F</div>' : ''}
               </th>`;
             }).join('')}
