@@ -852,41 +852,47 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
   };
 
   const generateModernLegend = () => {
-    // Légende simplifiée et claire - TABLE FORMAT
-    const mainCodes = ['CA', 'AM', 'REC', 'AST', 'DEL', 'TEL', 'MAT', 'AT', 'FO', 'CT'];
+    // Légende COMPACTE avec codes couleur - optimisée pour 30 salariés
+    const mainCodes = ['CA', 'AM', 'REC', 'AST', 'DEL', 'TEL', 'MAT', 'AT', 'FO', 'CT', 'RTT', 'CSS'];
+    
+    // Helper pour obtenir la couleur d'impression
+    const getPrintColor = (code) => {
+      const printColors = {
+        'CA': '#1e3a8a', 'AM': '#b91c1c', 'REC': '#166534', 'AST': '#9a3412',
+        'DEL': '#581c87', 'TEL': '#0f766e', 'CT': '#c2410c', 'AT': '#7c2d12',
+        'MAT': '#be185d', 'FO': '#365314', 'RTT': '#1e40af', 'CSS': '#4b5563'
+      };
+      return printColors[code] || '#6b7280';
+    };
     
     return `
       <div class="legend-section">
-        <div class="legend-title">Codes d'Absence - Significations</div>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-          <tr style="background: #f8f9fa; font-weight: 600;">
-            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Code</td>
-            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Signification</td>
-            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Type</td>
-            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Code</td>
-            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Signification</td>
-            <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;">Type</td>
-          </tr>
-          ${Array.from({length: Math.ceil(mainCodes.length/2)}, (_, i) => {
-            const leftCode = mainCodes[i*2];
-            const rightCode = mainCodes[i*2 + 1];
-            const leftInfo = absenceColorMap[leftCode];
-            const rightInfo = rightCode ? absenceColorMap[rightCode] : null;
+        <div class="legend-title">Codes d'Absence</div>
+        <div style="display: flex; flex-wrap: wrap; gap: ${printFormat === 'A4' ? '8px' : '10px'}; justify-content: space-between; margin-top: 6px;">
+          ${mainCodes.filter(code => absenceColorMap[code]).map(code => {
+            const info = absenceColorMap[code];
+            const printColor = getPrintColor(code);
             
             return `
-              <tr>
-                <td style="border: 1px solid #dee2e6; padding: 6px; font-weight: bold; text-align: center; background: #f1f5f9;">${leftCode}</td>
-                <td style="border: 1px solid #dee2e6; padding: 6px;">${leftInfo?.name || ''}</td>
-                <td style="border: 1px solid #dee2e6; padding: 6px; font-size: ${printFormat === 'A4' ? '7px' : '8px'}; color: #6b7280;">${leftInfo?.type || ''}</td>
-                <td style="border: 1px solid #dee2e6; padding: 6px; font-weight: bold; text-align: center; background: #f1f5f9;">${rightCode || ''}</td>
-                <td style="border: 1px solid #dee2e6; padding: 6px;">${rightInfo?.name || ''}</td>
-                <td style="border: 1px solid #dee2e6; padding: 6px; font-size: ${printFormat === 'A4' ? '7px' : '8px'}; color: #6b7280;">${rightInfo?.type || ''}</td>
-              </tr>
+              <div style="display: flex; align-items: center; min-width: ${printFormat === 'A4' ? '140px' : '160px'}; font-size: ${printFormat === 'A4' ? '7px' : '8px'};">
+                <span style="
+                  display: inline-block;
+                  width: ${printFormat === 'A4' ? '14px' : '16px'};
+                  height: ${printFormat === 'A4' ? '14px' : '16px'};
+                  background-color: ${printColor};
+                  border: 1px solid #000;
+                  border-radius: 2px;
+                  margin-right: 4px;
+                  flex-shrink: 0;
+                "></span>
+                <span style="font-weight: bold; margin-right: 3px;">${code}</span>
+                <span style="color: #374151; line-height: 1.1;">${info.name}</span>
+              </div>
             `;
           }).join('')}
-        </table>
-        <div style="margin-top: 8px; font-size: ${printFormat === 'A4' ? '7px' : '8px'}; color: #6b7280; text-align: center;">
-          Planning généré le ${new Date().toLocaleDateString('fr-FR')} • MOZAIK RH • Conforme CCN66
+        </div>
+        <div style="margin-top: 6px; font-size: ${printFormat === 'A4' ? '6px' : '7px'}; color: #6b7280; text-align: center;">
+          Planning ${new Date().toLocaleDateString('fr-FR')} • MOZAIK RH • CCN66
         </div>
       </div>
     `;
