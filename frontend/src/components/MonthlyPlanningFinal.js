@@ -1048,36 +1048,77 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header avec sélecteurs */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4 lg:mb-0">Planning Mensuel</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4 lg:mb-0">📅 Planning Mensuel</h1>
         
         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-          {/* Sélecteur d'année */}
+          {/* Toggle période personnalisée */}
           <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Année :</label>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              {generateYearOptions().map(year => (
-                <option key={year} value={year}>{year}</option>
-              ))}
-            </select>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={useCustomPeriod}
+                onChange={(e) => {
+                  setUseCustomPeriod(e.target.checked);
+                  if (!e.target.checked) {
+                    setCustomStartDate('');
+                    setCustomEndDate('');
+                  }
+                }}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700">Période personnalisée</span>
+            </label>
           </div>
           
-          {/* Sélecteur de mois */}
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Mois :</label>
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              {monthNames.map((month, index) => (
-                <option key={index} value={index}>{month}</option>
-              ))}
-            </select>
-          </div>
+          {/* Sélecteurs de période */}
+          {useCustomPeriod ? (
+            <div className="flex items-center space-x-2 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
+              <span className="text-sm font-medium text-blue-700">Du :</span>
+              <input
+                type="date"
+                value={customStartDate}
+                onChange={(e) => setCustomStartDate(e.target.value)}
+                className="px-2 py-1 border border-blue-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-blue-700">au :</span>
+              <input
+                type="date"
+                value={customEndDate}
+                onChange={(e) => setCustomEndDate(e.target.value)}
+                className="px-2 py-1 border border-blue-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+              {/* Sélecteur d'année */}
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-gray-700">Année :</label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {generateYearOptions().map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Sélecteur de mois */}
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-gray-700">Mois :</label>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {monthNames.map((month, index) => (
+                    <option key={index} value={index}>{month}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
