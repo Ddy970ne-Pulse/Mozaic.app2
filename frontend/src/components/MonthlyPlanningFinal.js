@@ -529,13 +529,13 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               line-height: 1.2;
             }
             
-            /* Colonne employé */
+            /* Colonne employé - COMPACTE pour 30 salariés */
             .employee-name { 
               text-align: left !important;
-              width: ${printFormat === 'A4' ? '100px' : '140px'}; 
+              width: ${printFormat === 'A4' ? '85px' : '120px'}; 
               font-weight: 600;
               background: white !important;
-              font-size: ${printFormat === 'A4' ? '10px' : '12px'};
+              font-size: ${printFormat === 'A4' ? '8px' : '10px'};
               color: #1f2937;
             }
             
