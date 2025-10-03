@@ -945,8 +945,20 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
   };
 
   const renderCalendar = () => {
-    const daysInMonth = getDaysInMonth();
-    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const dateRange = getDateRange();
+    
+    // Validation pour période personnalisée
+    if (useCustomPeriod && (!customStartDate || !customEndDate)) {
+      return (
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+          <div className="text-gray-500">
+            <div className="text-4xl mb-4">📅</div>
+            <h3 className="text-lg font-medium mb-2">Période personnalisée</h3>
+            <p>Veuillez sélectionner une date de début et une date de fin pour afficher le planning.</p>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="overflow-x-auto bg-white rounded-lg shadow">
