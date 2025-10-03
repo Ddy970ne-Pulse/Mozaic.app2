@@ -814,7 +814,7 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         content += '<div class="page-break"></div>';
         content += `
           <div class="page-header">
-            <h1>Planning Mensuel - ${monthName} (suite)</h1>
+            <h1>${periodTitle} (suite)</h1>
             <div class="subtitle">Page ${currentPage + 1}</div>
           </div>
         `;
