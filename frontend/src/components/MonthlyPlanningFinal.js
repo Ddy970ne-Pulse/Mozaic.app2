@@ -743,8 +743,8 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
       </div>
     `;
 
-    // Calculer combien d'employés par page (plus généreux pour lisibilité)
-    const employeesPerPage = printFormat === 'A4' ? 12 : 20;
+    // Calculer combien d'employés par page (optimisé pour 30 salariés)
+    const employeesPerPage = printFormat === 'A4' ? 18 : 30;
     const allEmployees = Object.entries(groupedEmployees).flatMap(([category, emps]) => [
       { isCategory: true, name: category },
       ...emps
