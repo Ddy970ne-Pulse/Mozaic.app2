@@ -74,6 +74,57 @@ const Analytics = ({ user }) => {
     { name: 'Marketing', employees: 20, departures: 1, turnoverRate: 10, trend: '+2.3%' }
   ];
 
+  // Configuration des options de graphiques dynamiques
+  const chartOptions = {
+    types: [
+      { value: 'evolution', label: 'Évolution dans le temps', icon: '📈' },
+      { value: 'comparison', label: 'Comparaison départements', icon: '📊' },
+      { value: 'distribution', label: 'Répartition par motif', icon: '🥧' },
+      { value: 'correlation', label: 'Analyse de corrélation', icon: '🔗' }
+    ],
+    metrics: [
+      { value: 'turnover_rate', label: 'Taux de rotation (%)', color: 'text-red-600' },
+      { value: 'departures_count', label: 'Nombre de départs', color: 'text-blue-600' },
+      { value: 'reasons', label: 'Motifs de départ', color: 'text-green-600' },
+      { value: 'departments', label: 'Performance départements', color: 'text-purple-600' },
+      { value: 'demographics', label: 'Données démographiques', color: 'text-orange-600' }
+    ],
+    timeRanges: [
+      { value: 'monthly', label: 'Mensuel' },
+      { value: 'quarterly', label: 'Trimestriel' },
+      { value: 'yearly', label: 'Annuel' }
+    ]
+  };
+
+  // Fonction pour générer les données dynamiques selon les sélections
+  const getDynamicChartData = () => {
+    switch (dataMetric) {
+      case 'turnover_rate':
+        return turnoverMonthlyData.map(m => ({ 
+          period: m.month, 
+          value: m.rate, 
+          label: `${m.rate}%`,
+          color: m.rate > 10 ? '#ef4444' : m.rate > 5 ? '#f97316' : '#10b981'
+        }));
+      case 'departures_count':
+        return turnoverMonthlyData.map(m => ({ 
+          period: m.month, 
+          value: m.total, 
+          label: `${m.total} départs`,
+          color: m.total > 3 ? '#ef4444' : m.total > 1 ? '#f97316' : '#10b981'
+        }));
+      case 'departments':
+        return departmentTurnover.map(d => ({ 
+          period: d.name, 
+          value: d.turnoverRate, 
+          label: `${d.turnoverRate}%`,
+          color: d.turnoverRate > 25 ? '#ef4444' : d.turnoverRate > 15 ? '#f97316' : '#10b981'
+        }));
+      default:
+        return [];
+    }
+  };
+
   const departmentStats = [
     { name: 'IT', employees: 45, absences: 278, rate: 6.2, trend: '+2.1%' },
     { name: 'Commercial', employees: 32, absences: 245, rate: 7.7, trend: '+1.8%' },
