@@ -4,6 +4,12 @@ const Analytics = ({ user }) => {
   const [viewMode, setViewMode] = useState('turnover'); // turnover, absences, monthly
   const [selectedYear, setSelectedYear] = useState(2024);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  
+  // États pour les graphiques dynamiques
+  const [chartType, setChartType] = useState('evolution'); // evolution, comparison, distribution
+  const [dataMetric, setDataMetric] = useState('turnover_rate'); // turnover_rate, departures_count, reasons, departments
+  const [timeRange, setTimeRange] = useState('monthly'); // monthly, quarterly, yearly
+  const [departmentFilter, setDepartmentFilter] = useState('all'); // all, specific department
 
   // Données de roulement du personnel (Personnel Turnover)
   const turnoverData = {
