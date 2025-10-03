@@ -475,7 +475,6 @@ const Dashboard = ({ user, onChangeView }) => {
           </button>
         </div>
       </div>
-      </div>
     </div>
   );
 };
