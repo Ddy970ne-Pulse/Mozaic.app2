@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOZAIK RH - Rapport de Roulement du Personnel Amélioré</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation Sidebar (similaire à BambooHR 2025) -->
+    <div class="fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-gradient-to-r from-pink-500 to-red-500 rounded-xl flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">M</span>
+                </div>
+                <span class="text-xl font-bold text-gray-800">MOZAIK</span>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" class="block px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">🏠 Accueil</a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">👤 Mes infos</a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">👥 Individus</a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">📋 Recrutement</a>
+                <a href="#" class="block px-4 py-3 rounded-lg bg-emerald-100 text-emerald-700 font-medium transition-colors">📊 Rapports</a>
+                <a href="#" class="block px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">📁 Fichiers</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="ml-64 min-h-screen bg-gray-50">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Rapports Standard</h1>
+                    <p class="text-gray-600 mt-1">Roulement du personnel • Période: oct 2024 - oct 2025</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 text-gray-400 hover:text-gray-600">🔔</button>
+                    <button class="p-2 text-gray-400 hover:text-gray-600">❓</button>
+                    <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Action emerald</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenu du rapport -->
+        <div class="p-6 space-y-6">
+            <!-- Sélecteurs de période -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                <div class="flex items-center space-x-4">
+                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="oct2024-oct2025">oct 2024 - oct 2025</option>
+                        <option value="jan2024-dec2024">jan 2024 - déc 2024</option>
+                    </select>
+                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="all">Tous les employés</option>
+                        <option value="permanent">Employés permanents</option>
+                    </select>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="benchmark" class="rounded">
+                        <label for="benchmark" class="text-sm text-gray-600">Show Benchmark</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Cards pour Roulement - Design amélioré -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Taux de Rotation Total -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Taux de Rotation Total</p>
+                            <div class="flex items-center space-x-3 mt-2">
+                                <p class="text-4xl font-bold text-gray-800">26.2%</p>
+                                <div class="flex items-center text-red-600 bg-red-50 px-2 py-1 rounded-full">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="text-sm font-medium">+3.2%</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-1">13 départs • oct 2024 - oct 2025</p>
+                        </div>
+                        <div class="text-4xl">🔄</div>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-red-200 to-red-600"></div>
+                </div>
+
+                <!-- Roulement Moyen par Mois -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Roulement Moyen par Mois</p>
+                            <div class="flex items-center space-x-3 mt-2">
+                                <p class="text-4xl font-bold text-gray-800">2%</p>
+                                <div class="flex items-center text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="text-sm font-medium">Stable</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-1">1 départ par mois</p>
+                        </div>
+                        <div class="text-4xl">📈</div>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-green-200 to-green-600"></div>
+                </div>
+
+                <!-- Taux de Rotation - 30 Jours -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Taux de Rotation - 30 Jours</p>
+                            <div class="flex items-center space-x-3 mt-2">
+                                <p class="text-4xl font-bold text-gray-800">2.4%</p>
+                                <div class="flex items-center text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="text-sm font-medium">+0.4%</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-1">2 départs récents</p>
+                        </div>
+                        <div class="text-4xl">⏱️</div>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-orange-200 to-orange-600"></div>
+                </div>
+            </div>
+
+            <!-- Graphique de tendance amélioré + Données démographiques -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <!-- Graphique de tendance -->
+                <div class="xl:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-800">Évolution Mensuelle du Roulement</h2>
+                                <p class="text-sm text-gray-600 mt-1">Répartition par motif de départ • oct 2024 - oct 2025</p>
+                            </div>
+                            <div class="flex items-center space-x-2 text-sm">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <span class="text-gray-600">Pic en Oct 2024</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <!-- Oct 2024 -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700 w-20">Oct 2024</span>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm text-gray-500">5 départs</span>
+                                        <span class="text-sm font-bold text-red-600">44.4%</span>
+                                    </div>
+                                </div>
+                                <div class="flex h-6 bg-gray-100 rounded-lg overflow-hidden">
+                                    <div class="bg-green-500 w-4/5" title="Volontaire: 4"></div>
+                                    <div class="bg-red-500 w-1/5" title="Regrettable: 1"></div>
+                                </div>
+                            </div>
+
+                            <!-- Nov 2024 -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700 w-20">Nov</span>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm text-gray-500">0 départ</span>
+                                        <span class="text-sm font-bold text-gray-800">0%</span>
+                                    </div>
+                                </div>
+                                <div class="flex h-6 bg-gray-100 rounded-lg"></div>
+                            </div>
+
+                            <!-- Déc 2024 -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700 w-20">Déc</span>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm text-gray-500">2 départs</span>
+                                        <span class="text-sm font-bold text-gray-800">1.8%</span>
+                                    </div>
+                                </div>
+                                <div class="flex h-6 bg-gray-100 rounded-lg overflow-hidden">
+                                    <div class="bg-green-500 w-1/2" title="Volontaire: 1"></div>
+                                    <div class="bg-blue-500 w-1/2" title="Non regrettable: 1"></div>
+                                </div>
+                            </div>
+
+                            <!-- Autres mois avec peu/pas de départs -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700 w-20">Jan 2025</span>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm text-gray-500">0 départ</span>
+                                        <span class="text-sm font-bold text-gray-800">0%</span>
+                                    </div>
+                                </div>
+                                <div class="flex h-6 bg-gray-100 rounded-lg"></div>
+                            </div>
+
+                            <!-- Fév 2025 -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700 w-20">Fév</span>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm text-gray-500">2 départs</span>
+                                        <span class="text-sm font-bold text-gray-800">1.8%</span>
+                                    </div>
+                                </div>
+                                <div class="flex h-6 bg-gray-100 rounded-lg overflow-hidden">
+                                    <div class="bg-green-500 w-1/2" title="Volontaire: 1"></div>
+                                    <div class="bg-red-500 w-1/2" title="Regrettable: 1"></div>
+                                </div>
+                            </div>
+
+                            <!-- Mar 2025 -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700 w-20">Mar</span>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm text-gray-500">2 départs</span>
+                                        <span class="text-sm font-bold text-gray-800">1.8%</span>
+                                    </div>
+                                </div>
+                                <div class="flex h-6 bg-gray-100 rounded-lg overflow-hidden">
+                                    <div class="bg-green-500 w-1/2" title="Volontaire: 1"></div>
+                                    <div class="bg-red-700 w-1/2" title="Termination: 1"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Légende améliorée -->
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-200">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-green-500 rounded"></div>
+                                <span class="text-xs text-gray-600">Volontaire</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-red-500 rounded"></div>
+                                <span class="text-xs text-gray-600">Regrettable</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-blue-500 rounded"></div>
+                                <span class="text-xs text-gray-600">Non regrettable</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-gray-400 rounded"></div>
+                                <span class="text-xs text-gray-600">Non spécifié</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-red-700 rounded"></div>
+                                <span class="text-xs text-gray-600">Termination</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Données démographiques améliorées -->
+                <div class="space-y-6">
+                    <!-- Sexe -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-800">Sexe</h3>
+                            <button class="text-emerald-600 text-sm hover:underline">Aperçu des détails</button>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Homme</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 h-3 bg-gray-200 rounded-full">
+                                        <div class="w-11/20 h-full bg-blue-500 rounded-full"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">53%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Femme</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 h-3 bg-gray-200 rounded-full">
+                                        <div class="w-9/20 h-full bg-pink-500 rounded-full"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">46%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Âge -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-800">Âge</h3>
+                            <button class="text-emerald-600 text-sm hover:underline">Aperçu des détails</button>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">25-34 ans</span>
+                                <span class="text-sm font-medium">46%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">35-44 ans</span>
+                                <span class="text-sm font-medium">30%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">18-24 ans</span>
+                                <span class="text-sm font-medium">23%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Département -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-800">Département</h3>
+                            <button class="text-emerald-600 text-sm hover:underline">Aperçu des détails</button>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Ventes</span>
+                                <span class="text-sm font-medium">38%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Succès du client</span>
+                                <span class="text-sm font-medium">23%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Ressources humaines</span>
+                                <span class="text-sm font-medium">15%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Opérations</span>
+                                <span class="text-sm font-medium">7%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Produit</span>
+                                <span class="text-sm font-medium">7%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerte informative -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-start space-x-3">
+                    <div class="text-blue-500 text-lg">ℹ️</div>
+                    <div>
+                        <h4 class="font-medium text-blue-800">Amélioration du Style de Présentation</h4>
+                        <p class="text-sm text-blue-700 mt-1">
+                            ✅ Terminologie clarifiée (Taux de Rotation vs Chiffre d'affaires)<br>
+                            ✅ Indicateurs de tendance visuels avec couleurs stratégiques<br>
+                            ✅ Graphiques en barres horizontales plus lisibles<br>
+                            ✅ Légende améliorée et données démographiques optimisées<br>
+                            ✅ Design cohérent avec le style BambooHR 2025
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
