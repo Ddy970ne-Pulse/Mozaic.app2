@@ -106,63 +106,105 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header BambooHR Style - Bannière Verte Dominante */}
-      <header className="bg-green-800 text-white sticky top-0 z-40 shadow-lg">
-        <div className="px-6 py-4">
-          {/* Bannière Utilisateur Principale - Style BambooHR */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-4">
-              {/* Avatar utilisateur circulaire */}
-              <div className="w-16 h-16 bg-white rounded-full p-1 shadow-lg">
-                <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">🐼</span>
-                </div>
-              </div>
-              
-              <div className="flex flex-col">
-                <h1 className="text-3xl font-bold text-white">{user.name}</h1>
-                <p className="text-green-100 text-lg font-medium">{user.role}</p>
-              </div>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Navigation Latérale Gauche - Vrai Style BambooHR 2025 */}
+      <nav className="w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col">
+        {/* Logo et Branding */}
+        <div className="p-6 border-b border-gray-100">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-sm">
+              <span className="text-white font-bold text-lg">M</span>
             </div>
-            
-            {/* Actions Utilisateur */}
-            <div className="flex items-center space-x-3">
-              <button className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 backdrop-blur-sm">
-                Demander une modification
-              </button>
-              
-              <button
-                onClick={() => setShowMenu(true)}
-                className="p-2 text-white hover:bg-white/20 rounded-lg transition-all duration-200"
-                aria-label="Menu"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">MOZAIK RH</h1>
+              <p className="text-xs text-gray-500">Gestion moderne</p>
             </div>
           </div>
-          
-          {/* Navigation Principale Horizontale - Style BambooHR */}
-          <div className="flex items-center space-x-1 bg-white/10 backdrop-blur-sm rounded-xl p-2">
+        </div>
+
+        {/* Menu Principal */}
+        <div className="flex-1 px-4 py-6">
+          <div className="space-y-2">
             {menuItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setCurrentView(item.id)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                className={`w-full flex items-center px-4 py-3 text-left rounded-xl font-medium transition-all duration-200 group ${
                   currentView === item.id
-                    ? 'bg-white text-green-800 shadow-md'
-                    : 'text-white hover:bg-white/20'
+                    ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-500'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
-                <span className="mr-2">{item.icon}</span>
-                {item.name}
+                <span className={`mr-3 text-lg ${
+                  currentView === item.id ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-600'
+                }`}>
+                  {item.icon}
+                </span>
+                <span className="text-sm">{item.name}</span>
+                {currentView === item.id && (
+                  <div className="ml-auto w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                )}
               </button>
             ))}
           </div>
         </div>
-      </header>
+
+        {/* Profil Utilisateur */}
+        <div className="p-4 border-t border-gray-100">
+          <div className="flex items-center space-x-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-medium text-sm">🐼</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
+              <p className="text-xs text-gray-500 truncate">{user.role}</p>
+            </div>
+            <button
+              onClick={onLogout}
+              className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-white transition-all duration-200"
+              title="Déconnexion"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Contenu Principal */}
+      <div className="flex-1 flex flex-col">
+        {/* Header Moderne */}
+        <header className="bg-white shadow-sm border-b border-gray-200 px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{getCurrentPageTitle()}</h2>
+              <p className="text-sm text-gray-500 mt-1">Bienvenue, {user.name}</p>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {/* Notifications */}
+              <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-all duration-200">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-3.5-3.5a8.38 8.38 0 010-11L21 8h-5M9 17H4l3.5-3.5a8.38 8.38 0 010-11L3 8h5" />
+                </svg>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full"></div>
+              </button>
+              
+              {/* Aide */}
+              <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-all duration-200">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+              
+              {/* Action Primaire */}
+              <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-medium text-sm transition-colors duration-200 shadow-sm">
+                Demander une modification
+              </button>
+            </div>
+          </div>
+        </header>
 
       {/* Menu BambooHR Style - Overlay complet */}
       {showMenu && (
