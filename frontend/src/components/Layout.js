@@ -153,167 +153,206 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
         </div>
       </header>
 
-      {/* Menu Flottant Style iOS/iCloud - Original MOZAIK RH */}
+      {/* Menu Flottant - Style Page de Connexion MOZAIK RH */}
       {showMenu && (
-        <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm">
-          <div className="absolute inset-6 bg-white rounded-3xl shadow-2xl overflow-hidden">
-            {/* Header du menu - Style iOS */}
-            <div className="bg-gradient-to-br from-blue-600 to-blue-800 px-8 py-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-white rounded-full p-1 shadow-lg">
-                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-2xl">M</span>
+        <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden">
+          {/* Nuages animés de la page de connexion */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div 
+              className="absolute w-96 h-96 bg-white/5 rounded-full -top-48 -left-48 animate-pulse"
+              style={{
+                animation: 'float 20s ease-in-out infinite',
+                animationDelay: '0s'
+              }}
+            ></div>
+            <div 
+              className="absolute w-64 h-64 bg-white/3 rounded-full top-1/4 right-0 animate-pulse"
+              style={{
+                animation: 'float 25s ease-in-out infinite reverse',
+                animationDelay: '5s'
+              }}
+            ></div>
+            <div 
+              className="absolute w-80 h-80 bg-white/4 rounded-full bottom-0 left-1/3 animate-pulse"
+              style={{
+                animation: 'float 30s ease-in-out infinite',
+                animationDelay: '10s'
+              }}
+            ></div>
+          </div>
+
+          <div className="min-h-screen flex items-center justify-center p-6 relative z-10">
+            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 max-w-6xl w-full">
+              
+              {/* Header du menu - Style page de connexion */}
+              <div className="text-center mb-8 pb-6 border-b border-white/20">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-4">
+                    {/* Logo MOZAIK identique à la page de connexion */}
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-2xl flex items-center justify-center transform rotate-12 shadow-lg">
+                      <span className="text-white font-bold text-2xl transform -rotate-12">M</span>
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-bold text-white">MOZAIK RH</h2>
+                      <p className="text-white/70 text-lg">Menu Principal</p>
                     </div>
                   </div>
-                  <div>
-                    <h2 className="text-3xl font-bold text-white">MOZAIK RH</h2>
-                    <p className="text-blue-100 text-lg">Plateforme de gestion moderne</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowMenu(false)}
-                  className="p-3 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-all duration-200"
-                >
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            {/* Grille d'icônes - Style iCloud */}
-            <div className="p-8 overflow-y-auto max-h-[calc(100vh-280px)]">
-              <div className={`grid gap-6 ${isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'}`}>
-                {menuItems.map((item, index) => (
                   <button
-                    key={item.id}
-                    data-testid={`menu-${item.id}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setCurrentView(item.id);
-                      setShowMenu(false);
-                    }}
-                    className={`group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 ${
-                      currentView === item.id
-                        ? 'border-blue-300 shadow-lg bg-blue-50'
-                        : 'border-gray-200 hover:border-blue-200 shadow-sm'
-                    }`}
-                    style={{
-                      animationDelay: `${index * 50}ms`
-                    }}
+                    onClick={() => setShowMenu(false)}
+                    className="p-3 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-all duration-200"
                   >
-                    {/* Icône principale - Style iOS */}
-                    <div className={`mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-all duration-300 ${
-                      currentView === item.id
-                        ? 'bg-blue-100 shadow-lg transform scale-110'
-                        : 'bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110'
-                    }`}>
-                      {item.icon}
-                    </div>
-                    
-                    {/* Titre */}
-                    <h3 className={`font-bold text-lg mb-2 transition-colors duration-200 ${
-                      currentView === item.id
-                        ? 'text-blue-700'
-                        : 'text-gray-900 group-hover:text-blue-600'
-                    }`}>
-                      {item.name}
-                    </h3>
-                    
-                    {/* Description courte */}
-                    <p className="text-sm text-gray-500 leading-relaxed">
-                      {item.id === 'dashboard' && 'Vue d\'ensemble'}
-                      {item.id === 'my-space' && 'Espace personnel'}
-                      {item.id === 'absence-requests' && 'Gestion absences'}
-                      {item.id === 'monthly-planning' && 'Planning mensuel'}
-                      {item.id === 'analytics' && 'Rapports KPI'}
-                      {item.id === 'overtime' && 'Heures sup.'}
-                      {item.id === 'delegation-hours' && 'Délégation CSE'}
-                      {item.id === 'hr-toolbox' && 'Outils RH'}
-                      {item.id === 'on-call-management' && 'Astreintes'}
-                      {item.id === 'user-management' && 'Utilisateurs'}
-                    </p>
-                    
-                    {/* Badge actif - Style iOS */}
-                    {currentView === item.id && (
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                        <div className="w-3 h-3 bg-white rounded-full"></div>
-                      </div>
-                    )}
-
-                    {/* Badge de notification (optionnel) */}
-                    {(item.id === 'absence-requests' || item.id === 'delegation-hours') && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                        {item.id === 'absence-requests' ? '3' : '2'}
-                      </div>
-                    )}
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
-                ))}
-                
-                {/* Raccourcis supplémentaires - Style iCloud */}
-                <button
-                  onClick={() => {
-                    setCurrentView('settings');
-                    setShowMenu(false);
-                  }}
-                  className="group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-gray-300 shadow-sm"
-                >
-                  <div className="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-gray-200 group-hover:scale-110 transition-all duration-300">
-                    ⚙️
-                  </div>
-                  <h3 className="font-bold text-lg mb-2 text-gray-900 group-hover:text-gray-700 transition-colors duration-200">
-                    Paramètres
-                  </h3>
-                  <p className="text-sm text-gray-500">Configuration</p>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setCurrentView('help');
-                    setShowMenu(false);
-                  }}
-                  className="group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-gray-300 shadow-sm"
-                >
-                  <div className="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-gray-200 group-hover:scale-110 transition-all duration-300">
-                    ❓
-                  </div>
-                  <h3 className="font-bold text-lg mb-2 text-gray-900 group-hover:text-gray-700 transition-colors duration-200">
-                    Aide
-                  </h3>
-                  <p className="text-sm text-gray-500">Support</p>
-                </button>
-              </div>
-            </div>
-            
-            {/* Footer du menu - Style iOS */}
-            <div className="border-t border-gray-200 p-6 bg-gray-50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-bold">👤</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{user.name}</p>
-                    <p className="text-sm text-gray-500">{user.role} • Connecté(e)</p>
-                  </div>
                 </div>
-                
-                <div className="flex items-center space-x-2">
+              </div>
+              
+              {/* Grille d'icônes - Style glassmorphisme */}
+              <div className="overflow-y-auto max-h-[calc(100vh-300px)]">
+                <div className={`grid gap-6 ${isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'}`}>
+                  {menuItems.map((item, index) => (
+                    <button
+                      key={item.id}
+                      data-testid={`menu-${item.id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setCurrentView(item.id);
+                        setShowMenu(false);
+                      }}
+                      className={`group relative backdrop-blur-sm rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 border ${
+                        currentView === item.id
+                          ? 'bg-white/20 border-white/40 shadow-lg'
+                          : 'bg-white/10 border-white/20 hover:bg-white/15 hover:border-white/30 shadow-sm'
+                      }`}
+                      style={{
+                        animationDelay: `${index * 50}ms`,
+                        animation: 'fadeIn 0.5s ease-out forwards'
+                      }}
+                    >
+                      {/* Icône principale - Style glassmorphisme */}
+                      <div className={`mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl backdrop-blur-sm transition-all duration-300 ${
+                        currentView === item.id
+                          ? 'bg-white/30 border border-white/40 shadow-lg transform scale-110'
+                          : 'bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110'
+                      }`}>
+                        {item.icon}
+                      </div>
+                      
+                      {/* Titre */}
+                      <h3 className={`font-bold text-lg mb-2 transition-colors duration-200 ${
+                        currentView === item.id
+                          ? 'text-white'
+                          : 'text-white/90 group-hover:text-white'
+                      }`}>
+                        {item.name}
+                      </h3>
+                      
+                      {/* Description courte */}
+                      <p className="text-sm text-white/60 leading-relaxed">
+                        {item.id === 'dashboard' && 'Vue d\'ensemble'}
+                        {item.id === 'my-space' && 'Espace personnel'}
+                        {item.id === 'absence-requests' && 'Gestion absences'}
+                        {item.id === 'monthly-planning' && 'Planning mensuel'}
+                        {item.id === 'analytics' && 'Rapports KPI'}
+                        {item.id === 'overtime' && 'Heures sup.'}
+                        {item.id === 'delegation-hours' && 'Délégation CSE'}
+                        {item.id === 'hr-toolbox' && 'Outils RH'}
+                        {item.id === 'on-call-management' && 'Astreintes'}
+                        {item.id === 'user-management' && 'Utilisateurs'}
+                      </p>
+                      
+                      {/* Badge actif - Style glassmorphisme */}
+                      {currentView === item.id && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-orange-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                          <div className="w-3 h-3 bg-white rounded-full"></div>
+                        </div>
+                      )}
+
+                      {/* Badge de notification - Style glassmorphisme */}
+                      {(item.id === 'absence-requests' || item.id === 'delegation-hours') && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
+                          {item.id === 'absence-requests' ? '3' : '2'}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                  
+                  {/* Raccourcis supplémentaires - Style glassmorphisme */}
                   <button
                     onClick={() => {
+                      setCurrentView('settings');
                       setShowMenu(false);
-                      onLogout();
                     }}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-100 rounded-lg font-medium text-sm transition-colors border border-gray-300"
+                    className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm"
                   >
-                    🚪 Déconnexion
+                    <div className="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                      ⚙️
+                    </div>
+                    <h3 className="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                      Paramètres
+                    </h3>
+                    <p className="text-sm text-white/60">Configuration</p>
                   </button>
+
+                  <button
+                    onClick={() => {
+                      setCurrentView('help');
+                      setShowMenu(false);
+                    }}
+                    className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm"
+                  >
+                    <div className="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                      ❓
+                    </div>
+                    <h3 className="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                      Aide
+                    </h3>
+                    <p className="text-sm text-white/60">Support</p>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Footer du menu - Style glassmorphisme */}
+              <div className="border-t border-white/20 pt-6 mt-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-lg">👤</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-white">{user.name}</p>
+                      <p className="text-sm text-white/70">{user.role} • Connecté(e)</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => {
+                        setShowMenu(false);
+                        onLogout();
+                      }}
+                      className="px-4 py-2 bg-gradient-to-r from-orange-500 to-pink-600 text-white font-semibold rounded-xl hover:from-orange-600 hover:to-pink-700 transition-all duration-300 shadow-lg"
+                    >
+                      🚪 Déconnexion
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          <style jsx>{`
+            @keyframes float {
+              0%, 100% { transform: translateY(0px) rotate(0deg); }
+              50% { transform: translateY(-20px) rotate(180deg); }
+            }
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(20px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
         </div>
       )}
 
