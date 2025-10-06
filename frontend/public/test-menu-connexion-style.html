@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOZAIK RH - Menu Style Page de Connexion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .menu-item {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .cloud-1 {
+            animation: float 20s ease-in-out infinite;
+            animation-delay: 0s;
+        }
+        .cloud-2 {
+            animation: float 25s ease-in-out infinite reverse;
+            animation-delay: 5s;
+        }
+        .cloud-3 {
+            animation: float 30s ease-in-out infinite;
+            animation-delay: 10s;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header avec Menu Hamburger -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Menu Hamburger + Logo -->
+                <div class="flex items-center">
+                    <!-- Menu Hamburger -->
+                    <button
+                        onclick="toggleMenu()"
+                        class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 mr-4"
+                    >
+                        <div class="w-6 h-6 flex flex-col justify-center items-center">
+                            <span class="bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm -translate-y-0.5"></span>
+                            <span class="bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm my-0.5 opacity-100"></span>
+                            <span class="bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm translate-y-0.5"></span>
+                        </div>
+                    </button>
+                    
+                    <!-- Logo -->
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-blue-600">MOZAIK RH</h1>
+                    </div>
+                    
+                    <!-- Titre de la page courante -->
+                    <div class="hidden md:block ml-8">
+                        <h2 class="text-lg text-gray-800 font-medium">Dashboard</h2>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">
+                        Bonjour, <span class="font-medium">Sophie Martin</span>
+                    </span>
+                    <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu Flottant - Style Page de Connexion MOZAIK RH -->
+    <div id="menuOverlay" class="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden hidden">
+        <!-- Nuages animés identiques à la page de connexion -->
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="cloud-1 absolute w-96 h-96 bg-white/5 rounded-full -top-48 -left-48 animate-pulse"></div>
+            <div class="cloud-2 absolute w-64 h-64 bg-white/3 rounded-full top-1/4 right-0 animate-pulse"></div>
+            <div class="cloud-3 absolute w-80 h-80 bg-white/4 rounded-full bottom-0 left-1/3 animate-pulse"></div>
+        </div>
+
+        <div class="min-h-screen flex items-center justify-center p-6 relative z-10">
+            <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 max-w-6xl w-full">
+              
+                <!-- Header du menu - Style page de connexion -->
+                <div class="text-center mb-8 pb-6 border-b border-white/20">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-4">
+                            <!-- Logo MOZAIK identique à la page de connexion -->
+                            <div class="w-16 h-16 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-2xl flex items-center justify-center transform rotate-12 shadow-lg">
+                                <span class="text-white font-bold text-2xl transform -rotate-12">M</span>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-bold text-white">MOZAIK RH</h2>
+                                <p class="text-white/70 text-lg">Menu Principal</p>
+                            </div>
+                        </div>
+                        <button
+                            onclick="toggleMenu()"
+                            class="p-3 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-all duration-200"
+                        >
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+              
+                <!-- Grille d'icônes - Style glassmorphisme -->
+                <div class="overflow-y-auto max-h-[calc(100vh-300px)]">
+                    <div class="grid gap-6 grid-cols-3 lg:grid-cols-4">
+                        
+                        <!-- Dashboard -->
+                        <button class="menu-item group relative bg-white/20 backdrop-blur-sm border border-white/40 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-lg" style="animation-delay: 0ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/30 border border-white/40 shadow-lg transform scale-110 backdrop-blur-sm transition-all duration-300">
+                                🏠
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white transition-colors duration-200">
+                                Dashboard
+                            </h3>
+                            <p class="text-sm text-white/60 leading-relaxed">Vue d'ensemble</p>
+                            <div class="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-orange-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                                <div class="w-3 h-3 bg-white rounded-full"></div>
+                            </div>
+                        </button>
+
+                        <!-- Mon Espace -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 50ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                👤
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Mon Espace
+                            </h3>
+                            <p class="text-sm text-white/60 leading-relaxed">Espace personnel</p>
+                        </button>
+
+                        <!-- Demandes d'Absence -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 100ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                📋
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Demandes d'Absence
+                            </h3>
+                            <p class="text-sm text-white/60 leading-relaxed">Gestion absences</p>
+                            <div class="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
+                                3
+                            </div>
+                        </button>
+
+                        <!-- Planning Mensuel -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 150ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                📅
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Planning Mensuel
+                            </h3>
+                            <p class="text-sm text-white/60 leading-relaxed">Planning mensuel</p>
+                        </button>
+
+                        <!-- Analytics & KPI -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 200ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                📊
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Analytics & KPI
+                            </h3>
+                            <p class="text-sm text-white/60 leading-relaxed">Rapports KPI</p>
+                        </button>
+
+                        <!-- Heures Supplémentaires -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 250ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                ⏰
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Heures Supp.
+                            </h3>
+                            <p class="text-sm text-white/60 leading-relaxed">Heures sup.</p>
+                        </button>
+
+                        <!-- Délégation CSE -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 300ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                ⚖️
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Délégation CSE
+                            </h3>
+                            <p class="text-sm text-white/60 leading-relaxed">Délégation CSE</p>
+                            <div class="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
+                                2
+                            </div>
+                        </button>
+
+                        <!-- Boîte à Outils RH -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 350ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                🧰
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Boîte à Outils RH
+                            </h3>
+                            <p class="text-sm text-white/60 leading-relaxed">Outils RH</p>
+                        </button>
+
+                        <!-- Gestion des Astreintes -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 400ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                📞
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Gestion Astreintes
+                            </h3>
+                            <p class="text-sm text-white/60 leading-relaxed">Astreintes</p>
+                        </button>
+
+                        <!-- Gestion des Utilisateurs -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 450ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                👥
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Gestion Utilisateurs
+                            </h3>
+                            <p class="text-sm text-white/60 leading-relaxed">Utilisateurs</p>
+                        </button>
+
+                        <!-- Paramètres -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 500ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                ⚙️
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Paramètres
+                            </h3>
+                            <p class="text-sm text-white/60">Configuration</p>
+                        </button>
+
+                        <!-- Aide -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm" style="animation-delay: 550ms">
+                            <div class="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
+                                ❓
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                                Aide
+                            </h3>
+                            <p class="text-sm text-white/60">Support</p>
+                        </button>
+                    </div>
+                </div>
+              
+                <!-- Footer du menu - Style glassmorphisme -->
+                <div class="border-t border-white/20 pt-6 mt-8">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold text-lg">👤</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-white">Sophie Martin</p>
+                                <p class="text-sm text-white/70">Administratrice RH • Connecté(e)</p>
+                            </div>
+                        </div>
+                  
+                        <div class="flex items-center space-x-2">
+                            <button class="px-4 py-2 bg-gradient-to-r from-orange-500 to-pink-600 text-white font-semibold rounded-xl hover:from-orange-600 hover:to-pink-700 transition-all duration-300 shadow-lg">
+                                🚪 Déconnexion
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">Menu Hamburger - Style Page de Connexion ✅</h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Style adopté -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-800">🎨 Style de la Page de Connexion</h2>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full"></div>
+                            <span>Fond dégradé bleu-indigo identique</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-white/10 border border-white/20 rounded-full"></div>
+                            <span>Glassmorphisme avec backdrop-blur</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full"></div>
+                            <span>Logo MOZAIK coloré avec rotation</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-white/20 rounded-full"></div>
+                            <span>Bordures translucides blanches</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-gradient-to-r from-orange-500 to-pink-600 rounded-full"></div>
+                            <span>Boutons avec dégradé orange-rose</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-white/5 rounded-full"></div>
+                            <span>Nuages animés en arrière-plan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cohérence visuelle -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-800">🔗 Cohérence Visuelle</h2>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span>Même palette de couleurs exacte</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span>Effets glassmorphisme identiques</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span>Logo M avec même style et position</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span>Typographie blanche cohérente</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span>Animations et transitions harmonieuses</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span>Badge notifications avec même style</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                <h3 class="font-medium text-blue-800 mb-2">🎯 Résultat Final</h3>
+                <p class="text-sm text-blue-700">
+                    Le menu hamburger adopte maintenant exactement le même style visuel que la page de connexion MOZAIK RH :
+                    fond dégradé bleu-indigo, glassmorphisme, logo coloré avec rotation, nuages animés, et tous les effets visuels 
+                    pour une expérience utilisateur parfaitement cohérente.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let menuOpen = false;
+
+        function toggleMenu() {
+            const overlay = document.getElementById('menuOverlay');
+            if (menuOpen) {
+                overlay.classList.add('hidden');
+                menuOpen = false;
+            } else {
+                overlay.classList.remove('hidden');
+                menuOpen = true;
+            }
+        }
+
+        // Fermer le menu si on clique sur le backdrop
+        document.getElementById('menuOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                toggleMenu();
+            }
+        });
+
+        // Fermer le menu avec la touche Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && menuOpen) {
+                toggleMenu();
+            }
+        });
+    </script>
+</body>
+</html>
