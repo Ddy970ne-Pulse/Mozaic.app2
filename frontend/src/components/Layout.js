@@ -153,70 +153,163 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
         </div>
       </header>
 
-      {/* Menu Hamburger Overlay */}
+      {/* Menu Flottant Style iOS/iCloud - Original MOZAIK RH */}
       {showMenu && (
-        <div className="fixed inset-0 z-50 flex">
-          {/* Overlay background */}
-          <div className="fixed inset-0 bg-black opacity-50" onClick={() => setShowMenu(false)}></div>
-          
-          {/* Menu sidebar */}
-          <div className="relative flex flex-col w-80 max-w-xs bg-white shadow-xl">
-            {/* Menu Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-blue-50">
-              <div>
-                <h2 className="text-xl font-bold text-blue-800">Menu Principal</h2>
-                <p className="text-sm text-blue-600 mt-1">MOZAIK RH - Gestion moderne</p>
+        <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm">
+          <div className="absolute inset-6 bg-white rounded-3xl shadow-2xl overflow-hidden">
+            {/* Header du menu - Style iOS */}
+            <div className="bg-gradient-to-br from-blue-600 to-blue-800 px-8 py-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-white rounded-full p-1 shadow-lg">
+                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-2xl">M</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white">MOZAIK RH</h2>
+                    <p className="text-blue-100 text-lg">Plateforme de gestion moderne</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowMenu(false)}
+                  className="p-3 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-all duration-200"
+                >
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <button
-                onClick={() => setShowMenu(false)}
-                className="p-2 rounded-md text-blue-400 hover:text-blue-600 hover:bg-blue-100"
-              >
-                <span className="sr-only">Fermer le menu</span>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
             </div>
             
-            {/* Menu Items */}
-            <div className="flex-1 px-4 py-6 overflow-y-auto">
-              <nav className="space-y-2">
-                {menuItems.map((item) => (
+            {/* Grille d'icônes - Style iCloud */}
+            <div className="p-8 overflow-y-auto max-h-[calc(100vh-280px)]">
+              <div className={`grid gap-6 ${isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'}`}>
+                {menuItems.map((item, index) => (
                   <button
                     key={item.id}
-                    onClick={() => {
+                    data-testid={`menu-${item.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       setCurrentView(item.id);
                       setShowMenu(false);
                     }}
-                    className={`w-full flex items-center px-4 py-3 text-left rounded-lg font-medium transition-all duration-200 ${
+                    className={`group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 ${
                       currentView === item.id
-                        ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'border-blue-300 shadow-lg bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-200 shadow-sm'
                     }`}
+                    style={{
+                      animationDelay: `${index * 50}ms`
+                    }}
                   >
-                    <span className={`mr-3 text-xl ${
-                      currentView === item.id ? 'text-blue-600' : 'text-gray-400'
+                    {/* Icône principale - Style iOS */}
+                    <div className={`mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-all duration-300 ${
+                      currentView === item.id
+                        ? 'bg-blue-100 shadow-lg transform scale-110'
+                        : 'bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110'
                     }`}>
                       {item.icon}
-                    </span>
-                    <span className="text-sm">{item.name}</span>
+                    </div>
+                    
+                    {/* Titre */}
+                    <h3 className={`font-bold text-lg mb-2 transition-colors duration-200 ${
+                      currentView === item.id
+                        ? 'text-blue-700'
+                        : 'text-gray-900 group-hover:text-blue-600'
+                    }`}>
+                      {item.name}
+                    </h3>
+                    
+                    {/* Description courte */}
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      {item.id === 'dashboard' && 'Vue d\'ensemble'}
+                      {item.id === 'my-space' && 'Espace personnel'}
+                      {item.id === 'absence-requests' && 'Gestion absences'}
+                      {item.id === 'monthly-planning' && 'Planning mensuel'}
+                      {item.id === 'analytics' && 'Rapports KPI'}
+                      {item.id === 'overtime' && 'Heures sup.'}
+                      {item.id === 'delegation-hours' && 'Délégation CSE'}
+                      {item.id === 'hr-toolbox' && 'Outils RH'}
+                      {item.id === 'on-call-management' && 'Astreintes'}
+                      {item.id === 'user-management' && 'Utilisateurs'}
+                    </p>
+                    
+                    {/* Badge actif - Style iOS */}
                     {currentView === item.id && (
-                      <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                        <div className="w-3 h-3 bg-white rounded-full"></div>
+                      </div>
+                    )}
+
+                    {/* Badge de notification (optionnel) */}
+                    {(item.id === 'absence-requests' || item.id === 'delegation-hours') && (
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                        {item.id === 'absence-requests' ? '3' : '2'}
+                      </div>
                     )}
                   </button>
                 ))}
-              </nav>
+                
+                {/* Raccourcis supplémentaires - Style iCloud */}
+                <button
+                  onClick={() => {
+                    setCurrentView('settings');
+                    setShowMenu(false);
+                  }}
+                  className="group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-gray-300 shadow-sm"
+                >
+                  <div className="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-gray-200 group-hover:scale-110 transition-all duration-300">
+                    ⚙️
+                  </div>
+                  <h3 className="font-bold text-lg mb-2 text-gray-900 group-hover:text-gray-700 transition-colors duration-200">
+                    Paramètres
+                  </h3>
+                  <p className="text-sm text-gray-500">Configuration</p>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setCurrentView('help');
+                    setShowMenu(false);
+                  }}
+                  className="group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-gray-300 shadow-sm"
+                >
+                  <div className="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-gray-200 group-hover:scale-110 transition-all duration-300">
+                    ❓
+                  </div>
+                  <h3 className="font-bold text-lg mb-2 text-gray-900 group-hover:text-gray-700 transition-colors duration-200">
+                    Aide
+                  </h3>
+                  <p className="text-sm text-gray-500">Support</p>
+                </button>
+              </div>
             </div>
             
-            {/* Menu Footer */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-600 font-bold text-sm">👤</span>
+            {/* Footer du menu - Style iOS */}
+            <div className="border-t border-gray-200 p-6 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-blue-600 font-bold">👤</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">{user.name}</p>
+                    <p className="text-sm text-gray-500">{user.role} • Connecté(e)</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                  <p className="text-xs text-gray-500">{user.role} • Connecté(e)</p>
+                
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      setShowMenu(false);
+                      onLogout();
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-100 rounded-lg font-medium text-sm transition-colors border border-gray-300"
+                  >
+                    🚪 Déconnexion
+                  </button>
                 </div>
               </div>
             </div>
