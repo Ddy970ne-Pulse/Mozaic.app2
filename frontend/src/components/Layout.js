@@ -107,69 +107,33 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header Navigation - Style Original MOZAIK RH */}
+      {/* Header avec Menu Hamburger - Style Original MOZAIK RH */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo et Titre */}
+            {/* Menu Hamburger + Logo */}
             <div className="flex items-center">
+              {/* Menu Hamburger */}
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 mr-4"
+              >
+                <span className="sr-only">Ouvrir le menu principal</span>
+                <div className="w-6 h-6 flex flex-col justify-center items-center">
+                  <span className={`bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${showMenu ? 'rotate-45 translate-y-1' : '-translate-y-0.5'}`}></span>
+                  <span className={`bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm my-0.5 ${showMenu ? 'opacity-0' : 'opacity-100'}`}></span>
+                  <span className={`bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${showMenu ? '-rotate-45 -translate-y-1' : 'translate-y-0.5'}`}></span>
+                </div>
+              </button>
+              
+              {/* Logo et Titre */}
               <div className="flex-shrink-0">
                 <h1 className="text-2xl font-bold text-blue-600">MOZAIK RH</h1>
               </div>
+              
+              {/* Titre de la page courante */}
               <div className="hidden md:block ml-8">
                 <h2 className="text-lg text-gray-800 font-medium">{getCurrentPageTitle()}</h2>
-              </div>
-            </div>
-
-            {/* Menu Navigation Horizontal */}
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
-                {menuItems.slice(0, 6).map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setCurrentView(item.id)}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      currentView === item.id
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <span className="mr-1">{item.icon}</span>
-                    {item.name}
-                  </button>
-                ))}
-                
-                {/* Menu dropdown pour les autres éléments */}
-                {menuItems.length > 6 && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowMenu(!showMenu)}
-                      className="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                    >
-                      Plus...
-                    </button>
-                    
-                    {showMenu && (
-                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-                        <div className="py-1">
-                          {menuItems.slice(6).map((item) => (
-                            <button
-                              key={item.id}
-                              onClick={() => {
-                                setCurrentView(item.id);
-                                setShowMenu(false);
-                              }}
-                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            >
-                              <span className="mr-2">{item.icon}</span>
-                              {item.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
 
@@ -185,45 +149,80 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                 Déconnexion
               </button>
             </div>
+          </div>
+        </div>
+      </header>
 
-            {/* Mobile menu button */}
-            <div className="md:hidden">
+      {/* Menu Hamburger Overlay */}
+      {showMenu && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Overlay background */}
+          <div className="fixed inset-0 bg-black opacity-50" onClick={() => setShowMenu(false)}></div>
+          
+          {/* Menu sidebar */}
+          <div className="relative flex flex-col w-80 max-w-xs bg-white shadow-xl">
+            {/* Menu Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-blue-50">
+              <div>
+                <h2 className="text-xl font-bold text-blue-800">Menu Principal</h2>
+                <p className="text-sm text-blue-600 mt-1">MOZAIK RH - Gestion moderne</p>
+              </div>
               <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="bg-gray-200 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-300"
+                onClick={() => setShowMenu(false)}
+                className="p-2 rounded-md text-blue-400 hover:text-blue-600 hover:bg-blue-100"
               >
-                <span className="sr-only">Open main menu</span>
-                {showMenu ? '✕' : '☰'}
+                <span className="sr-only">Fermer le menu</span>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
+            </div>
+            
+            {/* Menu Items */}
+            <div className="flex-1 px-4 py-6 overflow-y-auto">
+              <nav className="space-y-2">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setCurrentView(item.id);
+                      setShowMenu(false);
+                    }}
+                    className={`w-full flex items-center px-4 py-3 text-left rounded-lg font-medium transition-all duration-200 ${
+                      currentView === item.id
+                        ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span className={`mr-3 text-xl ${
+                      currentView === item.id ? 'text-blue-600' : 'text-gray-400'
+                    }`}>
+                      {item.icon}
+                    </span>
+                    <span className="text-sm">{item.name}</span>
+                    {currentView === item.id && (
+                      <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full"></div>
+                    )}
+                  </button>
+                ))}
+              </nav>
+            </div>
+            
+            {/* Menu Footer */}
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 font-bold text-sm">👤</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                  <p className="text-xs text-gray-500">{user.role} • Connecté(e)</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Mobile Navigation Menu */}
-        {isMobile && showMenu && (
-          <div className="md:hidden border-t border-gray-200 bg-white">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {menuItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setCurrentView(item.id);
-                    setShowMenu(false);
-                  }}
-                  className={`flex items-center w-full px-3 py-2 rounded-md text-base font-medium ${
-                    currentView === item.id
-                      ? 'text-blue-700 bg-blue-100'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  <span className="mr-2">{item.icon}</span>
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </header>
+      )}
 
       {/* Mobile Menu Overlay - Style Original Simple */}
       {showMenu && isMobile && (
