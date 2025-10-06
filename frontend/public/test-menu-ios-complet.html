@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOZAIK RH - Menu Flottant iOS/iCloud Style</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        @keyframes float-in {
+            0% { transform: scale(0.9) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .menu-item {
+            animation: float-in 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header avec Menu Hamburger -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Menu Hamburger + Logo -->
+                <div class="flex items-center">
+                    <!-- Menu Hamburger -->
+                    <button
+                        onclick="toggleMenu()"
+                        class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 mr-4"
+                    >
+                        <div class="w-6 h-6 flex flex-col justify-center items-center">
+                            <span class="bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm -translate-y-0.5"></span>
+                            <span class="bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm my-0.5 opacity-100"></span>
+                            <span class="bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm translate-y-0.5"></span>
+                        </div>
+                    </button>
+                    
+                    <!-- Logo -->
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-blue-600">MOZAIK RH</h1>
+                    </div>
+                    
+                    <!-- Titre de la page courante -->
+                    <div class="hidden md:block ml-8">
+                        <h2 class="text-lg text-gray-800 font-medium">Dashboard</h2>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">
+                        Bonjour, <span class="font-medium">Sophie Martin</span>
+                    </span>
+                    <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu Flottant Style iOS/iCloud -->
+    <div id="menuOverlay" class="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm hidden">
+        <div class="absolute inset-6 bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Header du menu - Style iOS -->
+            <div class="bg-gradient-to-br from-blue-600 to-blue-800 px-8 py-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 bg-white rounded-full p-1 shadow-lg">
+                            <div class="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold text-2xl">M</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-white">MOZAIK RH</h2>
+                            <p class="text-blue-100 text-lg">Plateforme de gestion moderne</p>
+                        </div>
+                    </div>
+                    <button
+                        onclick="toggleMenu()"
+                        class="p-3 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-all duration-200"
+                    >
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Grille d'icônes - Style iCloud -->
+            <div class="p-8 overflow-y-auto max-h-[calc(100vh-280px)]">
+                <div class="grid gap-6 grid-cols-3 lg:grid-cols-4">
+                    
+                    <!-- Dashboard -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-blue-300 shadow-lg bg-blue-50" style="animation-delay: 0ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-blue-100 shadow-lg transform scale-110 transition-all duration-300">
+                            🏠
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-blue-700 transition-colors duration-200">
+                            Dashboard
+                        </h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Vue d'ensemble</p>
+                        <div class="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                            <div class="w-3 h-3 bg-white rounded-full"></div>
+                        </div>
+                    </button>
+
+                    <!-- Mon Espace -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-blue-200 shadow-sm" style="animation-delay: 50ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                            👤
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            Mon Espace
+                        </h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Espace personnel</p>
+                    </button>
+
+                    <!-- Demandes d'Absence -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-blue-200 shadow-sm" style="animation-delay: 100ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                            📋
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            Demandes d'Absence
+                        </h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Gestion absences</p>
+                        <div class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                            3
+                        </div>
+                    </button>
+
+                    <!-- Planning Mensuel -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-blue-200 shadow-sm" style="animation-delay: 150ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                            📅
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            Planning Mensuel
+                        </h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Planning mensuel</p>
+                    </button>
+
+                    <!-- Analytics & KPI -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-blue-200 shadow-sm" style="animation-delay: 200ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                            📊
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            Analytics & KPI
+                        </h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Rapports KPI</p>
+                    </button>
+
+                    <!-- Heures Supplémentaires -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-blue-200 shadow-sm" style="animation-delay: 250ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                            ⏰
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            Heures Supp.
+                        </h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Heures sup.</p>
+                    </button>
+
+                    <!-- Délégation CSE -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-blue-200 shadow-sm" style="animation-delay: 300ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                            ⚖️
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            Délégation CSE
+                        </h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Délégation CSE</p>
+                        <div class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                            2
+                        </div>
+                    </button>
+
+                    <!-- Boîte à Outils RH -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-blue-200 shadow-sm" style="animation-delay: 350ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                            🧰
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            Boîte à Outils RH
+                        </h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Outils RH</p>
+                    </button>
+
+                    <!-- Gestion des Astreintes -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-blue-200 shadow-sm" style="animation-delay: 400ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                            📞
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            Gestion Astreintes
+                        </h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Astreintes</p>
+                    </button>
+
+                    <!-- Gestion des Utilisateurs -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-blue-200 shadow-sm" style="animation-delay: 450ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                            👥
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            Gestion Utilisateurs
+                        </h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Utilisateurs</p>
+                    </button>
+
+                    <!-- Paramètres -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-gray-300 shadow-sm" style="animation-delay: 500ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-gray-200 group-hover:scale-110 transition-all duration-300">
+                            ⚙️
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-gray-700 transition-colors duration-200">
+                            Paramètres
+                        </h3>
+                        <p class="text-sm text-gray-500">Configuration</p>
+                    </button>
+
+                    <!-- Aide -->
+                    <button class="menu-item group relative bg-white rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-gray-200 hover:border-gray-300 shadow-sm" style="animation-delay: 550ms">
+                        <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-gray-100 group-hover:bg-gray-200 group-hover:scale-110 transition-all duration-300">
+                            ❓
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-900 group-hover:text-gray-700 transition-colors duration-200">
+                            Aide
+                        </h3>
+                        <p class="text-sm text-gray-500">Support</p>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Footer du menu - Style iOS -->
+            <div class="border-t border-gray-200 p-6 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 font-bold">👤</span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-900">Sophie Martin</p>
+                            <p class="text-sm text-gray-500">Administratrice RH • Connecté(e)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <button class="px-4 py-2 text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-100 rounded-lg font-medium text-sm transition-colors border border-gray-300">
+                            🚪 Déconnexion
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">Menu Flottant iOS/iCloud Restauré ✅</h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Fonctionnalités du menu -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-800">🎯 Fonctionnalités iOS/iCloud</h2>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <span>Menu hamburger avec animation fluide</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <span>Overlay fullscreen avec backdrop blur</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <span>Grille d'icônes 3x4 responsive</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <span>Animations d'entrée en cascade</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <span>Hover effects avec scale transform</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <span>Badge de notification pour certains modules</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Raccourcis disponibles -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-800">📱 Tous les Raccourcis</h2>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <span>🏠</span>
+                            <span>Dashboard (actif)</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>👤</span>
+                            <span>Mon Espace</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>📋</span>
+                            <span>Demandes Absence <span class="text-red-500 font-bold">(3)</span></span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>📅</span>
+                            <span>Planning Mensuel</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>📊</span>
+                            <span>Analytics & KPI</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>⏰</span>
+                            <span>Heures Supplémentaires</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>⚖️</span>
+                            <span>Délégation CSE <span class="text-red-500 font-bold">(2)</span></span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>🧰</span>
+                            <span>Boîte à Outils RH</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>📞</span>
+                            <span>Gestion Astreintes</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>👥</span>
+                            <span>Gestion Utilisateurs</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>⚙️</span>
+                            <span>Paramètres</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>❓</span>
+                            <span>Aide</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 class="font-medium text-blue-800 mb-2">📖 Instructions</h3>
+                <p class="text-sm text-blue-700">
+                    Cliquez sur l'icône hamburger (☰) en haut à gauche pour ouvrir le menu flottant style iOS/iCloud avec tous vos raccourcis MOZAIK RH.
+                    Le menu s'ouvre en fullscreen avec des animations fluides et des effets hover élégants.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let menuOpen = false;
+
+        function toggleMenu() {
+            const overlay = document.getElementById('menuOverlay');
+            if (menuOpen) {
+                overlay.classList.add('hidden');
+                menuOpen = false;
+            } else {
+                overlay.classList.remove('hidden');
+                menuOpen = true;
+            }
+        }
+
+        // Fermer le menu si on clique sur le backdrop
+        document.getElementById('menuOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                toggleMenu();
+            }
+        });
+
+        // Fermer le menu avec la touche Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && menuOpen) {
+                toggleMenu();
+            }
+        });
+    </script>
+</body>
+</html>
