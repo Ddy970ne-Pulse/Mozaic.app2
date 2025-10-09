@@ -302,21 +302,20 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                     );
                   })}
                   
-                  {/* Raccourcis supplémentaires - Style glassmorphisme */}
+                  {/* Raccourcis supplémentaires - Plus petits avec couleurs */}
                   <button
                     onClick={() => {
                       setCurrentView('settings');
                       setShowMenu(false);
                     }}
-                    className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm"
+                    className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm"
                   >
-                    <div className="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
-                      ⚙️
+                    <div className="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-gradient-to-br from-gray-500 to-gray-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl backdrop-blur-sm transition-all duration-300">
+                      <span className="text-white">⚙️</span>
                     </div>
-                    <h3 className="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                    <h3 className="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
                       Paramètres
                     </h3>
-                    <p className="text-sm text-white/60">Configuration</p>
                   </button>
 
                   <button
@@ -324,15 +323,14 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                       setCurrentView('help');
                       setShowMenu(false);
                     }}
-                    className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:border-white/30 rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 shadow-sm"
+                    className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm"
                   >
-                    <div className="mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110 backdrop-blur-sm transition-all duration-300">
-                      ❓
+                    <div className="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl backdrop-blur-sm transition-all duration-300">
+                      <span className="text-white">❓</span>
                     </div>
-                    <h3 className="font-bold text-lg mb-2 text-white/90 group-hover:text-white transition-colors duration-200">
+                    <h3 className="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
                       Aide
                     </h3>
-                    <p className="text-sm text-white/60">Support</p>
                   </button>
                 </div>
               </div>
