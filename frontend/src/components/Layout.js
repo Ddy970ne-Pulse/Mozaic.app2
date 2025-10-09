@@ -111,28 +111,25 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo + Menu Hamburger */}
-            <div className="flex items-center">
-              {/* Logo MOZAIK intégré */}
-              <div className="flex items-center space-x-3 mr-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-xl flex items-center justify-center transform rotate-12 shadow-lg">
-                  <span className="text-white font-bold text-lg transform -rotate-12">M</span>
-                </div>
-                <h1 className="text-2xl font-bold text-blue-600">MOZAIK RH</h1>
-              </div>
-              
+            {/* Menu Hamburger + Logo */}
+            <div className="flex items-center space-x-4">
               {/* Menu Hamburger */}
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg transition-all duration-200"
               >
                 <span className="sr-only">Ouvrir le menu principal</span>
                 <div className="w-6 h-6 flex flex-col justify-center items-center">
-                  <span className={`bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${showMenu ? 'rotate-45 translate-y-1' : '-translate-y-0.5'}`}></span>
-                  <span className={`bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm my-0.5 ${showMenu ? 'opacity-0' : 'opacity-100'}`}></span>
-                  <span className={`bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${showMenu ? '-rotate-45 -translate-y-1' : 'translate-y-0.5'}`}></span>
+                  <span className={`bg-white block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${showMenu ? 'rotate-45 translate-y-1' : '-translate-y-0.5'}`}></span>
+                  <span className={`bg-white block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm my-0.5 ${showMenu ? 'opacity-0' : 'opacity-100'}`}></span>
+                  <span className={`bg-white block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${showMenu ? '-rotate-45 -translate-y-1' : 'translate-y-0.5'}`}></span>
                 </div>
               </button>
+              
+              {/* Logo MOZAIK seul */}
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-xl flex items-center justify-center transform rotate-12 shadow-lg hover:scale-110 transition-transform duration-200">
+                <span className="text-white font-bold text-xl transform -rotate-12">M</span>
+              </div>
             </div>
 
             {/* User Menu */}
