@@ -296,11 +296,11 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
             }
             
             .menu-container {
-              animation: menuSlideIn 0.6s ease-out forwards;
+              animation: menuSlideIn 0.3s ease-out forwards;
             }
             
             .menu-item {
-              animation: tileAppear 0.8s ease-out forwards;
+              animation: tileAppear 0.4s ease-out forwards;
               animation-fill-mode: both;
             }
           `}</style>
