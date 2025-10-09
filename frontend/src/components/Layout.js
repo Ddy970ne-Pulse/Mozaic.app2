@@ -369,7 +369,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                             : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/40 shadow-sm'
                         }`}
                         style={{
-                          animationDelay: `${index * 60}ms`
+                          animationDelay: `${index * 20}ms`
                         }}
                       >
                         {/* Icône avec couleur spécifique */}
