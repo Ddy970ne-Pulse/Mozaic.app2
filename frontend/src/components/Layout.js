@@ -226,76 +226,81 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                 </div>
               </div>
               
-              {/* Grille d'icônes - Style glassmorphisme */}
+              {/* Grille d'icônes - Tuiles plus petites avec couleurs */}
               <div className="overflow-y-auto max-h-[calc(100vh-300px)]">
-                <div className={`grid gap-6 ${isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'}`}>
-                  {menuItems.map((item, index) => (
-                    <button
-                      key={item.id}
-                      data-testid={`menu-${item.id}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setCurrentView(item.id);
-                        setShowMenu(false);
-                      }}
-                      className={`group relative backdrop-blur-sm rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105 border ${
-                        currentView === item.id
-                          ? 'bg-white/20 border-white/40 shadow-lg'
-                          : 'bg-white/10 border-white/20 hover:bg-white/15 hover:border-white/30 shadow-sm'
-                      }`}
-                      style={{
-                        animationDelay: `${index * 50}ms`,
-                        animation: 'fadeIn 0.5s ease-out forwards'
-                      }}
-                    >
-                      {/* Icône principale - Style glassmorphisme */}
-                      <div className={`mx-auto mb-4 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl backdrop-blur-sm transition-all duration-300 ${
-                        currentView === item.id
-                          ? 'bg-white/30 border border-white/40 shadow-lg transform scale-110'
-                          : 'bg-white/20 border border-white/30 group-hover:bg-white/25 group-hover:scale-110'
-                      }`}>
-                        {item.icon}
-                      </div>
-                      
-                      {/* Titre */}
-                      <h3 className={`font-bold text-lg mb-2 transition-colors duration-200 ${
-                        currentView === item.id
-                          ? 'text-white'
-                          : 'text-white/90 group-hover:text-white'
-                      }`}>
-                        {item.name}
-                      </h3>
-                      
-                      {/* Description courte */}
-                      <p className="text-sm text-white/60 leading-relaxed">
-                        {item.id === 'dashboard' && 'Vue d\'ensemble'}
-                        {item.id === 'my-space' && 'Espace personnel'}
-                        {item.id === 'absence-requests' && 'Gestion absences'}
-                        {item.id === 'monthly-planning' && 'Planning mensuel'}
-                        {item.id === 'analytics' && 'Rapports KPI'}
-                        {item.id === 'overtime' && 'Heures sup.'}
-                        {item.id === 'delegation-hours' && 'Délégation CSE'}
-                        {item.id === 'hr-toolbox' && 'Outils RH'}
-                        {item.id === 'on-call-management' && 'Astreintes'}
-                        {item.id === 'user-management' && 'Utilisateurs'}
-                      </p>
-                      
-                      {/* Badge actif - Style glassmorphisme */}
-                      {currentView === item.id && (
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-orange-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                          <div className="w-3 h-3 bg-white rounded-full"></div>
-                        </div>
-                      )}
+                <div className={`grid gap-4 ${isMobile ? 'grid-cols-3' : 'grid-cols-4 lg:grid-cols-6'}`}>
+                  {menuItems.map((item, index) => {
+                    // Couleurs spécifiques par module
+                    const getItemColors = (id) => {
+                      const colors = {
+                        'dashboard': 'from-blue-500 to-blue-600',
+                        'my-space': 'from-green-500 to-green-600', 
+                        'absence-requests': 'from-red-500 to-red-600',
+                        'monthly-planning': 'from-purple-500 to-purple-600',
+                        'analytics': 'from-yellow-500 to-orange-500',
+                        'overtime': 'from-indigo-500 to-indigo-600',
+                        'delegation-hours': 'from-pink-500 to-pink-600',
+                        'hr-toolbox': 'from-teal-500 to-teal-600',
+                        'on-call-management': 'from-cyan-500 to-cyan-600',
+                        'user-management': 'from-violet-500 to-violet-600'
+                      };
+                      return colors[id] || 'from-gray-500 to-gray-600';
+                    };
 
-                      {/* Badge de notification - Style glassmorphisme */}
-                      {(item.id === 'absence-requests' || item.id === 'delegation-hours') && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
-                          {item.id === 'absence-requests' ? '3' : '2'}
+                    return (
+                      <button
+                        key={item.id}
+                        data-testid={`menu-${item.id}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setCurrentView(item.id);
+                          setShowMenu(false);
+                        }}
+                        className={`group relative backdrop-blur-sm rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 border ${
+                          currentView === item.id
+                            ? 'bg-white/25 border-white/50 shadow-xl'
+                            : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/40 shadow-sm'
+                        }`}
+                        style={{
+                          animationDelay: `${index * 30}ms`,
+                          animation: 'fadeIn 0.4s ease-out forwards'
+                        }}
+                      >
+                        {/* Icône avec couleur spécifique */}
+                        <div className={`mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br ${getItemColors(item.id)} shadow-lg ${
+                          currentView === item.id
+                            ? 'transform scale-110 shadow-xl'
+                            : 'group-hover:scale-110 group-hover:shadow-xl'
+                        }`}>
+                          <span className="text-white">{item.icon}</span>
                         </div>
-                      )}
-                    </button>
-                  ))}
+                        
+                        {/* Titre plus compact */}
+                        <h3 className={`font-semibold text-sm transition-colors duration-200 ${
+                          currentView === item.id
+                            ? 'text-white'
+                            : 'text-white/90 group-hover:text-white'
+                        }`}>
+                          {item.name}
+                        </h3>
+                        
+                        {/* Badge actif */}
+                        {currentView === item.id && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-orange-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                          </div>
+                        )}
+
+                        {/* Badge de notification */}
+                        {(item.id === 'absence-requests' || item.id === 'delegation-hours') && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
+                            {item.id === 'absence-requests' ? '3' : '2'}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                   
                   {/* Raccourcis supplémentaires - Style glassmorphisme */}
                   <button
