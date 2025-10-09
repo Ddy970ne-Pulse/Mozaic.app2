@@ -11,6 +11,7 @@ import OvertimeModule from './OvertimeModule';
 import DelegationHours from './DelegationHours';
 import UserManagement from './UserManagement';
 import OnCallManagement from './OnCallManagement';
+import ExcelImport from './ExcelImport';
 
 const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
   const [showMenu, setShowMenu] = useState(false);
