@@ -111,12 +111,20 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Menu Hamburger + Logo */}
+            {/* Logo + Menu Hamburger */}
             <div className="flex items-center">
+              {/* Logo MOZAIK intégré */}
+              <div className="flex items-center space-x-3 mr-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-xl flex items-center justify-center transform rotate-12 shadow-lg">
+                  <span className="text-white font-bold text-lg transform -rotate-12">M</span>
+                </div>
+                <h1 className="text-2xl font-bold text-blue-600">MOZAIK RH</h1>
+              </div>
+              
               {/* Menu Hamburger */}
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 mr-4"
+                className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
               >
                 <span className="sr-only">Ouvrir le menu principal</span>
                 <div className="w-6 h-6 flex flex-col justify-center items-center">
@@ -125,16 +133,6 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                   <span className={`bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${showMenu ? '-rotate-45 -translate-y-1' : 'translate-y-0.5'}`}></span>
                 </div>
               </button>
-              
-              {/* Logo et Titre */}
-              <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-blue-600">MOZAIK RH</h1>
-              </div>
-              
-              {/* Titre de la page courante */}
-              <div className="hidden md:block ml-8">
-                <h2 className="text-lg text-gray-800 font-medium">{getCurrentPageTitle()}</h2>
-              </div>
             </div>
 
             {/* User Menu */}
