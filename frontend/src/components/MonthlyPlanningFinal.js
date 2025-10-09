@@ -1156,24 +1156,27 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         </div>
       </div>
 
-      {/* Barre d'actions */}
-      <div className="flex flex-wrap gap-3 mb-6">
+      {/* Barre d'actions harmonisées */}
+      <div className="flex flex-wrap gap-4 mb-6">
         <button
           onClick={() => setShowLegendDetails(!showLegendDetails)}
-          className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+          className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 shadow-lg transition-all duration-200"
+          title={showLegendDetails ? 'Masquer Légende' : 'Afficher Légende'}
         >
-          📋 {showLegendDetails ? 'Masquer' : 'Afficher'} Légende
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
         </button>
         
         <div className="relative">
           <button
             onClick={() => setShowPrintOptions(!showPrintOptions)}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2"
+            className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 shadow-lg transition-all duration-200"
+            title="Options d'impression"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z" />
             </svg>
-            <span>Imprimer</span>
           </button>
           
           {showPrintOptions && (
