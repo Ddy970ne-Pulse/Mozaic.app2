@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Hamburger Optimisé - Déplacements Horizontaux</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animations optimisées avec déplacements horizontaux */
+        @keyframes cloudFloat {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            25% { transform: translateY(-10px) translateX(20px); }
+            50% { transform: translateY(-5px) translateX(-30px); }
+            75% { transform: translateY(-15px) translateX(10px); }
+        }
+        
+        @keyframes cloudRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes cloudPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+        
+        @keyframes cloudSway {
+            0%, 100% { transform: translateX(0px); }
+            50% { transform: translateX(20px); }
+        }
+        
+        @keyframes particleFloat {
+            0%, 100% { transform: translateY(0px); }
+            33% { transform: translateY(-15px); }
+            66% { transform: translateY(-5px); }
+        }
+        
+        @keyframes particleFade {
+            0% { opacity: 0.1; }
+            100% { opacity: 0.4; }
+        }
+        
+        @keyframes glowPulse {
+            0% { opacity: 0.5; }
+            100% { opacity: 0.8; }
+        }
+        
+        @keyframes menuSlideIn {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.95) translateX(-30px);
+                filter: blur(5px);
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1) translateX(0);
+                filter: blur(0px);
+            }
+        }
+        
+        @keyframes tileAppear {
+            0% {
+                opacity: 0;
+                transform: translateX(-40px) scale(0.9);
+                filter: blur(3px);
+            }
+            60% {
+                transform: translateX(5px) scale(1.02);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+        
+        .menu-container {
+            animation: menuSlideIn 0.3s ease-out forwards;
+        }
+        
+        .menu-item {
+            animation: tileAppear 0.4s ease-out forwards;
+            animation-fill-mode: both;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-4">
+                        <button
+                            id="hamburgerBtn"
+                            class="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg transition-all duration-200"
+                        >
+                            <div class="w-6 h-6 flex flex-col justify-center items-center">
+                                <span class="bg-white block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm -translate-y-0.5"></span>
+                                <span class="bg-white block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm my-0.5"></span>
+                                <span class="bg-white block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm translate-y-0.5"></span>
+                            </div>
+                        </button>
+                        
+                        <div class="w-12 h-12 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-xl flex items-center justify-center transform rotate-12 shadow-lg">
+                            <span class="text-white font-bold text-xl transform -rotate-12">M</span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm text-gray-700">
+                        Menu Hamburger <span class="font-medium">Optimisé</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Menu Overlay -->
+        <div id="menuOverlay" class="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden" style="display: none;">
+            <!-- Nuages animés -->
+            <div class="absolute inset-0 pointer-events-none">
+                <div 
+                    class="cloud cloud-1 absolute w-96 h-96 bg-white/5 rounded-full -top-48 -left-48"
+                    style="animation: cloudFloat 20s ease-in-out infinite, cloudRotate 30s linear infinite;"
+                ></div>
+                
+                <div 
+                    class="cloud cloud-2 absolute w-64 h-64 bg-white/3 rounded-full top-1/4 right-0"
+                    style="animation: cloudFloat 25s ease-in-out infinite reverse, cloudPulse 8s ease-in-out infinite; animation-delay: 5s;"
+                ></div>
+                
+                <div 
+                    class="cloud cloud-3 absolute w-80 h-80 bg-white/4 rounded-full bottom-0 left-1/3"
+                    style="animation: cloudFloat 30s ease-in-out infinite, cloudSway 15s ease-in-out infinite; animation-delay: 10s;"
+                ></div>
+                
+                <div 
+                    class="absolute w-32 h-32 bg-white/2 rounded-full top-1/2 left-1/4"
+                    style="animation: particleFloat 12s ease-in-out infinite, particleFade 6s ease-in-out infinite alternate; animation-delay: 2s;"
+                ></div>
+                
+                <div 
+                    class="absolute w-24 h-24 bg-white/2 rounded-full top-3/4 right-1/4"
+                    style="animation: particleFloat 18s ease-in-out infinite reverse, particleFade 4s ease-in-out infinite alternate; animation-delay: 8s;"
+                ></div>
+                
+                <div 
+                    class="absolute w-full h-full bg-gradient-to-t from-blue-800/20 via-transparent to-indigo-900/20"
+                    style="animation: glowPulse 10s ease-in-out infinite alternate;"
+                ></div>
+            </div>
+
+            <div class="min-h-screen flex items-center justify-center p-6 relative z-10">
+                <div class="menu-container bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 max-w-6xl w-full">
+                    
+                    <!-- Header du menu -->
+                    <div class="text-center mb-8 pb-6 border-b border-white/20">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-16 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-2xl flex items-center justify-center transform rotate-12 shadow-lg">
+                                    <span class="text-white font-bold text-2xl transform -rotate-12">M</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-3xl font-bold text-white">MOZAIK RH</h2>
+                                    <p class="text-white/70 text-lg">Menu Principal Optimisé</p>
+                                </div>
+                            </div>
+                            <button
+                                id="closeBtn"
+                                class="p-3 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-all duration-200"
+                            >
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Grille d'icônes -->
+                    <div class="overflow-y-auto max-h-[calc(100vh-300px)]">
+                        <div class="grid gap-4 grid-cols-4 lg:grid-cols-6" id="menuGrid">
+                            <!-- Les éléments de menu seront générés par JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="border-t border-white/20 pt-6 mt-8">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-bold text-lg">👤</span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-white">Sophie Martin</p>
+                                    <p class="text-sm text-white/70">admin • Connecté(e)</p>
+                                </div>
+                            </div>
+                            
+                            <button class="px-4 py-2 bg-gradient-to-r from-orange-500 to-pink-600 text-white font-semibold rounded-xl hover:from-orange-600 hover:to-pink-700 transition-all duration-300 shadow-lg">
+                                🚪 Déconnexion
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="p-8">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-3xl font-bold text-gray-900 mb-6">Menu Hamburger - Optimisations ✅</h1>
+                
+                <div class="bg-white rounded-lg shadow p-6 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Améliorations -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-green-600 mb-3">✅ Améliorations Apportées</h3>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">●</span>
+                                    <span><strong>Affichage plus rapide</strong> : Menu 0.3s (au lieu de 0.6s)</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">●</span>
+                                    <span><strong>Tuiles plus rapides</strong> : Apparition 0.4s (au lieu de 0.8s)</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">●</span>
+                                    <span><strong>Délais réduits</strong> : 20ms entre tuiles (au lieu de 60ms)</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-blue-500">●</span>
+                                    <span><strong>Déplacements horizontaux</strong> : translateX au lieu de rotateY</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-blue-500">●</span>
+                                    <span><strong>Menu slide</strong> : Entrée depuis la gauche</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-blue-500">●</span>
+                                    <span><strong>Effet blur réduit</strong> : 5px au lieu de 10px</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Chronométrage -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-600 mb-3">⏱️ Nouveau Chronométrage</h3>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex justify-between">
+                                    <span>Menu container :</span>
+                                    <span class="font-mono bg-green-100 px-2 rounded">0.3s</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span>Tuiles individuelles :</span>
+                                    <span class="font-mono bg-green-100 px-2 rounded">0.4s</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span>Délai entre tuiles :</span>
+                                    <span class="font-mono bg-green-100 px-2 rounded">20ms</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span>Total pour 12 tuiles :</span>
+                                    <span class="font-mono bg-blue-100 px-2 rounded">~0.7s</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-2">🎯 Résultat Attendu</h4>
+                        <p class="text-blue-700">Le menu s'ouvre maintenant beaucoup plus rapidement avec des animations fluides basées sur des déplacements horizontaux au lieu de rotations. Toutes les tuiles apparaissent dans les 700ms avec un effet naturel de glissement de gauche à droite.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const closeBtn = document.getElementById('closeBtn');
+        const menuGrid = document.getElementById('menuGrid');
+
+        // Éléments de menu
+        const menuItems = [
+            { id: 'dashboard', name: 'Tableau de Bord', icon: '🏠', color: 'from-blue-500 to-blue-600' },
+            { id: 'my-space', name: 'Mon Espace', icon: '👤', color: 'from-green-500 to-green-600' },
+            { id: 'absence-requests', name: 'Demandes d\'Absence', icon: '📝', color: 'from-red-500 to-red-600' },
+            { id: 'monthly-planning', name: 'Planning Mensuel', icon: '📅', color: 'from-purple-500 to-purple-600' },
+            { id: 'analytics', name: 'Analytics & KPI', icon: '📊', color: 'from-yellow-500 to-orange-500' },
+            { id: 'overtime', name: 'Heures Supplémentaires', icon: '⏰', color: 'from-indigo-500 to-indigo-600' },
+            { id: 'delegation-hours', name: 'Heures de Délégation', icon: '⚖️', color: 'from-pink-500 to-pink-600' },
+            { id: 'hr-toolbox', name: 'Boîte à outils RH', icon: '🛠️', color: 'from-teal-500 to-teal-600' },
+            { id: 'on-call-management', name: 'Gestion Astreintes', icon: '🔔', color: 'from-cyan-500 to-cyan-600' },
+            { id: 'user-management', name: 'Gestion Utilisateurs', icon: '👥', color: 'from-violet-500 to-violet-600' },
+            { id: 'settings', name: 'Paramètres', icon: '⚙️', color: 'from-gray-500 to-gray-600' },
+            { id: 'help', name: 'Aide', icon: '❓', color: 'from-blue-500 to-blue-600' }
+        ];
+
+        // Générer les éléments de menu
+        function generateMenuItems() {
+            menuGrid.innerHTML = '';
+            menuItems.forEach((item, index) => {
+                const button = document.createElement('button');
+                button.className = `menu-item group relative backdrop-blur-sm rounded-xl p-4 text-center transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:-translate-y-2 border transform-gpu bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/40 shadow-sm`;
+                button.style.animationDelay = `${index * 20}ms`;
+                
+                button.innerHTML = `
+                    <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br ${item.color} shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                        <span class="text-white">${item.icon}</span>
+                    </div>
+                    <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                        ${item.name}
+                    </h3>
+                `;
+                
+                menuGrid.appendChild(button);
+            });
+        }
+
+        // Event listeners
+        hamburgerBtn.addEventListener('click', () => {
+            generateMenuItems();
+            menuOverlay.style.display = 'block';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            menuOverlay.style.display = 'none';
+        });
+
+        // Fermer avec Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                menuOverlay.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
