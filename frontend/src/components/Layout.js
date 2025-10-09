@@ -168,33 +168,142 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
         </div>
       </header>
 
-      {/* Menu Flottant - Style Page de Connexion MOZAIK RH */}
+      {/* Menu Flottant - Effets Dynamiques Page de Connexion */}
       {showMenu && (
         <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden">
-          {/* Nuages animés de la page de connexion */}
+          {/* Nuages animés améliorés avec effets de la page de connexion */}
           <div className="absolute inset-0 pointer-events-none">
+            {/* Nuage principal avec rotation et mouvement */}
             <div 
-              className="absolute w-96 h-96 bg-white/5 rounded-full -top-48 -left-48 animate-pulse"
+              className="cloud cloud-1 absolute w-96 h-96 bg-white/5 rounded-full -top-48 -left-48"
               style={{
-                animation: 'float 20s ease-in-out infinite',
+                animation: 'cloudFloat 20s ease-in-out infinite, cloudRotate 30s linear infinite',
                 animationDelay: '0s'
               }}
             ></div>
+            
+            {/* Nuage secondaire avec effet pulsant */}
             <div 
-              className="absolute w-64 h-64 bg-white/3 rounded-full top-1/4 right-0 animate-pulse"
+              className="cloud cloud-2 absolute w-64 h-64 bg-white/3 rounded-full top-1/4 right-0"
               style={{
-                animation: 'float 25s ease-in-out infinite reverse',
+                animation: 'cloudFloat 25s ease-in-out infinite reverse, cloudPulse 8s ease-in-out infinite',
                 animationDelay: '5s'
               }}
             ></div>
+            
+            {/* Nuage tertiaire avec oscillation */}
             <div 
-              className="absolute w-80 h-80 bg-white/4 rounded-full bottom-0 left-1/3 animate-pulse"
+              className="cloud cloud-3 absolute w-80 h-80 bg-white/4 rounded-full bottom-0 left-1/3"
               style={{
-                animation: 'float 30s ease-in-out infinite',
+                animation: 'cloudFloat 30s ease-in-out infinite, cloudSway 15s ease-in-out infinite',
                 animationDelay: '10s'
               }}
             ></div>
+            
+            {/* Particules flottantes additionnelles */}
+            <div 
+              className="absolute w-32 h-32 bg-white/2 rounded-full top-1/2 left-1/4"
+              style={{
+                animation: 'particleFloat 12s ease-in-out infinite, particleFade 6s ease-in-out infinite alternate',
+                animationDelay: '2s'
+              }}
+            ></div>
+            
+            <div 
+              className="absolute w-24 h-24 bg-white/2 rounded-full top-3/4 right-1/4"
+              style={{
+                animation: 'particleFloat 18s ease-in-out infinite reverse, particleFade 4s ease-in-out infinite alternate',
+                animationDelay: '8s'
+              }}
+            ></div>
+            
+            {/* Effet de lueur diffuse */}
+            <div 
+              className="absolute w-full h-full bg-gradient-to-t from-blue-800/20 via-transparent to-indigo-900/20"
+              style={{
+                animation: 'glowPulse 10s ease-in-out infinite alternate'
+              }}
+            ></div>
           </div>
+
+          {/* Styles CSS pour les animations */}
+          <style jsx>{`
+            @keyframes cloudFloat {
+              0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+              25% { transform: translateY(-20px) translateX(10px) rotate(90deg); }
+              50% { transform: translateY(-10px) translateX(-15px) rotate(180deg); }
+              75% { transform: translateY(-30px) translateX(5px) rotate(270deg); }
+            }
+            
+            @keyframes cloudRotate {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            
+            @keyframes cloudPulse {
+              0%, 100% { opacity: 0.3; transform: scale(1); }
+              50% { opacity: 0.6; transform: scale(1.2); }
+            }
+            
+            @keyframes cloudSway {
+              0%, 100% { transform: translateX(0px); }
+              50% { transform: translateX(20px); }
+            }
+            
+            @keyframes particleFloat {
+              0%, 100% { transform: translateY(0px); }
+              33% { transform: translateY(-15px); }
+              66% { transform: translateY(-5px); }
+            }
+            
+            @keyframes particleFade {
+              0% { opacity: 0.1; }
+              100% { opacity: 0.4; }
+            }
+            
+            @keyframes glowPulse {
+              0% { opacity: 0.5; }
+              100% { opacity: 0.8; }
+            }
+            
+            @keyframes menuSlideIn {
+              0% { 
+                opacity: 0; 
+                transform: scale(0.9) translateY(20px);
+                filter: blur(10px);
+              }
+              100% { 
+                opacity: 1; 
+                transform: scale(1) translateY(0);
+                filter: blur(0px);
+              }
+            }
+            
+            @keyframes tileAppear {
+              0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.8) rotateY(45deg);
+                filter: blur(5px);
+              }
+              60% {
+                transform: translateY(-5px) scale(1.05) rotateY(0deg);
+              }
+              100% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotateY(0deg);
+                filter: blur(0px);
+              }
+            }
+            
+            .menu-container {
+              animation: menuSlideIn 0.6s ease-out forwards;
+            }
+            
+            .menu-item {
+              animation: tileAppear 0.8s ease-out forwards;
+              animation-fill-mode: both;
+            }
+          `}</style>
 
           <div className="min-h-screen flex items-center justify-center p-6 relative z-10">
             <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 max-w-6xl w-full">
