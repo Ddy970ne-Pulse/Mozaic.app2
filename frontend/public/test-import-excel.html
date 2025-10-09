@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Import Excel - MOZAIK RH</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen p-6">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">Module Import Excel - Présentation ✅</h1>
+            
+            <div class="space-y-8">
+                
+                <!-- Fonctionnalités principales -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">🎯 Fonctionnalités Développées</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="font-semibold text-blue-600 mb-3">✅ Fonctionnalités Implémentées</h3>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">●</span>
+                                    <span><strong>Upload sécurisé</strong> : Fichiers .xlsx/.xls jusqu'à 50MB</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">●</span>
+                                    <span><strong>Prévisualisation complète</strong> : Aperçu des données avant import</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">●</span>
+                                    <span><strong>Mapping flexible</strong> : Association colonnes Excel ↔ champs système</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">●</span>
+                                    <span><strong>Validation avancée</strong> : Contrôles de format, doublons, champs requis</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">●</span>
+                                    <span><strong>Rapport d'erreurs détaillé</strong> : Localisation précise des problèmes</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">●</span>
+                                    <span><strong>Import sélectif</strong> : Import uniquement des données valides</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="font-semibold text-purple-600 mb-3">📊 Types de Données Supportés</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 text-center">
+                                    <div class="text-2xl mb-1">👥</div>
+                                    <div class="text-sm font-medium text-blue-800">Employés</div>
+                                </div>
+                                <div class="p-3 bg-green-50 rounded-lg border border-green-200 text-center">
+                                    <div class="text-2xl mb-1">📅</div>
+                                    <div class="text-sm font-medium text-green-800">Planning</div>
+                                </div>
+                                <div class="p-3 bg-purple-50 rounded-lg border border-purple-200 text-center">
+                                    <div class="text-2xl mb-1">📊</div>
+                                    <div class="text-sm font-medium text-purple-800">Données RH</div>
+                                </div>
+                                <div class="p-3 bg-orange-50 rounded-lg border border-orange-200 text-center">
+                                    <div class="text-2xl mb-1">⏰</div>
+                                    <div class="text-sm font-medium text-orange-800">Temps</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processus d'import en 5 étapes -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">🔄 Processus d'Import en 5 Étapes</h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Étape 1 -->
+                        <div class="flex items-start space-x-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                            <div>
+                                <h3 class="font-semibold text-blue-800 mb-2">📤 Upload & Sélection du Type</h3>
+                                <p class="text-sm text-blue-700">Glissez-déposez votre fichier Excel et sélectionnez le type de données (Employés, Planning, RH, Temps)</p>
+                                <div class="mt-3 flex space-x-2">
+                                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">Drag & Drop</span>
+                                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">Validation fichier</span>
+                                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">Sélection type</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Étape 2 -->
+                        <div class="flex items-start space-x-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                            <div>
+                                <h3 class="font-semibold text-green-800 mb-2">👀 Prévisualisation des Données</h3>
+                                <p class="text-sm text-green-700">Aperçu complet de vos données avec comptage des lignes et colonnes détectées automatiquement</p>
+                                <div class="mt-3 flex space-x-2">
+                                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Parsing auto</span>
+                                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Nettoyage données</span>
+                                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Aperçu tableau</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Étape 3 -->
+                        <div class="flex items-start space-x-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                            <div>
+                                <h3 class="font-semibold text-purple-800 mb-2">🔗 Mapping des Colonnes</h3>
+                                <p class="text-sm text-purple-700">Association intelligente entre vos colonnes Excel et les champs du système, avec distinction champs requis/optionnels</p>
+                                <div class="mt-3 flex space-x-2">
+                                    <span class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">Champs requis</span>
+                                    <span class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">Champs optionnels</span>
+                                    <span class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">Mapping flexible</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Étape 4 -->
+                        <div class="flex items-start space-x-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-yellow-500 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                            <div>
+                                <h3 class="font-semibold text-yellow-800 mb-2">✅ Validation & Contrôles</h3>
+                                <p class="text-sm text-yellow-700">Validation complète avec détection d'erreurs, avertissements et rapport détaillé ligne par ligne</p>
+                                <div class="mt-3 flex space-x-2">
+                                    <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">Contrôles format</span>
+                                    <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">Détection doublons</span>
+                                    <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">Rapport erreurs</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Étape 5 -->
+                        <div class="flex items-start space-x-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold">5</div>
+                            <div>
+                                <h3 class="font-semibold text-emerald-800 mb-2">🚀 Import Final & Résultats</h3>
+                                <p class="text-sm text-emerald-700">Exécution sécurisée de l'import avec statistiques complètes et possibilité de nouvel import</p>
+                                <div class="mt-3 flex space-x-2">
+                                    <span class="px-2 py-1 text-xs bg-emerald-100 text-emerald-800 rounded">Import sécurisé</span>
+                                    <span class="px-2 py-1 text-xs bg-emerald-100 text-emerald-800 rounded">Statistiques</span>
+                                    <span class="px-2 py-1 text-xs bg-emerald-100 text-emerald-800 rounded">Nouveau cycle</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modèles de données supportés -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">📋 Modèles de Validation par Type</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Modèle Employés -->
+                        <div class="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                            <h3 class="font-semibold text-blue-800 mb-3 flex items-center">
+                                👥 <span class="ml-2">Données Employés</span>
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div>
+                                    <span class="font-medium text-red-600">Requis :</span>
+                                    <span class="text-gray-700"> nom, prenom, email</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-blue-600">Optionnels :</span>
+                                    <span class="text-gray-700"> poste, departement, telephone, date_embauche, salaire</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-purple-600">Validations :</span>
+                                    <span class="text-gray-700"> Format email, téléphone, dates</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modèle Planning -->
+                        <div class="border border-green-200 rounded-lg p-4 bg-green-50">
+                            <h3 class="font-semibold text-green-800 mb-3 flex items-center">
+                                📅 <span class="ml-2">Données Planning</span>
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div>
+                                    <span class="font-medium text-red-600">Requis :</span>
+                                    <span class="text-gray-700"> employee_id, date, heure_debut, heure_fin</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-blue-600">Optionnels :</span>
+                                    <span class="text-gray-700"> type_absence, commentaire, lieu_travail</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-purple-600">Validations :</span>
+                                    <span class="text-gray-700"> Format dates, heures (HH:MM)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modèle RH -->
+                        <div class="border border-purple-200 rounded-lg p-4 bg-purple-50">
+                            <h3 class="font-semibold text-purple-800 mb-3 flex items-center">
+                                📊 <span class="ml-2">Données RH</span>
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div>
+                                    <span class="font-medium text-red-600">Requis :</span>
+                                    <span class="text-gray-700"> employee_id, type_donnee, valeur</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-blue-600">Optionnels :</span>
+                                    <span class="text-gray-700"> date_effet, commentaire, responsable</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-purple-600">Validations :</span>
+                                    <span class="text-gray-700"> Valeurs numériques, dates d'effet</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modèle Temps -->
+                        <div class="border border-orange-200 rounded-lg p-4 bg-orange-50">
+                            <h3 class="font-semibold text-orange-800 mb-3 flex items-center">
+                                ⏰ <span class="ml-2">Données de Temps</span>
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div>
+                                    <span class="font-medium text-red-600">Requis :</span>
+                                    <span class="text-gray-700"> employee_id, date, heures_travaillees</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-blue-600">Optionnels :</span>
+                                    <span class="text-gray-700"> heures_supplementaires, type_pointage, lieu</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-purple-600">Validations :</span>
+                                    <span class="text-gray-700"> Nombres décimaux, dates de pointage</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avantages de la solution -->
+                <div class="bg-gradient-to-r from-emerald-50 to-blue-50 rounded-xl p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">🎯 Avantages de la Solution</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h3 class="font-semibold text-emerald-800 mb-3">💪 Robuste & Sécurisé</h3>
+                            <ul class="text-sm text-emerald-700 space-y-1">
+                                <li>• Validation complète des données</li>
+                                <li>• Contrôles de format et cohérence</li>
+                                <li>• Gestion d'erreurs détaillée</li>
+                                <li>• Import seulement si données valides</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="font-semibold text-blue-800 mb-3">🚀 Performant & Intuitif</h3>
+                            <ul class="text-sm text-blue-700 space-y-1">
+                                <li>• Interface moderne et guidée</li>
+                                <li>• Processus en 5 étapes claires</li>
+                                <li>• Feedback temps réel</li>
+                                <li>• Gestion des gros volumes (50MB)</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="font-semibold text-purple-800 mb-3">🔧 Flexible & Extensible</h3>
+                            <ul class="text-sm text-purple-700 space-y-1">
+                                <li>• 4 types de données supportés</li>
+                                <li>• Mapping colonnes personnalisable</li>
+                                <li>• Règles de validation configurables</li>
+                                <li>• Architecture extensible</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructions d'utilisation -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">📖 Comment Utiliser</h2>
+                    
+                    <div class="prose max-w-none">
+                        <ol class="space-y-4">
+                            <li class="flex items-start space-x-3">
+                                <span class="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                                <div>
+                                    <strong>Préparez votre fichier Excel</strong> avec les colonnes correspondant aux données à importer
+                                    <div class="text-sm text-gray-600 mt-1">Formats: .xlsx ou .xls, première ligne = en-têtes</div>
+                                </div>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <span class="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                                <div>
+                                    <strong>Accédez au module</strong> via le menu hamburger → "Import Excel"
+                                    <div class="text-sm text-gray-600 mt-1">Le module est accessible aux administrateurs</div>
+                                </div>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <span class="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                                <div>
+                                    <strong>Suivez le processus guidé</strong> étape par étape jusqu'à l'import final
+                                    <div class="text-sm text-gray-600 mt-1">Chaque étape est validée avant de passer à la suivante</div>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</body>
+</html>
