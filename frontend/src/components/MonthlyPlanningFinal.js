@@ -1234,10 +1234,12 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         
         <button
           onClick={exportMonthlyData}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+          className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white hover:from-blue-600 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 shadow-lg transition-all duration-200"
+          title="Export Complet"
         >
-          <span>📊</span>
-          <span>Export Complet</span>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
         </button>
         
         <button
@@ -1245,9 +1247,12 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
             console.log('Actualisation demandée, requests:', requests);
             updatePlanningFromRequests(requests);
           }}
-          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+          className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 shadow-lg transition-all duration-200"
+          title="Actualiser depuis Demandes"
         >
-          🔄 Actualiser depuis Demandes
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
         </button>
         
         <button
@@ -1256,17 +1261,23 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               onChangeView('on-call-management');
             }
           }}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          className="p-3 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 text-white hover:from-pink-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2 shadow-lg transition-all duration-200"
+          title="Gérer Astreintes"
         >
-          🔔 Gérer Astreintes
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM19 12V7a7 7 0 00-14 0v5l-2 3v1h18v-1l-2-3z" />
+          </svg>
         </button>
 
         {!isTestMode && (
           <button
             onClick={loadOctober2025TestData}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            className="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white hover:from-violet-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 shadow-lg transition-all duration-200"
+            title="Charger Test Octobre 2025"
           >
-            🧪 Charger Test Octobre 2025
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
           </button>
         )}
         
