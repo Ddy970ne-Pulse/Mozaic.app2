@@ -357,6 +357,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                         'overtime': 'from-indigo-500 to-indigo-600',
                         'delegation-hours': 'from-pink-500 to-pink-600',
                         'hr-toolbox': 'from-teal-500 to-teal-600',
+                        'excel-import': 'from-emerald-500 to-green-600',
                         'on-call-management': 'from-cyan-500 to-cyan-600',
                         'user-management': 'from-violet-500 to-violet-600'
                       };
