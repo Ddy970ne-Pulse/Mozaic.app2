@@ -282,15 +282,15 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
             @keyframes tileAppear {
               0% {
                 opacity: 0;
-                transform: translateY(30px) scale(0.8) rotateY(45deg);
-                filter: blur(5px);
+                transform: translateX(-40px) scale(0.9);
+                filter: blur(3px);
               }
               60% {
-                transform: translateY(-5px) scale(1.05) rotateY(0deg);
+                transform: translateX(5px) scale(1.02);
               }
               100% {
                 opacity: 1;
-                transform: translateY(0) scale(1) rotateY(0deg);
+                transform: translateX(0) scale(1);
                 filter: blur(0px);
               }
             }
