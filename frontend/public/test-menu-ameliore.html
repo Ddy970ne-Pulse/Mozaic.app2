@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOZAIK RH - Menu Hamburger Amélioré</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .menu-item {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .cloud-1 {
+            animation: float 20s ease-in-out infinite;
+            animation-delay: 0s;
+        }
+        .cloud-2 {
+            animation: float 25s ease-in-out infinite reverse;
+            animation-delay: 5s;
+        }
+        .cloud-3 {
+            animation: float 30s ease-in-out infinite;
+            animation-delay: 10s;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header amélioré -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo + Menu Hamburger -->
+                <div class="flex items-center">
+                    <!-- Logo MOZAIK intégré -->
+                    <div class="flex items-center space-x-3 mr-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-xl flex items-center justify-center transform rotate-12 shadow-lg">
+                            <span class="text-white font-bold text-lg transform -rotate-12">M</span>
+                        </div>
+                        <h1 class="text-2xl font-bold text-blue-600">MOZAIK RH</h1>
+                    </div>
+                    
+                    <!-- Menu Hamburger -->
+                    <button
+                        onclick="toggleMenu()"
+                        class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                    >
+                        <div class="w-6 h-6 flex flex-col justify-center items-center">
+                            <span class="bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm -translate-y-0.5"></span>
+                            <span class="bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm my-0.5 opacity-100"></span>
+                            <span class="bg-gray-600 block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm translate-y-0.5"></span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- User Menu avec icônes -->
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">
+                        Bonjour, <span class="font-medium">Sophie Martin</span>
+                    </span>
+                    
+                    <!-- Boutons d'action avec icônes -->
+                    <div class="flex items-center space-x-2">
+                        <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors" title="Notifications">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM19 12V7a7 7 0 00-14 0v5l-2 3v1h18v-1l-2-3z" />
+                            </svg>
+                        </button>
+                        
+                        <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors" title="Paramètres">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                        
+                        <button class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Déconnexion">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3 3 3 0 013 3v1" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu Flottant Amélioré -->
+    <div id="menuOverlay" class="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden hidden">
+        <!-- Nuages animés -->
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="cloud-1 absolute w-96 h-96 bg-white/5 rounded-full -top-48 -left-48 animate-pulse"></div>
+            <div class="cloud-2 absolute w-64 h-64 bg-white/3 rounded-full top-1/4 right-0 animate-pulse"></div>
+            <div class="cloud-3 absolute w-80 h-80 bg-white/4 rounded-full bottom-0 left-1/3 animate-pulse"></div>
+        </div>
+
+        <div class="min-h-screen flex items-center justify-center p-6 relative z-10">
+            <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 max-w-7xl w-full">
+              
+                <!-- Header du menu -->
+                <div class="text-center mb-8 pb-6 border-b border-white/20">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-4">
+                            <!-- Logo MOZAIK -->
+                            <div class="w-16 h-16 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-2xl flex items-center justify-center transform rotate-12 shadow-lg">
+                                <span class="text-white font-bold text-2xl transform -rotate-12">M</span>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-bold text-white">MOZAIK RH</h2>
+                                <p class="text-white/70 text-lg">Menu Principal</p>
+                            </div>
+                        </div>
+                        <button
+                            onclick="toggleMenu()"
+                            class="p-3 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-all duration-200"
+                        >
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+              
+                <!-- Grille d'icônes - Tuiles plus petites avec couleurs -->
+                <div class="overflow-y-auto max-h-[calc(100vh-300px)]">
+                    <div class="grid gap-4 grid-cols-4 lg:grid-cols-6">
+                        
+                        <!-- Dashboard -->
+                        <button class="menu-item group relative bg-white/25 backdrop-blur-sm border border-white/50 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-xl" style="animation-delay: 0ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg transform scale-110 shadow-xl">
+                                <span class="text-white">🏠</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white transition-colors duration-200">
+                                Dashboard
+                            </h3>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-orange-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                                <div class="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                        </button>
+
+                        <!-- Mon Espace -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 30ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-green-500 to-green-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                                <span class="text-white">👤</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Mon Espace
+                            </h3>
+                        </button>
+
+                        <!-- Demandes d'Absence -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 60ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-red-500 to-red-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                                <span class="text-white">📋</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Demandes d'Absence
+                            </h3>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
+                                3
+                            </div>
+                        </button>
+
+                        <!-- Planning Mensuel -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 90ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                                <span class="text-white">📅</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Planning Mensuel
+                            </h3>
+                        </button>
+
+                        <!-- Analytics & KPI -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 120ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                                <span class="text-white">📊</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Analytics & KPI
+                            </h3>
+                        </button>
+
+                        <!-- Heures Supplémentaires -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 150ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                                <span class="text-white">⏰</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Heures Supplémentaires
+                            </h3>
+                        </button>
+
+                        <!-- Délégation CSE -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 180ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-pink-500 to-pink-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                                <span class="text-white">⚖️</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Délégation CSE
+                            </h3>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
+                                2
+                            </div>
+                        </button>
+
+                        <!-- Boîte à Outils RH -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 210ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                                <span class="text-white">🧰</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Boîte à Outils RH
+                            </h3>
+                        </button>
+
+                        <!-- Gestion des Astreintes -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 240ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-cyan-500 to-cyan-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                                <span class="text-white">📞</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Gestion Astreintes
+                            </h3>
+                        </button>
+
+                        <!-- Gestion des Utilisateurs -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 270ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                                <span class="text-white">👥</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Gestion Utilisateurs
+                            </h3>
+                        </button>
+
+                        <!-- Paramètres -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 300ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-gradient-to-br from-gray-500 to-gray-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl backdrop-blur-sm transition-all duration-300">
+                                <span class="text-white">⚙️</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Paramètres
+                            </h3>
+                        </button>
+
+                        <!-- Aide -->
+                        <button class="menu-item group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm" style="animation-delay: 330ms">
+                            <div class="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl backdrop-blur-sm transition-all duration-300">
+                                <span class="text-white">❓</span>
+                            </div>
+                            <h3 class="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                                Aide
+                            </h3>
+                        </button>
+                    </div>
+                </div>
+              
+                <!-- Footer du menu -->
+                <div class="border-t border-white/20 pt-6 mt-8">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold text-lg">👤</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-white">Sophie Martin</p>
+                                <p class="text-sm text-white/70">Administratrice RH • Connecté(e)</p>
+                            </div>
+                        </div>
+                  
+                        <div class="flex items-center space-x-2">
+                            <button class="px-4 py-2 bg-gradient-to-r from-orange-500 to-pink-600 text-white font-semibold rounded-xl hover:from-orange-600 hover:to-pink-700 transition-all duration-300 shadow-lg">
+                                🚪 Déconnexion
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">Menu Hamburger Amélioré ✅</h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Améliorations apportées -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-800">🚀 Améliorations Apportées</h2>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span><strong>Tuiles plus petites</strong> : 12h → 8h, padding réduit</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span><strong>Couleurs spécifiques</strong> : Chaque module a sa couleur</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span><strong>Logo intégré</strong> : À côté du menu hamburger</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span><strong>Suppression titre module</strong> : Plus de rappel de page</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span><strong>Boutons icônes</strong> : Notifications, Paramètres, Déconnexion</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span><strong>Grille 6 colonnes</strong> : Plus de modules visibles</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Couleurs des modules -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-800">🎨 Couleurs des Modules</h2>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded"></div>
+                            <span>Dashboard</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-r from-green-500 to-green-600 rounded"></div>
+                            <span>Mon Espace</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-r from-red-500 to-red-600 rounded"></div>
+                            <span>Demandes d'Absence</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded"></div>
+                            <span>Planning Mensuel</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded"></div>
+                            <span>Analytics & KPI</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded"></div>
+                            <span>Heures Supp.</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-r from-pink-500 to-pink-600 rounded"></div>
+                            <span>Délégation CSE</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-r from-teal-500 to-teal-600 rounded"></div>
+                            <span>Boîte à Outils RH</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded"></div>
+                            <span>Gestion Astreintes</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-r from-violet-500 to-violet-600 rounded"></div>
+                            <span>Gestion Utilisateurs</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+                <h3 class="font-medium text-green-800 mb-2">✨ Interface Optimisée</h3>
+                <p class="text-sm text-green-700">
+                    L'interface MOZAIK RH est maintenant plus compacte, colorée et intuitive avec des icônes dans le header, 
+                    un logo intégré, et des tuiles colorées plus petites permettant d'afficher plus de modules simultanément.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let menuOpen = false;
+
+        function toggleMenu() {
+            const overlay = document.getElementById('menuOverlay');
+            if (menuOpen) {
+                overlay.classList.add('hidden');
+                menuOpen = false;
+            } else {
+                overlay.classList.remove('hidden');
+                menuOpen = true;
+            }
+        }
+
+        // Fermer le menu si on clique sur le backdrop
+        document.getElementById('menuOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                toggleMenu();
+            }
+        });
+
+        // Fermer le menu avec la touche Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && menuOpen) {
+                toggleMenu();
+            }
+        });
+    </script>
+</body>
+</html>
