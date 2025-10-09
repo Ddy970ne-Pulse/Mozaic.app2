@@ -306,7 +306,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           `}</style>
 
           <div className="min-h-screen flex items-center justify-center p-6 relative z-10">
-            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 max-w-6xl w-full">
+            <div className="menu-container bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 max-w-6xl w-full transform-gpu">
               
               {/* Header du menu - Style page de connexion */}
               <div className="text-center mb-8 pb-6 border-b border-white/20">
