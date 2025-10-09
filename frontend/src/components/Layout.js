@@ -229,10 +229,10 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           {/* Styles CSS pour les animations */}
           <style jsx>{`
             @keyframes cloudFloat {
-              0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-              25% { transform: translateY(-20px) translateX(10px) rotate(90deg); }
-              50% { transform: translateY(-10px) translateX(-15px) rotate(180deg); }
-              75% { transform: translateY(-30px) translateX(5px) rotate(270deg); }
+              0%, 100% { transform: translateY(0px) translateX(0px); }
+              25% { transform: translateY(-10px) translateX(20px); }
+              50% { transform: translateY(-5px) translateX(-30px); }
+              75% { transform: translateY(-15px) translateX(10px); }
             }
             
             @keyframes cloudRotate {
