@@ -12,6 +12,8 @@ import uuid
 from datetime import datetime, date
 import jwt
 import bcrypt
+import secrets
+import string
 
 
 ROOT_DIR = Path(__file__).parent
