@@ -30,12 +30,9 @@ export const october2025OnCallAssignments = [
   // Data will be loaded from /api/on-call/assignments endpoint
 ];
 
-// Récupérations pour octobre 2025
+// REMOVED: Mock recuperation data - Now loaded from real recuperation API
 export const october2025Recuperations = [
-  { employeeId: 2, employeeName: 'Jean Dupont', date: '2025-10-04', hours: 2, reason: 'Récup heures sup septembre', validated: true },
-  { employeeId: 5, employeeName: 'Claire Dubois', date: '2025-10-11', hours: 1.5, reason: 'Récup samedi travaillé', validated: true },
-  { employeeId: 7, employeeName: 'Emma Rousseau', date: '2025-10-18', hours: 2, reason: 'Récup formation weekend', validated: true },
-  { employeeId: 6, employeeName: 'Lucas Bernard', date: '2025-10-25', hours: 3, reason: 'Récup heures sup validées', validated: false }
+  // Data will be loaded from /api/recuperation/hours endpoint
 ];
 
 // Planning complet octobre 2025 intégré
