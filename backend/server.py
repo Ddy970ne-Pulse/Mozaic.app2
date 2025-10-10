@@ -713,27 +713,20 @@ async def get_usage_history(current_user: User = Depends(get_current_user)):
 
 @api_router.get("/delegation/cessions", response_model=List[CessionRecord])
 async def get_cession_history(current_user: User = Depends(get_current_user)):
-    # Mock cession data
-    mock_cessions = [
-        {
-            "id": "1",
-            "fromDelegateId": "2", 
-            "fromDelegateName": "Pierre Moreau",
-            "fromType": "CSE",
-            "toDelegateId": "1",
-            "toDelegateName": "Marie Leblanc", 
-            "toType": "CSE",
-            "hours": 3.0,
-            "date": "2024-01-10",
-            "reason": "Négociation urgente accord télétravail - expertise technique requise",
-            "status": "approved",
-            "approvedBy": "Sophie Martin",
-            "approvedDate": "2024-01-10",
-            "legalBasis": "Art. L2315-7 Code du Travail - Cession entre représentants"
-        }
-    ]
-    
-    return [CessionRecord(**c) for c in mock_cessions]
+    # Get cession data from database
+    try:
+        cession_records = await db.delegation_cessions.find().to_list(1000)
+        
+        # Convert ObjectIds to strings for JSON serialization
+        for record in cession_records:
+            if "_id" in record:
+                del record["_id"]
+        
+        return cession_records
+        
+    except Exception as e:
+        print(f"Error getting cession records: {e}")
+        return []  # Return empty list if no data yet
 
 @api_router.post("/delegation/cessions", response_model=CessionRecord)
 async def create_cession(cession_data: dict, current_user: User = Depends(get_current_user)):
