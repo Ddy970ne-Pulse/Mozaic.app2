@@ -1,66 +1,81 @@
 <analysis>
-The trajectory details the AI engineer's work on the MOZAIK RH application, focusing on several key areas. Initially, the engineer addressed user feedback on the hamburger menu's animation, optimizing its display speed and transition effects to use horizontal movements instead of rotations, ensuring all tiles animated smoothly. Subsequently, the engineer harmonized the style of action buttons across the application, starting with the header and then extending to various modules like Monthly Planning and Analytics, replacing text-heavy buttons with icons and consistent gradient styles. Finally, the engineer developed and integrated a new Excel import module. The work culminated in the successful analysis of an uploaded  file, identifying its data structure for subsequent mass integration. The process involved iterative development, test page creation, and verification through screenshots and automated testing.
+The previous AI engineer focused on enhancing the MOZAIK RH application, addressing critical user feedback and feature gaps. Initially, the work involved extensive cleanup of hardcoded test data across both frontend and backend modules, alongside implementing robust user management with secure authentication and a temporary password system. A major effort was dedicated to debugging and stabilizing the Excel import module for personnel data, fixing issues like empty column mapping dropdowns, incorrect date handling (including French formats), and ensuring all optional employee data correctly persisted from the  collection to the  collection. The engineer also refined the dashboard to display dynamic data and implemented an API for events. The latest task involves transforming the application into a Progressive Web App (PWA) to enable mobile installation and real-time data access, which is currently in progress with the creation of , , and PWA-related assets.
 </analysis>
 
 <product_requirements>
-MOZAIK RH is an HR management application compliant with French labor law. The trajectory details the fulfillment of several user requirements:
-1.  **KPI Report Enhancement**: Improved presentation of Personnel Turnover reports with dynamic charts and selectors. (Completed earlier, referenced in initial context).
-2.  **UI Reversion & Hamburger Menu Styling**: Reverted UI to original MOZAIK RH style, restoring the iOS/iCloud-like hamburger menu. This menu was then adapted to match the login page's glassmorphism aesthetic, featuring reduced tile sizes, dynamic colors, integrated logo, and iconized action buttons.
-3.  **Hamburger Menu Dynamics**: Enhanced the deployed hamburger menu with dynamic effects similar to the login page's animated background and sophisticated tile animations, specifically optimizing for faster, horizontal movements.
-4.  **Action Button Harmonization**: Reworked action buttons in the header and across various modules (Monthly Planning, Analytics, Dashboard) to use icons and a consistent gradient style, matching the application's overall aesthetic.
-5.  **Mass Data Integration (Excel Import)**: Developed a new module to allow mass integration of data via Excel spreadsheets, including file parsing, validation, and preview capabilities.
+The MOZAIK RH application requires the following enhancements:
+1.  **UI/UX Refinements**: Revert UI to original, adapt iOS/iCloud-like hamburger menu with glassmorphism, dynamic colors, logo, and iconized buttons with faster, horizontal animations. Harmonize action button styles across all modules with consistent icon-based gradient designs.
+2.  **Mass Data Integration (Excel Import)**: Implement a module for mass data import via Excel spreadsheets. This includes parsing, validation, preview, and crucial backend logic for automatic user account creation with temporary passwords upon personnel import.
+3.  **Admin & User Management**: Establish an initial admin account (DACALOR Diégo). Develop a full User Management API (CRUD operations, password hashing) to securely manage all user accounts, replacing hardcoded demo accounts. This includes functionality to modify user email and associated account reset.
+4.  **Data Integrity & Cleanup**: Systematically remove all hardcoded demo data from all application modules (users, planning, requests, delegation, on-call, dashboard). Ensure all imported optional fields from Excel (birth date, site, contract, category, hire date, etc.) are correctly stored in user profiles and displayed in the User Management interface.
+5.  **Temporary Password System**: Implement a secure system for new users with auto-generated temporary passwords, requiring a change on first login, and specific API endpoints for password management.
+6.  **Dashboard Data**: Correct dashboard components to display real-time, dynamic data for statistics, current day birthdays, team presence, recent activities, and department overviews.
+7.  **Event Management**: Implement an API and system for managing Événements à venir (upcoming events) on the dashboard.
+8.  **Mobile Accessibility (PWA)**: Create an iOS/Android supported application or a mobile-compatible web application installable via screen shortcut, ensuring real-time data access for all relevant users.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-Stack Development**: React (frontend), FastAPI (Python backend).
--   **React State Management**: Use of Hooks (, ).
--   **UI/UX Design**: Responsive CSS, glassmorphism, gradients, animated elements, icon usage.
--   **Component-Based Architecture**: Modular React components.
--   **Tailwind CSS**: Utility-first CSS framework.
--   **Excel Data Processing**: Integration of  library for frontend Excel file parsing.
+-   **Full-Stack Development**: React (frontend with Hooks), FastAPI (Python backend).
+-   **Database**: MongoDB (accessed via ), UUIDs for IDs.
+-   **UI/UX**: Responsive CSS, Tailwind CSS, glassmorphism, gradients, animated elements.
+-   **Data Processing**:  library for frontend Excel parsing and date conversions.
+-   **Authentication/Authorization**: JWT, bcrypt password hashing, role-based access control.
+-   **API Design**: RESTful APIs, Pydantic for data validation.
+-   **Mobile Development**: Progressive Web App (PWA) for mobile compatibility.
 </key_technical_concepts>
 
 <code_architecture>
-The application utilizes a monorepo structure, separating the React frontend from the FastAPI backend.
+The application uses a monorepo structure with a React frontend and a FastAPI backend.
 
 
 
 -   ****
-    -   **Importance**: Defines the global application layout, navigation, and header. It houses the hamburger menu logic and UI.
-    -   **Changes**: Received significant modifications for animation optimization (reducing display time, changing rotations to horizontal movements) for the hamburger menu. Also, updated to integrate harmonized header action buttons with consistent gradient styles, shadows, and rounded corners. It was further modified to add the new  component to its navigation and rendering logic.
-
+    -   **Importance**: The main backend file for FastAPI routes, database interactions.
+    -   **Changes**:  model updated with extensive optional fields (date_naissance, sexe, site, metier, fonction, temps_travail, contrat, categorie_employe, date_debut_contrat, date_fin_contrat). Logic for user creation during  modified to copy all fields from  to . The  endpoint adjusted to filter MongoDB  field. New endpoint  for overtime module and  for cleaning test users were added.
 -   ****
-    -   **Importance**: The main dashboard page of the application.
-    -   **Changes**: Modified to harmonize its action buttons, applying the new consistent style.
-
+    -   **Importance**: Global layout and navigation.
+    -   **Changes**: Hamburger menu was reverted and is awaiting specific user input for preferred style.
 -   ****
-    -   **Importance**: Displays KPI reports and analytics.
-    -   **Changes**: Modified to harmonize its action buttons, applying the new consistent style.
-
+    -   **Importance**: Login page.
+    -   **Changes**: Cleaned from hardcoded test accounts.
 -   ****
-    -   **Importance**: Manages the monthly planning module.
-    -   **Changes**: Significantly updated to replace long-text action buttons with icons and harmonize their style with the new application standard.
-
+    -   **Importance**: Handles Excel uploads and data import.
+    -   **Changes**: Fixed critical bug where column mapping dropdowns were empty. Implemented robust date conversion for Excel numeric dates to French format (JJ/MM/AAAA). Enhanced logging for debugging mapping and import process. Improved warning messages to show clear details (row, data, correction). Simplified mapping logic to ensure data is correctly sent.
 -   ****
-    -   **Importance**: The login page, whose styling (glassmorphism, gradients, animated clouds) served as a reference for the hamburger menu.
-    -   **Changes**: No direct modifications in this trajectory segment, but its styles were referenced extensively.
-
--   ** (New File)**
-    -   **Importance**: A newly created component for handling Excel file uploads, parsing, validation, and preview.
-    -   **Changes**: Contains the logic and UI for the new mass data integration feature.
-
--   ****: Several temporary test pages (, , , , ) were created to incrementally validate UI changes and new features before full integration.
-
+    -   **Importance**: Admin interface for user management.
+    -   **Changes**: All hardcoded test users removed. Implemented a custom confirmation modal for deleting users to bypass browser sandbox restrictions. Added comprehensive display for all new optional user fields (date of birth, gender, site, profession, function, contract type, work time, employee category, contract start/end dates). Added an email modification feature.
+-   ****
+    -   **Importance**: Manages overtime data.
+    -   **Changes**: Hardcoded demo data and mock logic removed, now configured to fetch data from backend APIs.
+-   ****
+    -   **Importance**: Monthly planning module.
+    -   **Changes**: Hardcoded mock data removed, now connects to real user data.
+-   ****
+    -   **Importance**: Manages on-call assignments.
+    -   **Changes**: Hardcoded mock data removed, now connects to real user data.
+-   ****
+    -   **Importance**: Previously contained mock data.
+    -   **Changes**: Thoroughly cleaned, mock data removed.
+-   **, , ,  (New Files)**
+    -   **Importance**: Core files for Progressive Web Application (PWA) functionality, enabling the application to be installed on mobile devices and function offline.
+    -   **Changes**: Newly created.
 </code_architecture>
 
 <pending_tasks>
--   **Implement Data Integration Logic**: Integrate the parsed data from the  file into the application's database and relevant modules (e.g., creating personnel, filling planning, populating other modules), based on the analysis of its four main sections.
+-   **Display Temporary Passwords**: Update the frontend  component to display the automatically generated temporary passwords to the user after a successful personnel import. (This was an initial task that was not completed due to other issues taking precedence).
+-   **Hamburger Menu Style Confirmation**: The user needs to confirm the preferred hamburger menu style for .
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was focused on implementing the mass data integration feature. A new  component was developed, integrated into the  navigation, and the  library was installed. The module was successfully tested via  and automated tests. Following this, the user provided an Excel file (), which was initially unsupported. Upon request, the user provided an  version (). The AI engineer successfully analyzed this  file, identifying its structure into four main sections: Données Employés (13 columns), Données Absences (5 columns), Données Heures Travaillées (4 columns), and Settings. The current state is that the file has been parsed and its contents understood, ready for the next step of implementing the actual data import logic.
+Immediately before this summary request, the AI engineer was implementing the Progressive Web Application (PWA) functionality for MOZAIK RH. This involves making the application installable on mobile devices (iOS and Android) and ensuring real-time data access. The engineer has already created the necessary PWA core files:
+-   : Defines the app's metadata, icons, start URL, and display mode.
+-   : Enables offline capabilities and intercepts network requests.
+-   : The scalable vector graphic icon for the PWA.
+-   : A script to handle the PWA installation prompt.
+
+The next immediate step in this PWA conversion is to update the  file to link these new PWA assets, integrating them into the frontend build process. This work directly addresses the user's explicit request for a mobile-compatible application.
 </current_work>
 
 <optional_next_step>
-Implement the backend and frontend logic to process and persist data from the analyzed  file.
+Update  to include the PWA manifest and service worker.
 </optional_next_step>
