@@ -4,16 +4,24 @@ const UserManagement = ({ user }) => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('all');
   const [showPasswordReset, setShowPasswordReset] = useState(false);
-  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
-  const [showGdprModal, setShowGdprModal] = useState(false);
-  const [showAccountRecovery, setShowAccountRecovery] = useState(false);
-  const [showAuditModal, setShowAuditModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('users');
-  const [recoveryType, setRecoveryType] = useState('password'); // 'password' ou 'username'
-  const [auditLogs, setAuditLogs] = useState([]);
+  const [statistics, setStatistics] = useState(null);
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'employee',
+    department: '',
+    phone: '',
+    position: '',
+    hire_date: '',
+    isDelegateCSE: false
+  });
 
   // Système de permissions granulaires
   const availablePermissions = {
