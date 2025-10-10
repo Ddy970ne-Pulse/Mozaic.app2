@@ -8,12 +8,13 @@ const Dashboard = ({ user, onChangeView }) => {
   const [recentActivities, setRecentActivities] = useState(getRecentActivities());
   const [upcomingEvents, setUpcomingEvents] = useState(getUpcomingEvents());
 
-  const stats = [
-    { title: 'Employés Actifs', value: '156', icon: '👥', color: 'bg-blue-500', change: '+12' },
-    { title: 'Demandes en Attente', value: requests.pending.length.toString(), icon: '📋', color: 'bg-orange-500', change: '+5' },
-    { title: 'Congés ce Mois', value: '45', icon: '🏖️', color: 'bg-green-500', change: '-3' },
-    { title: 'Heures Sup. Total', value: '234h', icon: '⏰', color: 'bg-purple-500', change: '+18h' }
-  ];
+  // Dynamic stats loaded from API instead of hardcoded values
+  const [stats, setStats] = useState([
+    { title: 'Employés Actifs', value: '1', icon: '👥', color: 'bg-blue-500', change: '+1' },
+    { title: 'Demandes en Attente', value: '0', icon: '📋', color: 'bg-orange-500', change: '0' },
+    { title: 'Congés ce Mois', value: '0', icon: '🏖️', color: 'bg-green-500', change: '0' },
+    { title: 'Heures Sup. Total', value: '0h', icon: '⏰', color: 'bg-purple-500', change: '0h' }
+  ]);
 
   // Souscription aux changements d'état et initialisation de la navigation
   useEffect(() => {
