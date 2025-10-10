@@ -14,53 +14,8 @@ const OnCallManagement = ({ user, onChangeView }) => {
   const [hoveredWeek, setHoveredWeek] = useState(null);
 
   // Données mockées des employés avec catégories pour la démonstration
-  const employees = [
-    { 
-      id: 1, 
-      name: 'Sophie Martin', 
-      category: 'management',
-      categoryLabel: 'Encadrement',
-      department: 'Direction',
-      maxOnCallDays: 60, // CCN66: Maximum 60 jours d'astreinte par an pour l'encadrement
-      currentOnCallDays: 25
-    },
-    { 
-      id: 2, 
-      name: 'Jean Dupont', 
-      category: 'administrative',
-      categoryLabel: 'Personnel Administratif',
-      department: 'Administration',
-      maxOnCallDays: 45, // CCN66: Maximum 45 jours pour le personnel administratif
-      currentOnCallDays: 18
-    },
-    { 
-      id: 3, 
-      name: 'Marie Leblanc', 
-      category: 'specialized_educators',
-      categoryLabel: 'Éducateurs Spécialisés',
-      department: 'Éducation',
-      maxOnCallDays: 50, // CCN66: Maximum 50 jours pour les éducateurs spécialisés
-      currentOnCallDays: 32
-    },
-    { 
-      id: 4, 
-      name: 'Pierre Moreau', 
-      category: 'technical_educators',
-      categoryLabel: 'Éducateurs Techniques',
-      department: 'Technique',
-      maxOnCallDays: 50,
-      currentOnCallDays: 15
-    },
-    { 
-      id: 5, 
-      name: 'Claire Dubois', 
-      category: 'administrative',
-      categoryLabel: 'Personnel Administratif',
-      department: 'Comptabilité',
-      maxOnCallDays: 45,
-      currentOnCallDays: 28
-    }
-  ];
+  // On-call employees should be loaded from backend API
+  const employees = [];
 
   // Assignations d'astreintes octobre 2025
   const existingOnCallAssignments = [
