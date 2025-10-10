@@ -20,26 +20,9 @@ export const october2025DelegationHours = [
   // Data will be loaded from /api/delegation/hours endpoint
 ];
 
-// Heures supplémentaires pour octobre 2025
+// REMOVED: Mock overtime hours data - Now loaded from real overtime API
 export const october2025OvertimeHours = [
-  // Semaine 1
-  { employeeId: 1, employeeName: 'Sophie Martin', date: '2025-10-02', hours: 2, reason: 'Préparation conseil administration', validated: true },
-  { employeeId: 8, employeeName: 'Thomas Petit', date: '2025-10-03', hours: 1.5, reason: 'Réunion équipe prolongée', validated: true },
-  
-  // Semaine 2  
-  { employeeId: 2, employeeName: 'Jean Dupont', date: '2025-10-10', hours: 3, reason: 'Urgence informatique serveur', validated: true },
-  { employeeId: 5, employeeName: 'Claire Dubois', date: '2025-10-11', hours: 2.5, reason: 'Clôture comptable mensuelle', validated: true },
-  
-  // Semaine 3
-  { employeeId: 6, employeeName: 'Lucas Bernard', date: '2025-10-16', hours: 1, reason: 'Accompagnement éducatif urgent', validated: true },
-  { employeeId: 7, employeeName: 'Emma Rousseau', date: '2025-10-17', hours: 2, reason: 'Formation nouveaux équipements', validated: false },
-  
-  // Semaine 4
-  { employeeId: 3, employeeName: 'Marie Leblanc', date: '2025-10-24', hours: 1.5, reason: 'Réunion parents élèves', validated: true },
-  { employeeId: 1, employeeName: 'Sophie Martin', date: '2025-10-25', hours: 3, reason: 'Préparation budget 2026', validated: false },
-  
-  // Semaine 5
-  { employeeId: 4, employeeName: 'Pierre Moreau', date: '2025-10-31', hours: 2, reason: 'Maintenance technique urgente', validated: false }
+  // Data will be loaded from /api/overtime/hours endpoint
 ];
 
 // Astreintes pour octobre 2025 (semaines dimanche->samedi)
