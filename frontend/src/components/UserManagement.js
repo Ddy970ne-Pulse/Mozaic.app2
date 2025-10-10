@@ -392,10 +392,7 @@ const UserManagement = ({ user }) => {
   ];
 
   // Initialisation des données
-  useEffect(() => {
-    setUsers(mockUsers);
-    setAuditLogs(mockAuditLogs);
-  }, []);
+  // useEffect removed - data loading is now handled above
 
   // Filtering logic already defined above
 
