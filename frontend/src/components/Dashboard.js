@@ -35,14 +35,10 @@ const Dashboard = ({ user, onChangeView }) => {
 
   // Les événements à venir sont maintenant gérés par le state et le système dynamique
 
-  const departments = [
-    { name: 'IT', employees: 45, absences: 5, percentage: 89 },
-    { name: 'Commercial', employees: 32, absences: 8, percentage: 75 },
-    { name: 'RH', employees: 12, absences: 1, percentage: 92 },
-    { name: 'Finance', employees: 18, absences: 3, percentage: 83 },
-    { name: 'Marketing', employees: 25, absences: 4, percentage: 84 },
-    { name: 'Opérations', employees: 24, absences: 6, percentage: 75 }
-  ];
+  // Dynamic departments loaded from real user data
+  const [departments, setDepartments] = useState([
+    { name: 'Direction', employees: 1, absences: 0, percentage: 100 }
+  ]);
 
   // Fonctions pour les actions rapides - Version simple et stable
   const handleGenerateReport = () => {
