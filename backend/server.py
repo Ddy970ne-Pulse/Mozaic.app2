@@ -105,6 +105,16 @@ demo_absence_types = [
     {"code": "CSS", "name": "Congés Sans Solde", "category": "other", "type": "Absentéisme", "counting_method": "Jours Ouvrables", "requires_validation": True, "requires_acknowledgment": False}
 ]
 
+# Password hashing utilities
+def hash_password(password: str) -> str:
+    """Hash a password using bcrypt"""
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    """Verify a password against its hash"""
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+
 # Authentication helper functions
 def create_access_token(user_id: str, email: str, role: str):
     payload = {
@@ -115,24 +125,32 @@ def create_access_token(user_id: str, email: str, role: str):
     }
     return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get current user from JWT token and MongoDB"""
     try:
         token = credentials.credentials
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         user_email = payload.get("email")
-        if user_email and user_email in demo_users:
-            user_data = demo_users[user_email]
-            return User(
-                id=user_data["id"],
-                name=user_data["name"],
-                email=user_data["email"],
-                role=user_data["role"], 
-                department=user_data["department"],
-                isDelegateCSE=user_data["isDelegateCSE"]
-            )
-    except:
-        pass
-    raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+        user_id = payload.get("user_id")
+        
+        if not user_email or not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        # Get user from MongoDB
+        user_data = await db.users.find_one({"email": user_email, "id": user_id})
+        if not user_data:
+            raise HTTPException(status_code=401, detail="User not found")
+        
+        if not user_data.get("is_active", True):
+            raise HTTPException(status_code=401, detail="User account is inactive")
+        
+        return User(**user_data)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
 
 # Security
