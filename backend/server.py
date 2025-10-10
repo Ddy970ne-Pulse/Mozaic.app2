@@ -31,63 +31,8 @@ api_router = APIRouter(prefix="/api")
 # Security
 security = HTTPBearer()
 
-# Demo Data
-demo_users = {
-    "admin@company.com": {
-        "id": "1",
-        "name": "Sophie Martin",
-        "email": "admin@company.com", 
-        "password": "demo123",
-        "role": "admin",
-        "department": "Direction",
-        "isDelegateCSE": False
-    },
-    "sophie.martin@company.com": {
-        "id": "1",
-        "name": "Sophie Martin",
-        "email": "sophie.martin@company.com", 
-        "password": "demo123",
-        "role": "admin",
-        "department": "Direction",
-        "isDelegateCSE": False
-    },
-    "manager@company.com": {
-        "id": "2", 
-        "name": "Jean Dupont",
-        "email": "manager@company.com",
-        "password": "demo123", 
-        "role": "manager",
-        "department": "IT",
-        "isDelegateCSE": False
-    },
-    "marie.leblanc@company.com": {
-        "id": "3",
-        "name": "Marie Leblanc", 
-        "email": "marie.leblanc@company.com",
-        "password": "demo123",
-        "role": "employee",
-        "department": "Commercial", 
-        "isDelegateCSE": True
-    },
-    "pierre.moreau@company.com": {
-        "id": "4",
-        "name": "Pierre Moreau",
-        "email": "pierre.moreau@company.com", 
-        "password": "demo123",
-        "role": "employee",
-        "department": "Production",
-        "isDelegateCSE": True
-    },
-    "ddacalor@aaea-gpe.fr": {
-        "id": "5",
-        "name": "DACALOR Diégo",
-        "email": "ddacalor@aaea-gpe.fr",
-        "password": "admin123",
-        "role": "admin",
-        "department": "Direction",
-        "isDelegateCSE": False
-    }
-}
+# User Management - No more hardcoded demo data
+# Users will be stored in MongoDB with proper password hashing
 
 demo_delegates = [
     {
