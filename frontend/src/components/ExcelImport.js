@@ -879,32 +879,63 @@ const ExcelImport = ({ user, onChangeView }) => {
 
           {/* Détail des avertissements */}
           {validationResults.warnings.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-yellow-200 p-6">
-              <h3 className="text-lg font-semibold text-yellow-600 mb-4">⚠️ Avertissements</h3>
+            <div className="bg-white rounded-xl shadow-sm border-2 border-yellow-400 p-6 mt-6">
+              <div className="flex items-center mb-4">
+                <div className="flex-shrink-0">
+                  <span className="text-4xl">⚠️</span>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-xl font-bold text-yellow-700">
+                    {validationResults.warnings.length} Avertissement{validationResults.warnings.length > 1 ? 's' : ''} Détecté{validationResults.warnings.length > 1 ? 's' : ''}
+                  </h3>
+                  <p className="text-sm text-yellow-600">
+                    Ces lignes ont été importées mais peuvent nécessiter votre attention
+                  </p>
+                </div>
+              </div>
+              
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-yellow-200">
                   <thead className="bg-yellow-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-yellow-500 uppercase">Ligne</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-yellow-500 uppercase">Avertissements</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Ligne</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Détails de l'Avertissement</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Données</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-yellow-200">
-                    {validationResults.warnings.slice(0, 5).map((row, index) => (
-                      <tr key={index} className="hover:bg-yellow-50">
-                        <td className="px-4 py-3 text-sm font-medium text-yellow-900">{row.rowIndex}</td>
-                        <td className="px-4 py-3 text-sm text-yellow-700">
-                          <ul className="list-disc list-inside">
+                    {validationResults.warnings.map((row, index) => (
+                      <tr key={index} className="hover:bg-yellow-50 transition-colors">
+                        <td className="px-4 py-3 text-sm font-bold text-yellow-900">
+                          Ligne {row.rowIndex}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-yellow-800">
+                          <ul className="list-disc list-inside space-y-1">
                             {row.warnings.map((warning, i) => (
-                              <li key={i}>{warning}</li>
+                              <li key={i} className="font-medium">{warning}</li>
                             ))}
                           </ul>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-gray-600">
+                          {row.data && (
+                            <div className="max-w-xs overflow-hidden">
+                              <pre className="text-xs bg-gray-50 p-2 rounded">
+                                {JSON.stringify(row.data, null, 2).substring(0, 200)}
+                              </pre>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+              
+              {validationResults.warnings.length > 10 && (
+                <div className="mt-4 text-center text-sm text-yellow-600 bg-yellow-50 py-2 rounded">
+                  Affichage des 10 premiers avertissements. Total: {validationResults.warnings.length}
+                </div>
+              )}
             </div>
           )}
         </div>
