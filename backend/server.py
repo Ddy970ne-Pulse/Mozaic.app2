@@ -2020,6 +2020,461 @@ async def delete_absence(absence_id: str, current_user: User = Depends(get_curre
         raise HTTPException(status_code=500, detail=f"Error deleting absence: {str(e)}")
 
 # ========================================
+# CSE MANAGEMENT ENDPOINTS
+# ========================================
+
+@api_router.post("/cse/delegates", response_model=CSEDelegate)
+async def create_cse_delegate(
+    user_id: str,
+    statut: str,
+    heures_mensuelles: int,
+    college: str,
+    date_debut: str,
+    date_fin: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Désigner un délégué CSE (admin uniquement)"""
+    if current_user.role not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent désigner des délégués CSE")
+    
+    try:
+        # Vérifier que l'utilisateur existe
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+        
+        # Vérifier si déjà délégué actif
+        existing = await db.cse_delegates.find_one({"user_id": user_id, "actif": True})
+        if existing:
+            raise HTTPException(status_code=400, detail="Cet utilisateur est déjà délégué CSE actif")
+        
+        # Créer le délégué
+        delegate = CSEDelegate(
+            user_id=user_id,
+            user_name=user.get("name", ""),
+            email=user.get("email", ""),
+            statut=statut,
+            heures_mensuelles=heures_mensuelles,
+            college=college,
+            date_debut=date_debut,
+            date_fin=date_fin,
+            actif=True,
+            created_by=current_user.name
+        )
+        
+        # Préparer pour MongoDB
+        delegate_dict = delegate.dict()
+        if isinstance(delegate_dict.get('created_at'), datetime):
+            delegate_dict['created_at'] = delegate_dict['created_at'].isoformat()
+        
+        await db.cse_delegates.insert_one(delegate_dict)
+        
+        # Mettre à jour l'utilisateur avec isDelegateCSE
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": {"isDelegateCSE": True}}
+        )
+        
+        logger.info(f"✅ Délégué CSE créé: {user.get('name')} ({statut})")
+        return delegate
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Erreur création délégué CSE: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la création du délégué: {str(e)}")
+
+@api_router.get("/cse/delegates")
+async def get_cse_delegates(
+    actif_only: bool = True,
+    current_user: User = Depends(get_current_user)
+):
+    """Liste des délégués CSE"""
+    try:
+        query = {"actif": True} if actif_only else {}
+        delegates = await db.cse_delegates.find(query).sort("created_at", -1).to_list(100)
+        
+        # Nettoyer les ObjectIds
+        for delegate in delegates:
+            if "_id" in delegate:
+                del delegate["_id"]
+        
+        return delegates
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur récupération délégués: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@api_router.put("/cse/delegates/{delegate_id}")
+async def update_cse_delegate(
+    delegate_id: str,
+    heures_mensuelles: Optional[int] = None,
+    date_fin: Optional[str] = None,
+    actif: Optional[bool] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Modifier un délégué CSE (admin uniquement)"""
+    if current_user.role not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Accès refusé")
+    
+    try:
+        update_data = {}
+        if heures_mensuelles is not None:
+            update_data["heures_mensuelles"] = heures_mensuelles
+        if date_fin is not None:
+            update_data["date_fin"] = date_fin
+        if actif is not None:
+            update_data["actif"] = actif
+        
+        update_data["updated_at"] = datetime.utcnow().isoformat()
+        
+        result = await db.cse_delegates.update_one(
+            {"id": delegate_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Délégué non trouvé")
+        
+        return {"message": "Délégué mis à jour avec succès"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@api_router.delete("/cse/delegates/{delegate_id}")
+async def delete_cse_delegate(delegate_id: str, current_user: User = Depends(get_current_user)):
+    """Supprimer un délégué CSE (admin uniquement)"""
+    if current_user.role not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Accès refusé")
+    
+    try:
+        # Marquer comme inactif plutôt que supprimer
+        result = await db.cse_delegates.update_one(
+            {"id": delegate_id},
+            {"$set": {"actif": False, "updated_at": datetime.utcnow().isoformat()}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Délégué non trouvé")
+        
+        return {"message": "Délégué désactivé avec succès"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+# ========================================
+# HEURES DE DÉLÉGATION - DÉCLARATION ET PRISE DE CONNAISSANCE
+# ========================================
+
+@api_router.post("/cse/hours/declare")
+async def declare_delegation_hours(
+    delegate_id: str,
+    date: str,
+    heures_utilisees: float,
+    motif: str,
+    notes: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Déclarer des heures de délégation (délégué CSE ou admin)"""
+    try:
+        # Vérifier que le délégué existe et est actif
+        delegate = await db.cse_delegates.find_one({"id": delegate_id, "actif": True})
+        if not delegate:
+            raise HTTPException(status_code=404, detail="Délégué CSE non trouvé ou inactif")
+        
+        # Vérifier que l'utilisateur a le droit (délégué lui-même ou admin)
+        if current_user.id != delegate["user_id"] and current_user.role not in ["admin"]:
+            raise HTTPException(status_code=403, detail="Vous ne pouvez déclarer que vos propres heures")
+        
+        # Calculer le solde du mois
+        from datetime import datetime as dt
+        target_date = dt.strptime(date, "%Y-%m-%d")
+        month_str = target_date.strftime("%Y-%m")
+        
+        # Heures déjà utilisées ce mois
+        declarations = await db.delegation_hours.find({
+            "delegate_id": delegate_id,
+            "date": {"$regex": f"^{month_str}"}
+        }).to_list(100)
+        
+        heures_utilisees_mois = sum(float(d.get("heures_utilisees", 0)) for d in declarations)
+        solde_disponible = delegate["heures_mensuelles"] - heures_utilisees_mois
+        
+        # Vérifier si dépassement
+        if heures_utilisees > solde_disponible:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Solde insuffisant. Heures disponibles: {solde_disponible}h / Demandées: {heures_utilisees}h"
+            )
+        
+        # Créer la déclaration
+        declaration = DelegationHoursDeclaration(
+            delegate_id=delegate_id,
+            delegate_name=delegate["user_name"],
+            date=date,
+            heures_utilisees=heures_utilisees,
+            motif=motif,
+            statut="declared",
+            notes=notes
+        )
+        
+        # Préparer pour MongoDB
+        declaration_dict = declaration.dict()
+        if isinstance(declaration_dict.get('created_at'), datetime):
+            declaration_dict['created_at'] = declaration_dict['created_at'].isoformat()
+        
+        await db.delegation_hours.insert_one(declaration_dict)
+        
+        logger.info(f"✅ Heures de délégation déclarées: {heures_utilisees}h par {delegate['user_name']}")
+        
+        return {
+            "message": "Heures déclarées avec succès",
+            "declaration_id": declaration.id,
+            "solde_restant": solde_disponible - heures_utilisees
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Erreur déclaration heures: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@api_router.post("/cse/hours/acknowledge/{declaration_id}")
+async def acknowledge_delegation_hours(declaration_id: str, current_user: User = Depends(get_current_user)):
+    """Prendre connaissance d'une déclaration d'heures (admin/directeur uniquement)"""
+    if current_user.role not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent prendre connaissance")
+    
+    try:
+        result = await db.delegation_hours.update_one(
+            {"id": declaration_id, "statut": "declared"},
+            {"$set": {
+                "statut": "acknowledged",
+                "acknowledged_by": current_user.name,
+                "acknowledged_at": datetime.utcnow().isoformat()
+            }}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Déclaration non trouvée ou déjà prise en compte")
+        
+        return {"message": "Prise de connaissance enregistrée"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@api_router.get("/cse/hours")
+async def get_delegation_hours(
+    delegate_id: Optional[str] = None,
+    mois: Optional[str] = None,
+    statut: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Liste des déclarations d'heures de délégation"""
+    try:
+        query = {}
+        
+        # Admin voit tout, délégués voient leurs heures
+        if current_user.role not in ["admin", "manager"]:
+            # Trouver le delegate_id de l'utilisateur
+            delegate = await db.cse_delegates.find_one({"user_id": current_user.id, "actif": True})
+            if not delegate:
+                return []
+            query["delegate_id"] = delegate["id"]
+        elif delegate_id:
+            query["delegate_id"] = delegate_id
+        
+        if mois:
+            query["date"] = {"$regex": f"^{mois}"}
+        
+        if statut:
+            query["statut"] = statut
+        
+        declarations = await db.delegation_hours.find(query).sort("date", -1).to_list(100)
+        
+        # Nettoyer les ObjectIds
+        for decl in declarations:
+            if "_id" in decl:
+                del decl["_id"]
+        
+        return declarations
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur récupération heures: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+# ========================================
+# CESSIONS D'HEURES ENTRE DÉLÉGUÉS
+# ========================================
+
+@api_router.post("/cse/cession/request")
+async def request_hours_cession(
+    beneficiaire_id: str,
+    heures_cedees: float,
+    mois: str,
+    motif: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Demander une cession d'heures (délégué CSE)"""
+    try:
+        # Vérifier que le cédant est un délégué actif
+        cedant = await db.cse_delegates.find_one({"user_id": current_user.id, "actif": True})
+        if not cedant:
+            raise HTTPException(status_code=403, detail="Vous devez être délégué CSE pour céder des heures")
+        
+        # Vérifier que le bénéficiaire existe et est actif
+        beneficiaire = await db.cse_delegates.find_one({"id": beneficiaire_id, "actif": True})
+        if not beneficiaire:
+            raise HTTPException(status_code=404, detail="Bénéficiaire non trouvé ou inactif")
+        
+        # Vérifier le solde du cédant
+        declarations = await db.delegation_hours.find({
+            "delegate_id": cedant["id"],
+            "date": {"$regex": f"^{mois}"}
+        }).to_list(100)
+        
+        heures_utilisees = sum(float(d.get("heures_utilisees", 0)) for d in declarations)
+        solde_disponible = cedant["heures_mensuelles"] - heures_utilisees
+        
+        if heures_cedees > solde_disponible:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Solde insuffisant. Disponible: {solde_disponible}h / Demandé: {heures_cedees}h"
+            )
+        
+        # Créer la cession
+        cession = HoursCession(
+            cedant_id=cedant["id"],
+            cedant_name=cedant["user_name"],
+            beneficiaire_id=beneficiaire_id,
+            beneficiaire_name=beneficiaire["user_name"],
+            heures_cedees=heures_cedees,
+            mois=mois,
+            motif=motif,
+            statut="pending",
+            created_by=current_user.name
+        )
+        
+        # Préparer pour MongoDB
+        cession_dict = cession.dict()
+        if isinstance(cession_dict.get('created_at'), datetime):
+            cession_dict['created_at'] = cession_dict['created_at'].isoformat()
+        
+        await db.hours_cessions.insert_one(cession_dict)
+        
+        logger.info(f"✅ Cession demandée: {heures_cedees}h de {cedant['user_name']} vers {beneficiaire['user_name']}")
+        
+        return {"message": "Demande de cession enregistrée", "cession_id": cession.id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Erreur demande cession: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@api_router.post("/cse/cession/acknowledge/{cession_id}")
+async def acknowledge_cession(cession_id: str, current_user: User = Depends(get_current_user)):
+    """Prendre connaissance d'une cession (admin uniquement)"""
+    if current_user.role not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Accès refusé")
+    
+    try:
+        result = await db.hours_cessions.update_one(
+            {"id": cession_id, "statut": "pending"},
+            {"$set": {
+                "statut": "acknowledged",
+                "validated_by": current_user.name,
+                "validated_at": datetime.utcnow().isoformat()
+            }}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Cession non trouvée")
+        
+        return {"message": "Cession prise en compte"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@api_router.get("/cse/cessions")
+async def get_cessions(
+    statut: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Liste des cessions d'heures"""
+    try:
+        query = {}
+        if statut:
+            query["statut"] = statut
+        
+        cessions = await db.hours_cessions.find(query).sort("created_at", -1).to_list(100)
+        
+        # Nettoyer les ObjectIds
+        for cession in cessions:
+            if "_id" in cession:
+                del cession["_id"]
+        
+        return cessions
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+# ========================================
+# STATISTIQUES CSE
+# ========================================
+
+@api_router.get("/cse/statistics")
+async def get_cse_statistics(mois: Optional[str] = None, current_user: User = Depends(get_current_user)):
+    """Statistiques CSE du mois"""
+    try:
+        from datetime import datetime as dt
+        if not mois:
+            mois = dt.now().strftime("%Y-%m")
+        
+        # Compter les délégués
+        delegates = await db.cse_delegates.find({"actif": True}).to_list(100)
+        total_delegates = len(delegates)
+        titulaires = len([d for d in delegates if d.get("statut") == "titulaire"])
+        suppleants = len([d for d in delegates if d.get("statut") == "suppléant"])
+        
+        # Heures allouées totales
+        heures_allouees_mois = sum(d.get("heures_mensuelles", 0) for d in delegates)
+        
+        # Heures utilisées ce mois
+        declarations = await db.delegation_hours.find({
+            "date": {"$regex": f"^{mois}"}
+        }).to_list(1000)
+        heures_utilisees_mois = sum(float(d.get("heures_utilisees", 0)) for d in declarations)
+        
+        # Taux d'utilisation
+        taux_utilisation = (heures_utilisees_mois / heures_allouees_mois * 100) if heures_allouees_mois > 0 else 0
+        
+        # Cessions en attente
+        cessions_pending = await db.hours_cessions.count_documents({"statut": "pending"})
+        
+        return {
+            "total_delegates": total_delegates,
+            "titulaires": titulaires,
+            "suppleants": suppleants,
+            "heures_utilisees_mois": heures_utilisees_mois,
+            "heures_allouees_mois": heures_allouees_mois,
+            "taux_utilisation": round(taux_utilisation, 1),
+            "cessions_en_attente": cessions_pending
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur statistiques CSE: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+# ========================================
 # OVERTIME MANAGEMENT ENDPOINTS
 # ========================================
 
