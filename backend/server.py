@@ -1102,6 +1102,321 @@ async def export_on_call_planning(
         "generatedBy": current_user.name
     }
 
+# Excel Import endpoints - Admin only
+def require_admin_access(current_user: User):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+@api_router.post("/import/reset-demo")
+async def reset_demo_accounts(current_user: User = Depends(require_admin_access)):
+    """Delete all test accounts except the admin creating DACALOR Diégo admin"""
+    try:
+        # Clear existing demo users except the one being used
+        current_email = current_user.email
+        demo_users.clear()
+        
+        # Create DACALOR Diégo admin
+        demo_users["diego.dacalor@company.com"] = {
+            "id": str(uuid.uuid4()),
+            "name": "DACALOR Diégo",
+            "email": "diego.dacalor@company.com",
+            "password": "admin123",
+            "role": "admin",
+            "department": "Direction",
+            "isDelegateCSE": False
+        }
+        
+        return {
+            "success": True,
+            "message": "Demo accounts reset. New admin DACALOR Diégo created.",
+            "new_admin": {
+                "name": "DACALOR Diégo",
+                "email": "diego.dacalor@company.com",
+                "password": "admin123"
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error resetting accounts: {str(e)}")
+
+@api_router.post("/import/validate", response_model=ImportResult)
+async def validate_import_data(
+    request: ImportValidationRequest, 
+    current_user: User = Depends(require_admin_access)
+):
+    """Validate Excel import data before actual import"""
+    errors = []
+    warnings = []
+    
+    try:
+        if request.data_type == "employees":
+            for i, employee_data in enumerate(request.data):
+                # Required fields validation
+                required_fields = ['nom', 'prenom', 'email', 'departement']
+                for field in required_fields:
+                    if not employee_data.get(field):
+                        errors.append({
+                            "row": i + 1,
+                            "field": field,
+                            "error": f"Champ requis manquant: {field}"
+                        })
+                
+                # Email validation
+                email = employee_data.get('email', '')
+                if email and '@' not in email:
+                    errors.append({
+                        "row": i + 1,
+                        "field": "email",
+                        "error": f"Format email invalide: {email}"
+                    })
+                
+                # Check for duplicate emails
+                email_count = sum(1 for emp in request.data if emp.get('email') == email)
+                if email_count > 1:
+                    warnings.append({
+                        "row": i + 1,
+                        "field": "email",
+                        "warning": f"Email en doublon: {email}"
+                    })
+        
+        elif request.data_type == "absences":
+            for i, absence_data in enumerate(request.data):
+                required_fields = ['employee_name', 'date_debut', 'jours_absence', 'motif_absence']
+                for field in required_fields:
+                    if not absence_data.get(field):
+                        errors.append({
+                            "row": i + 1,
+                            "field": field,
+                            "error": f"Champ requis manquant: {field}"
+                        })
+        
+        elif request.data_type == "work_hours":
+            for i, work_data in enumerate(request.data):
+                required_fields = ['employee_name', 'date', 'heures_travaillees']
+                for field in required_fields:
+                    if not work_data.get(field):
+                        errors.append({
+                            "row": i + 1,
+                            "field": field,
+                            "error": f"Champ requis manquant: {field}"
+                        })
+                
+                # Validate hours is numeric
+                hours = work_data.get('heures_travaillees')
+                if hours is not None:
+                    try:
+                        float(hours)
+                    except (ValueError, TypeError):
+                        errors.append({
+                            "row": i + 1,
+                            "field": "heures_travaillees",
+                            "error": f"Valeur numérique attendue pour les heures: {hours}"
+                        })
+
+        return ImportResult(
+            success=len(errors) == 0,
+            total_processed=len(request.data),
+            successful_imports=len(request.data) - len(errors),
+            failed_imports=len(errors),
+            errors=errors,
+            warnings=warnings,
+            data_type=request.data_type
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Validation error: {str(e)}")
+
+@api_router.post("/import/employees", response_model=ImportResult)
+async def import_employees(
+    request: ImportDataRequest,
+    current_user: User = Depends(require_admin_access)
+):
+    """Import employee data from Excel"""
+    errors = []
+    warnings = []
+    successful_imports = 0
+    
+    try:
+        for i, employee_data in enumerate(request.data):
+            try:
+                # Create employee object
+                employee = ImportEmployee(
+                    nom=employee_data.get('nom', ''),
+                    prenom=employee_data.get('prenom', ''),
+                    email=employee_data.get('email', ''),
+                    date_naissance=employee_data.get('date_naissance'),
+                    sexe=employee_data.get('sexe'),
+                    categorie_employe=employee_data.get('categorie_employe'),
+                    metier=employee_data.get('metier'),
+                    fonction=employee_data.get('fonction'),
+                    departement=employee_data.get('departement', ''),
+                    site=employee_data.get('site'),
+                    temps_travail=employee_data.get('temps_travail'),
+                    contrat=employee_data.get('contrat'),
+                    date_debut_contrat=employee_data.get('date_debut_contrat'),
+                    date_fin_contrat=employee_data.get('date_fin_contrat'),
+                    notes=employee_data.get('notes'),
+                    created_by=current_user.name
+                )
+                
+                # Store in MongoDB
+                await db.employees.insert_one(employee.dict())
+                successful_imports += 1
+                
+            except Exception as e:
+                errors.append({
+                    "row": i + 1,
+                    "error": str(e)
+                })
+        
+        return ImportResult(
+            success=len(errors) == 0,
+            total_processed=len(request.data),
+            successful_imports=successful_imports,
+            failed_imports=len(errors),
+            errors=errors,
+            warnings=warnings,
+            data_type="employees"
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Import error: {str(e)}")
+
+@api_router.post("/import/absences", response_model=ImportResult)
+async def import_absences(
+    request: ImportDataRequest,
+    current_user: User = Depends(require_admin_access)
+):
+    """Import absence data from Excel"""
+    errors = []
+    warnings = []
+    successful_imports = 0
+    
+    try:
+        for i, absence_data in enumerate(request.data):
+            try:
+                # Find employee by name to get ID
+                employee_name = absence_data.get('employee_name', '')
+                employee = await db.employees.find_one({"$or": [
+                    {"nom": {"$regex": employee_name, "$options": "i"}},
+                    {"prenom": {"$regex": employee_name, "$options": "i"}}
+                ]})
+                
+                if not employee:
+                    errors.append({
+                        "row": i + 1,
+                        "error": f"Employé non trouvé: {employee_name}"
+                    })
+                    continue
+                
+                absence = ImportAbsence(
+                    employee_id=employee["id"],
+                    employee_name=employee_name,
+                    date_debut=absence_data.get('date_debut', ''),
+                    jours_absence=absence_data.get('jours_absence', ''),
+                    motif_absence=absence_data.get('motif_absence', ''),
+                    created_by=current_user.name
+                )
+                
+                # Store in MongoDB
+                await db.absences.insert_one(absence.dict())
+                successful_imports += 1
+                
+            except Exception as e:
+                errors.append({
+                    "row": i + 1,
+                    "error": str(e)
+                })
+        
+        return ImportResult(
+            success=len(errors) == 0,
+            total_processed=len(request.data),
+            successful_imports=successful_imports,
+            failed_imports=len(errors),
+            errors=errors,
+            warnings=warnings,
+            data_type="absences"
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Import error: {str(e)}")
+
+@api_router.post("/import/work-hours", response_model=ImportResult)
+async def import_work_hours(
+    request: ImportDataRequest,
+    current_user: User = Depends(require_admin_access)
+):
+    """Import work hours data from Excel"""
+    errors = []
+    warnings = []
+    successful_imports = 0
+    
+    try:
+        for i, work_data in enumerate(request.data):
+            try:
+                # Find employee by name to get ID
+                employee_name = work_data.get('employee_name', '')
+                employee = await db.employees.find_one({"$or": [
+                    {"nom": {"$regex": employee_name, "$options": "i"}},
+                    {"prenom": {"$regex": employee_name, "$options": "i"}}
+                ]})
+                
+                if not employee:
+                    errors.append({
+                        "row": i + 1,
+                        "error": f"Employé non trouvé: {employee_name}"
+                    })
+                    continue
+                
+                work_hours = ImportWorkHours(
+                    employee_id=employee["id"],
+                    employee_name=employee_name,
+                    date=work_data.get('date', ''),
+                    heures_travaillees=float(work_data.get('heures_travaillees', 0)),
+                    notes=work_data.get('notes'),
+                    created_by=current_user.name
+                )
+                
+                # Store in MongoDB
+                await db.work_hours.insert_one(work_hours.dict())
+                successful_imports += 1
+                
+            except Exception as e:
+                errors.append({
+                    "row": i + 1,
+                    "error": str(e)
+                })
+        
+        return ImportResult(
+            success=len(errors) == 0,
+            total_processed=len(request.data),
+            successful_imports=successful_imports,
+            failed_imports=len(errors),
+            errors=errors,
+            warnings=warnings,
+            data_type="work_hours"
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Import error: {str(e)}")
+
+@api_router.get("/import/statistics")
+async def get_import_statistics(current_user: User = Depends(require_admin_access)):
+    """Get statistics about imported data"""
+    try:
+        employees_count = await db.employees.count_documents({})
+        absences_count = await db.absences.count_documents({})
+        work_hours_count = await db.work_hours.count_documents({})
+        
+        return {
+            "employees": employees_count,
+            "absences": absences_count,
+            "work_hours": work_hours_count,
+            "total_records": employees_count + absences_count + work_hours_count
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting statistics: {str(e)}")
+
 # Include the router in the main app
 app.include_router(api_router)
 
