@@ -1067,65 +1067,32 @@ async def get_absence_kpi(current_user: User = Depends(get_current_user)):
 @api_router.get("/on-call/employees", response_model=List[OnCallEmployee])
 async def get_on_call_employees(current_user: User = Depends(get_current_user)):
     """Récupérer la liste des employés éligibles aux astreintes avec leurs quotas"""
-    # Données mockées avec les catégories CCN66
-    mock_employees = [
-        {
-            "id": "1",
-            "name": "Sophie Martin",
-            "email": "sophie.martin@company.com",
-            "category": "management",
-            "department": "Direction",
-            "currentYearOnCallDays": 25,
-            "phone": "06.12.34.56.78",
-            "emergencyContact": "06.87.65.43.21",
-            "lastOnCallDate": "2024-12-15"
-        },
-        {
-            "id": "2",
-            "name": "Jean Dupont",
-            "email": "jean.dupont@company.com",
-            "category": "administrative",
-            "department": "Administration",
-            "currentYearOnCallDays": 18,
-            "phone": "06.23.45.67.89",
-            "emergencyContact": "06.98.76.54.32",
-            "lastOnCallDate": "2024-12-08"
-        },
-        {
-            "id": "3",
-            "name": "Marie Leblanc",
-            "email": "marie.leblanc@company.com",
-            "category": "specialized_educators",
-            "department": "Éducation",
-            "currentYearOnCallDays": 32,
-            "phone": "06.34.56.78.90",
-            "emergencyContact": "06.09.87.65.43",
-            "lastOnCallDate": "2024-12-22"
-        },
-        {
-            "id": "4",
-            "name": "Pierre Moreau",
-            "email": "pierre.moreau@company.com",
-            "category": "technical_educators",
-            "department": "Technique",
-            "currentYearOnCallDays": 15,
-            "phone": "06.45.67.89.01",
-            "emergencyContact": "06.10.98.76.54",
-            "lastOnCallDate": "2024-11-30"
-        },
-        {
-            "id": "5",
-            "name": "Claire Dubois",
-            "email": "claire.dubois@company.com",
-            "category": "administrative",
-            "department": "Comptabilité",
-            "currentYearOnCallDays": 28,
-            "phone": "06.56.78.90.12",
-            "emergencyContact": "06.21.09.87.65",
-            "lastOnCallDate": "2024-12-10"
-        }
-    ]
-    return [OnCallEmployee(**emp) for emp in mock_employees]
+    # Get on-call eligible employees from real users database
+    try:
+        # Get all active users
+        users = await db.users.find({"is_active": True}).to_list(1000)
+        
+        # Convert to OnCallEmployee format
+        on_call_employees = []
+        for user in users:
+            employee = {
+                "id": user["id"],
+                "name": user["name"],
+                "email": user["email"],
+                "category": user.get("department", "administrative").lower().replace(" ", "_"),
+                "department": user["department"],
+                "currentYearOnCallDays": 0,  # Will be calculated from actual assignments
+                "phone": user.get("phone", ""),
+                "emergencyContact": "",
+                "lastOnCallDate": None
+            }
+            on_call_employees.append(OnCallEmployee(**employee))
+        
+        return on_call_employees
+        
+    except Exception as e:
+        print(f"Error getting on-call employees: {e}")
+        return []  # Return empty list if no data yet
 
 @api_router.get("/on-call/assignments", response_model=List[OnCallAssignment])
 async def get_on_call_assignments(
