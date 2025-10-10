@@ -154,6 +154,10 @@ class User(BaseModel):
     hire_date: Optional[str] = None
     isDelegateCSE: Optional[bool] = False
     is_active: bool = True
+    requires_password_change: bool = False
+    first_login: bool = True
+    last_login: Optional[datetime] = None
+    temp_password_expires: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: Optional[str] = None
