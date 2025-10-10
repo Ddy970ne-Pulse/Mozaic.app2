@@ -99,6 +99,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <HRToolbox user={user} onChangeView={setCurrentView} />;
         case 'excel-import':
           return <ExcelImport user={user} onChangeView={setCurrentView} />;
+        case 'cse-management':
+          return <CSEManagement user={user} onChangeView={setCurrentView} />;
         case 'on-call-management':
           return <OnCallManagement user={user} onChangeView={setCurrentView} />;
         case 'user-management':
