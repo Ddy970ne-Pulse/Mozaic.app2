@@ -546,13 +546,15 @@ async def get_user_statistics(current_user: User = Depends(get_current_user)):
 # Delegation Hours endpoints
 @api_router.get("/delegation/delegates", response_model=List[Delegate])
 async def get_delegates(current_user: User = Depends(get_current_user)):
-    # Admin and managers can see all delegates, employees only see their own
+    """Get delegates from database"""
     if current_user.role in ["admin", "manager"]:
-        return [Delegate(**delegate) for delegate in demo_delegates]
+        # Return all delegates
+        delegates = await db.delegates.find().to_list(1000)
+        return [Delegate(**delegate) for delegate in delegates]
     else:
         # Return only current user's delegation if they have one
-        user_delegate = next((d for d in demo_delegates if d["name"] == current_user.name), None)
-        return [Delegate(**user_delegate)] if user_delegate else []
+        delegates = await db.delegates.find({"employeeId": current_user.id}).to_list(1000)
+        return [Delegate(**delegate) for delegate in delegates]
 
 @api_router.get("/delegation/delegates/{delegate_id}", response_model=Delegate) 
 async def get_delegate(delegate_id: str, current_user: User = Depends(get_current_user)):
