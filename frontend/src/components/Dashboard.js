@@ -16,8 +16,47 @@ const Dashboard = ({ user, onChangeView }) => {
     { title: 'Heures Sup. Total', value: '0h', icon: '⏰', color: 'bg-purple-500', change: '0h' }
   ]);
 
-  // Souscription aux changements d'état et initialisation de la navigation
+  // Load real statistics from API
+  const loadStatistics = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      // Load user statistics
+      const usersResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/stats/overview`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (usersResponse.ok) {
+        const userStats = await usersResponse.json();
+        
+        // Update stats with real data
+        setStats([
+          { title: 'Employés Actifs', value: userStats.total_users.toString(), icon: '👥', color: 'bg-blue-500', change: `+${userStats.total_users}` },
+          { title: 'Demandes en Attente', value: '0', icon: '📋', color: 'bg-orange-500', change: '0' },
+          { title: 'Congés ce Mois', value: '0', icon: '🏖️', color: 'bg-green-500', change: '0' },
+          { title: 'Heures Sup. Total', value: '0h', icon: '⏰', color: 'bg-purple-500', change: '0h' }
+        ]);
+
+        // Update departments with real data
+        const realDepartments = userStats.by_department.map(dept => ({
+          name: dept.department,
+          employees: dept.count,
+          absences: 0,
+          percentage: 100 // No absences yet
+        }));
+        
+        setDepartments(realDepartments);
+      }
+    } catch (error) {
+      console.error('Error loading statistics:', error);
+    }
+  };
+
+  // Souscription aux changements d'état et chargement des données
   useEffect(() => {
+    loadStatistics();
+    
     const unsubscribeRequests = subscribe((newRequests) => {
       setRequests(newRequests);
       setRecentActivities(getRecentActivities());
