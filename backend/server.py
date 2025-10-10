@@ -325,11 +325,27 @@ class ImportEmployee(BaseModel):
 
 class ImportAbsence(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    employee_id: str
-    employee_name: str
+    employee_id: Optional[str] = None  # UUID de l'utilisateur si trouvé
+    nom: str
+    prenom: str
+    email: Optional[str] = None  # Email de l'employé si trouvé
+    date_debut: Optional[str] = None
+    jours_absence: Optional[str] = None
+    motif_absence: str
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str
+
+class Absence(BaseModel):
+    """Modèle pour les absences stockées en base"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    employee_id: str  # UUID de l'utilisateur
+    employee_name: str  # Nom complet pour affichage
+    email: str
     date_debut: str
     jours_absence: str
     motif_absence: str
+    notes: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
 
