@@ -1296,34 +1296,27 @@ def require_admin_access(current_user: User = Depends(get_current_user)):
 
 @api_router.post("/import/reset-demo")
 async def reset_demo_accounts(current_user: User = Depends(require_admin_access)):
-    """Delete all test accounts except the admin creating DACALOR Diégo admin"""
+    """Reset system: Clear all data and keep only current admin"""
     try:
-        # Clear existing demo users except the one being used
-        current_email = current_user.email
-        demo_users.clear()
+        # Clear all collections except current admin user
+        await db.employees.delete_many({})
+        await db.absences.delete_many({})
+        await db.work_hours.delete_many({})
         
-        # Create DACALOR Diégo admin
-        demo_users["ddacalor@aaea-gpe.fr"] = {
-            "id": str(uuid.uuid4()),
-            "name": "DACALOR Diégo",
-            "email": "ddacalor@aaea-gpe.fr",
-            "password": "admin123",
-            "role": "admin",
-            "department": "Direction",
-            "isDelegateCSE": False
-        }
+        # Keep only current admin user, remove all others
+        await db.users.delete_many({"id": {"$ne": current_user.id}})
         
         return {
             "success": True,
-            "message": "Demo accounts reset. New admin DACALOR Diégo created.",
-            "new_admin": {
-                "name": "DACALOR Diégo",
-                "email": "ddacalor@aaea-gpe.fr",
-                "password": "admin123"
+            "message": "System reset completed. All demo data cleared.",
+            "remaining_admin": {
+                "name": current_user.name,
+                "email": current_user.email,
+                "role": current_user.role
             }
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error resetting accounts: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error resetting system: {str(e)}")
 
 @api_router.post("/import/validate", response_model=ImportResult)
 async def validate_import_data(
