@@ -250,7 +250,21 @@ backend:
         agent: "testing"
         comment: "COMPREHENSIVE BACKEND TESTING COMPLETED ✅ Successfully tested all backend endpoints for monthly planning and print functionality support as requested: 1) AUTHENTICATION: Sophie Martin login (sophie.martin@company.com / demo123) working perfectly with JWT token generation and user profile retrieval, all demo accounts functional, 2) DELEGATION HOURS MODULE: All endpoints operational (/delegation/delegates, /delegation/usage, /delegation/cessions, /absence-types, /absence-requests) with proper data retrieval, found all required absence codes for monthly planning (AM, MAT, CA, CT, REC, TEL, DEL, FO, STG), 3) DATA RETRIEVAL: User management endpoints working (/users returns 5 users including Sophie Martin), HR configuration endpoints functional (/hr-config/departments, /sites, /contracts, /employee-categories), on-call management endpoints operational (5 employees, 4 assignments), 4) MONTHLY PLANNING SUPPORT: Analytics KPI endpoint provides planning statistics with monthly trends and categories, on-call export functionality supports enhanced print features, CCN66 compliance validation working for on-call assignments, 5) API HEALTH: Root endpoint accessible, status endpoints functional. ALL 5 test categories PASSED. Backend fully supports monthly planning display and enhanced print functionality. No critical issues found."
 
-frontend:
+  - task: "Excel Import Module Frontend Testing"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/ExcelImport.js"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "UPDATED IMPLEMENTATION: Modified absence import system to handle NEW Excel format with columns: NOM, PRENOM, Date Début, Jours Absence, Motif Absence, Notes. Updated Absence and ImportAbsence models to match new structure. Enhanced POST /api/import/absences endpoint to: 1) Match employees by NOM + PRENOM from users collection (case-insensitive regex search), 2) Skip lines without date_debut (with warnings), 3) Validate required fields (nom, prenom, motif_absence), 4) Store absences with employee_id, employee_name, email, date_debut, jours_absence, motif_absence, notes, 5) Return detailed error/warning reports with row numbers and suggestions. Added GET /api/absences endpoint (returns all for admin/manager, own for employees), GET /api/absences/{employee_id} (specific employee), DELETE /api/absences/{absence_id} (admin only). Frontend ExcelImport.js updated: 'planning' data model now uses nom/prenom instead of employee_name, maps to /api/import/absences endpoint correctly. User provided actual Excel file 'absences.xlsx' with employee data (Joël ADOLPHIN, Fabrice LOUBER, etc.) - ready for testing with real data."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL NAVIGATION ISSUE: Excel Import module exists and is properly implemented but cannot be accessed through the frontend navigation. BACKEND VERIFICATION ✅: Backend logs show successful API calls to /api/import/validate, /api/import/employees, /api/import/absences with proper authentication and data processing. FRONTEND ISSUES ❌: 1) Login with Sophie Martin (sophie.martin@company.com / demo123) works correctly, 2) Dashboard loads properly showing 'Import Excel disponible' in activities, 3) Hamburger menu opens but Import Excel option is not clickable or accessible, 4) Navigation consistently redirects to Planning Mensuel instead of Import Excel module, 5) Menu overlay shows Import Excel option but clicking fails with timeout errors. CODE ANALYSIS ✅: ExcelImport.js component is fully implemented with: proper data models for 'planning' type (6 columns: NOM, PRENOM, Date Début, Jours Absence, Motif Absence, Notes), file upload functionality, column mapping, validation, and API integration. CONCLUSION: Backend functionality is working perfectly, but frontend navigation to Import Excel module is broken. The module exists but is not accessible through the UI."
+
   - task: "UserManagement Tabbed Interface"
     implemented: true
     working: false
