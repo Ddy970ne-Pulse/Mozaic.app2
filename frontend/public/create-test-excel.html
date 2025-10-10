@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un fichier Excel de test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .button { 
+            background: #007bff; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 10px;
+        }
+        .button:hover { background: #0056b3; }
+        .info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Créer un fichier Excel de test</h1>
+        <p>Créez et téléchargez des fichiers Excel de test pour tester le système d'import MOZAIK RH</p>
+        
+        <div class="info">
+            <h3>📊 Données Employés (13 colonnes)</h3>
+            <p>Fichier avec les colonnes requises : nom, prénom, email, département + colonnes optionnelles</p>
+            <button class="button" onclick="createEmployeesExcel()">Créer fichier Employés</button>
+        </div>
+
+        <div class="info">
+            <h3>📅 Données Absences (5 colonnes)</h3>
+            <p>Fichier avec : employé, date début, jours absence, motif absence</p>
+            <button class="button" onclick="createAbsencesExcel()">Créer fichier Absences</button>
+        </div>
+
+        <div class="info">
+            <h3>⏰ Données Heures Travaillées (4 colonnes)</h3>
+            <p>Fichier avec : employé, date, heures travaillées, notes</p>
+            <button class="button" onclick="createWorkHoursExcel()">Créer fichier Heures</button>
+        </div>
+    </div>
+
+    <script>
+        function downloadExcel(wb, filename) {
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+            
+            function s2ab(s) {
+                const buf = new ArrayBuffer(s.length);
+                const view = new Uint8Array(buf);
+                for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+            }
+            
+            const blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function createEmployeesExcel() {
+            const wb = XLSX.utils.book_new();
+            const data = [
+                // Headers (13 colonnes comme analysé dans le fichier original)
+                ['Nom', 'Prénom', 'Email', 'Département', 'Date de naissance', 'Sexe', 'Catégorie employé', 'Métier', 'Fonction', 'Site', 'Temps de travail', 'Contrat', 'Notes'],
+                // Sample data
+                ['Dupont', 'Jean', 'jean.dupont@aaea-gpe.fr', 'IT', '1985-03-15', 'M', 'Cadre', 'Développeur', 'Tech Lead', 'Paris', 'Temps plein', 'CDI', 'Spécialiste React'],
+                ['Martin', 'Sophie', 'sophie.martin@aaea-gpe.fr', 'RH', '1990-07-22', 'F', 'Cadre', 'RH Manager', 'Responsable', 'Paris', 'Temps plein', 'CDI', 'Experte recrutement'],
+                ['Lemaire', 'Pierre', 'pierre.lemaire@aaea-gpe.fr', 'Commercial', '1988-12-03', 'M', 'Employé', 'Commercial', 'Vendeur', 'Lyon', 'Temps plein', 'CDI', 'Top performer'],
+                ['Bernard', 'Marie', 'marie.bernard@aaea-gpe.fr', 'Comptabilité', '1992-05-18', 'F', 'Employé', 'Comptable', 'Assistant', 'Paris', 'Mi-temps', 'CDI', 'Formation en cours']
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Employés');
+            downloadExcel(wb, 'test-employes-aaea.xlsx');
+        }
+
+        function createAbsencesExcel() {
+            const wb = XLSX.utils.book_new();
+            const data = [
+                // Headers (5 colonnes)
+                ['Employé', 'Date début', 'Jours absence', 'Motif absence', 'Notes'],
+                // Sample data
+                ['Jean Dupont', '2025-01-15', '5', 'Congés payés', 'Vacances planifiées'],
+                ['Sophie Martin', '2025-01-20', '1', 'RTT', 'Récupération heures sup'],
+                ['Pierre Lemaire', '2025-01-22', '3', 'Maladie', 'Arrêt médical'],
+                ['Marie Bernard', '2025-01-25', '2', 'Formation', 'Formation obligatoire sécurité']
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Absences');
+            downloadExcel(wb, 'test-absences-aaea.xlsx');
+        }
+
+        function createWorkHoursExcel() {
+            const wb = XLSX.utils.book_new();
+            const data = [
+                // Headers (4 colonnes)
+                ['Employé', 'Date', 'Heures travaillées', 'Notes'],
+                // Sample data
+                ['Jean Dupont', '2025-01-13', '8.5', 'Heures normales + 0.5h projet urgent'],
+                ['Sophie Martin', '2025-01-13', '7.0', 'Journée standard'],
+                ['Pierre Lemaire', '2025-01-13', '9.0', '1h supplémentaire client important'],
+                ['Marie Bernard', '2025-01-13', '4.0', 'Mi-temps comme convenu'],
+                ['Jean Dupont', '2025-01-14', '10.0', '2h supplémentaires déploiement'],
+                ['Sophie Martin', '2025-01-14', '8.0', 'Journée complète réunions'],
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Heures');
+            downloadExcel(wb, 'test-heures-aaea.xlsx');
+        }
+    </script>
+</body>
+</html>
