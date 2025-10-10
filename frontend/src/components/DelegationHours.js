@@ -86,8 +86,8 @@ const DelegationHours = ({ user }) => {
         if (response.ok) {
           const delegatesData = await response.json();
           setDelegates(delegatesData);
-          // Calculate balances after loading delegates
-          calculateBalances(delegatesData, initialUsageHistory);
+          // Calculate balances after loading both delegates and usage history
+          // We'll recalculate balances after usage history is loaded
         } else {
           console.error('Failed to load delegates');
           setDelegates([]); // Empty array if no data
@@ -98,8 +98,13 @@ const DelegationHours = ({ user }) => {
       }
     };
 
-    loadDelegates();
-    setUsageHistory(initialUsageHistory);
+    // Load both delegates and usage history
+    const loadData = async () => {
+      await loadDelegates();
+      await loadUsageHistory();
+    };
+
+    loadData();
 
     // Balances will be calculated after delegates are loaded from API
   }, []);
