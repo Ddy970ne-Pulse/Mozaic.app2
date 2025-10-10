@@ -142,7 +142,33 @@ const DelegationHours = ({ user }) => {
       }
     ];
 
-    setDelegates(initialDelegates);
+    // Load delegates from database instead of hardcoded data
+    const loadDelegates = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/delegation/delegates`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const delegatesData = await response.json();
+          setDelegates(delegatesData);
+        } else {
+          console.error('Failed to load delegates');
+          setDelegates([]); // Empty array if no data
+        }
+      } catch (error) {
+        console.error('Error loading delegates:', error);
+        setDelegates([]);
+      }
+    };
+
+    loadDelegates();
     setUsageHistory(initialUsageHistory);
 
     // Calculer les soldes initiaux
