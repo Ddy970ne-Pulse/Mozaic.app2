@@ -104,8 +104,13 @@ const DelegationHours = ({ user }) => {
 
     // Load both delegates and usage history
     const loadData = async () => {
-      await loadDelegates();
-      await loadUsageHistory();
+      const delegatesData = await loadDelegates();
+      const usageData = await loadUsageHistory();
+      
+      // Calculate balances after both are loaded
+      if (delegatesData.length > 0) {
+        calculateBalances(delegatesData, usageData);
+      }
     };
 
     loadData();
