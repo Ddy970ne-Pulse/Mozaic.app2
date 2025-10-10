@@ -25,23 +25,9 @@ export const october2025OvertimeHours = [
   // Data will be loaded from /api/overtime/hours endpoint
 ];
 
-// Astreintes pour octobre 2025 (semaines dimanche->samedi)
+// REMOVED: Mock on-call assignments - Now loaded from real on-call API
 export const october2025OnCallAssignments = [
-  // Semaine 1: 28 sept - 4 oct 2025
-  { id: 11, employeeId: 1, employeeName: 'Sophie Martin', startDate: '2025-10-01', endDate: '2025-10-01', type: 'single', status: 'confirmed' },
-  
-  // Semaine 2: 5-11 oct 2025  
-  { id: 12, employeeId: 3, employeeName: 'Marie Leblanc', startDate: '2025-10-05', endDate: '2025-10-05', type: 'single', status: 'confirmed' },
-  { id: 13, employeeId: 8, employeeName: 'Thomas Petit', startDate: '2025-10-11', endDate: '2025-10-12', type: 'weekend', status: 'confirmed' },
-  
-  // Semaine 3: 12-18 oct 2025
-  { id: 14, employeeId: 4, employeeName: 'Pierre Moreau', startDate: '2025-10-15', endDate: '2025-10-15', type: 'single', status: 'confirmed' },
-  
-  // Semaine 4: 19-25 oct 2025
-  { id: 15, employeeId: 1, employeeName: 'Sophie Martin', startDate: '2025-10-25', endDate: '2025-10-26', type: 'weekend', status: 'confirmed' },
-  
-  // Semaine 5: 26 oct - 1 nov 2025
-  { id: 16, employeeId: 6, employeeName: 'Lucas Bernard', startDate: '2025-10-29', endDate: '2025-10-29', type: 'single', status: 'confirmed' }
+  // Data will be loaded from /api/on-call/assignments endpoint
 ];
 
 // Récupérations pour octobre 2025
