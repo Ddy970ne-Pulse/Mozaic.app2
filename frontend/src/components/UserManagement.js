@@ -697,6 +697,13 @@ const UserManagement = ({ user }) => {
                         👤
                       </button>
                       <button
+                        onClick={() => handleChangeEmail(userItem)}
+                        className="text-teal-600 hover:text-teal-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                        title="Modifier Email"
+                      >
+                        ✉️
+                      </button>
+                      <button
                         onClick={() => {
                           setSelectedUser(userItem);
                           setShowPasswordReset(true);
