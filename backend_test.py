@@ -132,6 +132,32 @@ class BackendTester:
             else:
                 self.log_result("authentication", False, f"Sophie Martin login failed: {auth_response.status_code}")
                 
+                # Try DACALOR Diego admin if Sophie Martin fails
+                auth_response = requests.post(
+                    f"{API_URL}{auth_endpoint}", 
+                    json={"email": diego_account["email"], "password": diego_account["password"]}, 
+                    timeout=5
+                )
+                if auth_response.status_code == 200:
+                    auth_data = auth_response.json()
+                    auth_token = auth_data.get('token')
+                    self.log_result("authentication", True, f"✅ DACALOR Diego admin login successful (diego.dacalor@company.com / admin123)")
+                    
+                    # Test /auth/me endpoint
+                    if auth_token:
+                        me_response = requests.get(
+                            f"{API_URL}/auth/me", 
+                            headers={"Authorization": f"Bearer {auth_token}"}, 
+                            timeout=5
+                        )
+                        if me_response.status_code == 200:
+                            user_data = me_response.json()
+                            self.log_result("authentication", True, f"User profile retrieval works: {user_data.get('name', 'Unknown')}")
+                        else:
+                            self.log_result("authentication", False, f"/auth/me returned {me_response.status_code}")
+                else:
+                    self.log_result("authentication", False, f"DACALOR Diego login also failed: {auth_response.status_code}")
+                
             # Test other accounts
             for account in test_accounts[1:]:
                 try:
