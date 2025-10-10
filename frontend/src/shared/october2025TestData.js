@@ -10,31 +10,9 @@ export const testEmployees = [
   // Data will be loaded from /api/users endpoint
 ];
 
-// Absences pour octobre 2025
+// REMOVED: Mock absence data - Now loaded from real absence API
 export const october2025Absences = [
-  // Semaine 1 (1-5 octobre)
-  { employeeId: 2, employeeName: 'Jean Dupont', dates: ['2025-10-01', '2025-10-02'], type: 'CA', reason: 'Congés annuels pont octobre', status: 'approved', requestDate: '2025-09-15' },
-  { employeeId: 5, employeeName: 'Claire Dubois', dates: ['2025-10-03'], type: 'REC', reason: 'Récupération heures sup septembre', status: 'approved', requestDate: '2025-09-25' },
-  
-  // Semaine 2 (6-12 octobre)
-  { employeeId: 6, employeeName: 'Lucas Bernard', dates: ['2025-10-08', '2025-10-09', '2025-10-10'], type: 'AM', reason: 'Arrêt maladie grippe', status: 'approved', requestDate: '2025-10-08' },
-  { employeeId: 7, employeeName: 'Emma Rousseau', dates: ['2025-10-07'], type: 'TEL', reason: 'Télétravail exceptionnel', status: 'approved', requestDate: '2025-10-01' },
-  
-  // Semaine 3 (13-19 octobre)
-  { employeeId: 3, employeeName: 'Marie Leblanc', dates: ['2025-10-15', '2025-10-16'], type: 'FO', reason: 'Formation obligatoire CSE', status: 'approved', requestDate: '2025-09-20' },
-  { employeeId: 4, employeeName: 'Pierre Moreau', dates: ['2025-10-13'], type: 'DEL', reason: 'Heures délégation CSE réunion', status: 'approved', requestDate: '2025-10-10' },
-  { employeeId: 1, employeeName: 'Sophie Martin', dates: ['2025-10-17'], type: 'CT', reason: 'Congé trimestriel direction', status: 'approved', requestDate: '2025-10-10' },
-  
-  // Semaine 4 (20-26 octobre)
-  { employeeId: 8, employeeName: 'Thomas Petit', dates: ['2025-10-20', '2025-10-21', '2025-10-22', '2025-10-23', '2025-10-24'], type: 'CA', reason: 'Congés annuels famille', status: 'approved', requestDate: '2025-08-15' },
-  { employeeId: 2, employeeName: 'Jean Dupont', dates: ['2025-10-22'], type: 'RH', reason: 'Rendez-vous médical', status: 'approved', requestDate: '2025-10-18' },
-  
-  // Semaine 5 (27-31 octobre)
-  { employeeId: 5, employeeName: 'Claire Dubois', dates: ['2025-10-29', '2025-10-30', '2025-10-31'], type: 'CA', reason: 'Congés annuels vacances Toussaint', status: 'approved', requestDate: '2025-09-10' },
-  { employeeId: 6, employeeName: 'Lucas Bernard', dates: ['2025-10-28'], type: 'TEL', reason: 'Télétravail formation en ligne', status: 'approved', requestDate: '2025-10-25' },
-  
-  // Demandes en attente
-  { employeeId: 7, employeeName: 'Emma Rousseau', dates: ['2025-10-31'], type: 'CA', reason: 'Congé demandé dernière minute', status: 'pending', requestDate: '2025-10-28' }
+  // Data will be loaded from /api/absence-requests endpoint  
 ];
 
 // Heures de délégation pour octobre 2025
