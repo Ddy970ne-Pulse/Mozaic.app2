@@ -48,63 +48,9 @@ export const onCallTypes = {
   }
 };
 
-// Données mockées des employés avec quotas d'astreinte actuels
+// REMOVED: Mock employee data - Now loaded from real user API
 export const employeesOnCallData = [
-  {
-    id: 1,
-    name: 'Sophie Martin',
-    email: 'sophie.martin@company.com',
-    category: 'management',
-    department: 'Direction',
-    currentYearOnCallDays: 25,
-    phone: '06.12.34.56.78',
-    emergencyContact: '06.87.65.43.21',
-    lastOnCallDate: '2024-12-15'
-  },
-  {
-    id: 2,
-    name: 'Jean Dupont',
-    email: 'jean.dupont@company.com',
-    category: 'administrative',
-    department: 'Administration',
-    currentYearOnCallDays: 18,
-    phone: '06.23.45.67.89',
-    emergencyContact: '06.98.76.54.32',
-    lastOnCallDate: '2024-12-08'
-  },
-  {
-    id: 3,
-    name: 'Marie Leblanc',
-    email: 'marie.leblanc@company.com',
-    category: 'specialized_educators',
-    department: 'Éducation',
-    currentYearOnCallDays: 32,
-    phone: '06.34.56.78.90',
-    emergencyContact: '06.09.87.65.43',
-    lastOnCallDate: '2024-12-22'
-  },
-  {
-    id: 4,
-    name: 'Pierre Moreau',
-    email: 'pierre.moreau@company.com',
-    category: 'technical_educators',
-    department: 'Technique',
-    currentYearOnCallDays: 15,
-    phone: '06.45.67.89.01',
-    emergencyContact: '06.10.98.76.54',
-    lastOnCallDate: '2024-11-30'
-  },
-  {
-    id: 5,
-    name: 'Claire Dubois',
-    email: 'claire.dubois@company.com',
-    category: 'administrative',
-    department: 'Comptabilité',
-    currentYearOnCallDays: 28,
-    phone: '06.56.78.90.12',
-    emergencyContact: '06.21.09.87.65',
-    lastOnCallDate: '2024-12-10'
-  }
+  // Data will be loaded from /api/users endpoint
 ];
 
 // Assignations d'astreintes existantes pour 2025 - Incluant octobre 2025
