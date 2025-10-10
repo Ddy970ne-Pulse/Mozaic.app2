@@ -339,6 +339,34 @@ class ImportSettings(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
 
+# Event Management Models
+class Event(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: Optional[str] = None
+    event_type: str  # meeting, training, evaluation, committee, deadline, holiday
+    start_date: str  # ISO date string
+    start_time: str  # HH:MM format
+    end_date: Optional[str] = None
+    end_time: Optional[str] = None
+    location: Optional[str] = None
+    participants: Optional[int] = None
+    is_all_day: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str
+
+class EventCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    event_type: str = "meeting"
+    start_date: str
+    start_time: str
+    end_date: Optional[str] = None
+    end_time: Optional[str] = None
+    location: Optional[str] = None
+    participants: Optional[int] = None
+    is_all_day: bool = False
+
 # Import Request Models
 class ImportDataRequest(BaseModel):
     data_type: str  # "employees", "absences", "work_hours", "settings"
