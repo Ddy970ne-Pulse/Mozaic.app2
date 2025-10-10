@@ -641,6 +641,39 @@ async def reset_user_password(user_id: str, password_data: PasswordReset, curren
         "expires_at": temp_expires
     }
 
+@api_router.post("/users/{user_id}/change-email")
+async def change_user_email(user_id: str, email_data: dict, current_user: User = Depends(get_current_user)):
+    """Change user email address (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    new_email = email_data.get("new_email")
+    if not new_email:
+        raise HTTPException(status_code=400, detail="New email is required")
+    
+    # Check if user exists
+    existing_user = await db.users.find_one({"id": user_id})
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if new email is already in use by another user
+    email_in_use = await db.users.find_one({"email": new_email, "id": {"$ne": user_id}})
+    if email_in_use:
+        raise HTTPException(status_code=400, detail="Email already in use by another user")
+    
+    # Update email (password remains unchanged)
+    await db.users.update_one(
+        {"id": user_id}, 
+        {"$set": {
+            "email": new_email,
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    
+    # Get updated user
+    updated_user = await db.users.find_one({"id": user_id})
+    return User(**updated_user)
+
 @api_router.get("/users/stats/overview")
 async def get_user_statistics(current_user: User = Depends(get_current_user)):
     """Get user statistics overview (admin/manager only)"""
