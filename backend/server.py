@@ -138,6 +138,8 @@ async def initialize_admin_user():
             role="admin",
             department="Direction",
             hashed_password=hash_password("admin123"),
+            requires_password_change=False,  # Admin permanent password
+            first_login=False,
             created_by="system"
         )
         await db.users.insert_one(admin_user.dict())
