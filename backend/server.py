@@ -1605,63 +1605,129 @@ async def import_employees(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Import error: {str(e)}")
 
-@api_router.post("/import/absences", response_model=ImportResult)
+@api_router.post("/import/absences", response_model=dict)
 async def import_absences(
     request: ImportDataRequest,
     current_user: User = Depends(require_admin_access)
 ):
-    """Import absence data from Excel"""
+    """Import absence data from Excel - matches employees by NOM + PRENOM"""
     errors = []
     warnings = []
     successful_imports = 0
     
+    logger.info(f"📥 Import absences lancé par {current_user.name}")
+    logger.info(f"📊 Nombre de lignes reçues: {len(request.data)}")
+    
     try:
         for i, absence_data in enumerate(request.data):
             try:
-                # Find employee by name to get ID
-                employee_name = absence_data.get('employee_name', '')
-                employee = await db.employees.find_one({"$or": [
-                    {"nom": {"$regex": employee_name, "$options": "i"}},
-                    {"prenom": {"$regex": employee_name, "$options": "i"}}
-                ]})
+                # Extraire les données
+                nom = absence_data.get('nom', '').strip()
+                prenom = absence_data.get('prenom', '').strip()
+                date_debut = absence_data.get('date_debut', '').strip()
+                jours_absence = absence_data.get('jours_absence', '').strip()
+                motif_absence = absence_data.get('motif_absence', '').strip()
+                notes = absence_data.get('notes', '').strip()
                 
-                if not employee:
+                logger.info(f"🔍 Ligne {i+1}: nom='{nom}', prenom='{prenom}', motif='{motif_absence}'")
+                
+                # Vérifier les champs obligatoires
+                if not nom or not prenom:
+                    error_msg = f"NOM et PRENOM sont obligatoires"
+                    logger.warning(f"❌ Ligne {i+1}: {error_msg}")
                     errors.append({
-                        "row": str(i + 1),
-                        "error": f"Employé non trouvé: {employee_name}"
+                        "row": i + 1,
+                        "error": error_msg,
+                        "data": f"NOM='{nom}', PRENOM='{prenom}'"
                     })
                     continue
                 
-                absence = ImportAbsence(
+                if not motif_absence:
+                    error_msg = f"Motif d'absence obligatoire"
+                    logger.warning(f"❌ Ligne {i+1}: {error_msg}")
+                    errors.append({
+                        "row": i + 1,
+                        "error": error_msg,
+                        "data": f"{prenom} {nom}"
+                    })
+                    continue
+                
+                # Ignorer les lignes sans date de début
+                if not date_debut:
+                    warnings.append({
+                        "row": i + 1,
+                        "warning": f"Date de début manquante pour {prenom} {nom} - ligne ignorée"
+                    })
+                    continue
+                
+                # Chercher l'employé dans la collection users par nom + prénom
+                # Normaliser la recherche (insensible à la casse et accents)
+                employee = await db.users.find_one({
+                    "$and": [
+                        {"name": {"$regex": f".*{prenom}.*{nom}.*", "$options": "i"}}
+                    ]
+                })
+                
+                # Si pas trouvé, essayer dans l'autre sens (nom puis prénom)
+                if not employee:
+                    employee = await db.users.find_one({
+                        "$and": [
+                            {"name": {"$regex": f".*{nom}.*{prenom}.*", "$options": "i"}}
+                        ]
+                    })
+                
+                if not employee:
+                    error_msg = f"Employé non trouvé dans la base: {prenom} {nom}"
+                    logger.warning(f"❌ Ligne {i+1}: {error_msg}")
+                    errors.append({
+                        "row": i + 1,
+                        "error": error_msg,
+                        "suggestion": "Vérifiez l'orthographe ou importez d'abord les employés"
+                    })
+                    continue
+                
+                # Créer l'objet absence
+                absence = Absence(
                     employee_id=employee["id"],
-                    employee_name=employee_name,
-                    date_debut=absence_data.get('date_debut', ''),
-                    jours_absence=absence_data.get('jours_absence', ''),
-                    motif_absence=absence_data.get('motif_absence', ''),
+                    employee_name=employee.get("name", f"{prenom} {nom}"),
+                    email=employee.get("email", ""),
+                    date_debut=date_debut,
+                    jours_absence=jours_absence if jours_absence else "Non spécifié",
+                    motif_absence=motif_absence,
+                    notes=notes,
                     created_by=current_user.name
                 )
                 
-                # Store in MongoDB
-                await db.absences.insert_one(absence.dict())
+                # Préparer pour MongoDB (convertir datetime en ISO string)
+                absence_dict = absence.dict()
+                if isinstance(absence_dict.get('created_at'), datetime):
+                    absence_dict['created_at'] = absence_dict['created_at'].isoformat()
+                
+                # Stocker dans MongoDB
+                await db.absences.insert_one(absence_dict)
                 successful_imports += 1
+                logger.info(f"✅ Ligne {i+1}: Absence créée pour {employee.get('name')}")
                 
             except Exception as e:
+                logger.error(f"❌ Erreur ligne {i+1}: {str(e)}")
                 errors.append({
-                    "row": str(i + 1),
-                    "error": str(e)
+                    "row": i + 1,
+                    "error": f"Erreur lors de l'import: {str(e)}"
                 })
         
-        return ImportResult(
-            success=len(errors) == 0,
-            total_processed=len(request.data),
-            successful_imports=successful_imports,
-            failed_imports=len(errors),
-            errors=errors,
-            warnings=warnings,
-            data_type="absences"
-        )
+        return {
+            "success": len(errors) == 0,
+            "total_processed": len(request.data),
+            "successful_imports": successful_imports,
+            "failed_imports": len(errors),
+            "errors": errors,
+            "warnings": warnings,
+            "data_type": "absences",
+            "message": f"{successful_imports} absences importées avec succès"
+        }
         
     except Exception as e:
+        logger.error(f"❌ Erreur globale import absences: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Import error: {str(e)}")
 
 @api_router.post("/import/work-hours", response_model=ImportResult)
