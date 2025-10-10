@@ -1101,70 +1101,33 @@ async def get_on_call_assignments(
     current_user: User = Depends(get_current_user)
 ):
     """Récupérer les assignations d'astreinte pour une période donnée"""
-    # Données mockées d'assignations d'astreintes
-    mock_assignments = [
-        {
-            "id": "1",
-            "employeeId": "1",
-            "employeeName": "Sophie Martin",
-            "startDate": "2025-01-05",
-            "endDate": "2025-01-06",
-            "type": "weekend",
-            "status": "confirmed",
-            "assignedBy": "Direction",
-            "assignedAt": "2024-12-20T10:00:00Z",
-            "notes": "Astreinte week-end standard"
-        },
-        {
-            "id": "2",
-            "employeeId": "2",
-            "employeeName": "Jean Dupont",
-            "startDate": "2025-01-12",
-            "endDate": "2025-01-13",
-            "type": "weekend",
-            "status": "confirmed",
-            "assignedBy": "RH",
-            "assignedAt": "2024-12-18T14:30:00Z",
-            "notes": ""
-        },
-        {
-            "id": "3",
-            "employeeId": "3",
-            "employeeName": "Marie Leblanc",
-            "startDate": "2025-01-19",
-            "endDate": "2025-01-19",
-            "type": "single",
-            "status": "confirmed",
-            "assignedBy": "Direction",
-            "assignedAt": "2024-12-15T09:15:00Z",
-            "notes": "Astreinte exceptionnelle"
-        },
-        {
-            "id": "4",
-            "employeeId": "4",
-            "employeeName": "Pierre Moreau",
-            "startDate": "2025-01-25",
-            "endDate": "2025-01-26",
-            "type": "weekend",
-            "status": "pending",
-            "assignedBy": "RH",
-            "assignedAt": "2024-12-22T16:45:00Z",
-            "notes": "En attente de confirmation"
-        }
-    ]
-    
-    assignments = [OnCallAssignment(**assignment) for assignment in mock_assignments]
-    
-    # Filtrer par mois/année si spécifiés
-    if month is not None and year is not None:
-        filtered_assignments = []
+    # Get on-call assignments from database
+    try:
+        query = {}
+        assignments = await db.on_call_assignments.find(query).to_list(1000)
+        
+        # Convert ObjectIds to strings for JSON serialization
         for assignment in assignments:
-            assignment_date = datetime.fromisoformat(assignment.startDate.replace('Z', '+00:00'))
-            if assignment_date.month == month and assignment_date.year == year:
-                filtered_assignments.append(assignment)
-        return filtered_assignments
-    
-    return assignments
+            if "_id" in assignment:
+                del assignment["_id"]
+        
+        # Convert to OnCallAssignment objects
+        assignment_objects = [OnCallAssignment(**assignment) for assignment in assignments]
+        
+        # Filter by month/year if specified
+        if month is not None and year is not None:
+            filtered_assignments = []
+            for assignment in assignment_objects:
+                assignment_date = datetime.fromisoformat(assignment.startDate.replace('Z', '+00:00'))
+                if assignment_date.month == month and assignment_date.year == year:
+                    filtered_assignments.append(assignment)
+            return filtered_assignments
+        
+        return assignment_objects
+        
+    except Exception as e:
+        print(f"Error getting on-call assignments: {e}")
+        return []  # Return empty list if no data yet
 
 @api_router.post("/on-call/assignments", response_model=OnCallAssignment)
 async def create_on_call_assignment(
