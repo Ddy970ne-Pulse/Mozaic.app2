@@ -158,7 +158,42 @@ class User(BaseModel):
     email: str
     role: str  # admin, manager, employee
     department: str
+    phone: Optional[str] = None
+    position: Optional[str] = None
+    hire_date: Optional[str] = None
     isDelegateCSE: Optional[bool] = False
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: Optional[str] = None
+
+class UserInDB(User):
+    hashed_password: str
+
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: str = "employee"
+    department: str
+    phone: Optional[str] = None
+    position: Optional[str] = None
+    hire_date: Optional[str] = None
+    isDelegateCSE: Optional[bool] = False
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    role: Optional[str] = None
+    department: Optional[str] = None
+    phone: Optional[str] = None
+    position: Optional[str] = None
+    hire_date: Optional[str] = None
+    isDelegateCSE: Optional[bool] = None
+    is_active: Optional[bool] = None
+
+class PasswordReset(BaseModel):
+    new_password: str
     
 class LoginResponse(BaseModel):
     token: str
