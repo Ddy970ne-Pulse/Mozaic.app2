@@ -218,22 +218,16 @@ const Dashboard = ({ user, onChangeView }) => {
             <h3 className="font-bold text-gray-900 mb-4">🎂 Anniversaires</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                  ML
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                  DD
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Marie Leroux</p>
-                  <p className="text-xs text-gray-600">Comptabilité</p>
+                  <p className="font-medium text-gray-900">DACALOR Diégo</p>
+                  <p className="text-xs text-gray-600">Direction</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-emerald-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                  JD
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Jean Dupuis</p>
-                  <p className="text-xs text-gray-600">Marketing</p>
-                </div>
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500">Autres utilisateurs à créer via Gestion Utilisateurs</p>
               </div>
             </div>
           </div>
