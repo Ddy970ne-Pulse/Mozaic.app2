@@ -307,7 +307,9 @@ const ExcelImport = ({ user, onChangeView }) => {
         success: result.successful_imports,
         warnings: result.warnings?.length || 0,
         errors: result.failed_imports,
-        total: result.total_processed
+        total: result.total_processed,
+        created_users: result.created_users || [],
+        message: result.message
       });
       
       setImportStep('complete');
