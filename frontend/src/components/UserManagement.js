@@ -15,6 +15,9 @@ const UserManagement = ({ user }) => {
   const [showGdprModal, setShowGdprModal] = useState(false);
   const [showAccountRecovery, setShowAccountRecovery] = useState(false);
   const [showAuditModal, setShowAuditModal] = useState(false);
+  const [showEmailChangeModal, setShowEmailChangeModal] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailChangeConfirmation, setEmailChangeConfirmation] = useState('');
   const [auditLogs, setAuditLogs] = useState([]);
   const [newUser, setNewUser] = useState({
     name: '',
