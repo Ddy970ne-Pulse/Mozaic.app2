@@ -444,7 +444,11 @@ class BackendTester:
         try:
             response = requests.post(
                 f"{API_URL}/import/absences",
-                json={"data": invalid_absence_data},
+                json={
+                    "data_type": "absences",
+                    "data": invalid_absence_data,
+                    "overwrite_existing": False
+                },
                 headers=headers,
                 timeout=10
             )
