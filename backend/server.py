@@ -870,6 +870,7 @@ async def get_absence_requests(current_user: User = Depends(get_current_user)):
 
 @api_router.post("/absence-requests", response_model=AbsenceRequest)
 async def create_absence_request(request_data: dict, current_user: User = Depends(get_current_user)):
+    """Create new absence request in database"""
     # Create new absence request
     absence_request = AbsenceRequest(
         employee=request_data.get("employee", current_user.name),
