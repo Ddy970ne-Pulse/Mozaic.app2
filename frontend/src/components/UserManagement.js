@@ -377,13 +377,7 @@ const UserManagement = ({ user }) => {
     setAuditLogs(mockAuditLogs);
   }, []);
 
-  // Filtrage des utilisateurs
-  const filteredUsers = users.filter(u => {
-    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         u.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = filterDepartment === 'all' || u.department === filterDepartment;
-    return matchesSearch && matchesDepartment;
-  });
+  // Filtering logic already defined above
 
   // Fonctions de gestion
   const handleEditUser = (userToEdit) => {
