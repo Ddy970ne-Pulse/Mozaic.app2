@@ -215,6 +215,48 @@ const UserManagement = ({ user }) => {
     }
   };
 
+  const changeEmail = async (userId, newEmailValue) => {
+    // Vérification de confirmation
+    if (emailChangeConfirmation !== 'CONFIRMER') {
+      alert('Veuillez taper "CONFIRMER" pour valider le changement d\'email');
+      return;
+    }
+
+    // Validation email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmailValue)) {
+      alert('Format d\'email invalide');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/change-email`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ new_email: newEmailValue })
+      });
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setUsers(users.map(u => u.id === userId ? updatedUser : u));
+        alert('✅ Email modifié avec succès ! L\'utilisateur conserve son mot de passe actuel.');
+        setShowEmailChangeModal(false);
+        setNewEmail('');
+        setEmailChangeConfirmation('');
+        setSelectedUser(null);
+      } else {
+        const error = await response.json();
+        alert('Erreur: ' + error.detail);
+      }
+    } catch (error) {
+      console.error('Error changing email:', error);
+      alert('Erreur lors du changement d\'email');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Mock audit logs for features not yet implemented
   const mockAuditLogs = [
     {
