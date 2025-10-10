@@ -413,6 +413,65 @@ const UserManagement = ({ user }) => {
     setShowPasswordReset(false);
   };
 
+  const handleDeleteTestUsers = async () => {
+    if (!window.confirm('⚠️ ATTENTION: Voulez-vous supprimer TOUS les utilisateurs de test?\n\nSeront supprimés:\n- Email contenant "test" ou "example"\n- Nom contenant "User Test" ou "testemp" ou "Marie Dupont"\n\nCette action est irréversible!')) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      // Identifier les utilisateurs de test
+      const testUsers = users.filter(u => {
+        const email = u.email.toLowerCase();
+        const name = u.name.toLowerCase();
+        return email.includes('test') || 
+               email.includes('example') || 
+               name.includes('user test') ||
+               name.includes('testemp') ||
+               name.includes('marie dupont');
+      });
+      
+      console.log('Utilisateurs de test trouvés:', testUsers);
+      
+      if (testUsers.length === 0) {
+        alert('✅ Aucun utilisateur de test trouvé');
+        return;
+      }
+      
+      // Supprimer chaque utilisateur
+      let deleted = 0;
+      for (const testUser of testUsers) {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${testUser.id}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+          });
+          
+          if (response.ok) {
+            deleted++;
+            console.log(`Supprimé: ${testUser.name} (${testUser.email})`);
+          } else {
+            console.error(`Échec suppression: ${testUser.name}`, await response.text());
+          }
+        } catch (error) {
+          console.error(`Erreur suppression ${testUser.name}:`, error);
+        }
+      }
+      
+      alert(`✅ ${deleted} utilisateur(s) de test supprimé(s) sur ${testUsers.length}`);
+      
+      // Recharger la liste
+      await fetchUsers();
+      
+    } catch (error) {
+      console.error('Error deleting test users:', error);
+      alert('Erreur lors de la suppression: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleToggleUserStatus = (userId) => {
     const userToUpdate = users.find(u => u.id === userId);
     const newStatus = !userToUpdate.isActive;
