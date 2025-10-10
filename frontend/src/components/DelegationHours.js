@@ -42,45 +42,7 @@ const DelegationHours = ({ user }) => {
 
   // Initialisation des données au chargement
   React.useEffect(() => {
-    // Initialiser les délégués
-    const initialDelegates = [
-      {
-        id: 1,
-        name: 'Marie Leblanc',
-        type: 'CSE',
-        monthlyHours: 22,
-        usedHours: 0,
-        receivedHours: 0,
-        transferredHours: 0,
-        status: 'active',
-        startDate: '2024-01-01',
-        endDate: '2024-12-31'
-      },
-      {
-        id: 2,
-        name: 'Pierre Moreau', 
-        type: 'CSE',
-        monthlyHours: 22,
-        usedHours: 0,
-        receivedHours: 0,
-        transferredHours: 0,
-        status: 'active',
-        startDate: '2024-01-01',
-        endDate: '2024-12-31'
-      },
-      {
-        id: 3,
-        name: 'Claire Dubois',
-        type: 'RSS',
-        monthlyHours: 4,
-        usedHours: 0,
-        receivedHours: 0,
-        transferredHours: 0,
-        status: 'active',
-        startDate: '2024-01-01',
-        endDate: '2024-12-31'
-      }
-    ];
+    // Delegates are now loaded from database via API
 
     // Initialiser l'historique des utilisations
     const initialUsageHistory = [
