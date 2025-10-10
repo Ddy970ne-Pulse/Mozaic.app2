@@ -558,12 +558,13 @@ async def get_delegates(current_user: User = Depends(get_current_user)):
 
 @api_router.get("/delegation/delegates/{delegate_id}", response_model=Delegate) 
 async def get_delegate(delegate_id: str, current_user: User = Depends(get_current_user)):
-    delegate_data = next((d for d in demo_delegates if d["id"] == delegate_id), None)
+    """Get specific delegate from database"""
+    delegate_data = await db.delegates.find_one({"id": delegate_id})
     if not delegate_data:
         raise HTTPException(status_code=404, detail="Delegate not found")
     
     # Check permissions
-    if current_user.role not in ["admin", "manager"] and delegate_data["name"] != current_user.name:
+    if current_user.role not in ["admin", "manager"] and delegate_data["employeeId"] != current_user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
     return Delegate(**delegate_data)
