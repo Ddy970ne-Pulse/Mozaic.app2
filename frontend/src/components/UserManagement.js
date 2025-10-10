@@ -324,6 +324,18 @@ const UserManagement = ({ user }) => {
 
   // Fonctions de gestion
   const handleEditUser = (userToEdit) => {
+    console.log('🔍 Utilisateur sélectionné:', userToEdit);
+    console.log('📋 Champs reçus:', {
+      date_naissance: userToEdit.date_naissance,
+      sexe: userToEdit.sexe,
+      site: userToEdit.site,
+      contrat: userToEdit.contrat,
+      categorie_employe: userToEdit.categorie_employe,
+      metier: userToEdit.metier,
+      fonction: userToEdit.fonction,
+      temps_travail: userToEdit.temps_travail,
+      date_debut_contrat: userToEdit.date_debut_contrat
+    });
     setSelectedUser({...userToEdit});
     setShowUserModal(true);
   };
