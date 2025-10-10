@@ -1086,10 +1086,32 @@ const UserManagement = ({ user }) => {
                   </div>
                   
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Métier</label>
+                    <input
+                      type="text"
+                      value={selectedUser.metier || ''}
+                      onChange={(e) => setSelectedUser({...selectedUser, metier: e.target.value})}
+                      placeholder="Ex: Chef de Service, Comptable, Éducateur..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Fonction</label>
+                    <input
+                      type="text"
+                      value={selectedUser.fonction || ''}
+                      onChange={(e) => setSelectedUser({...selectedUser, fonction: e.target.value})}
+                      placeholder="Ex: Employé, Responsable..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Type de contrat</label>
                     <select
-                      value={selectedUser.contract}
-                      onChange={(e) => setSelectedUser({...selectedUser, contract: e.target.value})}
+                      value={selectedUser.contrat || selectedUser.contract || ''}
+                      onChange={(e) => setSelectedUser({...selectedUser, contrat: e.target.value, contract: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Sélectionner un contrat</option>
@@ -1100,10 +1122,25 @@ const UserManagement = ({ user }) => {
                   </div>
                   
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Temps de travail</label>
+                    <select
+                      value={selectedUser.temps_travail || ''}
+                      onChange={(e) => setSelectedUser({...selectedUser, temps_travail: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Non spécifié</option>
+                      <option value="Temps Plein">Temps Plein</option>
+                      <option value="Temps Partiel">Temps Partiel</option>
+                      <option value="Temps Partiel 80%">Temps Partiel 80%</option>
+                      <option value="Temps Partiel 50%">Temps Partiel 50%</option>
+                    </select>
+                  </div>
+                  
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie employé</label>
                     <select
-                      value={selectedUser.category}
-                      onChange={(e) => setSelectedUser({...selectedUser, category: e.target.value})}
+                      value={selectedUser.categorie_employe || selectedUser.category || ''}
+                      onChange={(e) => setSelectedUser({...selectedUser, categorie_employe: e.target.value, category: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Sélectionner une catégorie</option>
@@ -1114,11 +1151,34 @@ const UserManagement = ({ user }) => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Date d'embauche</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date d'embauche / Début contrat</label>
                     <input
-                      type="date"
-                      value={selectedUser.hireDate}
-                      onChange={(e) => setSelectedUser({...selectedUser, hireDate: e.target.value})}
+                      type="text"
+                      value={selectedUser.date_debut_contrat || selectedUser.hire_date || selectedUser.hireDate || ''}
+                      onChange={(e) => setSelectedUser({...selectedUser, date_debut_contrat: e.target.value, hire_date: e.target.value, hireDate: e.target.value})}
+                      placeholder="JJ/MM/AAAA"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date fin contrat (si CDD)</label>
+                    <input
+                      type="text"
+                      value={selectedUser.date_fin_contrat || ''}
+                      onChange={(e) => setSelectedUser({...selectedUser, date_fin_contrat: e.target.value})}
+                      placeholder="JJ/MM/AAAA"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <textarea
+                      value={selectedUser.notes || ''}
+                      onChange={(e) => setSelectedUser({...selectedUser, notes: e.target.value})}
+                      rows={3}
+                      placeholder="Informations complémentaires..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
