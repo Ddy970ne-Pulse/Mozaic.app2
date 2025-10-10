@@ -19,6 +19,57 @@ const ExcelImport = ({ user, onChangeView }) => {
   const [importResults, setImportResults] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Fonction pour convertir les dates Excel en format ISO
+  const excelDateToJSDate = (excelDate) => {
+    if (!excelDate) return null;
+    
+    // Si c'est déjà une chaîne de date, la retourner
+    if (typeof excelDate === 'string') {
+      // Vérifier si c'est au format DD/MM/YYYY ou similaire
+      if (excelDate.includes('/') || excelDate.includes('-')) {
+        return excelDate;
+      }
+    }
+    
+    // Si c'est un nombre (format Excel)
+    if (typeof excelDate === 'number') {
+      // Excel stocke les dates comme nombre de jours depuis 1900-01-01
+      const excelEpoch = new Date(1899, 11, 30); // 30 décembre 1899
+      const date = new Date(excelEpoch.getTime() + excelDate * 86400000);
+      
+      // Retourner au format YYYY-MM-DD
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    
+    return excelDate;
+  };
+
+  // Fonction pour détecter et convertir les valeurs
+  const processExcelValue = (value, headerName) => {
+    if (value === null || value === undefined) return '';
+    
+    // Liste des colonnes qui contiennent des dates
+    const dateColumns = [
+      'date', 'date_naissance', 'date_debut', 'date_fin', 
+      'date_debut_contrat', 'date_fin_contrat',
+      'Date', 'Date de naissance', 'Date début', 'Date fin'
+    ];
+    
+    // Vérifier si c'est une colonne de date
+    const isDateColumn = dateColumns.some(col => 
+      headerName.toLowerCase().includes(col.toLowerCase())
+    );
+    
+    if (isDateColumn && typeof value === 'number') {
+      return excelDateToJSDate(value);
+    }
+    
+    return String(value).trim();
+  };
+
   // Modèles de données pour différents types d'import basés sur l'analyse du fichier Excel
   const dataModels = {
     employees: {
