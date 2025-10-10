@@ -167,10 +167,9 @@ const Dashboard = ({ user, onChangeView }) => {
             
             <div className="space-y-4">
               {[
-                { icon: '📅', title: 'Nouvelle demande de congés', subtitle: 'Marie Dubois - 3 jours', time: 'Il y a 2h', color: 'bg-blue-100 text-blue-600' },
-                { icon: '⏰', title: 'Astreinte assignée', subtitle: 'Équipe Sécurité - Week-end', time: 'Il y a 4h', color: 'bg-orange-100 text-orange-600' },
-                { icon: '✅', title: 'Délégation approuvée', subtitle: 'Pierre Martin - 8h', time: 'Hier', color: 'bg-emerald-100 text-emerald-600' },
-                { icon: '📊', title: 'Rapport mensuel généré', subtitle: 'Analytics Septembre', time: 'Hier', color: 'bg-purple-100 text-purple-600' }
+                { icon: '🏢', title: 'Système initialisé', subtitle: 'MOZAIK RH opérationnel', time: 'Aujourd\'hui', color: 'bg-green-100 text-green-600' },
+                { icon: '📊', title: 'Tableau de bord prêt', subtitle: 'Données en temps réel', time: 'Aujourd\'hui', color: 'bg-purple-100 text-purple-600' },
+                { icon: '⚙️', title: 'Import Excel disponible', subtitle: 'Système de gestion complet', time: 'Aujourd\'hui', color: 'bg-blue-100 text-blue-600' }
               ].map((activity, index) => (
                 <div key={index} className="flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-xl transition-colors duration-200">
                   <div className={`w-10 h-10 ${activity.color} rounded-xl flex items-center justify-center`}>
