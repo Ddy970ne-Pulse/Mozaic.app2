@@ -165,15 +165,18 @@ backend:
 
   - task: "Demo Account Reset & Admin Creation"
     implemented: true
-    working: "NA" 
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "IMPLEMENTED: POST /api/import/reset-demo endpoint to delete all test accounts and create DACALOR Diégo admin (diego.dacalor@company.com / admin123). Admin-only access with proper error handling."
+      - working: true
+        agent: "testing"
+        comment: "TESTED ✅ Demo account reset functionality working perfectly: POST /api/import/reset-demo successfully clears existing demo users and creates DACALOR Diego admin with correct credentials (diego.dacalor@company.com / admin123). Response includes success message and new admin credentials. Admin-only access control enforced. Feature is production-ready."
 
   - task: "Data Validation System"
     implemented: true
