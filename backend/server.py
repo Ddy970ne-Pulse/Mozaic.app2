@@ -1896,6 +1896,70 @@ async def delete_event(event_id: str, current_user: User = Depends(get_current_u
         raise HTTPException(status_code=500, detail=f"Error deleting event: {str(e)}")
 
 # ========================================
+# ABSENCE MANAGEMENT ENDPOINTS
+# ========================================
+
+@api_router.get("/absences", response_model=List[dict])
+async def get_absences(current_user: User = Depends(get_current_user)):
+    """Get all absences (admin/manager can see all, employees see their own)"""
+    try:
+        if current_user.role in ["admin", "manager"]:
+            # Admin et managers peuvent voir toutes les absences
+            absences = await db.absences.find({}).sort("created_at", -1).to_list(1000)
+        else:
+            # Les employés ne voient que leurs propres absences
+            absences = await db.absences.find({"employee_id": current_user.id}).sort("created_at", -1).to_list(100)
+        
+        # Nettoyer les ObjectIds
+        for absence in absences:
+            if "_id" in absence:
+                del absence["_id"]
+        
+        return absences
+        
+    except Exception as e:
+        logger.error(f"Error getting absences: {e}")
+        return []
+
+@api_router.get("/absences/{employee_id}")
+async def get_absences_by_employee(employee_id: str, current_user: User = Depends(get_current_user)):
+    """Get absences for a specific employee"""
+    # Vérifier les permissions (admin/manager ou l'employé lui-même)
+    if current_user.role not in ["admin", "manager"] and current_user.id != employee_id:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    try:
+        absences = await db.absences.find({"employee_id": employee_id}).sort("date_debut", -1).to_list(100)
+        
+        # Nettoyer les ObjectIds
+        for absence in absences:
+            if "_id" in absence:
+                del absence["_id"]
+        
+        return absences
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting absences: {str(e)}")
+
+@api_router.delete("/absences/{absence_id}")
+async def delete_absence(absence_id: str, current_user: User = Depends(get_current_user)):
+    """Delete an absence (admin only)"""
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    try:
+        result = await db.absences.delete_one({"id": absence_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Absence not found")
+        
+        return {"message": "Absence deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting absence: {str(e)}")
+
+# ========================================
 # OVERTIME MANAGEMENT ENDPOINTS
 # ========================================
 
