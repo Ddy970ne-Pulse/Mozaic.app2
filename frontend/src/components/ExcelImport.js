@@ -659,12 +659,27 @@ const ExcelImport = ({ user, onChangeView }) => {
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {index + 2}
                     </td>
-                    {headers.map((header, colIndex) => (
-                      <td key={colIndex} className="px-4 py-3 text-sm text-gray-900">
-                        {String(row[header] || '').substring(0, 50)}
-                        {String(row[header] || '').length > 50 && '...'}
-                      </td>
-                    ))}
+                    {headers.map((header, colIndex) => {
+                      let displayValue = row[header] || '';
+                      
+                      // Formater les dates si nécessaire
+                      if (typeof displayValue === 'number' && (
+                        header.toLowerCase().includes('date') || 
+                        header.toLowerCase().includes('naissance') ||
+                        header.toLowerCase().includes('debut') ||
+                        header.toLowerCase().includes('fin')
+                      )) {
+                        displayValue = excelDateToJSDate(displayValue);
+                      }
+                      
+                      const displayStr = String(displayValue);
+                      return (
+                        <td key={colIndex} className="px-4 py-3 text-sm text-gray-900">
+                          {displayStr.substring(0, 50)}
+                          {displayStr.length > 50 && '...'}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
               </tbody>
