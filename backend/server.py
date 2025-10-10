@@ -1739,6 +1739,64 @@ async def delete_event(event_id: str, current_user: User = Depends(get_current_u
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting event: {str(e)}")
 
+# ========================================
+# OVERTIME MANAGEMENT ENDPOINTS
+# ========================================
+
+@api_router.get("/overtime/all")
+async def get_all_overtime(current_user: User = Depends(get_current_user)):
+    """Get overtime data for all employees"""
+    try:
+        # Fetch all overtime records from database
+        overtime_records = await db.overtime.find({}).to_list(length=None)
+        
+        # Group by employee and calculate totals
+        employee_overtime = {}
+        for record in overtime_records:
+            emp_id = record.get('employee_id')
+            emp_name = record.get('employee_name')
+            
+            if emp_id not in employee_overtime:
+                employee_overtime[emp_id] = {
+                    'id': emp_id,
+                    'name': emp_name,
+                    'department': record.get('department', 'N/A'),
+                    'accumulated': 0,
+                    'recovered': 0,
+                    'balance': 0,
+                    'thisMonth': 0,
+                    'details': []
+                }
+            
+            hours = record.get('hours', 0)
+            record_type = record.get('type', 'accumulated')
+            
+            if record_type == 'accumulated':
+                employee_overtime[emp_id]['accumulated'] += hours
+                employee_overtime[emp_id]['thisMonth'] += hours
+            elif record_type == 'recovered':
+                employee_overtime[emp_id]['recovered'] += hours
+            
+            employee_overtime[emp_id]['details'].append({
+                'date': record.get('date'),
+                'hours': hours if record_type == 'accumulated' else -hours,
+                'type': record_type,
+                'reason': record.get('reason', ''),
+                'validated': record.get('validated', False)
+            })
+        
+        # Calculate balance for each employee
+        result = []
+        for emp_data in employee_overtime.values():
+            emp_data['balance'] = emp_data['accumulated'] - emp_data['recovered']
+            result.append(emp_data)
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error fetching overtime data: {str(e)}")
+        return []  # Return empty list if no data
+
 # Include the router in the main app
 app.include_router(api_router)
 
