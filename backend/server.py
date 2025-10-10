@@ -72,6 +72,20 @@ def verify_password(password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
+def generate_temp_password(length: int = 12) -> str:
+    """Generate a secure temporary password"""
+    # Mélange de lettres majuscules, minuscules et chiffres pour lisibilité
+    alphabet = string.ascii_uppercase + string.ascii_lowercase + string.digits
+    # Éviter les caractères ambigus
+    alphabet = alphabet.replace('0', '').replace('O', '').replace('1', '').replace('l', '').replace('I', '')
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+def is_temp_password_expired(expires_at: Optional[datetime]) -> bool:
+    """Check if temporary password has expired"""
+    if not expires_at:
+        return False
+    return datetime.utcnow() > expires_at
+
 # Authentication helper functions
 def create_access_token(user_id: str, email: str, role: str):
     payload = {
