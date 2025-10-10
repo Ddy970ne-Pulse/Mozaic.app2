@@ -926,42 +926,7 @@ async def reject_absence_request(request_id: str, rejection_data: dict, current_
         "rejection_reason": rejection_data.get("reason", "")
     }
 
-# User management endpoints
-@api_router.get("/users", response_model=List[User])
-async def get_users(current_user: User = Depends(get_current_user)):
-    if current_user.role not in ["admin", "manager"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    
-    users = []
-    for email, user_data in demo_users.items():
-        users.append(User(
-            id=user_data["id"],
-            name=user_data["name"], 
-            email=user_data["email"],
-            role=user_data["role"],
-            department=user_data["department"],
-            isDelegateCSE=user_data["isDelegateCSE"]
-        ))
-    return users
-
-@api_router.get("/users/{user_id}", response_model=User)
-async def get_user(user_id: str, current_user: User = Depends(get_current_user)):
-    # Users can access their own data, admins/managers can access all
-    if current_user.role not in ["admin", "manager"] and current_user.id != user_id:
-        raise HTTPException(status_code=403, detail="Access denied")
-    
-    user_data = next((u for u in demo_users.values() if u["id"] == user_id), None)
-    if not user_data:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    return User(
-        id=user_data["id"],
-        name=user_data["name"],
-        email=user_data["email"],
-        role=user_data["role"], 
-        department=user_data["department"],
-        isDelegateCSE=user_data["isDelegateCSE"]
-    )
+# Legacy user management endpoints removed - using MongoDB-based endpoints above
 
 # HR Configuration endpoints - Updated with complete data from user images
 @api_router.get("/hr-config/departments")
