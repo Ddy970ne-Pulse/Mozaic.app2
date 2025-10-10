@@ -166,6 +166,7 @@ class User(BaseModel):
     role: str  # admin, manager, employee
     department: str
     phone: Optional[str] = None
+    address: Optional[str] = None
     position: Optional[str] = None
     hire_date: Optional[str] = None
     isDelegateCSE: Optional[bool] = False
@@ -174,6 +175,18 @@ class User(BaseModel):
     first_login: bool = True
     last_login: Optional[datetime] = None
     temp_password_expires: Optional[datetime] = None
+    # Champs additionnels depuis employees
+    date_naissance: Optional[str] = None
+    sexe: Optional[str] = None
+    categorie_employe: Optional[str] = None
+    metier: Optional[str] = None
+    fonction: Optional[str] = None
+    site: Optional[str] = None
+    temps_travail: Optional[str] = None
+    contrat: Optional[str] = None
+    date_debut_contrat: Optional[str] = None
+    date_fin_contrat: Optional[str] = None
+    notes: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: Optional[str] = None
