@@ -348,10 +348,7 @@ const UserManagement = ({ user }) => {
     }
   ];
 
-  const departments = [
-    'Direction', 'Éducatif', 'Administratif', 'Comptable', 'ASI',
-    'Production', 'Commercial', 'Technique', 'Maintenance', 'Qualité'
-  ];
+  // Departments are now dynamically loaded from actual users
 
   const sites = [
     'Siège', 'Pôle Éducatif', 'Menuiserie 44', 'Voiles 44', 'Garage 44',
