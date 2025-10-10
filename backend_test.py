@@ -643,11 +643,12 @@ class BackendTester:
             self.test_delegation_hours(auth_token)
             self.test_data_retrieval(auth_token)
             self.test_monthly_planning_support(auth_token)
+            self.test_excel_import_functionality(auth_token)
         else:
             print("Skipping other tests due to API health issues")
             
         # Determine overall status
-        categories = ["api_health", "authentication", "delegation_hours", "data_retrieval", "monthly_planning"]
+        categories = ["api_health", "authentication", "delegation_hours", "data_retrieval", "monthly_planning", "excel_import"]
         passed_tests = sum(1 for cat in categories if self.results[cat]["status"] == "pass")
         
         if passed_tests == len(categories):
