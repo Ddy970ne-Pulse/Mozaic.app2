@@ -8,6 +8,13 @@ const ExcelImport = ({ user, onChangeView }) => {
   const [headers, setHeaders] = useState([]);
   const [dataType, setDataType] = useState('employees'); // employees, planning, hr, timedata
   const [columnMapping, setColumnMapping] = useState({});
+  
+  // Debug useEffect to track headers state
+  React.useEffect(() => {
+    console.log('🔍 Headers state changed:', headers);
+    console.log('🔍 Headers length:', headers.length);
+    console.log('🔍 Current import step:', importStep);
+  }, [headers, importStep]);
   const [validationResults, setValidationResults] = useState({ valid: [], errors: [], warnings: [] });
   const [importResults, setImportResults] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
