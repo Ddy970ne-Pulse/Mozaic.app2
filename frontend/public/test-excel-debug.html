@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Excel Import Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .upload-area { 
+            border: 2px dashed #ccc; 
+            padding: 40px; 
+            text-align: center; 
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .upload-area:hover { border-color: #007bff; }
+        .debug { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .header-list { display: flex; flex-wrap: wrap; gap: 10px; }
+        .header-item { 
+            background: #e3f2fd; 
+            padding: 5px 10px; 
+            border-radius: 15px; 
+            font-size: 12px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Excel Import Debug</h1>
+        <p>Test de l'extraction d'en-têtes Excel</p>
+        
+        <div class="upload-area" id="uploadArea">
+            <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+            <p>Cliquez ici ou glissez-déposez un fichier Excel</p>
+        </div>
+
+        <div class="debug">
+            <h3>📊 Informations du fichier</h3>
+            <div id="fileInfo">Aucun fichier sélectionné</div>
+        </div>
+
+        <div class="debug">
+            <h3>📋 Feuilles détectées</h3>
+            <div id="sheetsInfo">-</div>
+        </div>
+
+        <div class="debug">
+            <h3>📝 En-têtes extraites</h3>
+            <div id="headersInfo">-</div>
+            <div class="header-list" id="headersList"></div>
+        </div>
+
+        <div class="debug">
+            <h3>📊 Données échantillon</h3>
+            <div id="sampleData">-</div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const sheetsInfo = document.getElementById('sheetsInfo');
+        const headersInfo = document.getElementById('headersInfo');
+        const headersList = document.getElementById('headersList');
+        const sampleData = document.getElementById('sampleData');
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#007bff';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ccc';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                processFile(e.target.files[0]);
+            }
+        });
+
+        function processFile(file) {
+            fileInfo.innerHTML = `
+                <strong>Nom:</strong> ${file.name}<br>
+                <strong>Taille:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                <strong>Type:</strong> ${file.type}
+            `;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = e.target.result;
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // Sheets info
+                    sheetsInfo.innerHTML = `${workbook.SheetNames.length} feuilles: ${workbook.SheetNames.join(', ')}`;
+                    
+                    // Process first sheet
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+                    
+                    console.log('Raw JSON data:', jsonData);
+                    
+                    if (jsonData.length === 0) {
+                        headersInfo.innerHTML = '❌ Fichier vide';
+                        return;
+                    }
+
+                    const [headerRow, ...dataRows] = jsonData;
+                    
+                    // Clean headers
+                    const rawHeaders = headerRow.filter(h => h !== null && h !== undefined && String(h).trim() !== '');
+                    const cleanHeaders = rawHeaders.map(h => String(h).trim());
+                    
+                    console.log('Raw headers:', rawHeaders);
+                    console.log('Clean headers:', cleanHeaders);
+                    
+                    // Display headers
+                    headersInfo.innerHTML = `${cleanHeaders.length} colonnes détectées`;
+                    headersList.innerHTML = cleanHeaders.map(h => 
+                        `<span class="header-item">${h}</span>`
+                    ).join('');
+                    
+                    // Sample data
+                    const cleanData = dataRows
+                        .filter(row => row && row.some(cell => cell !== null && cell !== undefined && String(cell).trim() !== ''))
+                        .slice(0, 3)
+                        .map(row => {
+                            const obj = {};
+                            cleanHeaders.forEach((header, index) => {
+                                obj[header] = row[index] !== undefined ? String(row[index]).trim() : '';
+                            });
+                            return obj;
+                        });
+                    
+                    sampleData.innerHTML = `
+                        <pre>${JSON.stringify(cleanData, null, 2)}</pre>
+                    `;
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    headersInfo.innerHTML = `❌ Erreur: ${error.message}`;
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>
