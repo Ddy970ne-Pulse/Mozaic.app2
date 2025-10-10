@@ -362,6 +362,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                         'delegation-hours': 'from-pink-500 to-pink-600',
                         'hr-toolbox': 'from-teal-500 to-teal-600',
                         'excel-import': 'from-emerald-500 to-green-600',
+                        'cse-management': 'from-indigo-600 to-purple-600',
                         'on-call-management': 'from-cyan-500 to-cyan-600',
                         'user-management': 'from-violet-500 to-violet-600'
                       };
