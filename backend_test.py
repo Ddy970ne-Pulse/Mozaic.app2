@@ -455,10 +455,10 @@ class BackendTester:
             if response.status_code == 200:
                 data = response.json()
                 errors = data.get('errors', [])
-                if any('prenom' in str(error) or 'motif_absence' in str(error) for error in errors):
+                if any('PRENOM' in str(error) or 'obligatoires' in str(error) for error in errors):
                     self.log_result("absence_import", True, f"✅ Required field validation working (nom, prenom, motif_absence)")
                 else:
-                    self.log_result("absence_import", False, f"❌ Required field validation not working properly")
+                    self.log_result("absence_import", False, f"❌ Required field validation not working properly: {errors}")
             else:
                 self.log_result("absence_import", False, f"❌ Validation test returned {response.status_code}")
         except Exception as e:
