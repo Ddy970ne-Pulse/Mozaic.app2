@@ -281,6 +281,45 @@ const ExcelImport = ({ user, onChangeView }) => {
     setImportResults(null);
   };
 
+  // Réinitialiser les comptes de démo et créer l'admin DACALOR Diégo
+  const resetDemoAccounts = async () => {
+    if (!window.confirm('Cette action va supprimer tous les comptes de test et créer un nouveau compte admin pour DACALOR Diégo. Êtes-vous sûr ?')) {
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/import/reset-demo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Erreur: ${errorData.detail || response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      alert(`✅ Comptes réinitialisés avec succès!\n\n` +
+            `Nouvel administrateur créé:\n` +
+            `Nom: ${result.new_admin.name}\n` +
+            `Email: ${result.new_admin.email}\n` +
+            `Mot de passe: ${result.new_admin.password}\n\n` +
+            `Veuillez vous reconnecter avec ces identifiants.`);
+      
+    } catch (error) {
+      console.error('Erreur lors de la réinitialisation:', error);
+      alert('Erreur lors de la réinitialisation: ' + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* En-tête */}
