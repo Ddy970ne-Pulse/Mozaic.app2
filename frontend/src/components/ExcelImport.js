@@ -51,20 +51,42 @@ const ExcelImport = ({ user, onChangeView }) => {
   const processExcelValue = (value, headerName) => {
     if (value === null || value === undefined) return '';
     
-    // Liste des colonnes qui contiennent des dates
-    const dateColumns = [
-      'date', 'date_naissance', 'date_debut', 'date_fin', 
-      'date_debut_contrat', 'date_fin_contrat',
-      'Date', 'Date de naissance', 'Date début', 'Date fin'
+    // Liste des colonnes qui contiennent des dates (très complète)
+    const dateKeywords = [
+      'date', 'naissance', 'debut', 'fin', 'contrat',
+      'Date', 'Naissance', 'Début', 'Fin', 'Contrat'
     ];
     
-    // Vérifier si c'est une colonne de date
-    const isDateColumn = dateColumns.some(col => 
-      headerName.toLowerCase().includes(col.toLowerCase())
+    // Vérifier si le nom de la colonne contient un mot-clé de date
+    const headerLower = headerName.toLowerCase();
+    const isDateColumn = dateKeywords.some(keyword => 
+      headerLower.includes(keyword.toLowerCase())
     );
     
+    // Si c'est une colonne de date ET que la valeur est un nombre Excel
     if (isDateColumn && typeof value === 'number') {
-      return excelDateToJSDate(value);
+      const formattedDate = excelDateToJSDate(value);
+      console.log(`📅 Date convertie: ${headerName} = ${value} → ${formattedDate}`);
+      return formattedDate;
+    }
+    
+    // Si c'est une colonne de date mais déjà une chaîne, normaliser le format
+    if (isDateColumn && typeof value === 'string' && value.trim()) {
+      // Si format ISO (YYYY-MM-DD), convertir en français (DD/MM/YYYY)
+      const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) {
+        const formatted = `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+        console.log(`📅 Date ISO convertie: ${value} → ${formatted}`);
+        return formatted;
+      }
+      
+      // Si format américain (MM/DD/YYYY), convertir en français (DD/MM/YYYY)
+      const usMatch = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (usMatch && parseInt(usMatch[1]) > 12) { // Probablement déjà DD/MM/YYYY
+        return value.trim();
+      }
+      
+      return value.trim();
     }
     
     return String(value).trim();
