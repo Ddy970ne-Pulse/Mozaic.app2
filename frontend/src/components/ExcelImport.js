@@ -335,17 +335,29 @@ const ExcelImport = ({ user, onChangeView }) => {
             </p>
           </div>
           
-          {importStep !== 'upload' && (
-            <button
-              onClick={resetImport}
-              className="p-3 rounded-xl bg-gradient-to-br from-gray-500 to-slate-600 text-white hover:from-gray-600 hover:to-slate-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 shadow-lg transition-all duration-200"
-              title="Nouvel import"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          )}
+          <div className="flex items-center space-x-3">
+            {user?.role === 'admin' && (
+              <button
+                onClick={resetDemoAccounts}
+                disabled={isProcessing}
+                className="px-4 py-2 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 shadow-lg transition-all duration-200 text-sm font-medium disabled:opacity-50"
+                title="Réinitialiser les comptes de démo et créer l'admin DACALOR Diégo"
+              >
+                🔄 Réinitialiser comptes
+              </button>
+            )}
+            {importStep !== 'upload' && (
+              <button
+                onClick={resetImport}
+                className="p-3 rounded-xl bg-gradient-to-br from-gray-500 to-slate-600 text-white hover:from-gray-600 hover:to-slate-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 shadow-lg transition-all duration-200"
+                title="Nouvel import"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
