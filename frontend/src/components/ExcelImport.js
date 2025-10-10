@@ -296,7 +296,8 @@ const ExcelImport = ({ user, onChangeView }) => {
         } else if (rowWarnings.length > 0) {
           warningRows.push({ 
             ...rowData, 
-            warnings: rowWarnings.map(warn => warn.warning || warn.message)
+            warnings: rowWarnings.map(warn => warn.warning || warn.message),
+            data: row  // Ajouter les données complètes pour l'affichage
           });
           validRows.push(rowData);
         } else {
