@@ -604,10 +604,45 @@ const UserManagement = ({ user }) => {
               ))}
             </select>
           </div>
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
             <div className="text-sm text-gray-600">
               {filteredUsers.length} utilisateur(s) trouvé(s)
             </div>
+            {user?.role === 'admin' && (
+              <button
+                onClick={async () => {
+                  if (window.confirm('⚠️ ATTENTION: Voulez-vous supprimer TOUS les utilisateurs de test (contenant "test", "example", "User Test")?\n\nCette action est irréversible!')) {
+                    try {
+                      const testUsers = users.filter(u => {
+                        const email = u.email.toLowerCase();
+                        const name = u.name.toLowerCase();
+                        return email.includes('test') || 
+                               email.includes('example') || 
+                               name.includes('user test') ||
+                               name.includes('testemp');
+                      });
+                      
+                      for (const testUser of testUsers) {
+                        await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${testUser.id}`, {
+                          method: 'DELETE',
+                          headers: getAuthHeaders()
+                        });
+                      }
+                      
+                      alert(`✅ ${testUsers.length} utilisateur(s) de test supprimé(s)`);
+                      fetchUsers();
+                    } catch (error) {
+                      console.error('Error deleting test users:', error);
+                      alert('Erreur lors de la suppression');
+                    }
+                  }
+                }}
+                className="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-colors"
+                title="Supprimer tous les utilisateurs de test"
+              >
+                🗑️ Nettoyer tests
+              </button>
+            )}
           </div>
         </div>
       </div>
