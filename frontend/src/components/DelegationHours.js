@@ -44,65 +44,31 @@ const DelegationHours = ({ user }) => {
   React.useEffect(() => {
     // Delegates are now loaded from database via API
 
-    // Initialiser l'historique des utilisations
-    const initialUsageHistory = [
-      {
-        id: 1,
-        delegateId: 1,
-        delegateName: 'Marie Leblanc',
-        date: '2024-01-15',
-        hours: 2.5,
-        activity: 'Réunion CSE',
-        description: 'Réunion mensuelle du comité social et économique',
-        status: 'pending',
-        requestedBy: 'Marie Leblanc',
-        requestedDate: '2024-01-15',
-        approvedBy: null,
-        approvedDate: null
-      },
-      {
-        id: 2,
-        delegateId: 1,
-        delegateName: 'Marie Leblanc',
-        date: '2024-01-10',
-        hours: 3,
-        activity: 'Formation syndicale',
-        description: 'Formation sur les droits des salariés',
-        status: 'pending',
-        requestedBy: 'Marie Leblanc',
-        requestedDate: '2024-01-10',
-        approvedBy: null,
-        approvedDate: null
-      },
-      {
-        id: 3,
-        delegateId: 2,
-        delegateName: 'Pierre Moreau',
-        date: '2024-01-12',
-        hours: 4,
-        activity: 'Négociation collective',
-        description: 'Participation aux négociations annuelles',
-        status: 'pending',
-        requestedBy: 'Pierre Moreau',
-        requestedDate: '2024-01-12',
-        approvedBy: null,
-        approvedDate: null
-      },
-      {
-        id: 4,
-        delegateId: 3,
-        delegateName: 'Claire Dubois',
-        date: '2024-01-08',
-        hours: 1.5,
-        activity: 'Représentation syndicale',
-        description: 'Entretien disciplinaire en tant que représentant',
-        status: 'approved',
-        requestedBy: 'Claire Dubois',
-        requestedDate: '2024-01-08',
-        approvedBy: 'Sophie Martin',
-        approvedDate: '2024-01-09'
+    // Load usage history from database instead of hardcoded data  
+    const loadUsageHistory = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/delegation/usage`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const usageData = await response.json();
+          setUsageHistory(usageData);
+        } else {
+          console.error('Failed to load usage history');
+          setUsageHistory([]); // Empty array if no data
+        }
+      } catch (error) {
+        console.error('Error loading usage history:', error);
+        setUsageHistory([]);
       }
-    ];
+    };
 
     // Load delegates from database instead of hardcoded data
     const loadDelegates = async () => {
