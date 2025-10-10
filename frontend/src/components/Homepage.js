@@ -41,10 +41,7 @@ const Homepage = ({ onLogin }) => {
     }
   };
 
-  const handleDemoLogin = (account) => {
-    setEmail(account.email);
-    setPassword(account.password);
-  };
+  // Demo login function removed - users managed via database
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden">
