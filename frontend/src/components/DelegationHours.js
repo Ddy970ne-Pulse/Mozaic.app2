@@ -60,13 +60,16 @@ const DelegationHours = ({ user }) => {
         if (response.ok) {
           const usageData = await response.json();
           setUsageHistory(usageData);
+          return usageData;
         } else {
           console.error('Failed to load usage history');
           setUsageHistory([]); // Empty array if no data
+          return [];
         }
       } catch (error) {
         console.error('Error loading usage history:', error);
         setUsageHistory([]);
+        return [];
       }
     };
 
