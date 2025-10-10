@@ -201,18 +201,71 @@ const ExcelImport = ({ user, onChangeView }) => {
     setIsProcessing(true);
     
     try {
-      // Simuler l'import (à remplacer par un appel API réel)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Préparer les données pour l'API
+      const mappedData = validationResults.valid.map(row => {
+        const mappedRow = {};
+        Object.entries(columnMapping).forEach(([field, column]) => {
+          if (column && row[column] !== undefined) {
+            mappedRow[field] = row[column];
+          }
+        });
+        
+        // Pour les absences et work_hours, mapper les noms d'employés
+        if (dataType === 'absences' || dataType === 'work_hours') {
+          if (row.employé || row.employee_name) {
+            mappedRow.employee_name = row.employé || row.employee_name;
+          }
+        }
+        
+        return mappedRow;
+      });
+
+      // Déterminer l'endpoint selon le type de données
+      let endpoint = '';
+      switch(dataType) {
+        case 'employees':
+          endpoint = '/api/import/employees';
+          break;
+        case 'planning':
+          endpoint = '/api/import/absences';
+          break;
+        case 'timedata':
+          endpoint = '/api/import/work-hours';
+          break;
+        default:
+          endpoint = '/api/import/employees';
+      }
+
+      // Appel API pour import
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          data_type: dataType,
+          data: mappedData,
+          overwrite_existing: false
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Erreur d'import: ${errorData.detail || response.statusText}`);
+      }
+
+      const result = await response.json();
       
-      const result = {
-        success: validationResults.valid.length,
-        warnings: validationResults.warnings.length,
-        errors: validationResults.errors.length,
-        total: excelData.length
-      };
+      setImportResults({
+        success: result.successful_imports,
+        warnings: result.warnings?.length || 0,
+        errors: result.failed_imports,
+        total: result.total_processed
+      });
       
-      setImportResults(result);
       setImportStep('complete');
+      
     } catch (error) {
       console.error('Erreur lors de l\'import:', error);
       alert('Erreur lors de l\'import: ' + error.message);
