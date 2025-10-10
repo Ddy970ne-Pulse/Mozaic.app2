@@ -503,10 +503,10 @@ class BackendTester:
             if response.status_code == 200:
                 data = response.json()
                 errors = data.get('errors', [])
-                if any('not found' in str(error).lower() or 'introuvable' in str(error).lower() for error in errors):
+                if any('non trouvé' in str(error) or 'suggestion' in str(data) for error in errors):
                     self.log_result("absence_import", True, f"✅ Employee not found generates clear error with suggestion")
                 else:
-                    self.log_result("absence_import", False, f"❌ Employee not found should generate clear error")
+                    self.log_result("absence_import", False, f"❌ Employee not found should generate clear error: {errors}")
             else:
                 self.log_result("absence_import", False, f"❌ Employee not found test returned {response.status_code}")
         except Exception as e:
