@@ -425,6 +425,169 @@ async def login(login_request: LoginRequest):
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     return current_user
 
+# User Management endpoints
+@api_router.get("/users", response_model=List[User])
+async def get_all_users(current_user: User = Depends(get_current_user)):
+    """Get all users (admin/manager only)"""
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    users = await db.users.find({"is_active": True}).to_list(1000)
+    return [User(**{k: v for k, v in user.items() if k != "hashed_password"}) for user in users]
+
+@api_router.get("/users/{user_id}", response_model=User)
+async def get_user(user_id: str, current_user: User = Depends(get_current_user)):
+    """Get specific user (admin/manager or own profile)"""
+    if current_user.role not in ["admin", "manager"] and current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return User(**{k: v for k, v in user.items() if k != "hashed_password"})
+
+@api_router.post("/users", response_model=User)
+async def create_user(user_data: UserCreate, current_user: User = Depends(get_current_user)):
+    """Create new user (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Check if email already exists
+    existing_user = await db.users.find_one({"email": user_data.email.lower().strip()})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Create user with hashed password
+    user_in_db = UserInDB(
+        name=user_data.name,
+        email=user_data.email.lower().strip(),
+        role=user_data.role,
+        department=user_data.department,
+        phone=user_data.phone,
+        position=user_data.position,
+        hire_date=user_data.hire_date,
+        isDelegateCSE=user_data.isDelegateCSE,
+        hashed_password=hash_password(user_data.password),
+        created_by=current_user.name
+    )
+    
+    await db.users.insert_one(user_in_db.dict())
+    
+    # Return user without password hash
+    return User(**{k: v for k, v in user_in_db.dict().items() if k != "hashed_password"})
+
+@api_router.put("/users/{user_id}", response_model=User)
+async def update_user(user_id: str, user_data: UserUpdate, current_user: User = Depends(get_current_user)):
+    """Update user (admin or own profile for basic info)"""
+    # Check if user exists
+    existing_user = await db.users.find_one({"id": user_id})
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Permission checks
+    is_own_profile = current_user.id == user_id
+    is_admin = current_user.role == "admin"
+    
+    if not is_admin and not is_own_profile:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    # Restrict what non-admins can update on their own profile
+    if is_own_profile and not is_admin:
+        restricted_fields = {"role", "is_active", "isDelegateCSE"}
+        update_data = {k: v for k, v in user_data.dict(exclude_unset=True).items() 
+                      if k not in restricted_fields}
+    else:
+        update_data = user_data.dict(exclude_unset=True)
+    
+    if update_data:
+        update_data["updated_at"] = datetime.utcnow()
+        if "email" in update_data:
+            update_data["email"] = update_data["email"].lower().strip()
+            
+        await db.users.update_one({"id": user_id}, {"$set": update_data})
+    
+    # Return updated user
+    updated_user = await db.users.find_one({"id": user_id})
+    return User(**{k: v for k, v in updated_user.items() if k != "hashed_password"})
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: User = Depends(get_current_user)):
+    """Soft delete user (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    if current_user.id == user_id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Soft delete - set is_active to False
+    await db.users.update_one(
+        {"id": user_id}, 
+        {"$set": {"is_active": False, "updated_at": datetime.utcnow()}}
+    )
+    
+    return {"message": "User deactivated successfully"}
+
+@api_router.post("/users/{user_id}/reset-password")
+async def reset_user_password(user_id: str, password_data: PasswordReset, current_user: User = Depends(get_current_user)):
+    """Reset user password (admin or own password)"""
+    # Check if user exists
+    existing_user = await db.users.find_one({"id": user_id})
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Permission checks
+    is_own_password = current_user.id == user_id
+    is_admin = current_user.role == "admin"
+    
+    if not is_admin and not is_own_password:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    # Update password
+    hashed_password = hash_password(password_data.new_password)
+    await db.users.update_one(
+        {"id": user_id}, 
+        {"$set": {
+            "hashed_password": hashed_password, 
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    
+    return {"message": "Password reset successfully"}
+
+@api_router.get("/users/stats/overview")
+async def get_user_statistics(current_user: User = Depends(get_current_user)):
+    """Get user statistics overview (admin/manager only)"""
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    total_users = await db.users.count_documents({"is_active": True})
+    admin_count = await db.users.count_documents({"role": "admin", "is_active": True})
+    manager_count = await db.users.count_documents({"role": "manager", "is_active": True})
+    employee_count = await db.users.count_documents({"role": "employee", "is_active": True})
+    
+    # Department breakdown
+    departments = await db.users.distinct("department", {"is_active": True})
+    department_stats = []
+    for dept in departments:
+        count = await db.users.count_documents({"department": dept, "is_active": True})
+        department_stats.append({"department": dept, "count": count})
+    
+    return {
+        "total_users": total_users,
+        "by_role": {
+            "admin": admin_count,
+            "manager": manager_count,
+            "employee": employee_count
+        },
+        "by_department": department_stats,
+        "cse_delegates": await db.users.count_documents({"isDelegateCSE": True, "is_active": True})
+    }
+
 # Delegation Hours endpoints
 @api_router.get("/delegation/delegates", response_model=List[Delegate])
 async def get_delegates(current_user: User = Depends(get_current_user)):
