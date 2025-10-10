@@ -689,17 +689,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Excel Import Backend API Implementation"
-    - "Demo Account Reset & Admin Creation"
-    - "Data Validation System"
-    - "MongoDB Integration for Import Data"
-    - "Excel Import Module Backend Integration"
-    - "Admin Demo Reset Integration"
+    - "Absence Import Module Enhancement - NEW EXCEL FORMAT"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
-  backend_testing_complete: true
-  last_backend_test: "2025-01-27 - Monthly Planning & Print Support"
+  backend_testing_complete: false
+  last_backend_test: "2025-01-10 - Absence Import Module with NEW Excel Format (NOM/PRENOM)"
   bamboohr_transformation_complete: true
   last_bamboohr_test: "2025-01-27 - Complete BambooHR Transformation"
   original_style_restoration_complete: true
