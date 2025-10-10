@@ -1593,6 +1593,95 @@ async def get_import_statistics(current_user: User = Depends(require_admin_acces
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting statistics: {str(e)}")
 
+# Event Management endpoints
+@api_router.get("/events", response_model=List[Event])
+async def get_events(current_user: User = Depends(get_current_user)):
+    """Get upcoming events"""
+    try:
+        # Get events from today onwards
+        today = datetime.now().strftime('%Y-%m-%d')
+        events = await db.events.find({"start_date": {"$gte": today}}).sort("start_date", 1).to_list(100)
+        
+        # Convert ObjectIds to strings for JSON serialization
+        for event in events:
+            if "_id" in event:
+                del event["_id"]
+        
+        return [Event(**event) for event in events]
+        
+    except Exception as e:
+        print(f"Error getting events: {e}")
+        return []
+
+@api_router.post("/events", response_model=Event)
+async def create_event(event_data: EventCreate, current_user: User = Depends(get_current_user)):
+    """Create new event (admin/manager only)"""
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    try:
+        event = Event(
+            title=event_data.title,
+            description=event_data.description,
+            event_type=event_data.event_type,
+            start_date=event_data.start_date,
+            start_time=event_data.start_time,
+            end_date=event_data.end_date,
+            end_time=event_data.end_time,
+            location=event_data.location,
+            participants=event_data.participants,
+            is_all_day=event_data.is_all_day,
+            created_by=current_user.name
+        )
+        
+        await db.events.insert_one(event.dict())
+        return event
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating event: {str(e)}")
+
+@api_router.put("/events/{event_id}", response_model=Event)
+async def update_event(event_id: str, event_data: EventCreate, current_user: User = Depends(get_current_user)):
+    """Update event (admin/manager only)"""
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    try:
+        event = await db.events.find_one({"id": event_id})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        update_data = event_data.dict(exclude_unset=True)
+        update_data["updated_at"] = datetime.utcnow()
+        
+        await db.events.update_one({"id": event_id}, {"$set": update_data})
+        
+        updated_event = await db.events.find_one({"id": event_id})
+        return Event(**{k: v for k, v in updated_event.items() if k != "_id"})
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating event: {str(e)}")
+
+@api_router.delete("/events/{event_id}")
+async def delete_event(event_id: str, current_user: User = Depends(get_current_user)):
+    """Delete event (admin/manager only)"""
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    try:
+        result = await db.events.delete_one({"id": event_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        return {"message": "Event deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting event: {str(e)}")
+
 # Include the router in the main app
 app.include_router(api_router)
 
