@@ -345,6 +345,237 @@ class BackendTester:
             
         self.results["monthly_planning"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["monthly_planning"]["details"]) else "fail"
 
+    def test_absence_import_new_format(self, auth_token=None):
+        """Test NEW Absence Import Module with Enhanced Excel Format"""
+        print("\n=== Testing NEW Absence Import Module - Enhanced Excel Format ===")
+        
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
+        
+        # Sample data matching the new Excel format from review request
+        sample_absence_data = [
+            {
+                "nom": "ADOLPHIN",
+                "prenom": "Joël", 
+                "date_debut": "2025-01-15",
+                "jours_absence": "5",
+                "motif_absence": "CA",
+                "notes": "Congés annuels planifiés"
+            },
+            {
+                "nom": "LOUBER",
+                "prenom": "Fabrice",
+                "date_debut": "2025-01-20", 
+                "jours_absence": "3",
+                "motif_absence": "AM",
+                "notes": "Arrêt maladie"
+            },
+            {
+                "nom": "BERNARD",
+                "prenom": "Jean-François",
+                "date_debut": "2025-01-25",
+                "jours_absence": "2", 
+                "motif_absence": "REC",
+                "notes": "Récupération heures sup"
+            }
+        ]
+        
+        # Test data with missing date (should generate warning)
+        missing_date_data = [
+            {
+                "nom": "ADOLPHIN",
+                "prenom": "Joël",
+                "jours_absence": "3",
+                "motif_absence": "CA",
+                "notes": "Test sans date"
+            }
+        ]
+        
+        # Test data with missing required fields (should generate errors)
+        invalid_absence_data = [
+            {
+                "nom": "ADOLPHIN",
+                # Missing prenom and motif_absence
+                "date_debut": "2025-01-15",
+                "jours_absence": "5"
+            }
+        ]
+        
+        # Test data with non-existent employee
+        nonexistent_employee_data = [
+            {
+                "nom": "NONEXISTENT",
+                "prenom": "Employee",
+                "date_debut": "2025-01-15",
+                "jours_absence": "5",
+                "motif_absence": "CA"
+            }
+        ]
+        
+        # 1. Test POST /api/import/absences - Enhanced Absence Import Endpoint
+        print("\n--- Testing POST /api/import/absences ---")
+        
+        # Test with valid sample data
+        try:
+            response = requests.post(
+                f"{API_URL}/import/absences", 
+                json={"data": sample_absence_data}, 
+                headers=headers, 
+                timeout=10
+            )
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("absence_import", True, f"✅ POST /api/import/absences accepts new Excel format")
+                
+                # Check for successful imports and proper structure
+                if 'successful_imports' in data and 'errors' in data and 'warnings' in data:
+                    self.log_result("absence_import", True, f"✅ Response includes proper import statistics")
+                else:
+                    self.log_result("absence_import", False, f"❌ Response missing required fields")
+            else:
+                self.log_result("absence_import", False, f"❌ POST /api/import/absences returned {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_import", False, f"❌ Error testing absence import: {str(e)}")
+        
+        # Test required field validation
+        try:
+            response = requests.post(
+                f"{API_URL}/import/absences",
+                json={"data": invalid_absence_data},
+                headers=headers,
+                timeout=10
+            )
+            if response.status_code == 200:
+                data = response.json()
+                errors = data.get('errors', [])
+                if any('prenom' in str(error) or 'motif_absence' in str(error) for error in errors):
+                    self.log_result("absence_import", True, f"✅ Required field validation working (nom, prenom, motif_absence)")
+                else:
+                    self.log_result("absence_import", False, f"❌ Required field validation not working properly")
+            else:
+                self.log_result("absence_import", False, f"❌ Validation test returned {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_import", False, f"❌ Error testing validation: {str(e)}")
+        
+        # Test warning generation for missing date_debut
+        try:
+            response = requests.post(
+                f"{API_URL}/import/absences",
+                json={"data": missing_date_data},
+                headers=headers,
+                timeout=10
+            )
+            if response.status_code == 200:
+                data = response.json()
+                warnings = data.get('warnings', [])
+                if any('date_debut' in str(warning) for warning in warnings):
+                    self.log_result("absence_import", True, f"✅ Missing date_debut generates warnings (not errors)")
+                else:
+                    self.log_result("absence_import", False, f"❌ Missing date_debut should generate warnings")
+            else:
+                self.log_result("absence_import", False, f"❌ Warning test returned {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_import", False, f"❌ Error testing warnings: {str(e)}")
+        
+        # Test employee not found error handling
+        try:
+            response = requests.post(
+                f"{API_URL}/import/absences",
+                json={"data": nonexistent_employee_data},
+                headers=headers,
+                timeout=10
+            )
+            if response.status_code == 200:
+                data = response.json()
+                errors = data.get('errors', [])
+                if any('not found' in str(error).lower() or 'introuvable' in str(error).lower() for error in errors):
+                    self.log_result("absence_import", True, f"✅ Employee not found generates clear error with suggestion")
+                else:
+                    self.log_result("absence_import", False, f"❌ Employee not found should generate clear error")
+            else:
+                self.log_result("absence_import", False, f"❌ Employee not found test returned {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_import", False, f"❌ Error testing employee not found: {str(e)}")
+        
+        # 2. Test GET /api/absences - List Absences with Role-Based Access
+        print("\n--- Testing GET /api/absences ---")
+        
+        # Test as admin (should return ALL absences)
+        try:
+            response = requests.get(f"{API_URL}/absences", headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result("absence_import", True, f"✅ GET /api/absences works as admin, returned {len(data)} absences")
+            elif response.status_code == 404:
+                self.log_result("absence_import", False, f"❌ GET /api/absences endpoint not found (404)")
+            else:
+                self.log_result("absence_import", False, f"❌ GET /api/absences returned {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_import", False, f"❌ Error testing GET /api/absences: {str(e)}")
+        
+        # Test without auth (should return 401/403)
+        try:
+            response = requests.get(f"{API_URL}/absences", timeout=10)
+            if response.status_code in [401, 403]:
+                self.log_result("absence_import", True, f"✅ GET /api/absences correctly returns {response.status_code} without auth")
+            else:
+                self.log_result("absence_import", False, f"❌ GET /api/absences should return 401/403 without auth, got {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_import", False, f"❌ Error testing GET /api/absences without auth: {str(e)}")
+        
+        # 3. Test GET /api/absences/{employee_id} - Get Absences by Employee
+        print("\n--- Testing GET /api/absences/{employee_id} ---")
+        
+        # Test with a sample employee ID (we'll use a UUID format)
+        sample_employee_id = "12345678-1234-1234-1234-123456789012"
+        
+        try:
+            response = requests.get(f"{API_URL}/absences/{sample_employee_id}", headers=headers, timeout=10)
+            if response.status_code in [200, 404]:  # 200 if found, 404 if not found
+                self.log_result("absence_import", True, f"✅ GET /api/absences/{{employee_id}} endpoint exists")
+            else:
+                self.log_result("absence_import", False, f"❌ GET /api/absences/{{employee_id}} returned {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_import", False, f"❌ Error testing GET /api/absences/{{employee_id}}: {str(e)}")
+        
+        # Test without auth
+        try:
+            response = requests.get(f"{API_URL}/absences/{sample_employee_id}", timeout=10)
+            if response.status_code in [401, 403]:
+                self.log_result("absence_import", True, f"✅ GET /api/absences/{{employee_id}} correctly requires auth")
+            else:
+                self.log_result("absence_import", False, f"❌ GET /api/absences/{{employee_id}} should require auth")
+        except Exception as e:
+            self.log_result("absence_import", False, f"❌ Error testing GET /api/absences/{{employee_id}} without auth: {str(e)}")
+        
+        # 4. Test DELETE /api/absences/{absence_id} - Delete Absence (Admin Only)
+        print("\n--- Testing DELETE /api/absences/{absence_id} ---")
+        
+        sample_absence_id = "12345678-1234-1234-1234-123456789012"
+        
+        # Test as admin
+        try:
+            response = requests.delete(f"{API_URL}/absences/{sample_absence_id}", headers=headers, timeout=10)
+            if response.status_code in [200, 404]:  # 200 if deleted, 404 if not found
+                self.log_result("absence_import", True, f"✅ DELETE /api/absences/{{absence_id}} endpoint exists for admin")
+            elif response.status_code == 403:
+                self.log_result("absence_import", False, f"❌ DELETE /api/absences/{{absence_id}} returned 403 for admin")
+            else:
+                self.log_result("absence_import", False, f"❌ DELETE /api/absences/{{absence_id}} returned {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_import", False, f"❌ Error testing DELETE /api/absences/{{absence_id}}: {str(e)}")
+        
+        # Test without auth (should return 401/403)
+        try:
+            response = requests.delete(f"{API_URL}/absences/{sample_absence_id}", timeout=10)
+            if response.status_code in [401, 403]:
+                self.log_result("absence_import", True, f"✅ DELETE /api/absences/{{absence_id}} correctly requires auth")
+            else:
+                self.log_result("absence_import", False, f"❌ DELETE /api/absences/{{absence_id}} should require auth")
+        except Exception as e:
+            self.log_result("absence_import", False, f"❌ Error testing DELETE /api/absences/{{absence_id}} without auth: {str(e)}")
+        
+        self.results["absence_import"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["absence_import"]["details"]) else "fail"
+
     def test_excel_import_functionality(self, auth_token=None):
         """Test Excel import backend functionality comprehensively"""
         print("\n=== Testing Excel Import Backend Functionality ===")
