@@ -15,21 +15,9 @@ export const october2025Absences = [
   // Data will be loaded from /api/absence-requests endpoint  
 ];
 
-// Heures de délégation pour octobre 2025
+// REMOVED: Mock delegation hours data - Now loaded from real delegation API
 export const october2025DelegationHours = [
-  // Marie Leblanc (CSE) - 22h/mois
-  { id: 1, employeeId: 3, employeeName: 'Marie Leblanc', date: '2025-10-02', hours: 3, activity: 'Réunion CSE mensuelle', description: 'Ordre du jour: budget formation, conditions travail', status: 'approved', requestDate: '2025-10-01' },
-  { id: 2, employeeId: 3, employeeName: 'Marie Leblanc', date: '2025-10-07', hours: 2, activity: 'Préparation dossier CHSCT', description: 'Analyse accident travail septembre', status: 'approved', requestDate: '2025-10-05' },
-  { id: 3, employeeId: 3, employeeName: 'Marie Leblanc', date: '2025-10-14', hours: 4, activity: 'Entretiens individuels', description: 'Accompagnement salariés en difficulté', status: 'approved', requestDate: '2025-10-12' },
-  { id: 4, employeeId: 3, employeeName: 'Marie Leblanc', date: '2025-10-21', hours: 2.5, activity: 'Formation syndicale', description: 'Formation négociation collective', status: 'approved', requestDate: '2025-10-18' },
-  { id: 5, employeeId: 3, employeeName: 'Marie Leblanc', date: '2025-10-28', hours: 3, activity: 'Réunion extraordinaire CSE', description: 'Projet réorganisation service technique', status: 'pending', requestDate: '2025-10-25' },
-  
-  // Pierre Moreau (CSE) - 22h/mois
-  { id: 6, employeeId: 4, employeeName: 'Pierre Moreau', date: '2025-10-03', hours: 2, activity: 'Permanence syndicale', description: 'Consultation salariés matin', status: 'approved', requestDate: '2025-10-01' },
-  { id: 7, employeeId: 4, employeeName: 'Pierre Moreau', date: '2025-10-09', hours: 3.5, activity: 'Négociation accord', description: 'Négociation accord télétravail avec direction', status: 'approved', requestDate: '2025-10-07' },
-  { id: 8, employeeId: 4, employeeName: 'Pierre Moreau', date: '2025-10-16', hours: 2, activity: 'Enquête conditions travail', description: 'Visite ateliers techniques sécurité', status: 'approved', requestDate: '2025-10-14' },
-  { id: 9, employeeId: 4, employeeName: 'Pierre Moreau', date: '2025-10-23', hours: 1.5, activity: 'Assistance juridique', description: 'Dossier contentieux salarial', status: 'pending', requestDate: '2025-10-20' },
-  { id: 10, employeeId: 4, employeeName: 'Pierre Moreau', date: '2025-10-30', hours: 4, activity: 'Formation CSE', description: 'Formation économique annuelle obligatoire', status: 'pending', requestDate: '2025-10-26' }
+  // Data will be loaded from /api/delegation/hours endpoint
 ];
 
 // Heures supplémentaires pour octobre 2025
