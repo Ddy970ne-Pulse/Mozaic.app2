@@ -1157,20 +1157,40 @@ async def validate_on_call_assignment(
         "technical_educators": 50
     }
     
-    # Récupérer les infos de l'employé (mockées)
-    employee_data = {
-        "1": {"category": "management", "currentDays": 25, "name": "Sophie Martin"},
-        "2": {"category": "administrative", "currentDays": 18, "name": "Jean Dupont"},
-        "3": {"category": "specialized_educators", "currentDays": 32, "name": "Marie Leblanc"},
-        "4": {"category": "technical_educators", "currentDays": 15, "name": "Pierre Moreau"},
-        "5": {"category": "administrative", "currentDays": 28, "name": "Claire Dubois"}
-    }
-    
-    employee = employee_data.get(validation.employeeId)
-    if not employee:
+    # Get employee info from database
+    try:
+        user = await db.users.find_one({"id": validation.employeeId})
+        if not user:
+            return OnCallValidationResponse(
+                isValid=False,
+                errors=["Employé non trouvé"]
+            )
+        
+        # Calculate current on-call days for this year
+        current_assignments = await db.on_call_assignments.find({
+            "employeeId": validation.employeeId,
+            "status": "confirmed"
+        }).to_list(1000)
+        
+        current_days = 0
+        current_year = datetime.now().year
+        for assignment in current_assignments:
+            assign_date = datetime.fromisoformat(assignment["startDate"])
+            if assign_date.year == current_year:
+                end_date = datetime.fromisoformat(assignment["endDate"])
+                current_days += (end_date - assign_date).days + 1
+        
+        employee = {
+            "name": user["name"],
+            "category": user.get("department", "administrative").lower().replace(" ", "_"),
+            "currentDays": current_days
+        }
+        
+    except Exception as e:
+        print(f"Error getting employee for validation: {e}")
         return OnCallValidationResponse(
             isValid=False,
-            errors=["Employé non trouvé"]
+            errors=["Erreur lors de la récupération des données employé"]
         )
     
     # Calcul du nombre de jours demandés
