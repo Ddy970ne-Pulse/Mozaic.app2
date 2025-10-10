@@ -77,6 +77,15 @@ demo_users = {
         "role": "employee",
         "department": "Production",
         "isDelegateCSE": True
+    },
+    "ddacalor@aaea-gpe.fr": {
+        "id": "5",
+        "name": "DACALOR Diégo",
+        "email": "ddacalor@aaea-gpe.fr",
+        "password": "admin123",
+        "role": "admin",
+        "department": "Direction",
+        "isDelegateCSE": False
     }
 }
 
