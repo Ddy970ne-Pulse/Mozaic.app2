@@ -468,7 +468,11 @@ class BackendTester:
         try:
             response = requests.post(
                 f"{API_URL}/import/absences",
-                json={"data": missing_date_data},
+                json={
+                    "data_type": "absences",
+                    "data": missing_date_data,
+                    "overwrite_existing": False
+                },
                 headers=headers,
                 timeout=10
             )
