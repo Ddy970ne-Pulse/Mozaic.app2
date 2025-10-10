@@ -212,12 +212,27 @@ const UserManagement = ({ user }) => {
     }
   };
 
+  // Mock audit logs for features not yet implemented
+  const mockAuditLogs = [
+    {
+      id: '1',
+      timestamp: '2024-01-25 14:30:25',
+      action: 'USER_UPDATE',
+      userId: '3',
+      userName: 'Utilisateur Modifié',
+      performedBy: 'Admin',
+      details: 'Changement département',
+      ipAddress: '192.168.1.100'
+    }
+  ];
+
   // Load data on component mount
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'manager') {
       fetchUsers();
       fetchStatistics();
     }
+    setAuditLogs(mockAuditLogs);
   }, [user]);
 
   // Filter users based on search and department
