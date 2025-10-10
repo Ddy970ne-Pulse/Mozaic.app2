@@ -138,10 +138,15 @@ const ExcelImport = ({ user, onChangeView }) => {
 
   // Configuration du mapping des colonnes
   const handleColumnMapping = (excelColumn, modelField) => {
-    setColumnMapping(prev => ({
-      ...prev,
-      [modelField]: excelColumn
-    }));
+    console.log('🔗 Mapping column:', excelColumn, '→', modelField);
+    setColumnMapping(prev => {
+      const newMapping = {
+        ...prev,
+        [modelField]: excelColumn
+      };
+      console.log('🗺️ Updated mapping:', newMapping);
+      return newMapping;
+    });
   };
 
   // Validation des données via API
