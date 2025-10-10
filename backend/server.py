@@ -1103,7 +1103,7 @@ async def export_on_call_planning(
     }
 
 # Excel Import endpoints - Admin only
-def require_admin_access(current_user: User):
+def require_admin_access(current_user: User = Depends(get_current_user)):
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
