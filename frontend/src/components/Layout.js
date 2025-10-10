@@ -408,12 +408,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                           </div>
                         )}
 
-                        {/* Badge de notification */}
-                        {(item.id === 'absence-requests' || item.id === 'delegation-hours') && (
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
-                            {item.id === 'absence-requests' ? '3' : '2'}
-                          </div>
-                        )}
+                        {/* Badge de notification - Removed hardcoded badges */}
                       </button>
                     );
                   })}
