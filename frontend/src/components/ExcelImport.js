@@ -171,7 +171,7 @@ const ExcelImport = ({ user, onChangeView }) => {
           .map((row, rowIndex) => {
             const obj = {};
             cleanHeaders.forEach((header, index) => {
-              obj[header] = row[index] !== undefined ? String(row[index]).trim() : '';
+              obj[header] = row[index] !== undefined ? processExcelValue(row[index], header) : '';
             });
             return obj;
           })
