@@ -432,9 +432,9 @@ async def get_user(user_id: str, current_user: User = Depends(get_current_user))
     
     return User(**{k: v for k, v in user.items() if k != "hashed_password"})
 
-@api_router.post("/users", response_model=User)
+@api_router.post("/users", response_model=TempPasswordResponse)
 async def create_user(user_data: UserCreate, current_user: User = Depends(get_current_user)):
-    """Create new user (admin only)"""
+    """Create new user with temporary password (admin only)"""
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     
@@ -443,7 +443,11 @@ async def create_user(user_data: UserCreate, current_user: User = Depends(get_cu
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    # Create user with hashed password
+    # Generate temporary password
+    temp_password = generate_temp_password()
+    temp_expires = datetime.utcnow().replace(tzinfo=timezone.utc) + timedelta(days=7)  # 7 jours pour changer
+    
+    # Create user with temporary password
     user_in_db = UserInDB(
         name=user_data.name,
         email=user_data.email.lower().strip(),
@@ -453,14 +457,20 @@ async def create_user(user_data: UserCreate, current_user: User = Depends(get_cu
         position=user_data.position,
         hire_date=user_data.hire_date,
         isDelegateCSE=user_data.isDelegateCSE,
-        hashed_password=hash_password(user_data.password),
+        hashed_password=hash_password(temp_password),
+        requires_password_change=True,
+        first_login=True,
+        temp_password_expires=temp_expires,
         created_by=current_user.name
     )
     
     await db.users.insert_one(user_in_db.dict())
     
-    # Return user without password hash
-    return User(**{k: v for k, v in user_in_db.dict().items() if k != "hashed_password"})
+    return TempPasswordResponse(
+        temp_password=temp_password,
+        expires_at=temp_expires,
+        message=f"Utilisateur {user_data.name} créé avec succès. Mot de passe temporaire généré (expire dans 7 jours)."
+    )
 
 @api_router.put("/users/{user_id}", response_model=User)
 async def update_user(user_id: str, user_data: UserUpdate, current_user: User = Depends(get_current_user)):
