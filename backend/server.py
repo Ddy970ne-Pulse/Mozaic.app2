@@ -1165,7 +1165,7 @@ async def validate_import_data(
                 email = employee_data.get('email', '')
                 if email and '@' not in email:
                     errors.append({
-                        "row": i + 1,
+                        "row": str(i + 1),
                         "field": "email",
                         "error": f"Format email invalide: {email}"
                     })
@@ -1174,7 +1174,7 @@ async def validate_import_data(
                 email_count = sum(1 for emp in request.data if emp.get('email') == email)
                 if email_count > 1:
                     warnings.append({
-                        "row": i + 1,
+                        "row": str(i + 1),
                         "field": "email",
                         "warning": f"Email en doublon: {email}"
                     })
@@ -1304,7 +1304,7 @@ async def import_absences(
                 
                 if not employee:
                     errors.append({
-                        "row": i + 1,
+                        "row": str(i + 1),
                         "error": f"Employé non trouvé: {employee_name}"
                     })
                     continue
@@ -1363,7 +1363,7 @@ async def import_work_hours(
                 
                 if not employee:
                     errors.append({
-                        "row": i + 1,
+                        "row": str(i + 1),
                         "error": f"Employé non trouvé: {employee_name}"
                     })
                     continue
