@@ -189,6 +189,16 @@ class UserUpdate(BaseModel):
 
 class PasswordReset(BaseModel):
     new_password: str
+
+class PasswordChange(BaseModel):
+    current_password: Optional[str] = None  # Optionnel pour le premier changement
+    new_password: str
+    confirm_password: str
+
+class TempPasswordResponse(BaseModel):
+    temp_password: str
+    expires_at: datetime
+    message: str
     
 class LoginResponse(BaseModel):
     token: str
