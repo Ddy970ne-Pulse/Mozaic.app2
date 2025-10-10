@@ -385,6 +385,13 @@ const UserManagement = ({ user }) => {
     setSelectedUser(null);
   };
 
+  const handleChangeEmail = (userToEdit) => {
+    setSelectedUser({...userToEdit});
+    setNewEmail(userToEdit.email);
+    setEmailChangeConfirmation('');
+    setShowEmailChangeModal(true);
+  };
+
   const handleResetPassword = (userId) => {
     const resetUser = users.find(u => u.id === userId);
     if (resetUser) {
