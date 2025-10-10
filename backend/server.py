@@ -1132,7 +1132,7 @@ async def reset_demo_accounts(current_user: User = Depends(require_admin_access)
             "message": "Demo accounts reset. New admin DACALOR Diégo created.",
             "new_admin": {
                 "name": "DACALOR Diégo",
-                "email": "diego.dacalor@company.com",
+                "email": "ddacalor@aaea-gpe.fr",
                 "password": "admin123"
             }
         }
