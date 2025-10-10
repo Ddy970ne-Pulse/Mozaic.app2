@@ -12,54 +12,50 @@ const ExcelImport = ({ user, onChangeView }) => {
   const [importResults, setImportResults] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Modèles de données pour différents types d'import
+  // Modèles de données pour différents types d'import basés sur l'analyse du fichier Excel
   const dataModels = {
     employees: {
-      name: 'Données Employés',
+      name: 'Données Employés (13 colonnes)',
       icon: '👥',
       color: 'from-blue-500 to-blue-600',
-      requiredFields: ['nom', 'prenom', 'email'],
-      optionalFields: ['poste', 'departement', 'telephone', 'date_embauche', 'salaire'],
+      requiredFields: ['nom', 'prenom', 'email', 'departement'],
+      optionalFields: ['date_naissance', 'sexe', 'categorie_employe', 'metier', 'fonction', 'site', 'temps_travail', 'contrat', 'date_debut_contrat', 'date_fin_contrat', 'notes'],
       validationRules: {
         email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        telephone: /^[\d\s\+\-\(\)]+$/,
-        date_embauche: 'date'
+        date_naissance: 'date',
+        date_debut_contrat: 'date',
+        date_fin_contrat: 'date'
       }
     },
     planning: {
-      name: 'Données Planning',
+      name: 'Données Absences (5 colonnes)',
       icon: '📅',
       color: 'from-green-500 to-green-600',
-      requiredFields: ['employee_id', 'date', 'heure_debut', 'heure_fin'],
-      optionalFields: ['type_absence', 'commentaire', 'lieu_travail'],
+      requiredFields: ['employee_name', 'date_debut', 'jours_absence', 'motif_absence'],
+      optionalFields: [],
       validationRules: {
-        date: 'date',
-        heure_debut: /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/,
-        heure_fin: /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/
-      }
-    },
-    hr: {
-      name: 'Données RH',
-      icon: '📊',
-      color: 'from-purple-500 to-purple-600',
-      requiredFields: ['employee_id', 'type_donnee', 'valeur'],
-      optionalFields: ['date_effet', 'commentaire', 'responsable'],
-      validationRules: {
-        date_effet: 'date',
-        valeur: 'number'
+        date_debut: 'date',
+        jours_absence: 'number'
       }
     },
     timedata: {
-      name: 'Données de Temps',
+      name: 'Données Heures Travaillées (4 colonnes)',
       icon: '⏰',
       color: 'from-orange-500 to-orange-600',
-      requiredFields: ['employee_id', 'date', 'heures_travaillees'],
-      optionalFields: ['heures_supplementaires', 'type_pointage', 'lieu'],
+      requiredFields: ['employee_name', 'date', 'heures_travaillees'],
+      optionalFields: ['notes'],
       validationRules: {
         date: 'date',
-        heures_travaillees: 'number',
-        heures_supplementaires: 'number'
+        heures_travaillees: 'number'
       }
+    },
+    settings: {
+      name: 'Paramètres & Configuration',
+      icon: '⚙️',
+      color: 'from-purple-500 to-purple-600',
+      requiredFields: ['setting_name', 'setting_value'],
+      optionalFields: ['category', 'description'],
+      validationRules: {}
     }
   };
 
