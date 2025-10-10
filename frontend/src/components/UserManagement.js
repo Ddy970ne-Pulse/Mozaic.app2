@@ -414,55 +414,39 @@ const UserManagement = ({ user }) => {
   };
 
   const handleDeleteTestUsers = async () => {
-    if (!window.confirm('⚠️ ATTENTION: Voulez-vous supprimer TOUS les utilisateurs de test?\n\nSeront supprimés:\n- Email contenant "test" ou "example"\n- Nom contenant "User Test" ou "testemp" ou "Marie Dupont"\n\nCette action est irréversible!')) {
+    if (!window.confirm('⚠️ ATTENTION: Voulez-vous supprimer TOUS les utilisateurs de test?\n\nSeront supprimés:\n- Email contenant "test" ou "example"\n- Nom contenant "User Test", "testemp", "Marie Dupont"\n\nCette action est irréversible!')) {
       return;
     }
 
     try {
       setIsLoading(true);
       
-      // Identifier les utilisateurs de test
-      const testUsers = users.filter(u => {
-        const email = u.email.toLowerCase();
-        const name = u.name.toLowerCase();
-        return email.includes('test') || 
-               email.includes('example') || 
-               name.includes('user test') ||
-               name.includes('testemp') ||
-               name.includes('marie dupont');
+      console.log('Début de la suppression des utilisateurs de test...');
+      
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/cleanup/test-users`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
       });
       
-      console.log('Utilisateurs de test trouvés:', testUsers);
-      
-      if (testUsers.length === 0) {
-        alert('✅ Aucun utilisateur de test trouvé');
-        return;
-      }
-      
-      // Supprimer chaque utilisateur
-      let deleted = 0;
-      for (const testUser of testUsers) {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${testUser.id}`, {
-            method: 'DELETE',
-            headers: getAuthHeaders()
-          });
-          
-          if (response.ok) {
-            deleted++;
-            console.log(`Supprimé: ${testUser.name} (${testUser.email})`);
-          } else {
-            console.error(`Échec suppression: ${testUser.name}`, await response.text());
-          }
-        } catch (error) {
-          console.error(`Erreur suppression ${testUser.name}:`, error);
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Résultat:', result);
+        
+        if (result.deleted_users && result.deleted_users.length > 0) {
+          const deletedList = result.deleted_users.map(u => `- ${u.name} (${u.email})`).join('\n');
+          alert(`✅ ${result.deleted_users.length} utilisateur(s) de test supprimé(s):\n\n${deletedList}`);
+        } else {
+          alert('✅ Aucun utilisateur de test trouvé');
         }
+        
+        // Recharger la liste
+        await fetchUsers();
+        await fetchStatistics();
+      } else {
+        const error = await response.json();
+        console.error('Erreur API:', error);
+        alert('Erreur: ' + (error.detail || 'Impossible de supprimer les utilisateurs'));
       }
-      
-      alert(`✅ ${deleted} utilisateur(s) de test supprimé(s) sur ${testUsers.length}`);
-      
-      // Recharger la liste
-      await fetchUsers();
       
     } catch (error) {
       console.error('Error deleting test users:', error);
