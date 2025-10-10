@@ -506,10 +506,17 @@ const ExcelImport = ({ user, onChangeView }) => {
                 📄 {file?.name} • {excelData.length} lignes
               </span>
               <button
-                onClick={() => setImportStep('mapping')}
-                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 shadow-lg transition-all duration-200"
+                onClick={() => {
+                  console.log('🔄 Moving to mapping step');
+                  console.log('📝 Headers available:', headers);
+                  console.log('📊 Data type:', dataType);
+                  console.log('🎯 Model fields:', dataModels[dataType]);
+                  setImportStep('mapping');
+                }}
+                disabled={headers.length === 0}
+                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Continuer
+                Continuer ({headers.length} colonnes détectées)
               </button>
             </div>
           </div>
