@@ -150,6 +150,18 @@ user_problem_statement: |
   5. Responsive Design: Check legend displays properly on different screen sizes
 
 backend:
+  - task: "Absence Import Module Enhancement - NEW EXCEL FORMAT"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "UPDATED IMPLEMENTATION: Modified absence import system to handle NEW Excel format with columns: NOM, PRENOM, Date Début, Jours Absence, Motif Absence, Notes. Updated Absence and ImportAbsence models to match new structure. Enhanced POST /api/import/absences endpoint to: 1) Match employees by NOM + PRENOM from users collection (case-insensitive regex search), 2) Skip lines without date_debut (with warnings), 3) Validate required fields (nom, prenom, motif_absence), 4) Store absences with employee_id, employee_name, email, date_debut, jours_absence, motif_absence, notes, 5) Return detailed error/warning reports with row numbers and suggestions. Added GET /api/absences endpoint (returns all for admin/manager, own for employees), GET /api/absences/{employee_id} (specific employee), DELETE /api/absences/{absence_id} (admin only). Frontend ExcelImport.js updated: 'planning' data model now uses nom/prenom instead of employee_name, maps to /api/import/absences endpoint correctly. User provided actual Excel file 'absences.xlsx' with employee data (Joël ADOLPHIN, Fabrice LOUBER, etc.) - ready for testing with real data."
+
   - task: "Excel Import Backend API Implementation"
     implemented: true
     working: true
