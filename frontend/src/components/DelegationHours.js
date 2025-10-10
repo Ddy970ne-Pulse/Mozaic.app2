@@ -135,8 +135,7 @@ const DelegationHours = ({ user }) => {
     loadDelegates();
     setUsageHistory(initialUsageHistory);
 
-    // Calculer les soldes initiaux
-    calculateBalances(initialDelegates, initialUsageHistory);
+    // Balances will be calculated after delegates are loaded from API
   }, []);
 
   // Fonction pour calculer les soldes d'heures
