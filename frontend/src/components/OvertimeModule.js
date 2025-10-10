@@ -1,128 +1,42 @@
-import React, { useState } from 'react';
-import { october2025OvertimeHours, october2025Recuperations, testEmployees } from '../shared/october2025TestData';
+import React, { useState, useEffect } from 'react';
 
 const OvertimeModule = ({ user }) => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [viewMode, setViewMode] = useState('summary');
   const [filterPeriod, setFilterPeriod] = useState('current-month');
-  const [isTestMode, setIsTestMode] = useState(false);
+  const [overtimeData, setOvertimeData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const overtimeData = [
-    {
-      id: 1,
-      name: 'Jean Dupont',
-      department: 'IT',
-      accumulated: 42.5,
-      recovered: 18.0,
-      balance: 24.5,
-      thisMonth: 12.5,
-      details: [
-        { date: '2024-01-08', hours: 3.5, type: 'accumulated', reason: 'Déploiement urgent' },
-        { date: '2024-01-12', hours: 4.0, type: 'accumulated', reason: 'Maintenance serveur' },
-        { date: '2024-01-15', hours: -8.0, type: 'recovered', reason: 'Récupération' },
-        { date: '2024-01-18', hours: 5.0, type: 'accumulated', reason: 'Formation équipe' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Marie Leblanc',
-      department: 'Commercial',
-      accumulated: 31.0,
-      recovered: 12.0,
-      balance: 19.0,
-      thisMonth: 8.5,
-      details: [
-        { date: '2024-01-05', hours: 2.5, type: 'accumulated', reason: 'Réunion client' },
-        { date: '2024-01-10', hours: 3.0, type: 'accumulated', reason: 'Présentation' },
-        { date: '2024-01-14', hours: -4.0, type: 'recovered', reason: 'Récupération' },
-        { date: '2024-01-20', hours: 3.0, type: 'accumulated', reason: 'Négociation contrat' }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Pierre Martin',
-      department: 'Finance',
-      accumulated: 28.5,
-      recovered: 20.0,
-      balance: 8.5,
-      thisMonth: 6.0,
-      details: [
-        { date: '2024-01-03', hours: 4.0, type: 'accumulated', reason: 'Clôture mensuelle' },
-        { date: '2024-01-11', hours: -8.0, type: 'recovered', reason: 'Récupération' },
-        { date: '2024-01-22', hours: 2.0, type: 'accumulated', reason: 'Audit interne' }
-      ]
-    },
-    {
-      id: 4,
-      name: 'Claire Dubois',
-      department: 'Marketing',
-      accumulated: 38.0,
-      recovered: 16.0,
-      balance: 22.0,
-      thisMonth: 10.0,
-      details: [
-        { date: '2024-01-07', hours: 3.0, type: 'accumulated', reason: 'Campagne publicitaire' },
-        { date: '2024-01-13', hours: 4.0, type: 'accumulated', reason: 'Événement marketing' },
-        { date: '2024-01-19', hours: 3.0, type: 'accumulated', reason: 'Shooting photo' }
-      ]
-    },
-    {
-      id: 5,
-      name: 'Lucas Bernard',
-      department: 'IT',
-      accumulated: 45.5,
-      recovered: 24.0,
-      balance: 21.5,
-      thisMonth: 15.5,
-      details: [
-        { date: '2024-01-02', hours: 5.0, type: 'accumulated', reason: 'Migration base de données' },
-        { date: '2024-01-09', hours: 4.5, type: 'accumulated', reason: 'Développement urgent' },
-        { date: '2024-01-16', hours: -8.0, type: 'recovered', reason: 'Récupération' },
-        { date: '2024-01-23', hours: 6.0, type: 'accumulated', reason: 'Correction bugs critiques' }
-      ]
+  // Load overtime data from backend
+  useEffect(() => {
+    fetchOvertimeData();
+  }, []);
+
+  const fetchOvertimeData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/overtime/all`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setOvertimeData(data);
+      } else {
+        console.error('Failed to fetch overtime data');
+        setOvertimeData([]);
+      }
+    } catch (error) {
+      console.error('Error fetching overtime data:', error);
+      setOvertimeData([]);
+    } finally {
+      setIsLoading(false);
     }
-  ];
-
-  // Générer les données de test d'octobre 2025
-  const generateOctober2025Data = () => {
-    return testEmployees.map(emp => {
-      // Heures supplémentaires pour cet employé
-      const empOvertimeHours = october2025OvertimeHours.filter(ot => ot.employeeId === emp.id);
-      const empRecuperations = october2025Recuperations.filter(rec => rec.employeeId === emp.id);
-      
-      const accumulated = empOvertimeHours.reduce((sum, ot) => sum + ot.hours, 0);
-      const recovered = empRecuperations.reduce((sum, rec) => sum + rec.hours, 0);
-      const balance = accumulated - recovered;
-      
-      return {
-        id: emp.id,
-        name: emp.name,
-        department: emp.department,
-        accumulated,
-        recovered,
-        balance,
-        thisMonth: accumulated, // Tout vient d'octobre 2025
-        details: [
-          ...empOvertimeHours.map(ot => ({
-            date: ot.date,
-            hours: ot.hours,
-            type: 'accumulated',
-            reason: ot.reason,
-            validated: ot.validated
-          })),
-          ...empRecuperations.map(rec => ({
-            date: rec.date,
-            hours: -rec.hours, // Négatif pour la récupération
-            type: 'recovered', 
-            reason: rec.reason,
-            validated: rec.validated
-          }))
-        ]
-      };
-    });
   };
 
-  const currentOvertimeData = isTestMode ? generateOctober2025Data() : overtimeData;
+  const currentOvertimeData = overtimeData;
   const departments = ['Tous', ...new Set(currentOvertimeData.map(emp => emp.department))];
   const [filterDept, setFilterDept] = useState('Tous');
 
