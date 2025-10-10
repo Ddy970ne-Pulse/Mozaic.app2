@@ -62,48 +62,42 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
 
   // Initialisation des employés par catégorie
   useEffect(() => {
-    const initialEmployees = [
-      { id: 1, name: 'Sophie Martin', category: 'Cadres de direction', absences: {}, totalAbsenceDays: 0 },
-      { id: 2, name: 'Jean Dupont', category: 'Personnels administratifs', absences: {}, totalAbsenceDays: 0 },
-      { id: 3, name: 'Marie Leblanc', category: 'Éducateurs spécialisés', absences: {}, totalAbsenceDays: 0 },
-      { id: 4, name: 'Pierre Moreau', category: 'Éducateurs techniques', absences: {}, totalAbsenceDays: 0 },
-      { id: 5, name: 'Claire Dubois', category: 'Personnels administratifs', absences: {}, totalAbsenceDays: 0 },
-      { id: 6, name: 'Lucas Bernard', category: 'Éducateurs spécialisés', absences: {}, totalAbsenceDays: 0 },
-      { id: 7, name: 'Emma Rousseau', category: 'Éducateurs techniques', absences: {}, totalAbsenceDays: 0 },
-      { id: 8, name: 'Thomas Petit', category: 'Cadres de direction', absences: {}, totalAbsenceDays: 0 }
-    ];
+    // Load real employees from database instead of hardcoded data
+    const loadEmployees = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
 
-    // Ajouter quelques données de test pour démonstration
-    const testData = [
-      { employeeId: 1, day: '3', code: 'CA' },
-      { employeeId: 1, day: '4', code: 'CA' },
-      { employeeId: 2, day: '8', code: 'REC' },
-      { employeeId: 3, day: '12', code: 'AM' },
-      { employeeId: 3, day: '13', code: 'AM' },
-      { employeeId: 6, day: '15', code: 'CT' },
-      { employeeId: 7, day: '22', code: 'TEL' },
-      { employeeId: 9, day: '25', code: 'MPRO' }
-    ];
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
-    const employeesWithData = initialEmployees.map(emp => {
-      const empAbsences = {};
-      let totalDays = 0;
-      
-      testData.forEach(test => {
-        if (test.employeeId === emp.id) {
-          empAbsences[test.day] = test.code;
-          totalDays++;
+        if (response.ok) {
+          const users = await response.json();
+          // Convert users to employee format for planning
+          const employeesData = users.map(user => ({
+            id: user.id,
+            name: user.name,
+            category: user.department || 'Non spécifié',
+            absences: {},
+            totalAbsenceDays: 0
+          }));
+          
+          setEmployees(employeesData);
+        } else {
+          console.error('Failed to load employees');
+          setEmployees([]); // Empty array if no data
         }
-      });
+      } catch (error) {
+        console.error('Error loading employees:', error);
+        setEmployees([]);
+      }
+    };
 
-      return {
-        ...emp,
-        absences: empAbsences,
-        totalAbsenceDays: totalDays
-      };
-    });
-
-    setEmployees(employeesWithData);
+    loadEmployees();
   }, []);
 
   // Synchro avec les demandes d'absence approuvées et les astreintes
