@@ -396,28 +396,28 @@ async def get_status_checks():
 # Authentication endpoints
 @api_router.post("/auth/login", response_model=LoginResponse)
 async def login(login_request: LoginRequest):
-    email = login_request.email
+    """Authenticate user against MongoDB"""
+    email = login_request.email.lower().strip()
     password = login_request.password
     
-    if email not in demo_users:
+    # Find user in MongoDB
+    user_data = await db.users.find_one({"email": email})
+    if not user_data:
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
-    user_data = demo_users[email]
-    if password != user_data["password"]:  # In production, use proper password hashing
+    # Check if user is active
+    if not user_data.get("is_active", True):
+        raise HTTPException(status_code=401, detail="Account is inactive")
+    
+    # Verify password
+    if not verify_password(password, user_data["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
     # Create token
     token = create_access_token(user_data["id"], user_data["email"], user_data["role"])
     
-    # Return user info and token
-    user = User(
-        id=user_data["id"],
-        name=user_data["name"],
-        email=user_data["email"], 
-        role=user_data["role"],
-        department=user_data["department"],
-        isDelegateCSE=user_data["isDelegateCSE"]
-    )
+    # Return user info and token (without password hash)
+    user = User(**{k: v for k, v in user_data.items() if k != "hashed_password"})
     
     return LoginResponse(token=token, user=user)
 
