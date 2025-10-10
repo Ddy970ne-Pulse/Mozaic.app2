@@ -381,7 +381,7 @@ async def get_status_checks():
 # Authentication endpoints
 @api_router.post("/auth/login", response_model=LoginResponse)
 async def login(login_request: LoginRequest):
-    """Authenticate user against MongoDB"""
+    """Authenticate user against MongoDB with temporary password handling"""
     email = login_request.email.lower().strip()
     password = login_request.password
     
@@ -394,14 +394,30 @@ async def login(login_request: LoginRequest):
     if not user_data.get("is_active", True):
         raise HTTPException(status_code=401, detail="Account is inactive")
     
+    # Check if temporary password has expired
+    temp_expires = user_data.get("temp_password_expires")
+    if temp_expires and is_temp_password_expired(temp_expires):
+        raise HTTPException(
+            status_code=401, 
+            detail="Temporary password has expired. Please contact administrator."
+        )
+    
     # Verify password
     if not verify_password(password, user_data["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    # Update last login
+    await db.users.update_one(
+        {"email": email}, 
+        {"$set": {"last_login": datetime.utcnow(), "first_login": False}}
+    )
     
     # Create token
     token = create_access_token(user_data["id"], user_data["email"], user_data["role"])
     
     # Return user info and token (without password hash)
+    user_data["last_login"] = datetime.utcnow()
+    user_data["first_login"] = False
     user = User(**{k: v for k, v in user_data.items() if k != "hashed_password"})
     
     return LoginResponse(token=token, user=user)
