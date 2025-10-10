@@ -1265,7 +1265,7 @@ async def import_employees(
                 
             except Exception as e:
                 errors.append({
-                    "row": i + 1,
+                    "row": str(i + 1),
                     "error": str(e)
                 })
         
@@ -1324,7 +1324,7 @@ async def import_absences(
                 
             except Exception as e:
                 errors.append({
-                    "row": i + 1,
+                    "row": str(i + 1),
                     "error": str(e)
                 })
         
@@ -1383,7 +1383,7 @@ async def import_work_hours(
                 
             except Exception as e:
                 errors.append({
-                    "row": i + 1,
+                    "row": str(i + 1),
                     "error": str(e)
                 })
         
