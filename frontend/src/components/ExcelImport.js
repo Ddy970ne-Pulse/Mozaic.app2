@@ -122,64 +122,78 @@ const ExcelImport = ({ user, onChangeView }) => {
     }));
   };
 
-  // Validation des données
-  const validateData = () => {
-    const model = dataModels[dataType];
-    const validRows = [];
-    const errorRows = [];
-    const warningRows = [];
-
-    excelData.forEach((row, index) => {
-      const rowErrors = [];
-      const rowWarnings = [];
-
-      // Vérifier les champs requis
-      model.requiredFields.forEach(field => {
-        const mappedColumn = columnMapping[field];
-        if (!mappedColumn || !row[mappedColumn] || String(row[mappedColumn]).trim() === '') {
-          rowErrors.push(`Champ requis manquant: ${field}`);
-        }
-      });
-
-      // Vérifier les règles de validation
-      Object.entries(model.validationRules).forEach(([field, rule]) => {
-        const mappedColumn = columnMapping[field];
-        const value = row[mappedColumn];
-        
-        if (value && String(value).trim() !== '') {
-          if (rule instanceof RegExp && !rule.test(String(value))) {
-            rowErrors.push(`Format invalide pour ${field}: ${value}`);
-          } else if (rule === 'date' && isNaN(Date.parse(value))) {
-            rowErrors.push(`Date invalide pour ${field}: ${value}`);
-          } else if (rule === 'number' && isNaN(Number(value))) {
-            rowErrors.push(`Nombre invalide pour ${field}: ${value}`);
+  // Validation des données via API
+  const validateData = async () => {
+    setIsProcessing(true);
+    
+    try {
+      // Préparer les données pour l'API
+      const mappedData = excelData.map(row => {
+        const mappedRow = {};
+        Object.entries(columnMapping).forEach(([field, column]) => {
+          if (column && row[column] !== undefined) {
+            mappedRow[field] = row[column];
           }
+        });
+        return mappedRow;
+      });
+
+      // Appel API pour validation
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/import/validate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          data_type: dataType,
+          data: mappedData
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur de validation: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      // Convertir les résultats de l'API au format attendu par l'UI
+      const validRows = [];
+      const errorRows = [];
+      const warningRows = [];
+
+      // Créer les lignes valides (celles sans erreurs)
+      mappedData.forEach((row, index) => {
+        const rowErrors = result.errors.filter(err => err.row === index + 1);
+        const rowWarnings = result.warnings.filter(warn => warn.row === index + 1);
+        
+        const rowData = { ...row, rowIndex: index + 1 };
+        
+        if (rowErrors.length > 0) {
+          errorRows.push({ 
+            ...rowData, 
+            errors: rowErrors.map(err => err.error || err.message)
+          });
+        } else if (rowWarnings.length > 0) {
+          warningRows.push({ 
+            ...rowData, 
+            warnings: rowWarnings.map(warn => warn.warning || warn.message)
+          });
+          validRows.push(rowData);
+        } else {
+          validRows.push(rowData);
         }
       });
 
-      // Vérifications spécifiques
-      if (dataType === 'employees' && row[columnMapping.email]) {
-        // Vérifier les doublons d'email
-        const emailCount = excelData.filter(r => r[columnMapping.email] === row[columnMapping.email]).length;
-        if (emailCount > 1) {
-          rowWarnings.push(`Email en doublon: ${row[columnMapping.email]}`);
-        }
-      }
-
-      const rowData = { ...row, rowIndex: index + 2 }; // +2 pour tenir compte de l'en-tête et index base 1
-
-      if (rowErrors.length > 0) {
-        errorRows.push({ ...rowData, errors: rowErrors });
-      } else if (rowWarnings.length > 0) {
-        warningRows.push({ ...rowData, warnings: rowWarnings });
-        validRows.push(rowData);
-      } else {
-        validRows.push(rowData);
-      }
-    });
-
-    setValidationResults({ valid: validRows, errors: errorRows, warnings: warningRows });
-    setImportStep('validation');
+      setValidationResults({ valid: validRows, errors: errorRows, warnings: warningRows });
+      setImportStep('validation');
+      
+    } catch (error) {
+      console.error('Erreur lors de la validation:', error);
+      alert('Erreur lors de la validation: ' + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Import final des données
