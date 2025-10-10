@@ -5,13 +5,7 @@ const Homepage = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const demoAccounts = [
-    { email: 'sophie.martin@company.com', password: 'demo123', name: 'Sophie Martin', role: 'admin', department: 'RH' },
-    { email: 'ddacalor@aaea-gpe.fr', password: 'admin123', name: 'DACALOR Diégo', role: 'admin', department: 'Direction' },
-    { email: 'jean.dupont@company.com', password: 'demo123', name: 'Jean Dupont', role: 'manager', department: 'IT' },
-    { email: 'marie.leblanc@company.com', password: 'demo123', name: 'Marie Leblanc', role: 'employee', department: 'Commercial', isDelegateCSE: true },
-    { email: 'pierre.cse@company.com', password: 'demo123', name: 'Pierre Moreau', role: 'employee', department: 'Production', isDelegateCSE: true }
-  ];
+  // No more hardcoded demo accounts - all users are managed via API
 
   const handleLogin = async (e) => {
     e.preventDefault();
