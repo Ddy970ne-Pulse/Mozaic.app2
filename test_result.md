@@ -103,9 +103,21 @@
 #====================================================================================================
 
 user_problem_statement: |
-  PHASE 1-2 COMPLETED: React loading and absence legend implementation completed ✅
+  PHASE 4 NEW: Excel Import Data Integration System Implementation
   
-  PHASE 3 NEW: Implementation of On-Call Management System (Gestion des Astreintes) with Monthly Planning integration:
+  Based on analyzed Excel file "Gestionnaire Absences CAVA.xlsx", implement backend and frontend logic to process and persist data from the four main sections:
+  1. Employee Data (13 columns): nom, prénom, email, département, etc.
+  2. Absence Data (5 columns): employé, date début, jours absence, motif absence
+  3. Work Hours Data (4 columns): employé, date, heures travaillées, notes
+  4. Settings: Configuration parameters
+  
+  USER REQUIREMENTS:
+  - Create new employee records (delete test accounts, create admin for DACALOR Diégo)
+  - Implement specific data validation rules
+  - Only admin can import data
+  - Connect parsed Excel data to backend APIs for database persistence
+  
+  PREVIOUS PHASES COMPLETED:
   
   ON-CALL MANAGEMENT FEATURES IMPLEMENTED:
   1. ✅ Complete On-Call Management module with CCN66 compliance
