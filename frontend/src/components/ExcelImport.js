@@ -302,15 +302,25 @@ const ExcelImport = ({ user, onChangeView }) => {
       console.log('📋 Column Mapping:', columnMapping);
       console.log('✅ Valid rows count:', validationResults.valid.length);
       console.log('📝 Première ligne valide:', validationResults.valid[0]);
+      console.log('🔑 Clés de la première ligne:', Object.keys(validationResults.valid[0] || {}));
       
       // Préparer les données pour l'API
-      const mappedData = validationResults.valid.map(row => {
+      const mappedData = validationResults.valid.map((row, idx) => {
         const mappedRow = {};
+        
+        console.log(`🔄 Mapping ligne ${idx + 1}:`, {
+          rowKeys: Object.keys(row),
+          columnMapping: columnMapping
+        });
+        
         Object.entries(columnMapping).forEach(([field, column]) => {
+          console.log(`   🔍 Field: ${field}, Column: ${column}, Value: ${row[column]}`);
           if (column && row[column] !== undefined) {
             mappedRow[field] = row[column];
           }
         });
+        
+        console.log(`   ✅ Résultat ligne ${idx + 1}:`, mappedRow);
         
         // Pour les absences et work_hours, mapper les noms d'employés
         if (dataType === 'absences' || dataType === 'work_hours') {
@@ -324,6 +334,7 @@ const ExcelImport = ({ user, onChangeView }) => {
       
       console.log('📊 Mapped data count:', mappedData.length);
       console.log('📝 Première ligne mappée:', mappedData[0]);
+      console.log('📝 Toutes les lignes mappées:', mappedData);
 
       // Déterminer l'endpoint selon le type de données
       let endpoint = '';
