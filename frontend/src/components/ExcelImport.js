@@ -19,11 +19,11 @@ const ExcelImport = ({ user, onChangeView }) => {
   const [importResults, setImportResults] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Fonction pour convertir les dates Excel en format ISO
+  // Fonction pour convertir les dates Excel en format français DD/MM/YYYY
   const excelDateToJSDate = (excelDate) => {
     if (!excelDate) return null;
     
-    // Si c'est déjà une chaîne de date, la retourner
+    // Si c'est déjà une chaîne de date au format français, la retourner
     if (typeof excelDate === 'string') {
       // Vérifier si c'est au format DD/MM/YYYY ou similaire
       if (excelDate.includes('/') || excelDate.includes('-')) {
@@ -37,11 +37,11 @@ const ExcelImport = ({ user, onChangeView }) => {
       const excelEpoch = new Date(1899, 11, 30); // 30 décembre 1899
       const date = new Date(excelEpoch.getTime() + excelDate * 86400000);
       
-      // Retourner au format YYYY-MM-DD
+      // Retourner au format français DD/MM/YYYY
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      return `${day}/${month}/${year}`;
     }
     
     return excelDate;
