@@ -1117,10 +1117,10 @@ async def reset_demo_accounts(current_user: User = Depends(require_admin_access)
         demo_users.clear()
         
         # Create DACALOR Diégo admin
-        demo_users["diego.dacalor@company.com"] = {
+        demo_users["ddacalor@aaea-gpe.fr"] = {
             "id": str(uuid.uuid4()),
             "name": "DACALOR Diégo",
-            "email": "diego.dacalor@company.com",
+            "email": "ddacalor@aaea-gpe.fr",
             "password": "admin123",
             "role": "admin",
             "department": "Direction",
