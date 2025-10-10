@@ -77,7 +77,7 @@ const DelegationHours = ({ user }) => {
     const loadDelegates = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (!token) return;
+        if (!token) return [];
 
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/delegation/delegates`, {
           headers: {
@@ -89,15 +89,16 @@ const DelegationHours = ({ user }) => {
         if (response.ok) {
           const delegatesData = await response.json();
           setDelegates(delegatesData);
-          // Calculate balances after loading both delegates and usage history
-          // We'll recalculate balances after usage history is loaded
+          return delegatesData;
         } else {
           console.error('Failed to load delegates');
           setDelegates([]); // Empty array if no data
+          return [];
         }
       } catch (error) {
         console.error('Error loading delegates:', error);
         setDelegates([]);
+        return [];
       }
     };
 
