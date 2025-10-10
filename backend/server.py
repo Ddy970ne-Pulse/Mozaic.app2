@@ -692,40 +692,24 @@ async def create_usage_record(usage_data: dict, current_user: User = Depends(get
 
 @api_router.get("/delegation/usage", response_model=List[dict])
 async def get_usage_history(current_user: User = Depends(get_current_user)):
-    # Mock usage history - in real implementation, fetch from database
-    mock_usage = [
-        {
-            "id": "1",
-            "delegateId": "1", 
-            "delegateName": "Marie Leblanc",
-            "date": "2024-01-15",
-            "hours": 2.5,
-            "activity": "Réunion CSE",
-            "description": "Réunion mensuelle du comité social et économique",
-            "status": "approved",
-            "approvedBy": "Sophie Martin",
-            "approvedDate": "2024-01-16"
-        },
-        {
-            "id": "2", 
-            "delegateId": "2",
-            "delegateName": "Pierre Moreau", 
-            "date": "2024-01-18",
-            "hours": 2.5,
-            "activity": "AM - Arrêt maladie",
-            "description": "Prise de connaissance de l'absence pour maladie",
-            "status": "acknowledged",
-            "approvedBy": "Sophie Martin",
-            "approvedDate": "2024-01-18",
-            "requiresAcknowledgment": True
-        }
-    ]
-    
-    # Filter based on user role
-    if current_user.role in ["admin", "manager"]:
-        return mock_usage
-    else:
-        return [u for u in mock_usage if u["delegateName"] == current_user.name]
+    # Get delegation usage from database
+    try:
+        query = {}
+        if current_user.role not in ["admin", "manager"]:
+            query["delegateName"] = current_user.name
+        
+        usage_records = await db.delegation_usage.find(query).to_list(1000)
+        
+        # Convert ObjectIds to strings for JSON serialization
+        for record in usage_records:
+            if "_id" in record:
+                del record["_id"]
+        
+        return usage_records
+        
+    except Exception as e:
+        print(f"Error getting delegation usage: {e}")
+        return []  # Return empty list if no data yet
 
 @api_router.get("/delegation/cessions", response_model=List[CessionRecord])
 async def get_cession_history(current_user: User = Depends(get_current_user)):
