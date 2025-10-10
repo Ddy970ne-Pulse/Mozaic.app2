@@ -880,61 +880,97 @@ const ExcelImport = ({ user, onChangeView }) => {
 
           {/* Détail des avertissements */}
           {validationResults.warnings.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border-2 border-yellow-400 p-6 mt-6">
-              <div className="flex items-center mb-4">
+            <div className="bg-yellow-50 rounded-xl shadow-lg border-2 border-yellow-400 p-6 mt-6">
+              <div className="flex items-center mb-6 bg-yellow-100 p-4 rounded-lg">
                 <div className="flex-shrink-0">
-                  <span className="text-4xl">⚠️</span>
+                  <span className="text-5xl">⚠️</span>
                 </div>
-                <div className="ml-3">
-                  <h3 className="text-xl font-bold text-yellow-700">
-                    {validationResults.warnings.length} Avertissement{validationResults.warnings.length > 1 ? 's' : ''} Détecté{validationResults.warnings.length > 1 ? 's' : ''}
+                <div className="ml-4">
+                  <h3 className="text-2xl font-bold text-yellow-800">
+                    {validationResults.warnings.length} Avertissement{validationResults.warnings.length > 1 ? 's' : ''} à Corriger
                   </h3>
-                  <p className="text-sm text-yellow-600">
-                    Ces lignes ont été importées mais peuvent nécessiter votre attention
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Corrigez ces problèmes dans votre fichier Excel avant de réimporter
                   </p>
                 </div>
               </div>
               
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-yellow-200">
-                  <thead className="bg-yellow-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Ligne</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Détails de l'Avertissement</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Données</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-yellow-200">
-                    {validationResults.warnings.map((row, index) => (
-                      <tr key={index} className="hover:bg-yellow-50 transition-colors">
-                        <td className="px-4 py-3 text-sm font-bold text-yellow-900">
-                          Ligne {row.rowIndex}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-yellow-800">
-                          <ul className="list-disc list-inside space-y-1">
-                            {row.warnings.map((warning, i) => (
-                              <li key={i} className="font-medium">{warning}</li>
+              <div className="space-y-4">
+                {validationResults.warnings.map((row, index) => (
+                  <div key={index} className="bg-white rounded-lg border-2 border-yellow-300 p-5 shadow-sm">
+                    {/* En-tête avec numéro de ligne */}
+                    <div className="flex items-start mb-3 pb-3 border-b border-yellow-200">
+                      <div className="flex-shrink-0 bg-yellow-400 text-white font-bold px-3 py-1 rounded text-sm">
+                        Ligne {row.rowIndex} dans Excel
+                      </div>
+                      <div className="ml-3 flex-1">
+                        <div className="text-lg font-bold text-gray-800">
+                          {row.data?.prenom || row.prenom || '?'} {row.data?.nom || row.nom || '?'}
+                        </div>
+                        {(row.data?.email || row.email) && (
+                          <div className="text-sm text-gray-600">
+                            📧 {row.data?.email || row.email}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Problèmes détectés */}
+                    <div className="mb-3">
+                      <div className="font-semibold text-yellow-800 mb-2">🔍 Problème(s) détecté(s):</div>
+                      <ul className="space-y-2">
+                        {row.warnings.map((warning, i) => (
+                          <li key={i} className="flex items-start bg-yellow-50 p-3 rounded">
+                            <span className="text-yellow-600 mr-2">•</span>
+                            <span className="text-gray-800 font-medium flex-1">{warning}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Données complètes pour référence */}
+                    <details className="mt-3">
+                      <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800 font-medium">
+                        📋 Voir toutes les données de cette ligne
+                      </summary>
+                      <div className="mt-2 bg-gray-50 p-3 rounded text-xs">
+                        <table className="w-full">
+                          <tbody>
+                            {Object.entries(row.data || row).filter(([key]) => 
+                              !['warnings', 'rowIndex'].includes(key)
+                            ).map(([key, value]) => (
+                              <tr key={key} className="border-b border-gray-200">
+                                <td className="py-1 pr-3 font-semibold text-gray-700">{key}:</td>
+                                <td className="py-1 text-gray-900">{String(value || '(vide)')}</td>
+                              </tr>
                             ))}
-                          </ul>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-gray-600">
-                          {row.data && (
-                            <div className="max-w-xs overflow-hidden">
-                              <pre className="text-xs bg-gray-50 p-2 rounded">
-                                {JSON.stringify(row.data, null, 2).substring(0, 200)}
-                              </pre>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          </tbody>
+                        </table>
+                      </div>
+                    </details>
+
+                    {/* Suggestion de correction */}
+                    <div className="mt-3 bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r">
+                      <div className="text-sm font-semibold text-blue-800 mb-1">💡 Comment corriger:</div>
+                      <div className="text-sm text-blue-700">
+                        1. Ouvrez votre fichier Excel<br/>
+                        2. Allez à la <strong>ligne {row.rowIndex}</strong> (ligne avec {row.data?.prenom || row.prenom} {row.data?.nom || row.nom})<br/>
+                        3. Corrigez les problèmes indiqués ci-dessus<br/>
+                        4. Enregistrez et réimportez le fichier
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
               
-              {validationResults.warnings.length > 10 && (
-                <div className="mt-4 text-center text-sm text-yellow-600 bg-yellow-50 py-2 rounded">
-                  Affichage des 10 premiers avertissements. Total: {validationResults.warnings.length}
+              {validationResults.warnings.length > 5 && (
+                <div className="mt-6 text-center p-4 bg-yellow-100 rounded-lg">
+                  <p className="text-yellow-800 font-semibold">
+                    📊 Total: {validationResults.warnings.length} avertissement{validationResults.warnings.length > 1 ? 's' : ''} à traiter
+                  </p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Prenez le temps de corriger chaque problème pour un import parfait
+                  </p>
                 </div>
               )}
             </div>
