@@ -847,42 +847,26 @@ class OnCallValidationResponse(BaseModel):
 # Absence Requests endpoints
 @api_router.get("/absence-requests", response_model=List[dict])
 async def get_absence_requests(current_user: User = Depends(get_current_user)):
-    # Mock absence requests data
-    mock_requests = [
-        {
-            "id": "1",
-            "employee": "Marie Leblanc",
-            "department": "Commercial",
-            "type": "RTT",
-            "startDate": "2024-02-15",
-            "endDate": "2024-02-15",
-            "duration": "1 jour",
-            "reason": "Rendez-vous médical",
-            "submittedDate": "2024-01-10",
-            "status": "pending"
-        },
-        {
-            "id": "2",
-            "employee": "Pierre Moreau",
-            "department": "Production",
-            "type": "AM",
-            "startDate": "2024-02-20",
-            "endDate": "2024-02-23",
-            "duration": "4 jours",
-            "reason": "Grippe saisonnière",
-            "submittedDate": "2024-01-08",
-            "status": "acknowledged",
-            "acknowledgedBy": "Sophie Martin",
-            "acknowledgedDate": "2024-01-08",
-            "requiresAcknowledgment": True
-        }
-    ]
-    
-    # Filter based on user role
-    if current_user.role in ["admin", "manager"]:
-        return mock_requests
-    else:
-        return [r for r in mock_requests if r["employee"] == current_user.name]
+    """Get absence requests from database"""
+    try:
+        # Build query based on user role
+        query = {}
+        if current_user.role not in ["admin", "manager"]:
+            query["employee"] = current_user.name
+        
+        # Get absence requests from MongoDB
+        requests = await db.absence_requests.find(query).to_list(1000)
+        
+        # Convert ObjectIds to strings for JSON serialization
+        for request in requests:
+            if "_id" in request:
+                del request["_id"]
+        
+        return requests
+        
+    except Exception as e:
+        print(f"Error getting absence requests: {e}")
+        return []  # Return empty list if no data yet
 
 @api_router.post("/absence-requests", response_model=AbsenceRequest)
 async def create_absence_request(request_data: dict, current_user: User = Depends(get_current_user)):
