@@ -34,52 +34,7 @@ security = HTTPBearer()
 # User Management - No more hardcoded demo data
 # Users will be stored in MongoDB with proper password hashing
 
-demo_delegates = [
-    {
-        "id": "1",
-        "employeeId": "3",
-        "name": "Marie Leblanc",
-        "department": "Commercial",
-        "type": "CSE",
-        "baseMonthlyHours": 15,
-        "reportedHours": 2.0,
-        "receivedHours": 0.0,
-        "cededHours": 0.0,
-        "cededFromBase": 0.0,
-        "cededFromReported": 0.0,
-        "usedFromReceived": 0.0,
-        "usedFromReported": 2.0,
-        "usedFromBase": 5.5,
-        "totalUsed": 7.5,
-        "availableHours": 9.5,
-        "startDate": "2024-01-01",
-        "endDate": "2024-12-31", 
-        "status": "active",
-        "lastActivity": "2024-01-15"
-    },
-    {
-        "id": "2",
-        "employeeId": "4",
-        "name": "Pierre Moreau",
-        "department": "Production", 
-        "type": "CSE",
-        "baseMonthlyHours": 15,
-        "reportedHours": 0.0,
-        "receivedHours": 0.0,
-        "cededHours": 3.0,
-        "cededFromBase": 3.0,
-        "cededFromReported": 0.0,
-        "usedFromReceived": 0.0,
-        "usedFromReported": 0.0,
-        "usedFromBase": 3.5,
-        "totalUsed": 3.5,
-        "availableHours": 8.5,
-        "startDate": "2024-01-01",
-        "endDate": "2024-12-31",
-        "status": "active", 
-        "lastActivity": "2024-01-18"
-    }
-]
+# Delegation data will be stored in MongoDB, no more hardcoded demo data
 
 demo_absence_types = [
     {"code": "AT", "name": "Accident du travail/Trajet", "category": "medical", "type": "Absentéisme", "counting_method": "Jours Calendaires", "requires_validation": True, "requires_acknowledgment": False},
