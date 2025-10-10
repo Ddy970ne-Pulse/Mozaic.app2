@@ -1490,6 +1490,108 @@ const UserManagement = ({ user }) => {
           </div>
         </div>
       )}
+
+      {/* Modal changement d'email */}
+      {showEmailChangeModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-lg w-full">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">✉️ Modifier l'adresse email</h2>
+              
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <span className="text-yellow-400">⚠️</span>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700">
+                      <strong>Attention :</strong> L'adresse email est l'identifiant de connexion de l'utilisateur.
+                      Le changement prendra effet immédiatement. L'utilisateur conservera son mot de passe actuel.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Utilisateur
+                </label>
+                <input
+                  type="text"
+                  value={selectedUser.name}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email actuel
+                </label>
+                <input
+                  type="email"
+                  value={selectedUser.email}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nouvel email
+                </label>
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="nouveau.email@example.com"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirmation de sécurité
+                </label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Tapez <strong>CONFIRMER</strong> pour valider le changement
+                </p>
+                <input
+                  type="text"
+                  value={emailChangeConfirmation}
+                  onChange={(e) => setEmailChangeConfirmation(e.target.value)}
+                  placeholder="CONFIRMER"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setShowEmailChangeModal(false);
+                    setNewEmail('');
+                    setEmailChangeConfirmation('');
+                  }}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={() => changeEmail(selectedUser.id, newEmail)}
+                  disabled={emailChangeConfirmation !== 'CONFIRMER' || !newEmail}
+                  className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+                    emailChangeConfirmation === 'CONFIRMER' && newEmail
+                      ? 'bg-teal-500 text-white hover:bg-teal-600'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  ✉️ Modifier l'email
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
