@@ -317,6 +317,314 @@ class BackendTester:
             
         self.results["monthly_planning"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["monthly_planning"]["details"]) else "fail"
 
+    def test_excel_import_functionality(self, auth_token=None):
+        """Test Excel import backend functionality comprehensively"""
+        print("\n=== Testing Excel Import Backend Functionality ===")
+        
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
+        
+        # Test data samples as specified in review request
+        valid_employee_data = [
+            {
+                "nom": "Test",
+                "prenom": "User", 
+                "email": "test@example.com",
+                "departement": "IT"
+            }
+        ]
+        
+        invalid_employee_data = [
+            {
+                "nom": "Test",
+                "prenom": "User"
+                # Missing email and departement
+            }
+        ]
+        
+        valid_absence_data = [
+            {
+                "employee_name": "Test User",
+                "date_debut": "2025-01-15",
+                "jours_absence": "5",
+                "motif_absence": "CA"
+            }
+        ]
+        
+        valid_work_hours_data = [
+            {
+                "employee_name": "Test User",
+                "date": "2025-01-15",
+                "heures_travaillees": 8.0
+            }
+        ]
+        
+        # 1. Test Admin Access Control - All 5 import endpoints with admin token
+        import_endpoints = [
+            "/import/validate",
+            "/import/employees", 
+            "/import/absences",
+            "/import/work-hours",
+            "/import/reset-demo",
+            "/import/statistics"
+        ]
+        
+        print("\n--- Testing Admin Access Control ---")
+        for endpoint in import_endpoints:
+            try:
+                if endpoint == "/import/statistics":
+                    # GET endpoint
+                    response = requests.get(f"{API_URL}{endpoint}", headers=headers, timeout=10)
+                elif endpoint == "/import/reset-demo":
+                    # POST endpoint without data
+                    response = requests.post(f"{API_URL}{endpoint}", headers=headers, timeout=10)
+                else:
+                    # POST endpoints with test data
+                    test_data = {
+                        "data_type": "employees",
+                        "data": valid_employee_data
+                    }
+                    response = requests.post(f"{API_URL}{endpoint}", json=test_data, headers=headers, timeout=10)
+                
+                if response.status_code in [200, 201]:
+                    self.log_result("excel_import", True, f"✅ Admin access to {endpoint} works (status: {response.status_code})")
+                elif response.status_code == 401:
+                    self.log_result("excel_import", False, f"❌ {endpoint} returned 401 with admin token")
+                elif response.status_code == 403:
+                    self.log_result("excel_import", False, f"❌ {endpoint} returned 403 with admin token")
+                else:
+                    self.log_result("excel_import", False, f"❌ {endpoint} returned unexpected status: {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("excel_import", False, f"❌ Error testing {endpoint}: {str(e)}")
+        
+        # 2. Test endpoints without token (should get 401)
+        print("\n--- Testing Access Control Without Token ---")
+        for endpoint in import_endpoints[:4]:  # Skip reset-demo and statistics for this test
+            try:
+                test_data = {
+                    "data_type": "employees", 
+                    "data": valid_employee_data
+                }
+                response = requests.post(f"{API_URL}{endpoint}", json=test_data, timeout=10)
+                
+                if response.status_code == 401:
+                    self.log_result("excel_import", True, f"✅ {endpoint} correctly returns 401 without token")
+                else:
+                    self.log_result("excel_import", False, f"❌ {endpoint} should return 401 without token, got {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("excel_import", False, f"❌ Error testing {endpoint} without token: {str(e)}")
+        
+        # 3. Test Demo Account Reset & Admin Creation
+        print("\n--- Testing Demo Account Reset ---")
+        try:
+            response = requests.post(f"{API_URL}/import/reset-demo", headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') and 'new_admin' in data:
+                    new_admin = data['new_admin']
+                    expected_email = "diego.dacalor@company.com"
+                    expected_password = "admin123"
+                    
+                    if (new_admin.get('email') == expected_email and 
+                        new_admin.get('password') == expected_password):
+                        self.log_result("excel_import", True, f"✅ Demo reset creates DACALOR Diego admin correctly")
+                    else:
+                        self.log_result("excel_import", False, f"❌ Demo reset admin credentials incorrect")
+                else:
+                    self.log_result("excel_import", False, f"❌ Demo reset response missing required fields")
+            else:
+                self.log_result("excel_import", False, f"❌ Demo reset returned {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing demo reset: {str(e)}")
+        
+        # 4. Test Data Validation System
+        print("\n--- Testing Data Validation System ---")
+        
+        # Test valid employee data validation
+        try:
+            validation_request = {
+                "data_type": "employees",
+                "data": valid_employee_data
+            }
+            response = requests.post(f"{API_URL}/import/validate", json=validation_request, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') == True and data.get('failed_imports') == 0:
+                    self.log_result("excel_import", True, f"✅ Valid employee data validation passes")
+                else:
+                    self.log_result("excel_import", False, f"❌ Valid employee data validation failed")
+            else:
+                self.log_result("excel_import", False, f"❌ Employee validation returned {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing employee validation: {str(e)}")
+        
+        # Test invalid employee data validation
+        try:
+            validation_request = {
+                "data_type": "employees",
+                "data": invalid_employee_data
+            }
+            response = requests.post(f"{API_URL}/import/validate", json=validation_request, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') == False and len(data.get('errors', [])) > 0:
+                    errors = data.get('errors', [])
+                    required_field_errors = [e for e in errors if 'email' in e.get('error', '') or 'departement' in e.get('error', '')]
+                    if required_field_errors:
+                        self.log_result("excel_import", True, f"✅ Invalid employee data validation catches missing required fields")
+                    else:
+                        self.log_result("excel_import", False, f"❌ Validation didn't catch missing required fields")
+                else:
+                    self.log_result("excel_import", False, f"❌ Invalid employee data should fail validation")
+            else:
+                self.log_result("excel_import", False, f"❌ Employee validation returned {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing invalid employee validation: {str(e)}")
+        
+        # Test absence data validation
+        try:
+            validation_request = {
+                "data_type": "absences",
+                "data": valid_absence_data
+            }
+            response = requests.post(f"{API_URL}/import/validate", json=validation_request, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') == True:
+                    self.log_result("excel_import", True, f"✅ Absence data validation works")
+                else:
+                    self.log_result("excel_import", False, f"❌ Valid absence data validation failed")
+            else:
+                self.log_result("excel_import", False, f"❌ Absence validation returned {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing absence validation: {str(e)}")
+        
+        # Test work hours validation
+        try:
+            validation_request = {
+                "data_type": "work_hours",
+                "data": valid_work_hours_data
+            }
+            response = requests.post(f"{API_URL}/import/validate", json=validation_request, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') == True:
+                    self.log_result("excel_import", True, f"✅ Work hours data validation works")
+                else:
+                    self.log_result("excel_import", False, f"❌ Valid work hours data validation failed")
+            else:
+                self.log_result("excel_import", False, f"❌ Work hours validation returned {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing work hours validation: {str(e)}")
+        
+        # 5. Test Import Endpoints Functionality
+        print("\n--- Testing Import Endpoints ---")
+        
+        # Test employee import
+        try:
+            import_request = {
+                "data_type": "employees",
+                "data": valid_employee_data,
+                "overwrite_existing": False
+            }
+            response = requests.post(f"{API_URL}/import/employees", json=import_request, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') and data.get('successful_imports') > 0:
+                    self.log_result("excel_import", True, f"✅ Employee import creates database records")
+                else:
+                    self.log_result("excel_import", False, f"❌ Employee import failed to create records")
+            else:
+                self.log_result("excel_import", False, f"❌ Employee import returned {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing employee import: {str(e)}")
+        
+        # Test absence import
+        try:
+            import_request = {
+                "data_type": "absences",
+                "data": valid_absence_data,
+                "overwrite_existing": False
+            }
+            response = requests.post(f"{API_URL}/import/absences", json=import_request, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') and data.get('successful_imports') >= 0:  # May be 0 if employee not found
+                    self.log_result("excel_import", True, f"✅ Absence import endpoint functional")
+                else:
+                    self.log_result("excel_import", False, f"❌ Absence import failed")
+            else:
+                self.log_result("excel_import", False, f"❌ Absence import returned {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing absence import: {str(e)}")
+        
+        # Test work hours import
+        try:
+            import_request = {
+                "data_type": "work_hours",
+                "data": valid_work_hours_data,
+                "overwrite_existing": False
+            }
+            response = requests.post(f"{API_URL}/import/work-hours", json=import_request, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') and data.get('successful_imports') >= 0:  # May be 0 if employee not found
+                    self.log_result("excel_import", True, f"✅ Work hours import endpoint functional")
+                else:
+                    self.log_result("excel_import", False, f"❌ Work hours import failed")
+            else:
+                self.log_result("excel_import", False, f"❌ Work hours import returned {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing work hours import: {str(e)}")
+        
+        # 6. Test Statistics & Monitoring
+        print("\n--- Testing Statistics & Monitoring ---")
+        try:
+            response = requests.get(f"{API_URL}/import/statistics", headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                required_fields = ['employees', 'absences', 'work_hours', 'total_records']
+                if all(field in data for field in required_fields):
+                    self.log_result("excel_import", True, f"✅ Statistics endpoint returns proper counts: {data}")
+                else:
+                    self.log_result("excel_import", False, f"❌ Statistics missing required fields")
+            else:
+                self.log_result("excel_import", False, f"❌ Statistics endpoint returned {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing statistics: {str(e)}")
+        
+        # 7. Test Error Handling
+        print("\n--- Testing Error Handling ---")
+        
+        # Test malformed JSON
+        try:
+            response = requests.post(
+                f"{API_URL}/import/validate", 
+                data="invalid json", 
+                headers={**headers, "Content-Type": "application/json"}, 
+                timeout=10
+            )
+            if response.status_code == 422:  # FastAPI validation error
+                self.log_result("excel_import", True, f"✅ Malformed JSON returns proper error (422)")
+            else:
+                self.log_result("excel_import", False, f"❌ Malformed JSON should return 422, got {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing malformed JSON: {str(e)}")
+        
+        # Test missing Authorization header
+        try:
+            test_data = {"data_type": "employees", "data": valid_employee_data}
+            response = requests.post(f"{API_URL}/import/validate", json=test_data, timeout=10)
+            if response.status_code == 401:
+                self.log_result("excel_import", True, f"✅ Missing auth header returns 401")
+            else:
+                self.log_result("excel_import", False, f"❌ Missing auth should return 401, got {response.status_code}")
+        except Exception as e:
+            self.log_result("excel_import", False, f"❌ Error testing missing auth: {str(e)}")
+        
+        self.results["excel_import"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["excel_import"]["details"]) else "fail"
+
     def run_all_tests(self):
         """Run all backend tests"""
         print(f"Starting MOZAIK RH Backend Tests - Focus on Monthly Planning & Print Support")
