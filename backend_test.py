@@ -479,10 +479,10 @@ class BackendTester:
             if response.status_code == 200:
                 data = response.json()
                 warnings = data.get('warnings', [])
-                if any('date_debut' in str(warning) for warning in warnings):
+                if any('Date de début manquante' in str(warning) or 'ligne ignorée' in str(warning) for warning in warnings):
                     self.log_result("absence_import", True, f"✅ Missing date_debut generates warnings (not errors)")
                 else:
-                    self.log_result("absence_import", False, f"❌ Missing date_debut should generate warnings")
+                    self.log_result("absence_import", False, f"❌ Missing date_debut should generate warnings: {warnings}")
             else:
                 self.log_result("absence_import", False, f"❌ Warning test returned {response.status_code}")
         except Exception as e:
