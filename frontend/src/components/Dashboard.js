@@ -237,10 +237,10 @@ const Dashboard = ({ user, onChangeView }) => {
             <h3 className="font-bold text-emerald-900 mb-4">🎉 Félicitations</h3>
             <div className="space-y-2">
               <p className="text-sm text-emerald-800">
-                <strong>Sophie Martin</strong> fête ses 5 ans dans l'entreprise !
+                <strong>MOZAIK RH</strong> système mis en production avec succès !
               </p>
               <p className="text-sm text-emerald-800">
-                <strong>Équipe Dev</strong> a atteint 100% de satisfaction client ce mois-ci.
+                <strong>Gestion complète</strong> des ressources humaines opérationnelle.
               </p>
             </div>
           </div>
