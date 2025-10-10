@@ -58,39 +58,154 @@ const UserManagement = ({ user }) => {
     }
   };
 
-  // Mock audit logs
-  const mockAuditLogs = [
-    {
-      id: '1',
-      timestamp: '2024-01-25 14:30:25',
-      action: 'USER_UPDATE',
-      userId: '3',
-      userName: 'Marie Leblanc',
-      performedBy: 'Sophie Martin',
-      details: 'Changement département: Commercial → Éducatif',
-      ipAddress: '192.168.1.100'
-    },
-    {
-      id: '2',
-      timestamp: '2024-01-24 09:15:10',
-      action: 'PASSWORD_RESET',
-      userId: '4',
-      userName: 'Pierre Moreau',
-      performedBy: 'Sophie Martin',
-      details: 'Réinitialisation mot de passe - Demande utilisateur',
-      ipAddress: '192.168.1.100'
-    },
-    {
-      id: '3',
-      timestamp: '2024-01-23 16:45:30',
-      action: 'PERMISSION_CHANGE',
-      userId: '2',
-      userName: 'Jean Dupont',
-      performedBy: 'Sophie Martin',
-      details: 'Ajout permission: analytics_access',
-      ipAddress: '192.168.1.100'
+  // API functions
+  const getAuthHeaders = () => ({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('token')}`
+  });
+
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users`, {
+        headers: getAuthHeaders()
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      } else {
+        console.error('Failed to fetch users');
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  const fetchStatistics = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/stats/overview`, {
+        headers: getAuthHeaders()
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setStatistics(data);
+      }
+    } catch (error) {
+      console.error('Error fetching statistics:', error);
+    }
+  };
+
+  const createUser = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(newUser)
+      });
+
+      if (response.ok) {
+        const createdUser = await response.json();
+        setUsers([...users, createdUser]);
+        setShowCreateModal(false);
+        setNewUser({
+          name: '', email: '', password: '', role: 'employee', department: '',
+          phone: '', position: '', hire_date: '', isDelegateCSE: false
+        });
+        alert('Utilisateur créé avec succès !');
+        fetchStatistics();
+      } else {
+        const error = await response.json();
+        alert('Erreur: ' + error.detail);
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+      alert('Erreur lors de la création de l\'utilisateur');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateUser = async (userId, userData) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(userData)
+      });
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setUsers(users.map(u => u.id === userId ? updatedUser : u));
+        alert('Utilisateur modifié avec succès !');
+      } else {
+        const error = await response.json();
+        alert('Erreur: ' + error.detail);
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('Erreur lors de la modification');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteUser = async (userId) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir désactiver cet utilisateur ?')) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+
+      if (response.ok) {
+        setUsers(users.filter(u => u.id !== userId));
+        alert('Utilisateur désactivé avec succès !');
+        fetchStatistics();
+      } else {
+        const error = await response.json();
+        alert('Erreur: ' + error.detail);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Erreur lors de la désactivation');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetPassword = async (userId, newPassword) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/reset-password`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ new_password: newPassword })
+      });
+
+      if (response.ok) {
+        alert('Mot de passe réinitialisé avec succès !');
+        setShowPasswordReset(false);
+      } else {
+        const error = await response.json();
+        alert('Erreur: ' + error.detail);
+      }
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      alert('Erreur lors de la réinitialisation');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Données d'exemple des utilisateurs étendues
   const mockUsers = [
