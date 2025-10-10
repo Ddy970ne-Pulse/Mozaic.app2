@@ -1614,6 +1614,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def startup_db_init():
+    """Initialize database with default admin user"""
+    await initialize_admin_user()
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
