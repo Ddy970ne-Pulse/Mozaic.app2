@@ -674,6 +674,42 @@ async def change_user_email(user_id: str, email_data: dict, current_user: User =
     updated_user = await db.users.find_one({"id": user_id})
     return User(**updated_user)
 
+@api_router.delete("/users/cleanup/test-users")
+async def cleanup_test_users(current_user: User = Depends(get_current_user)):
+    """Delete all test users (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Patterns de test à supprimer
+    test_patterns = ['test', 'example', 'User Test', 'testemp', 'Marie Dupont', 'marie.dupont']
+    
+    # Récupérer tous les utilisateurs
+    all_users = await db.users.find({}).to_list(length=1000)
+    
+    deleted_users = []
+    for user in all_users:
+        email = user.get('email', '').lower()
+        name = user.get('name', '').lower()
+        
+        # Vérifier si c'est un utilisateur de test
+        is_test = False
+        for pattern in test_patterns:
+            if pattern.lower() in email or pattern.lower() in name:
+                is_test = True
+                break
+        
+        if is_test:
+            await db.users.delete_one({"_id": user["_id"]})
+            deleted_users.append({
+                "name": user.get('name'),
+                "email": user.get('email')
+            })
+    
+    return {
+        "message": f"{len(deleted_users)} test user(s) deleted",
+        "deleted_users": deleted_users
+    }
+
 @api_router.get("/users/stats/overview")
 async def get_user_statistics(current_user: User = Depends(get_current_user)):
     """Get user statistics overview (admin/manager only)"""
