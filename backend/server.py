@@ -1402,24 +1402,45 @@ async def validate_import_data(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Validation error: {str(e)}")
 
-@api_router.post("/import/employees", response_model=ImportResult)
+@api_router.post("/import/employees", response_model=dict)
 async def import_employees(
     request: ImportDataRequest,
     current_user: User = Depends(require_admin_access)
 ):
-    """Import employee data from Excel"""
+    """Import employee data from Excel and create user accounts automatically"""
     errors = []
     warnings = []
     successful_imports = 0
+    created_users = []
     
     try:
         for i, employee_data in enumerate(request.data):
             try:
-                # Create employee object
+                email = employee_data.get('email', '').lower().strip()
+                nom = employee_data.get('nom', '').strip()
+                prenom = employee_data.get('prenom', '').strip()
+                
+                if not email or not nom or not prenom:
+                    errors.append({
+                        "row": i + 1,
+                        "error": "Email, nom et prénom sont obligatoires"
+                    })
+                    continue
+                
+                # Check if user already exists
+                existing_user = await db.users.find_one({"email": email})
+                if existing_user:
+                    warnings.append({
+                        "row": i + 1,
+                        "warning": f"Utilisateur {email} existe déjà - données mises à jour"
+                    })
+                    continue
+                
+                # Create employee record
                 employee = ImportEmployee(
-                    nom=employee_data.get('nom', ''),
-                    prenom=employee_data.get('prenom', ''),
-                    email=employee_data.get('email', ''),
+                    nom=nom,
+                    prenom=prenom,
+                    email=email,
                     date_naissance=employee_data.get('date_naissance'),
                     sexe=employee_data.get('sexe'),
                     categorie_employe=employee_data.get('categorie_employe'),
@@ -1435,25 +1456,59 @@ async def import_employees(
                     created_by=current_user.name
                 )
                 
-                # Store in MongoDB
+                # Generate temporary password
+                temp_password = generate_temp_password()
+                temp_expires = datetime.utcnow().replace(tzinfo=timezone.utc) + timedelta(days=7)
+                
+                # Create user account automatically
+                user_account = UserInDB(
+                    name=f"{prenom} {nom}",
+                    email=email,
+                    role="employee",  # Default role
+                    department=employee_data.get('departement', 'Non spécifié'),
+                    phone=employee_data.get('telephone'),
+                    position=employee_data.get('fonction'),
+                    hire_date=employee_data.get('date_debut_contrat'),
+                    isDelegateCSE=False,  # Default, can be updated later
+                    hashed_password=hash_password(temp_password),
+                    requires_password_change=True,
+                    first_login=True,
+                    temp_password_expires=temp_expires,
+                    created_by=current_user.name
+                )
+                
+                # Store both employee and user records
                 await db.employees.insert_one(employee.dict())
+                await db.users.insert_one(user_account.dict())
+                
+                # Track created user info for admin
+                created_users.append({
+                    "name": f"{prenom} {nom}",
+                    "email": email,
+                    "temp_password": temp_password,
+                    "expires_at": temp_expires.isoformat(),
+                    "department": employee_data.get('departement', 'Non spécifié')
+                })
+                
                 successful_imports += 1
                 
             except Exception as e:
                 errors.append({
-                    "row": str(i + 1),
-                    "error": str(e)
+                    "row": i + 1,
+                    "error": f"Erreur lors de la création de l'employé/utilisateur: {str(e)}"
                 })
         
-        return ImportResult(
-            success=len(errors) == 0,
-            total_processed=len(request.data),
-            successful_imports=successful_imports,
-            failed_imports=len(errors),
-            errors=errors,
-            warnings=warnings,
-            data_type="employees"
-        )
+        return {
+            "success": len(errors) == 0,
+            "total_processed": len(request.data),
+            "successful_imports": successful_imports,
+            "failed_imports": len(errors),
+            "errors": errors,
+            "warnings": warnings,
+            "data_type": "employees",
+            "created_users": created_users,
+            "message": f"{successful_imports} employés importés avec création automatique des comptes utilisateurs"
+        }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Import error: {str(e)}")
