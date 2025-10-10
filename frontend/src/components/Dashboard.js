@@ -232,19 +232,19 @@ const Dashboard = ({ user, onChangeView }) => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Présents</span>
-                <span className="font-semibold text-emerald-600">142</span>
+                <span className="font-semibold text-emerald-600">{stats[0].value}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">En congés</span>
-                <span className="font-semibold text-blue-600">12</span>
+                <span className="font-semibold text-blue-600">0</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">En remote</span>
-                <span className="font-semibold text-purple-600">28</span>
+                <span className="font-semibold text-purple-600">0</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Astreintes</span>
-                <span className="font-semibold text-orange-600">4</span>
+                <span className="font-semibold text-orange-600">0</span>
               </div>
             </div>
           </div>
