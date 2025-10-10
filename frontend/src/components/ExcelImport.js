@@ -10,7 +10,7 @@ const ExcelImport = ({ user, onChangeView }) => {
   const [columnMapping, setColumnMapping] = useState({});
   
   // Debug useEffect to track headers state
-  React.useEffect(() => {
+  useEffect(() => {
     console.log('🔍 Headers state changed:', headers);
     console.log('🔍 Headers length:', headers.length);
     console.log('🔍 Current import step:', importStep);
