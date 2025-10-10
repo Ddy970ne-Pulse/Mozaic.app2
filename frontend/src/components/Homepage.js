@@ -93,20 +93,15 @@ const Homepage = ({ onLogin }) => {
             </button>
           </form>
 
-          {/* Comptes de démonstration */}
+          {/* Information système */}
           <div className="mt-8 pt-6 border-t border-white/20">
-            <p className="text-white/80 text-sm text-center mb-4">Comptes de démonstration :</p>
-            <div className="space-y-2">
-              {demoAccounts.map((account, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleDemoLogin(account)}
-                  className="w-full text-left px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/90 text-sm transition-all duration-200"
-                >
-                  <div className="font-medium">{account.name}</div>
-                  <div className="text-white/60 text-xs">{account.role} • {account.department}</div>
-                </button>
-              ))}
+            <div className="text-center">
+              <p className="text-white/80 text-sm mb-2">
+                🏢 MOZAIK RH - Système de Gestion des Ressources Humaines
+              </p>
+              <p className="text-white/60 text-xs">
+                Connectez-vous avec vos identifiants d'entreprise
+              </p>
             </div>
           </div>
         </div>
