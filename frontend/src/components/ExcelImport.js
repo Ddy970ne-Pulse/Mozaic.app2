@@ -108,11 +108,11 @@ const ExcelImport = ({ user, onChangeView }) => {
       }
     },
     planning: {
-      name: 'Données Absences (5 colonnes)',
+      name: 'Données Absences (6 colonnes)',
       icon: '📅',
       color: 'from-green-500 to-green-600',
-      requiredFields: ['employee_name', 'date_debut', 'jours_absence', 'motif_absence'],
-      optionalFields: [],
+      requiredFields: ['nom', 'prenom', 'motif_absence'],
+      optionalFields: ['date_debut', 'jours_absence', 'notes'],
       validationRules: {
         date_debut: 'date',
         jours_absence: 'number'
