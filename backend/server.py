@@ -1156,7 +1156,7 @@ async def validate_import_data(
                 for field in required_fields:
                     if not employee_data.get(field):
                         errors.append({
-                            "row": i + 1,
+                            "row": str(i + 1),
                             "field": field,
                             "error": f"Champ requis manquant: {field}"
                         })
@@ -1185,7 +1185,7 @@ async def validate_import_data(
                 for field in required_fields:
                     if not absence_data.get(field):
                         errors.append({
-                            "row": i + 1,
+                            "row": str(i + 1),
                             "field": field,
                             "error": f"Champ requis manquant: {field}"
                         })
@@ -1196,7 +1196,7 @@ async def validate_import_data(
                 for field in required_fields:
                     if not work_data.get(field):
                         errors.append({
-                            "row": i + 1,
+                            "row": str(i + 1),
                             "field": field,
                             "error": f"Champ requis manquant: {field}"
                         })
@@ -1208,7 +1208,7 @@ async def validate_import_data(
                         float(hours)
                     except (ValueError, TypeError):
                         errors.append({
-                            "row": i + 1,
+                            "row": str(i + 1),
                             "field": "heures_travaillees",
                             "error": f"Valeur numérique attendue pour les heures: {hours}"
                         })
