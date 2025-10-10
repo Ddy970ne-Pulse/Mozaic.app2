@@ -368,6 +368,66 @@ class ImportSettings(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
 
+# ========================================
+# CSE MANAGEMENT MODELS
+# ========================================
+
+class CSEDelegate(BaseModel):
+    """Modèle pour les délégués CSE (titulaires et suppléants)"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str  # UUID de l'utilisateur
+    user_name: str  # Nom pour affichage
+    email: str
+    statut: str  # "titulaire" ou "suppléant"
+    heures_mensuelles: int = 24  # Heures allouées par mois (défaut pour +250 salariés)
+    college: str  # "cadres", "employes", "ouvriers"
+    date_debut: str  # Date de début du mandat
+    date_fin: Optional[str] = None  # Date de fin du mandat (optionnel)
+    actif: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str
+    updated_at: Optional[datetime] = None
+
+class DelegationHoursDeclaration(BaseModel):
+    """Déclaration d'heures de délégation par un délégué"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    delegate_id: str  # ID du délégué CSE
+    delegate_name: str
+    date: str  # Date d'utilisation (YYYY-MM-DD)
+    heures_utilisees: float  # Nombre d'heures utilisées
+    motif: str  # Motif/description de l'utilisation
+    statut: str = "declared"  # "declared" ou "acknowledged"
+    acknowledged_by: Optional[str] = None  # Qui a pris connaissance
+    acknowledged_at: Optional[datetime] = None
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class HoursCession(BaseModel):
+    """Cession d'heures entre délégués"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    cedant_id: str  # ID du délégué qui cède
+    cedant_name: str
+    beneficiaire_id: str  # ID du délégué bénéficiaire
+    beneficiaire_name: str
+    heures_cedees: float
+    mois: str  # Mois concerné (YYYY-MM)
+    motif: Optional[str] = None
+    statut: str = "pending"  # "pending", "acknowledged", "refused"
+    validated_by: Optional[str] = None
+    validated_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str
+
+class CSEStatistics(BaseModel):
+    """Statistiques CSE"""
+    total_delegates: int
+    titulaires: int
+    suppleants: int
+    heures_utilisees_mois: float
+    heures_allouees_mois: float
+    taux_utilisation: float
+    cessions_en_attente: int
+
 # Event Management Models
 class Event(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
