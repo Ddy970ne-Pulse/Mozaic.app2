@@ -17,58 +17,8 @@ const MonthlyPlanning = ({ user }) => {
   const [legendView, setLegendView] = useState('compact'); // 'compact' or 'detailed'
   const [showPrintOptions, setShowPrintOptions] = useState(false);
 
-  const employees = [
-    { 
-      id: 1, name: 'Sophie Martin', department: 'Direction', site: 'Siège', category: 'Cadre Supérieur', 
-      contract: 'CDI - Cadre', gender: 'Femme', workTime: 'Temps Plein', job: 'Directrice RH',
-      absences: { '3': 'CA', '4': 'CA', '17': 'REC', '24': 'AM' } 
-    },
-    { 
-      id: 2, name: 'Jean Dupont', department: 'Administratif', site: 'Siège', category: 'Cadre', 
-      contract: 'CDI - Cadre', gender: 'Homme', workTime: 'Temps Plein', job: 'Responsable IT',
-      absences: { '10': 'CA', '11': 'CA', '12': 'CA', '25': 'DEL' } 
-    },
-    { 
-      id: 3, name: 'Marie Leblanc', department: 'Commercial', site: 'Pôle Éducatif', category: 'Employé Qualifié', 
-      contract: 'CDI - Non Cadre', gender: 'Femme', workTime: 'Temps Plein', job: 'Commerciale',
-      absences: { '8': 'REC', '22': 'CA', '23': 'CA', '14': 'RMED' } 
-    },
-    { 
-      id: 4, name: 'Pierre Martin', department: 'Comptable', site: 'Siège', category: 'Technicien', 
-      contract: 'CDI - Non Cadre', gender: 'Homme', workTime: 'Temps Partiel', job: 'Comptable',
-      absences: { '5': 'AM', '15': 'CA', '16': 'CA', '29': 'REC' } 
-    },
-    { 
-      id: 5, name: 'Claire Dubois', department: 'Éducatif', site: 'Pôle Éducatif', category: 'Employé Qualifié', 
-      contract: 'CDD - Non Cadre', gender: 'Femme', workTime: 'Temps Plein', job: 'Éducatrice',
-      absences: { '7': 'CA', '20': 'AM', '21': 'AM', '13': 'TEL' } 
-    },
-    { 
-      id: 6, name: 'Lucas Bernard', department: 'Production', site: 'Menuiserie 44', category: 'Ouvrier qualifié', 
-      contract: 'CDI - Non Cadre', gender: 'Homme', workTime: 'Temps Plein', job: 'Menuisier',
-      absences: { '12': 'REC', '26': 'CA', '27': 'CA', '30': 'AT' } 
-    },
-    { 
-      id: 7, name: 'Emma Rousseau', department: 'ASI', site: 'Alpinia 44', category: 'Agent administratif', 
-      contract: 'CDI - Non Cadre', gender: 'Femme', workTime: 'Temps Partiel', job: 'Agent ASI',
-      absences: { '2': 'CA', '18': 'REC', '31': 'AM', '6': 'FO' } 
-    },
-    { 
-      id: 8, name: 'Thomas Leroy', department: 'Production', site: 'Garage 44', category: 'Ouvrier qualifié', 
-      contract: 'CDI - Non Cadre', gender: 'Homme', workTime: 'Temps Plein', job: 'Mécanicien',
-      absences: { '9': 'CA', '19': 'CA', '28': 'REC', '4': 'CT' } 
-    },
-    { 
-      id: 9, name: 'Isabelle Moreau', department: 'Éducatif', site: 'Pôle Éducatif', category: 'Employé Qualifié', 
-      contract: 'CDI - Non Cadre', gender: 'Femme', workTime: 'Temps Plein', job: 'Éducatrice',
-      absences: { '1': 'MAT', '2': 'MAT', '3': 'MAT', '4': 'MAT', '5': 'MAT' } 
-    },
-    { 
-      id: 10, name: 'Marc Dubois', department: 'Production', site: 'Menuiserie 44', category: 'Ouvrier qualifié', 
-      contract: 'CDD - Non Cadre', gender: 'Homme', workTime: 'Temps Plein', job: 'Apprenti Menuisier',
-      absences: { '11': 'STG', '12': 'STG', '13': 'STG', '26': 'EMAL' } 
-    }
-  ];
+  // Employees should be loaded from backend API
+  const employees = [];
 
   // Listes de filtres basées sur l'image fournie
   const departmentsList = ['Direction', 'Éducatif', 'Administratif', 'Comptable', 'ASI', 'Production', 'Commercial', 'Technique', 'Maintenance', 'Qualité'];
