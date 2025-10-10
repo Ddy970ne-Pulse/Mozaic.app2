@@ -350,7 +350,7 @@ class ImportResult(BaseModel):
 
 class AdminSetupRequest(BaseModel):
     admin_name: str = "DACALOR Diégo"
-    admin_email: str = "diego.dacalor@company.com"
+    admin_email: str = "ddacalor@aaea-gpe.fr"
     admin_password: str = "admin123"
 
 # Add your routes to the router instead of directly to app
