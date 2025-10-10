@@ -11,16 +11,34 @@ const Homepage = ({ onLogin }) => {
     e.preventDefault();
     setIsLoading(true);
     
-    const user = demoAccounts.find(acc => acc.email === email && acc.password === password);
-    
-    setTimeout(() => {
-      if (user) {
-        onLogin(user);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Store token in localStorage
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        onLogin(data.user);
       } else {
-        alert('Email ou mot de passe incorrect');
+        const errorData = await response.json();
+        alert(errorData.detail || 'Email ou mot de passe incorrect');
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Erreur de connexion. Veuillez réessayer.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleDemoLogin = (account) => {
