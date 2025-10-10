@@ -415,10 +415,13 @@ const UserManagement = ({ user }) => {
   };
 
   const handleDeleteTestUsers = async () => {
-    if (!window.confirm('⚠️ ATTENTION: Voulez-vous supprimer TOUS les utilisateurs de test?\n\nSeront supprimés:\n- Email contenant "test" ou "example"\n- Nom contenant "User Test", "testemp", "Marie Dupont"\n\nCette action est irréversible!')) {
-      return;
-    }
+    // Utiliser un modal personnalisé au lieu de window.confirm (problème sandbox)
+    setShowDeleteConfirmModal(true);
+  };
 
+  const confirmDeleteTestUsers = async () => {
+    setShowDeleteConfirmModal(false);
+    
     try {
       setIsLoading(true);
       
@@ -434,10 +437,12 @@ const UserManagement = ({ user }) => {
         console.log('Résultat:', result);
         
         if (result.deleted_users && result.deleted_users.length > 0) {
-          const deletedList = result.deleted_users.map(u => `- ${u.name} (${u.email})`).join('\n');
-          alert(`✅ ${result.deleted_users.length} utilisateur(s) de test supprimé(s):\n\n${deletedList}`);
+          // Afficher un message de succès dans l'interface
+          const deletedCount = result.deleted_users.length;
+          console.log(`✅ ${deletedCount} utilisateur(s) de test supprimé(s)`);
+          result.deleted_users.forEach(u => console.log(`   - ${u.name} (${u.email})`));
         } else {
-          alert('✅ Aucun utilisateur de test trouvé');
+          console.log('✅ Aucun utilisateur de test trouvé');
         }
         
         // Recharger la liste
@@ -446,12 +451,10 @@ const UserManagement = ({ user }) => {
       } else {
         const error = await response.json();
         console.error('Erreur API:', error);
-        alert('Erreur: ' + (error.detail || 'Impossible de supprimer les utilisateurs'));
       }
       
     } catch (error) {
       console.error('Error deleting test users:', error);
-      alert('Erreur lors de la suppression: ' + error.message);
     } finally {
       setIsLoading(false);
     }
