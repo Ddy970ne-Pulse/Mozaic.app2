@@ -130,8 +130,20 @@ const ExcelImport = ({ user, onChangeView }) => {
         console.log('✅ Final data count:', cleanData.length);
         console.log('✅ Sample data:', cleanData.slice(0, 2));
 
-        setHeaders(cleanHeaders);
-        setExcelData(cleanData);
+        // Store in state with validation
+        if (cleanHeaders.length === 0) {
+          throw new Error('Aucune colonne valide détectée dans le fichier Excel');
+        }
+        
+        if (cleanData.length === 0) {
+          throw new Error('Aucune donnée trouvée dans le fichier Excel');
+        }
+        
+        console.log('💾 Storing headers:', cleanHeaders);
+        console.log('💾 Storing data:', cleanData.length, 'rows');
+        
+        setHeaders([...cleanHeaders]); // Force new array
+        setExcelData([...cleanData]); // Force new array
         setImportStep('preview');
       } catch (error) {
         console.error('❌ Erreur lors de la lecture du fichier:', error);
