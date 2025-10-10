@@ -193,16 +193,8 @@ const DelegationHours = ({ user }) => {
     'CHSCT': { name: 'Membre CHSCT', baseHours: 5, color: 'bg-orange-500' }
   };
 
-  const employees = [
-    { id: 1, name: 'Jean Dupont', department: 'IT', email: 'jean.dupont@company.com' },
-    { id: 2, name: 'Marie Leblanc', department: 'Commercial', email: 'marie.leblanc@company.com' },
-    { id: 3, name: 'Pierre Martin', department: 'Finance', email: 'pierre.martin@company.com' },
-    { id: 4, name: 'Claire Dubois', department: 'Marketing', email: 'claire.dubois@company.com' },
-    { id: 5, name: 'Lucas Bernard', department: 'IT', email: 'lucas.bernard@company.com' },
-    { id: 6, name: 'Emma Rousseau', department: 'Commercial', email: 'emma.rousseau@company.com' },
-    { id: 7, name: 'Thomas Leroy', department: 'Operations', email: 'thomas.leroy@company.com' },
-    { id: 8, name: 'Pierre Moreau', department: 'Production', email: 'pierre.cse@company.com' }
-  ];
+  // Employees should be loaded from backend API
+  const employees = [];
 
   // Les données delegates sont maintenant gérées par l'état React ci-dessus
 
