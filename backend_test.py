@@ -886,12 +886,13 @@ class BackendTester:
 
     def run_all_tests(self):
         """Run all backend tests"""
-        print(f"Starting MOZAIK RH Backend Tests - Focus on Monthly Planning & Print Support")
+        print(f"Starting MOZAIK RH Backend Tests - Focus on NEW Absence Import Module")
         print(f"Backend URL: {BASE_URL}")
         print(f"API URL: {API_URL}")
         print("=" * 70)
         
-        # Initialize monthly_planning results
+        # Initialize results for new absence import testing
+        self.results["absence_import"] = {"status": "unknown", "details": []}
         self.results["monthly_planning"] = {"status": "unknown", "details": []}
         
         # Run tests in order
@@ -899,6 +900,8 @@ class BackendTester:
         
         if api_healthy:
             auth_token = self.test_authentication()
+            # Focus on NEW Absence Import Module testing
+            self.test_absence_import_new_format(auth_token)
             self.test_delegation_hours(auth_token)
             self.test_data_retrieval(auth_token)
             self.test_monthly_planning_support(auth_token)
@@ -907,7 +910,7 @@ class BackendTester:
             print("Skipping other tests due to API health issues")
             
         # Determine overall status
-        categories = ["api_health", "authentication", "delegation_hours", "data_retrieval", "monthly_planning", "excel_import"]
+        categories = ["api_health", "authentication", "absence_import", "delegation_hours", "data_retrieval", "monthly_planning", "excel_import"]
         passed_tests = sum(1 for cat in categories if self.results[cat]["status"] == "pass")
         
         if passed_tests == len(categories):
