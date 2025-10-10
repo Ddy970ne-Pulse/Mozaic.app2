@@ -655,6 +655,28 @@ const ExcelImport = ({ user, onChangeView }) => {
         </div>
       )}
 
+      {/* Fallback si les headers sont perdus */}
+      {importStep === 'mapping' && headers.length === 0 && (
+        <div className="bg-red-50 rounded-xl border border-red-200 p-6 text-center">
+          <div className="text-red-600 mb-4">
+            <div className="text-4xl mb-2">⚠️</div>
+            <h3 className="text-lg font-semibold">Données perdues</h3>
+            <p className="text-sm">Les colonnes du fichier Excel ont été perdues. Veuillez recommencer l'import.</p>
+          </div>
+          <button
+            onClick={() => {
+              setImportStep('upload');
+              setHeaders([]);
+              setExcelData([]);
+              setColumnMapping({});
+            }}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Recommencer
+          </button>
+        </div>
+      )}
+
       {/* Étape 4: Validation */}
       {importStep === 'validation' && (
         <div className="space-y-6">
