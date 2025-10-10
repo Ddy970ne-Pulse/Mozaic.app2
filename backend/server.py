@@ -489,7 +489,7 @@ async def get_user(user_id: str, current_user: User = Depends(get_current_user))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    return User(**{k: v for k, v in user.items() if k != "hashed_password"})
+    return User(**{k: v for k, v in user.items() if k not in ["hashed_password", "_id"]})
 
 @api_router.post("/users", response_model=TempPasswordResponse)
 async def create_user(user_data: UserCreate, current_user: User = Depends(get_current_user)):
