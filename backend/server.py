@@ -889,8 +889,8 @@ async def create_absence_request(request_data: dict, current_user: User = Depend
         acknowledgedDate=datetime.utcnow().isoformat() if request_data.get("requiresAcknowledgment") else None
     )
     
-    # In real implementation, save to database
-    # await db.absence_requests.insert_one(absence_request.dict())
+    # Save to database
+    await db.absence_requests.insert_one(absence_request.dict())
     
     return absence_request
 
