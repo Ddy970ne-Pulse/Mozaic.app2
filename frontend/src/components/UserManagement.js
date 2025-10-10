@@ -207,7 +207,26 @@ const UserManagement = ({ user }) => {
     }
   };
 
-  // Données d'exemple des utilisateurs étendues
+  // Load data on component mount
+  useEffect(() => {
+    if (user?.role === 'admin' || user?.role === 'manager') {
+      fetchUsers();
+      fetchStatistics();
+    }
+  }, [user]);
+
+  // Filter users based on search and department
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         u.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDepartment = filterDepartment === 'all' || u.department === filterDepartment;
+    return matchesSearch && matchesDepartment;
+  });
+
+  // Get unique departments for filter
+  const departments = [...new Set(users.map(u => u.department))].filter(Boolean);
+
+  // Mock data for backward compatibility (will be removed gradually)
   const mockUsers = [
     {
       id: '1',
