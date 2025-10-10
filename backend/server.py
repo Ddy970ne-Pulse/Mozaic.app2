@@ -279,6 +279,80 @@ class AbsenceType(BaseModel):
     requires_validation: bool = True
     requires_acknowledgment: bool = False
 
+# Excel Import Models
+class ImportEmployee(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    nom: str
+    prenom: str
+    email: str
+    date_naissance: Optional[str] = None
+    sexe: Optional[str] = None
+    categorie_employe: Optional[str] = None
+    metier: Optional[str] = None
+    fonction: Optional[str] = None
+    departement: str
+    site: Optional[str] = None
+    temps_travail: Optional[str] = None
+    contrat: Optional[str] = None
+    date_debut_contrat: Optional[str] = None
+    date_fin_contrat: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str
+
+class ImportAbsence(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    employee_id: str
+    employee_name: str
+    date_debut: str
+    jours_absence: str
+    motif_absence: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str
+
+class ImportWorkHours(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    employee_id: str
+    employee_name: str
+    date: str
+    heures_travaillees: float
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str
+
+class ImportSettings(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    setting_name: str
+    setting_value: str
+    category: Optional[str] = None
+    description: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str
+
+# Import Request Models
+class ImportDataRequest(BaseModel):
+    data_type: str  # "employees", "absences", "work_hours", "settings"
+    data: List[Dict[str, Any]]
+    overwrite_existing: bool = False
+
+class ImportValidationRequest(BaseModel):
+    data_type: str
+    data: List[Dict[str, Any]]
+
+class ImportResult(BaseModel):
+    success: bool
+    total_processed: int
+    successful_imports: int
+    failed_imports: int
+    errors: List[Dict[str, str]]
+    warnings: List[Dict[str, str]]
+    data_type: str
+
+class AdminSetupRequest(BaseModel):
+    admin_name: str = "DACALOR Diégo"
+    admin_email: str = "diego.dacalor@company.com"
+    admin_password: str = "admin123"
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
