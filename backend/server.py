@@ -1519,13 +1519,14 @@ async def import_employees(
                 temp_password = generate_temp_password()
                 temp_expires = datetime.utcnow().replace(tzinfo=timezone.utc) + timedelta(days=7)
                 
-                # Create user account automatically
+                # Create user account automatically with ALL employee data
                 user_account = UserInDB(
                     name=f"{prenom} {nom}",
                     email=email,
                     role="employee",  # Default role
                     department=employee_data.get('departement', 'Non spécifié'),
                     phone=employee_data.get('telephone') or employee_data.get('phone'),
+                    address=employee_data.get('adresse') or employee_data.get('address'),
                     position=employee_data.get('fonction'),
                     hire_date=employee_data.get('date_debut_contrat'),
                     isDelegateCSE=False,  # Default, can be updated later
@@ -1534,6 +1535,18 @@ async def import_employees(
                     first_login=True,
                     last_login=None,
                     temp_password_expires=temp_expires,
+                    # Champs additionnels depuis employee
+                    date_naissance=employee_data.get('date_naissance'),
+                    sexe=employee_data.get('sexe'),
+                    categorie_employe=employee_data.get('categorie_employe'),
+                    metier=employee_data.get('metier'),
+                    fonction=employee_data.get('fonction'),
+                    site=employee_data.get('site'),
+                    temps_travail=employee_data.get('temps_travail'),
+                    contrat=employee_data.get('contrat'),
+                    date_debut_contrat=employee_data.get('date_debut_contrat'),
+                    date_fin_contrat=employee_data.get('date_fin_contrat'),
+                    notes=employee_data.get('notes'),
                     created_at=datetime.utcnow(),
                     updated_at=datetime.utcnow(),
                     created_by=current_user.name,
