@@ -563,6 +563,10 @@ const ExcelImport = ({ user, onChangeView }) => {
               <p className="text-gray-600 mt-2">
                 Associez les colonnes de votre fichier aux champs du modèle {dataModels[dataType].name}
               </p>
+              {/* Debug info */}
+              <div className="mt-2 text-xs text-gray-500">
+                Debug: {headers.length} colonnes détectées: {headers.join(', ')}
+              </div>
             </div>
             <button
               onClick={validateData}
