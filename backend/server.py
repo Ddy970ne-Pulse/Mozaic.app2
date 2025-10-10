@@ -1431,15 +1431,19 @@ async def import_employees(
                     email=email,
                     role="employee",  # Default role
                     department=employee_data.get('departement', 'Non spécifié'),
-                    phone=employee_data.get('telephone'),
+                    phone=employee_data.get('telephone') or employee_data.get('phone'),
                     position=employee_data.get('fonction'),
                     hire_date=employee_data.get('date_debut_contrat'),
                     isDelegateCSE=False,  # Default, can be updated later
-                    hashed_password=hash_password(temp_password),
+                    is_active=True,
                     requires_password_change=True,
                     first_login=True,
+                    last_login=None,
                     temp_password_expires=temp_expires,
-                    created_by=current_user.name
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
+                    created_by=current_user.name,
+                    hashed_password=hash_password(temp_password)
                 )
                 
                 # Store both employee and user records
