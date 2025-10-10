@@ -75,33 +75,59 @@ const ExcelImport = ({ user, onChangeView }) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const data = new Uint8Array(e.target.result);
+        const data = e.target.result;
         const workbook = XLSX.read(data, { type: 'array' });
+        
+        console.log('📊 Workbook sheets:', workbook.SheetNames);
+        
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+        console.log('📋 Raw JSON data length:', jsonData.length);
+        console.log('📋 First few rows:', jsonData.slice(0, 3));
 
         if (jsonData.length === 0) {
           throw new Error('Le fichier Excel est vide');
         }
 
         const [headerRow, ...dataRows] = jsonData;
-        const cleanHeaders = headerRow.map(h => String(h).toLowerCase().trim());
+        
+        // Better header cleaning and validation
+        const rawHeaders = headerRow.filter(h => h !== null && h !== undefined && String(h).trim() !== '');
+        const cleanHeaders = rawHeaders.map(h => {
+          // Keep original header but clean it
+          const cleaned = String(h).trim();
+          return cleaned;
+        });
+        
+        console.log('📝 Raw headers:', rawHeaders);
+        console.log('📝 Clean headers:', cleanHeaders);
+
+        if (cleanHeaders.length === 0) {
+          throw new Error('Aucune en-tête valide trouvée dans le fichier Excel');
+        }
+
         const cleanData = dataRows
-          .filter(row => row.some(cell => cell !== ''))
-          .map(row => {
+          .filter(row => row && row.some(cell => cell !== null && cell !== undefined && String(cell).trim() !== ''))
+          .map((row, rowIndex) => {
             const obj = {};
             cleanHeaders.forEach((header, index) => {
-              obj[header] = row[index] || '';
+              obj[header] = row[index] !== undefined ? String(row[index]).trim() : '';
             });
             return obj;
-          });
+          })
+          .slice(0, 1000); // Limit to 1000 rows for performance
+
+        console.log('✅ Final headers count:', cleanHeaders.length);
+        console.log('✅ Final data count:', cleanData.length);
+        console.log('✅ Sample data:', cleanData.slice(0, 2));
 
         setHeaders(cleanHeaders);
         setExcelData(cleanData);
         setImportStep('preview');
       } catch (error) {
-        console.error('Erreur lors de la lecture du fichier:', error);
+        console.error('❌ Erreur lors de la lecture du fichier:', error);
         alert('Erreur lors de la lecture du fichier Excel: ' + error.message);
       } finally {
         setIsProcessing(false);
