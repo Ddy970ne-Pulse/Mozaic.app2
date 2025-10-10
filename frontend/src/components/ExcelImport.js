@@ -305,7 +305,8 @@ const ExcelImport = ({ user, onChangeView }) => {
       console.log('🔑 Clés de la première ligne:', Object.keys(validationResults.valid[0] || {}));
       
       // Préparer les données pour l'API
-      const mappedData = validationResults.valid.map((row, idx) => {
+      // IMPORTANT: Utiliser excelData (données brutes) au lieu de validationResults.valid
+      const mappedData = excelData.map((row, idx) => {
         const mappedRow = {};
         
         console.log(`🔄 Mapping ligne ${idx + 1}:`, {
@@ -314,9 +315,10 @@ const ExcelImport = ({ user, onChangeView }) => {
         });
         
         Object.entries(columnMapping).forEach(([field, column]) => {
-          console.log(`   🔍 Field: ${field}, Column: ${column}, Value: ${row[column]}`);
-          if (column && row[column] !== undefined) {
-            mappedRow[field] = row[column];
+          const value = row[column];
+          console.log(`   🔍 Field: ${field}, Column: ${column}, Value: ${value}`);
+          if (column && value !== undefined && value !== null && value !== '') {
+            mappedRow[field] = value;
           }
         });
         
@@ -330,6 +332,9 @@ const ExcelImport = ({ user, onChangeView }) => {
         }
         
         return mappedRow;
+      }).filter(row => {
+        // Ne garder que les lignes qui ont au moins nom, prenom et email
+        return row.nom && row.prenom && row.email;
       });
       
       console.log('📊 Mapped data count:', mappedData.length);
