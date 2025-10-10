@@ -104,8 +104,9 @@ class BackendTester:
         auth_token = None
         
         try:
-            # Test with Sophie Martin first (as specified in review request)
+            # Test with Sophie Martin first, then try DACALOR Diego if Sophie fails
             sophie_account = test_accounts[0]  # sophie.martin@company.com
+            diego_account = test_accounts[1]   # diego.dacalor@company.com
             auth_response = requests.post(
                 f"{API_URL}{auth_endpoint}", 
                 json={"email": sophie_account["email"], "password": sophie_account["password"]}, 
