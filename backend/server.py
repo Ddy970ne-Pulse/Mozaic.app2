@@ -543,32 +543,73 @@ async def delete_user(user_id: str, current_user: User = Depends(get_current_use
     
     return {"message": "User deactivated successfully"}
 
+@api_router.post("/auth/change-password")
+async def change_password(password_data: PasswordChange, current_user: User = Depends(get_current_user)):
+    """Change password (with current password verification or first-time change)"""
+    # Get current user from database
+    user_data = await db.users.find_one({"id": current_user.id})
+    if not user_data:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Verify passwords match
+    if password_data.new_password != password_data.confirm_password:
+        raise HTTPException(status_code=400, detail="New passwords do not match")
+    
+    # If not first login, verify current password
+    if not user_data.get("first_login", False):
+        if not password_data.current_password:
+            raise HTTPException(status_code=400, detail="Current password is required")
+        
+        if not verify_password(password_data.current_password, user_data["hashed_password"]):
+            raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    # Update password and remove temporary password flags
+    hashed_password = hash_password(password_data.new_password)
+    await db.users.update_one(
+        {"id": current_user.id}, 
+        {"$set": {
+            "hashed_password": hashed_password,
+            "requires_password_change": False,
+            "first_login": False,
+            "temp_password_expires": None,
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    
+    return {"message": "Password changed successfully"}
+
 @api_router.post("/users/{user_id}/reset-password")
 async def reset_user_password(user_id: str, password_data: PasswordReset, current_user: User = Depends(get_current_user)):
-    """Reset user password (admin or own password)"""
+    """Reset user password (admin only - generates new temporary password)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
     # Check if user exists
     existing_user = await db.users.find_one({"id": user_id})
     if not existing_user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Permission checks
-    is_own_password = current_user.id == user_id
-    is_admin = current_user.role == "admin"
+    # Generate new temporary password
+    temp_password = generate_temp_password()
+    temp_expires = datetime.utcnow().replace(tzinfo=timezone.utc) + timedelta(days=7)
     
-    if not is_admin and not is_own_password:
-        raise HTTPException(status_code=403, detail="Insufficient permissions")
-    
-    # Update password
-    hashed_password = hash_password(password_data.new_password)
+    # Update password with temporary settings
+    hashed_password = hash_password(temp_password)
     await db.users.update_one(
         {"id": user_id}, 
         {"$set": {
-            "hashed_password": hashed_password, 
+            "hashed_password": hashed_password,
+            "requires_password_change": True,
+            "temp_password_expires": temp_expires,
             "updated_at": datetime.utcnow()
         }}
     )
     
-    return {"message": "Password reset successfully"}
+    return {
+        "message": "Temporary password generated successfully",
+        "temp_password": temp_password,
+        "expires_at": temp_expires
+    }
 
 @api_router.get("/users/stats/overview")
 async def get_user_statistics(current_user: User = Depends(get_current_user)):
