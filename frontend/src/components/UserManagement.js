@@ -11,6 +11,11 @@ const UserManagement = ({ user }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('users');
   const [statistics, setStatistics] = useState(null);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [showGdprModal, setShowGdprModal] = useState(false);
+  const [showAccountRecovery, setShowAccountRecovery] = useState(false);
+  const [showAuditModal, setShowAuditModal] = useState(false);
+  const [auditLogs, setAuditLogs] = useState([]);
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
