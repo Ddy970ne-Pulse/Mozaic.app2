@@ -89,9 +89,10 @@ class BackendTester:
         """Test authentication endpoints for different user types"""
         print("\n=== Testing Authentication ===")
         
-        # Test accounts from review request - focus on Sophie Martin as specified
+        # Test accounts - first try original Sophie Martin, then try new DACALOR Diego admin
         test_accounts = [
             {"email": "sophie.martin@company.com", "password": "demo123", "role": "admin", "name": "Sophie Martin"},
+            {"email": "diego.dacalor@company.com", "password": "admin123", "role": "admin", "name": "DACALOR Diégo"},
             {"email": "admin@company.com", "password": "demo123", "role": "admin", "name": "Sophie Martin"},
             {"email": "manager@company.com", "password": "demo123", "role": "manager", "name": "Jean Dupont"},
             {"email": "marie.leblanc@company.com", "password": "demo123", "role": "employee", "name": "Marie Leblanc"},
