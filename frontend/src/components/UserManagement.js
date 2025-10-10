@@ -1653,6 +1653,48 @@ const UserManagement = ({ user }) => {
           </div>
         </div>
       )}
+
+      {/* Modal confirmation suppression utilisateurs de test */}
+      {showDeleteConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-red-600 mb-4">⚠️ Confirmation de suppression</h2>
+              
+              <p className="text-gray-700 mb-4">
+                Voulez-vous supprimer <strong>TOUS</strong> les utilisateurs de test ?
+              </p>
+
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-600 font-medium mb-2">Seront supprimés :</p>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Email contenant "test" ou "example"</li>
+                  <li>• Nom contenant "User Test", "testemp", "Marie Dupont"</li>
+                </ul>
+              </div>
+
+              <p className="text-sm text-red-600 font-medium mb-6">
+                ⚠️ Cette action est irréversible !
+              </p>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDeleteConfirmModal(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmDeleteTestUsers}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
+                >
+                  🗑️ Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
