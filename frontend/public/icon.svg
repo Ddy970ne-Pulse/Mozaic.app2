@@ -1,0 +1,23 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond arrondi -->
+  <rect width="512" height="512" rx="100" fill="url(#bgGradient)"/>
+  
+  <!-- Icône RH stylisée -->
+  <!-- Silhouettes de personnes -->
+  <circle cx="180" cy="180" r="50" fill="white" opacity="0.9"/>
+  <path d="M 130 280 Q 130 240 180 240 Q 230 240 230 280 L 230 320 Q 230 330 220 330 L 140 330 Q 130 330 130 320 Z" fill="white" opacity="0.9"/>
+  
+  <circle cx="332" cy="180" r="50" fill="white" opacity="0.9"/>
+  <path d="M 282 280 Q 282 240 332 240 Q 382 240 382 280 L 382 320 Q 382 330 372 330 L 292 330 Q 282 330 282 320 Z" fill="white" opacity="0.9"/>
+  
+  <!-- Initiales M R -->
+  <text x="256" y="440" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="white" text-anchor="middle">MR</text>
+</svg>
