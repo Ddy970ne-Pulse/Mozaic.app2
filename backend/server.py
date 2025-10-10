@@ -156,6 +156,22 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 # Security
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 
+# Initialize default admin user
+async def initialize_admin_user():
+    """Create the initial admin user if no users exist"""
+    user_count = await db.users.count_documents({})
+    if user_count == 0:
+        admin_user = UserInDB(
+            name="DACALOR Diégo",
+            email="ddacalor@aaea-gpe.fr",
+            role="admin",
+            department="Direction",
+            hashed_password=hash_password("admin123"),
+            created_by="system"
+        )
+        await db.users.insert_one(admin_user.dict())
+        print("✅ Initial admin user created: ddacalor@aaea-gpe.fr / admin123")
+
 # Define Models
 class StatusCheck(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
