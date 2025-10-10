@@ -10,53 +10,9 @@ export const eventTypes = {
   'holiday': { icon: '🏖️', color: 'bg-cyan-500', label: 'Congé' }
 };
 
-// Données d'événements par défaut (peuvent être remplacées par des données de backend)
+// REMOVED: Mock events data - Now managed via database/API
 let upcomingEvents = [
-  { 
-    id: 1,
-    event: 'Réunion équipe RH', 
-    date: '16 Jan', 
-    time: '09:00', 
-    type: 'meeting',
-    location: 'Salle de conférence A',
-    participants: 8
-  },
-  { 
-    id: 2,
-    event: 'Formation sécurité', 
-    date: '18 Jan', 
-    time: '14:00', 
-    type: 'training',
-    location: 'Salle de formation',
-    participants: 25
-  },
-  { 
-    id: 3,
-    event: 'Évaluation annuelle', 
-    date: '20 Jan', 
-    time: '10:30', 
-    type: 'evaluation',
-    location: 'Bureau RH',
-    participants: 1
-  },
-  { 
-    id: 4,
-    event: 'Comité d\'entreprise', 
-    date: '22 Jan', 
-    time: '16:00', 
-    type: 'committee',
-    location: 'Salle du conseil',
-    participants: 12
-  },
-  {
-    id: 5,
-    event: 'Échéance paie mensuelle',
-    date: '28 Jan',
-    time: '17:00',
-    type: 'deadline',
-    location: 'Service comptabilité',
-    participants: 3
-  }
+  // Events will be loaded from database or can be added via admin interface
 ];
 
 // Subscribers pour les changements d'événements
