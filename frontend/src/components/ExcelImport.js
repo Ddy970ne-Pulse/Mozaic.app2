@@ -298,6 +298,11 @@ const ExcelImport = ({ user, onChangeView }) => {
     setIsProcessing(true);
     
     try {
+      console.log('🚀 Début de l\'import');
+      console.log('📋 Column Mapping:', columnMapping);
+      console.log('✅ Valid rows count:', validationResults.valid.length);
+      console.log('📝 Première ligne valide:', validationResults.valid[0]);
+      
       // Préparer les données pour l'API
       const mappedData = validationResults.valid.map(row => {
         const mappedRow = {};
@@ -316,6 +321,9 @@ const ExcelImport = ({ user, onChangeView }) => {
         
         return mappedRow;
       });
+      
+      console.log('📊 Mapped data count:', mappedData.length);
+      console.log('📝 Première ligne mappée:', mappedData[0]);
 
       // Déterminer l'endpoint selon le type de données
       let endpoint = '';
