@@ -1447,6 +1447,13 @@ async def import_employees(
     successful_imports = 0
     created_users = []
     
+    # Log détaillé pour debugging
+    logger.info(f"📥 Import lancé par {current_user.name}")
+    logger.info(f"📊 Nombre de lignes reçues: {len(request.data)}")
+    if len(request.data) > 0:
+        logger.info(f"📋 Colonnes de la première ligne: {list(request.data[0].keys())}")
+        logger.info(f"📝 Données de la première ligne: {request.data[0]}")
+    
     try:
         for i, employee_data in enumerate(request.data):
             try:
@@ -1454,10 +1461,15 @@ async def import_employees(
                 nom = employee_data.get('nom', '').strip()
                 prenom = employee_data.get('prenom', '').strip()
                 
+                logger.info(f"🔍 Ligne {i+1}: email='{email}', nom='{nom}', prenom='{prenom}'")
+                
                 if not email or not nom or not prenom:
+                    error_msg = f"Email={email!r}, nom={nom!r}, prénom={prenom!r} sont obligatoires"
+                    logger.warning(f"❌ Ligne {i+1}: {error_msg}")
                     errors.append({
                         "row": i + 1,
-                        "error": "Email, nom et prénom sont obligatoires"
+                        "error": error_msg,
+                        "data_received": employee_data
                     })
                     continue
                 
