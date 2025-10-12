@@ -901,6 +901,175 @@ class BackendTester:
         
         self.results["excel_import"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["excel_import"]["details"]) else "fail"
 
+    def test_cse_cessions_endpoints(self, auth_token=None):
+        """Test CSE Cessions API endpoints as requested in review"""
+        print("\n=== Testing CSE Cessions API Endpoints ===")
+        
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
+        
+        # 1. Test GET /api/cse/cessions - Should return empty array initially
+        print("\n--- Testing GET /api/cse/cessions ---")
+        
+        try:
+            response = requests.get(f"{API_URL}/cse/cessions", headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    self.log_result("cse_cessions", True, f"✅ GET /api/cse/cessions returns array (length: {len(data)})")
+                    if len(data) == 0:
+                        self.log_result("cse_cessions", True, f"✅ Initially returns empty array as expected")
+                else:
+                    self.log_result("cse_cessions", False, f"❌ GET /api/cse/cessions should return array, got {type(data)}")
+            else:
+                self.log_result("cse_cessions", False, f"❌ GET /api/cse/cessions returned {response.status_code}")
+        except Exception as e:
+            self.log_result("cse_cessions", False, f"❌ Error testing GET /api/cse/cessions: {str(e)}")
+        
+        # Test without authentication (should get 401/403)
+        try:
+            response = requests.get(f"{API_URL}/cse/cessions", timeout=10)
+            if response.status_code in [401, 403]:
+                self.log_result("cse_cessions", True, f"✅ GET /api/cse/cessions requires authentication ({response.status_code})")
+            else:
+                self.log_result("cse_cessions", False, f"❌ GET /api/cse/cessions should require auth, got {response.status_code}")
+        except Exception as e:
+            self.log_result("cse_cessions", False, f"❌ Error testing GET /api/cse/cessions without auth: {str(e)}")
+        
+        # 2. Test POST /api/cse/cessions - Create new cession
+        print("\n--- Testing POST /api/cse/cessions ---")
+        
+        # Test cession payload as specified in review request
+        test_cession = {
+            "from_id": "test-user-1",
+            "from_name": "Sophie Martin",
+            "to_id": "test-user-2", 
+            "to_name": "Jean Dupont",
+            "hours": 5.0,
+            "usage_date": "2025-02-01",
+            "reason": "Réunion CSE extraordinaire",
+            "created_by": "Sophie Martin"
+        }
+        
+        try:
+            response = requests.post(f"{API_URL}/cse/cessions", json=test_cession, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                # Verify response structure
+                required_fields = ["id", "from_id", "from_name", "to_id", "to_name", "hours", "usage_date", "reason", "created_by", "created_at"]
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if not missing_fields:
+                    self.log_result("cse_cessions", True, f"✅ POST /api/cse/cessions creates cession with proper structure")
+                    
+                    # Verify field values
+                    if (data.get("from_name") == "Sophie Martin" and 
+                        data.get("to_name") == "Jean Dupont" and 
+                        data.get("hours") == 5.0 and
+                        data.get("reason") == "Réunion CSE extraordinaire"):
+                        self.log_result("cse_cessions", True, f"✅ Created cession has correct field values")
+                    else:
+                        self.log_result("cse_cessions", False, f"❌ Created cession has incorrect field values")
+                        
+                    # Verify auto-generated fields
+                    if data.get("id") and data.get("created_at"):
+                        self.log_result("cse_cessions", True, f"✅ Auto-generated fields (id, created_at) present")
+                    else:
+                        self.log_result("cse_cessions", False, f"❌ Missing auto-generated fields")
+                        
+                else:
+                    self.log_result("cse_cessions", False, f"❌ Response missing required fields: {missing_fields}")
+            else:
+                self.log_result("cse_cessions", False, f"❌ POST /api/cse/cessions returned {response.status_code}")
+        except Exception as e:
+            self.log_result("cse_cessions", False, f"❌ Error testing POST /api/cse/cessions: {str(e)}")
+        
+        # Test without authentication
+        try:
+            response = requests.post(f"{API_URL}/cse/cessions", json=test_cession, timeout=10)
+            if response.status_code in [401, 403]:
+                self.log_result("cse_cessions", True, f"✅ POST /api/cse/cessions requires authentication ({response.status_code})")
+            else:
+                self.log_result("cse_cessions", False, f"❌ POST /api/cse/cessions should require auth, got {response.status_code}")
+        except Exception as e:
+            self.log_result("cse_cessions", False, f"❌ Error testing POST /api/cse/cessions without auth: {str(e)}")
+        
+        # 3. Test Data Persistence - Call GET again to verify created cession appears
+        print("\n--- Testing Data Persistence ---")
+        
+        try:
+            response = requests.get(f"{API_URL}/cse/cessions", headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list) and len(data) > 0:
+                    # Look for our created cession
+                    created_cession = None
+                    for cession in data:
+                        if (cession.get("from_name") == "Sophie Martin" and 
+                            cession.get("to_name") == "Jean Dupont" and 
+                            cession.get("hours") == 5.0):
+                            created_cession = cession
+                            break
+                    
+                    if created_cession:
+                        self.log_result("cse_cessions", True, f"✅ Created cession persisted in MongoDB and retrievable via GET")
+                        
+                        # Verify all fields are correctly stored
+                        if (created_cession.get("reason") == "Réunion CSE extraordinaire" and
+                            created_cession.get("usage_date") == "2025-02-01" and
+                            created_cession.get("created_by") == "Sophie Martin"):
+                            self.log_result("cse_cessions", True, f"✅ All cession fields correctly stored in database")
+                        else:
+                            self.log_result("cse_cessions", False, f"❌ Some cession fields not stored correctly")
+                    else:
+                        self.log_result("cse_cessions", False, f"❌ Created cession not found in GET response")
+                else:
+                    self.log_result("cse_cessions", False, f"❌ GET after POST should return created cession")
+            else:
+                self.log_result("cse_cessions", False, f"❌ GET after POST returned {response.status_code}")
+        except Exception as e:
+            self.log_result("cse_cessions", False, f"❌ Error testing data persistence: {str(e)}")
+        
+        # 4. Test Error Handling - Invalid data formats
+        print("\n--- Testing Error Handling ---")
+        
+        # Test with missing required fields
+        invalid_cession = {
+            "from_name": "Sophie Martin",
+            # Missing required fields: from_id, to_id, to_name, hours, usage_date, reason, created_by
+        }
+        
+        try:
+            response = requests.post(f"{API_URL}/cse/cessions", json=invalid_cession, headers=headers, timeout=10)
+            if response.status_code in [400, 422]:  # Bad Request or Validation Error
+                self.log_result("cse_cessions", True, f"✅ Invalid data returns proper error ({response.status_code})")
+            else:
+                self.log_result("cse_cessions", False, f"❌ Invalid data should return 400/422, got {response.status_code}")
+        except Exception as e:
+            self.log_result("cse_cessions", False, f"❌ Error testing invalid data: {str(e)}")
+        
+        # Test with invalid data types
+        invalid_types_cession = {
+            "from_id": "test-user-1",
+            "from_name": "Sophie Martin",
+            "to_id": "test-user-2", 
+            "to_name": "Jean Dupont",
+            "hours": "invalid_number",  # Should be float
+            "usage_date": "2025-02-01",
+            "reason": "Test",
+            "created_by": "Sophie Martin"
+        }
+        
+        try:
+            response = requests.post(f"{API_URL}/cse/cessions", json=invalid_types_cession, headers=headers, timeout=10)
+            if response.status_code in [400, 422]:  # Bad Request or Validation Error
+                self.log_result("cse_cessions", True, f"✅ Invalid data types return proper error ({response.status_code})")
+            else:
+                self.log_result("cse_cessions", False, f"❌ Invalid data types should return 400/422, got {response.status_code}")
+        except Exception as e:
+            self.log_result("cse_cessions", False, f"❌ Error testing invalid data types: {str(e)}")
+        
+        self.results["cse_cessions"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["cse_cessions"]["details"]) else "fail"
+
     def run_all_tests(self):
         """Run all backend tests"""
         print(f"Starting MOZAIK RH Backend Tests - Focus on NEW Absence Import Module")
