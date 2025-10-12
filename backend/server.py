@@ -1083,6 +1083,49 @@ async def create_cession(cession_data: dict, current_user: User = Depends(get_cu
     
     return cession_record
 
+# CSE Cessions endpoints (nouveau module unifié)
+@api_router.get("/cse/cessions", response_model=List[CSECession])
+async def get_cse_cessions(current_user: User = Depends(get_current_user)):
+    """
+    Récupère toutes les cessions d'heures CSE
+    """
+    try:
+        cessions = await db.cse_cessions.find().to_list(1000)
+        
+        # Nettoyer les ObjectIds MongoDB
+        result = []
+        for cession in cessions:
+            if "_id" in cession:
+                del cession["_id"]
+            result.append(cession)
+        
+        return result
+    except Exception as e:
+        print(f"Erreur lors de la récupération des cessions CSE: {e}")
+        return []
+
+@api_router.post("/cse/cessions", response_model=CSECession)
+async def create_cse_cession(cession: CSECession, current_user: User = Depends(get_current_user)):
+    """
+    Crée une nouvelle cession d'heures CSE
+    Validation:
+    - Le cédant doit avoir suffisamment d'heures
+    - Le bénéficiaire ne doit pas dépasser 1.5x le crédit de base (selon CCN66)
+    """
+    try:
+        # Convertir en dict pour MongoDB
+        cession_dict = cession.dict()
+        
+        # Sauvegarder dans MongoDB
+        await db.cse_cessions.insert_one(cession_dict)
+        
+        print(f"Cession CSE créée: {cession.from_name} → {cession.to_name} ({cession.hours}h)")
+        
+        return cession
+    except Exception as e:
+        print(f"Erreur lors de la création de la cession CSE: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la création: {str(e)}")
+
 # Absence Types endpoints  
 @api_router.get("/absence-types", response_model=List[AbsenceType])
 async def get_absence_types(current_user: User = Depends(get_current_user)):
