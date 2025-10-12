@@ -90,6 +90,7 @@ const AbsenceAnalytics = ({ user }) => {
       evenementFamilial: 0,
       congesAnnuels: 0,
       congesTrimestriels: 0,
+      rtt: 0,
       recuperation: 0,
       stage: 0
     };
