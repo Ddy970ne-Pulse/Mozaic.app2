@@ -17,6 +17,7 @@ const UserManagement = ({ user }) => {
   const [showAuditModal, setShowAuditModal] = useState(false);
   const [showEmailChangeModal, setShowEmailChangeModal] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [newEmail, setNewEmail] = useState('');
   const [emailChangeConfirmation, setEmailChangeConfirmation] = useState('');
   const [auditLogs, setAuditLogs] = useState([]);
