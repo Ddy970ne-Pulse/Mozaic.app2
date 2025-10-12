@@ -1692,39 +1692,39 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                     setCustomEndDate('');
                   }
                 }}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-white bg-white/20 border-white/30 rounded focus:ring-white/50"
               />
-              <span className="text-sm font-medium text-gray-700">Période personnalisée</span>
+              <span className="text-sm font-medium text-white">Période personnalisée</span>
             </label>
           </div>
           
           {/* Sélecteurs de période */}
           {useCustomPeriod ? (
-            <div className="flex items-center space-x-2 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
-              <span className="text-sm font-medium text-blue-700">Du :</span>
+            <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+              <span className="text-sm font-medium text-white">Du :</span>
               <input
                 type="date"
                 value={customStartDate}
                 onChange={(e) => setCustomStartDate(e.target.value)}
-                className="px-2 py-1 border border-blue-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                className="px-2 py-1 border border-white/30 bg-white/10 text-white rounded text-sm focus:ring-2 focus:ring-white/50 placeholder-white/60"
               />
-              <span className="text-sm font-medium text-blue-700">au :</span>
+              <span className="text-sm font-medium text-white">au :</span>
               <input
                 type="date"
                 value={customEndDate}
                 onChange={(e) => setCustomEndDate(e.target.value)}
-                className="px-2 py-1 border border-blue-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                className="px-2 py-1 border border-white/30 bg-white/10 text-white rounded text-sm focus:ring-2 focus:ring-white/50 placeholder-white/60"
               />
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
               {/* Sélecteur d'année */}
               <div className="flex items-center space-x-2">
-                <label className="text-sm font-medium text-gray-700">Année :</label>
+                <label className="text-sm font-medium text-white">Année :</label>
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-3 py-2 bg-white text-gray-800 border border-white/30 rounded-lg focus:ring-2 focus:ring-white/50 focus:border-white shadow-sm"
                 >
                   {generateYearOptions().map(year => (
                     <option key={year} value={year}>{year}</option>
@@ -1734,11 +1734,11 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               
               {/* Sélecteur de mois */}
               <div className="flex items-center space-x-2">
-                <label className="text-sm font-medium text-gray-700">Mois :</label>
+                <label className="text-sm font-medium text-white">Mois :</label>
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-3 py-2 bg-white text-gray-800 border border-white/30 rounded-lg focus:ring-2 focus:ring-white/50 focus:border-white shadow-sm"
                 >
                   {monthNames.map((month, index) => (
                     <option key={index} value={index}>{month}</option>
