@@ -90,8 +90,9 @@ class BackendTester:
         """Test authentication endpoints for different user types"""
         print("\n=== Testing Authentication ===")
         
-        # Test accounts - first try original Sophie Martin, then try new DACALOR Diego admin
+        # Test accounts - use actual admin from database
         test_accounts = [
+            {"email": "ddacalor@aaea-gpe.fr", "password": "admin123", "role": "admin", "name": "Diégo DACALOR"},
             {"email": "sophie.martin@company.com", "password": "demo123", "role": "admin", "name": "Sophie Martin"},
             {"email": "diego.dacalor@company.com", "password": "admin123", "role": "admin", "name": "DACALOR Diégo"},
             {"email": "admin@company.com", "password": "demo123", "role": "admin", "name": "Sophie Martin"},
