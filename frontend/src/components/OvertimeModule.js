@@ -6,6 +6,7 @@ const OvertimeModule = ({ user }) => {
   const [filterPeriod, setFilterPeriod] = useState('current-month');
   const [overtimeData, setOvertimeData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTestMode, setIsTestMode] = useState(false);
 
   // Load overtime data from backend
   useEffect(() => {
