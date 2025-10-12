@@ -84,6 +84,23 @@ const AbsenceRequests = ({ user }) => {
     }
   };
 
+  // Types d'absence autorisés en heures (selon spécifications)
+  const canBeInHours = (type) => {
+    const hourlyTypes = ['DEL', 'REC', 'TEL', 'HS'];
+    return hourlyTypes.includes(type);
+  };
+
+  // Gérer le changement de type d'absence
+  const handleTypeChange = (newType) => {
+    const canUseHours = canBeInHours(newType);
+    setNewRequest({
+      ...newRequest,
+      type: newType,
+      absence_unit: canUseHours ? newRequest.absence_unit : 'jours',
+      hours_amount: canUseHours ? newRequest.hours_amount : null
+    });
+  };
+
   const handleApprove = (requestId) => {
     const success = approveRequest(requestId, user.name);
     if (!success) {
