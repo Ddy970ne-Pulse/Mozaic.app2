@@ -17,7 +17,7 @@ const DelegationHours = ({ user }) => {
     employeeId: '',
     name: '',
     type: 'CSE',
-    monthlyHours: 10,
+    monthlyHours: 10,  // ✅ CCN66: 10h pour 50-150 salariés (valeur par défaut)
     startDate: '',
     endDate: ''
   });
