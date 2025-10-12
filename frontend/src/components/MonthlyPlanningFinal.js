@@ -527,7 +527,15 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                 };
                 
                 const absenceCode = motifMapping[motifAbsence] || motifAbsence.toUpperCase().substring(0, 4);
-                if (!newAbsences[day.toString()]) {
+                const absenceInfo = absenceColorMap[absenceCode];
+                
+                // 🚨 NOUVELLE LOGIQUE: Vérifier si on doit skip week-ends/jours fériés
+                const shouldSkipThisDay = absenceInfo && (
+                  (absenceInfo.skipWeekends && isWeekend(day, month, year)) ||
+                  (absenceInfo.skipHolidays && isHoliday(day, month, year))
+                );
+                
+                if (!shouldSkipThisDay && !newAbsences[day.toString()]) {
                   newAbsences[day.toString()] = absenceCode;
                   totalDays++;
                 }
