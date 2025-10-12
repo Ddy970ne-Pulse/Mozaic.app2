@@ -1,9 +1,30 @@
 import React, { useState } from 'react';
 
 const Analytics = ({ user }) => {
+  // Année courante automatique
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  
   const [viewMode, setViewMode] = useState('turnover'); // turnover, absences, monthly
-  const [selectedYear, setSelectedYear] = useState(2024);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  
+  // Filtrage par période personnalisée
+  const [useDateRange, setUseDateRange] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  
+  // Génération dynamique des années disponibles (historique + futures)
+  const getAvailableYears = () => {
+    const firstYear = 2024; // Année de démarrage du système
+    const years = [];
+    for (let year = firstYear; year <= currentYear + 1; year++) {
+      years.push(year);
+    }
+    return years;
+  };
+  
+  const availableYears = getAvailableYears();
   
   // États pour les graphiques dynamiques
   const [chartType, setChartType] = useState('evolution'); // evolution, comparison, distribution
