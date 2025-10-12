@@ -136,16 +136,6 @@ const OvertimeModule = ({ user }) => {
           </div>
           
           {/* Test October 2025 button removed - production mode only */}
-              <span>🧪</span>
-              <span>Mode Test Actif</span>
-              <button
-                onClick={() => setIsTestMode(false)}
-                className="ml-2 text-purple-600 hover:text-purple-800 underline"
-              >
-                Désactiver
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
