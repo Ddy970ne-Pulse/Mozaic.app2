@@ -362,47 +362,134 @@ const UserManagement = ({ user }) => {
     setShowAuditModal(true);
   };
 
-  const handleSaveUser = () => {
-    if (selectedUser.id) {
-      // Modifier utilisateur existant
-      setUsers(users.map(u => u.id === selectedUser.id ? selectedUser : u));
+  const handleSaveUser = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      setIsLoading(true);
       
-      // Log audit
-      const auditEntry = {
-        id: Date.now().toString(),
-        timestamp: new Date().toLocaleString(),
-        action: 'USER_UPDATE',
-        userId: selectedUser.id,
-        userName: selectedUser.name,
-        performedBy: user.name,
-        details: 'Mise à jour informations utilisateur',
-        ipAddress: '192.168.1.100'
-      };
-      setAuditLogs([auditEntry, ...auditLogs]);
-    } else {
-      // Nouveau utilisateur
-      const newUser = {
-        ...selectedUser, 
-        id: Date.now().toString(),
-        permissions: selectedUser.permissions || []
-      };
-      setUsers([...users, newUser]);
+      if (selectedUser.id) {
+        // Modifier utilisateur existant - ENVOYER AU BACKEND
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${selectedUser.id}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            name: selectedUser.name,
+            email: selectedUser.email,
+            role: selectedUser.role,
+            department: selectedUser.department,
+            phone: selectedUser.phone,
+            address: selectedUser.address,
+            position: selectedUser.position,
+            hire_date: selectedUser.hire_date,
+            isDelegateCSE: selectedUser.isDelegateCSE,
+            is_active: selectedUser.is_active,
+            // Champs additionnels
+            date_naissance: selectedUser.date_naissance,
+            sexe: selectedUser.sexe,
+            categorie_employe: selectedUser.categorie_employe,
+            metier: selectedUser.metier,
+            fonction: selectedUser.fonction,
+            site: selectedUser.site,
+            temps_travail: selectedUser.temps_travail,
+            contrat: selectedUser.contrat,
+            date_debut_contrat: selectedUser.date_debut_contrat,
+            date_fin_contrat: selectedUser.date_fin_contrat,
+            notes: selectedUser.notes
+          })
+        });
+
+        if (response.ok) {
+          const updatedUser = await response.json();
+          // Mettre à jour le state local avec les données du serveur
+          setUsers(users.map(u => u.id === selectedUser.id ? updatedUser : u));
+          
+          // Log audit
+          const auditEntry = {
+            id: Date.now().toString(),
+            timestamp: new Date().toLocaleString(),
+            action: 'USER_UPDATE',
+            userId: selectedUser.id,
+            userName: selectedUser.name,
+            performedBy: user.name,
+            details: 'Mise à jour informations utilisateur',
+            ipAddress: '192.168.1.100'
+          };
+          setAuditLogs([auditEntry, ...auditLogs]);
+          
+          alert('✅ Utilisateur mis à jour avec succès !');
+        } else {
+          const errorData = await response.json();
+          alert(`❌ Erreur lors de la mise à jour: ${errorData.detail || 'Erreur inconnue'}`);
+          console.error('Error updating user:', errorData);
+        }
+      } else {
+        // Nouveau utilisateur - CRÉER VIA BACKEND
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            name: selectedUser.name,
+            email: selectedUser.email,
+            password: selectedUser.password || 'TempPassword123!',
+            role: selectedUser.role || 'employee',
+            department: selectedUser.department,
+            phone: selectedUser.phone,
+            address: selectedUser.address,
+            position: selectedUser.position,
+            hire_date: selectedUser.hire_date,
+            isDelegateCSE: selectedUser.isDelegateCSE || false,
+            // Champs additionnels
+            date_naissance: selectedUser.date_naissance,
+            sexe: selectedUser.sexe,
+            categorie_employe: selectedUser.categorie_employe,
+            metier: selectedUser.metier,
+            fonction: selectedUser.fonction,
+            site: selectedUser.site,
+            temps_travail: selectedUser.temps_travail,
+            contrat: selectedUser.contrat,
+            date_debut_contrat: selectedUser.date_debut_contrat,
+            date_fin_contrat: selectedUser.date_fin_contrat,
+            notes: selectedUser.notes
+          })
+        });
+
+        if (response.ok) {
+          const newUser = await response.json();
+          setUsers([...users, newUser]);
+          
+          // Log audit
+          const auditEntry = {
+            id: Date.now().toString(),
+            timestamp: new Date().toLocaleString(),
+            action: 'USER_CREATED',
+            userId: newUser.id,
+            userName: newUser.name,
+            performedBy: user.name,
+            details: 'Création nouvel utilisateur',
+            ipAddress: '192.168.1.100'
+          };
+          setAuditLogs([auditEntry, ...auditLogs]);
+          
+          alert('✅ Utilisateur créé avec succès !');
+        } else {
+          const errorData = await response.json();
+          alert(`❌ Erreur lors de la création: ${errorData.detail || 'Erreur inconnue'}`);
+          console.error('Error creating user:', errorData);
+        }
+      }
       
-      // Log audit
-      const auditEntry = {
-        id: Date.now().toString(),
-        timestamp: new Date().toLocaleString(),
-        action: 'USER_CREATED',
-        userId: newUser.id,
-        userName: newUser.name,
-        performedBy: user.name,
-        details: 'Création nouvel utilisateur',
-        ipAddress: '192.168.1.100'
-      };
-      setAuditLogs([auditEntry, ...auditLogs]);
+      setShowUserModal(false);
+      setSelectedUser(null);
+      // Recharger la liste complète des utilisateurs
+      await fetchUsers();
+      
+    } catch (error) {
+      console.error('Error saving user:', error);
+      alert('❌ Erreur lors de la sauvegarde: ' + error.message);
+    } finally {
+      setIsLoading(false);
     }
-    setShowUserModal(false);
-    setSelectedUser(null);
   };
 
   const handleChangeEmail = (userToEdit) => {
