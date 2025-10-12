@@ -143,10 +143,19 @@ const ExcelImport = ({ user, onChangeView }) => {
     const uploadedFile = event.target.files[0];
     if (!uploadedFile) return;
 
+    // ⚠️ Vérifier que le type de données est sélectionné
+    if (!dataType) {
+      alert('⚠️ Veuillez d\'abord sélectionner le type de données à importer (Employés, Absences ou Heures Travaillées)');
+      event.target.value = ''; // Reset input
+      return;
+    }
+
     if (!uploadedFile.name.match(/\.(xlsx|xls)$/)) {
       alert('Veuillez sélectionner un fichier Excel (.xlsx ou .xls)');
       return;
     }
+    
+    console.log('📁 Fichier sélectionné:', uploadedFile.name, 'pour type:', dataType);
 
     setFile(uploadedFile);
     setIsProcessing(true);
