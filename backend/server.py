@@ -1614,22 +1614,22 @@ async def import_employees(
                 email = employee_data.get('email', '').lower().strip()
                 nom = employee_data.get('nom', '').strip()
                 prenom = employee_data.get('prenom', '').strip()
-                statut_cse_raw = employee_data.get('statut_cse', '').strip().lower()
+                membre_cse_raw = employee_data.get('membre_cse', '').strip().lower()
                 
-                # Détecter si c'est un membre CSE via la colonne 17
+                # Détecter si c'est un membre CSE via la colonne 16 "Membre CSE"
                 is_cse_delegate = False
                 cse_status = None
                 
-                if statut_cse_raw in ['titulaire', 'délégué', 'delegue']:
+                if membre_cse_raw in ['titulaire', 'délégué', 'delegue']:
                     is_cse_delegate = True
                     cse_status = 'titulaire'
                     logger.info(f"🏛️ Ligne {i+1}: Membre CSE TITULAIRE détecté - {prenom} {nom}")
-                elif statut_cse_raw in ['suppléant', 'suppleant', 'suppléante', 'suppleante']:
+                elif membre_cse_raw in ['suppléant', 'suppleant', 'suppléante', 'suppleante']:
                     is_cse_delegate = True
                     cse_status = 'suppléant'
                     logger.info(f"🏛️ Ligne {i+1}: Membre CSE SUPPLÉANT détecté - {prenom} {nom}")
                 
-                logger.info(f"🔍 Ligne {i+1}: email='{email}', nom='{nom}', prenom='{prenom}', statut_cse='{statut_cse_raw}', CSE={is_cse_delegate}")
+                logger.info(f"🔍 Ligne {i+1}: email='{email}', nom='{nom}', prenom='{prenom}', membre_cse='{membre_cse_raw}', CSE={is_cse_delegate}")
                 
                 if not email or not nom or not prenom:
                     error_msg = f"Email={email!r}, nom={nom!r}, prénom={prenom!r} sont obligatoires"
