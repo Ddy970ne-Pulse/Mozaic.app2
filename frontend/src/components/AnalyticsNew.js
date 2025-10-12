@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ModuleHeader, StatCard, ContentCard, Button, LoadingSpinner } from './shared/UIComponents';
 
-const AnalyticsNew = ({ user }) => {
+const AnalyticsNew = ({ user, onBackToHub, showBackButton }) => {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState('all');
