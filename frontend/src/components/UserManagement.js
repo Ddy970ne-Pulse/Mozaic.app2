@@ -793,6 +793,13 @@ const UserManagement = ({ user }) => {
                       >
                         📋
                       </button>
+                      <button
+                        onClick={() => deleteUser(userItem.id)}
+                        className="text-red-600 hover:text-red-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                        title="Supprimer utilisateur"
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </td>
                 </tr>
