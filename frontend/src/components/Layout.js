@@ -59,7 +59,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
     { id: 'on-call-management', name: 'Gestion Astreintes', icon: '🔔', color: 'from-orange-600 to-red-600' },
     { id: 'hr-toolbox', name: 'Boîte à outils RH', icon: '🛠️', color: 'from-teal-500 to-teal-600' },
     { id: 'excel-import', name: 'Import Excel', icon: '📥', color: 'from-emerald-500 to-green-600' },
-    { id: 'cse-management', name: 'Gestion CSE', icon: '🏛️', color: 'from-indigo-600 to-purple-600' },
+    { id: 'cse-management', name: 'CSE & Délégation', icon: '🏛️', color: 'from-indigo-600 to-purple-600' },
     { id: 'user-management', name: 'Gestion Utilisateurs', icon: '👥', color: 'from-pink-500 to-pink-600' }
   ];
 
