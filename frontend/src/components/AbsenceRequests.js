@@ -6,6 +6,8 @@ import { ModuleHeader, TabBar, Button } from './shared/UIComponents';
 const AbsenceRequests = ({ user }) => {
   const [activeTab, setActiveTab] = useState('pending');
   const [showNewRequest, setShowNewRequest] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingRequest, setEditingRequest] = useState(null);
   const [requests, setRequests] = useState(getRequests());
 
   // Souscription aux changements d'état
