@@ -383,9 +383,7 @@ class ImportEmployee(BaseModel):
     date_debut_contrat: Optional[str] = None
     date_fin_contrat: Optional[str] = None
     notes: Optional[str] = None
-    email_cse: Optional[str] = None  # "perso email pro CSE" - indication statut CSE
-    is_cse_delegate: bool = False  # Identifié comme délégué CSE (via préfixe NOM)
-    cse_status: Optional[str] = None  # "titulaire" ou "suppléant"
+    statut_cse: Optional[str] = None  # Colonne 17: "titulaire", "suppléant" ou vide
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
 
