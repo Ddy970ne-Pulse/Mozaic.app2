@@ -401,10 +401,13 @@ const AbsenceRequests = ({ user }) => {
                     onChange={(e) => {
                       const selectedType = e.target.value;
                       const requiresAcknowledgment = absenceTypes[selectedType]?.requiresAcknowledgment || false;
+                      const canUseHours = canBeInHours(selectedType);
                       setNewRequest({
                         ...newRequest, 
                         type: selectedType,
-                        requiresAcknowledgment: requiresAcknowledgment
+                        requiresAcknowledgment: requiresAcknowledgment,
+                        absence_unit: canUseHours && newRequest.absence_unit === 'heures' ? 'heures' : 'jours',
+                        hours_amount: canUseHours ? newRequest.hours_amount : null
                       });
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
