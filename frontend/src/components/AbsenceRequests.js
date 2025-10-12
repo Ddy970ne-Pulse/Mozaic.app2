@@ -141,7 +141,9 @@ const AbsenceRequests = ({ user }) => {
       reason: '', 
       halfDay: false, 
       documents: [], 
-      requiresAcknowledgment: false 
+      requiresAcknowledgment: false,
+      absence_unit: 'jours',
+      hours_amount: null
     });
   };
 
