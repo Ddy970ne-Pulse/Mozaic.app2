@@ -708,6 +708,7 @@ async def create_user(user_data: UserCreate, current_user: User = Depends(get_cu
         role=user_data.role,
         department=user_data.department,
         phone=user_data.phone,
+        address=user_data.address,
         position=user_data.position,
         hire_date=user_data.hire_date,
         isDelegateCSE=user_data.isDelegateCSE,
@@ -715,7 +716,19 @@ async def create_user(user_data: UserCreate, current_user: User = Depends(get_cu
         requires_password_change=True,
         first_login=True,
         temp_password_expires=temp_expires,
-        created_by=current_user.name
+        created_by=current_user.name,
+        # Champs additionnels
+        date_naissance=user_data.date_naissance,
+        sexe=user_data.sexe,
+        categorie_employe=user_data.categorie_employe,
+        metier=user_data.metier,
+        fonction=user_data.fonction,
+        site=user_data.site,
+        temps_travail=user_data.temps_travail,
+        contrat=user_data.contrat,
+        date_debut_contrat=user_data.date_debut_contrat,
+        date_fin_contrat=user_data.date_fin_contrat,
+        notes=user_data.notes
     )
     
     await db.users.insert_one(user_in_db.dict())
