@@ -275,32 +275,48 @@ const OvertimeModule = ({ user }) => {
               <h2 className="text-lg font-semibold text-gray-800">Employés</h2>
             </div>
             <div className="p-6">
-              <div className="space-y-3">
-                {filteredData.map((employee) => (
-                  <button
-                    key={employee.id}
-                    onClick={() => setSelectedEmployee(employee)}
-                    className={`w-full p-4 text-left rounded-lg border transition-all duration-200 ${
-                      selectedEmployee?.id === employee.id 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-gray-800">{employee.name}</div>
-                        <div className="text-sm text-gray-500">{employee.department}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className={`text-sm font-medium ${getBalanceColor(employee.balance).split(' ')[0]}`}>
-                          {employee.balance}h
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="text-gray-500 mt-4">Chargement des données...</p>
+                </div>
+              ) : filteredData.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-4xl mb-4">📊</div>
+                  <p className="text-gray-600 font-medium">Aucune donnée disponible</p>
+                  <p className="text-sm text-gray-500 mt-2">Les heures supplémentaires apparaîtront ici une fois enregistrées.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredData.map((employee) => (
+                    <button
+                      key={employee.id}
+                      onClick={() => {
+                        console.log('🔍 Employé sélectionné:', employee);
+                        setSelectedEmployee(employee);
+                      }}
+                      className={`w-full p-4 text-left rounded-lg border transition-all duration-200 ${
+                        selectedEmployee?.id === employee.id 
+                          ? 'border-blue-500 bg-blue-50' 
+                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-gray-800">{employee.name}</div>
+                          <div className="text-sm text-gray-500">{employee.department}</div>
                         </div>
-                        <div className="text-xs text-gray-500">solde</div>
+                        <div className="text-right">
+                          <div className={`text-sm font-medium ${getBalanceColor(employee.balance).split(' ')[0]}`}>
+                            {employee.balance}h
+                          </div>
+                          <div className="text-xs text-gray-500">solde</div>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
