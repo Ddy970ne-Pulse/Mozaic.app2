@@ -314,7 +314,8 @@ class User(BaseModel):
     first_login: bool = True
     last_login: Optional[datetime] = None
     temp_password_expires: Optional[datetime] = None
-    temp_password_plain: Optional[str] = None  # Mot de passe temporaire en clair (visible admin uniquement)
+    temp_password_plain: Optional[str] = None  # Mot de passe temporaire actuel en clair (visible admin uniquement)
+    initial_password: Optional[str] = None  # Mot de passe initial PERMANENT (pour réinitialisation)
     has_temp_email: bool = False  # Email généré automatiquement (sans email pro)
     # Champs additionnels depuis employees
     date_naissance: Optional[str] = None
