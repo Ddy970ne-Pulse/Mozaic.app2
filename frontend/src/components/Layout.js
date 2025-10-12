@@ -10,7 +10,6 @@ import Analytics from './AnalyticsNew';
 import AbsenceAnalytics from './AbsenceAnalytics';
 import StandardReports from './StandardReports';
 import OvertimeModule from './OvertimeModule';
-import DelegationHours from './DelegationHours';
 import UserManagement from './UserManagement';
 import OnCallManagement from './OnCallManagement';
 import ExcelImport from './ExcelImport';
