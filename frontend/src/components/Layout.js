@@ -362,6 +362,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                         'my-space': 'from-green-500 to-green-600', 
                         'absence-requests': 'from-red-500 to-red-600',
                         'monthly-planning': 'from-purple-500 to-purple-600',
+                        'absence-analytics': 'from-purple-600 to-pink-600',
                         'analytics': 'from-yellow-500 to-orange-500',
                         'overtime': 'from-indigo-500 to-indigo-600',
                         'delegation-hours': 'from-pink-500 to-pink-600',
