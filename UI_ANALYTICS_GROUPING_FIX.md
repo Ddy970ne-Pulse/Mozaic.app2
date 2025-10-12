@@ -225,7 +225,9 @@ Période du 10/01/2025 au 20/01/2025 (11 jours calendaires)
 - [ ] Vérifier l'affichage du hub avec 3 cartes
 - [ ] Cliquer sur "Analyse des Absences"
 - [ ] Vérifier l'accès au module
-- [ ] Retour et test des 2 autres modules
+- [ ] **Cliquer sur le bouton "Retour à Analytics & Rapports"**
+- [ ] **Vérifier le retour au hub**
+- [ ] Tester les 2 autres modules avec retour
 
 ### 3. Décompte CA
 - [ ] Créer une absence CA du 10/01 au 20/01
