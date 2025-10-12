@@ -2031,10 +2031,16 @@ async def import_work_hours(
             try:
                 # Find employee by name to get ID
                 employee_name = work_data.get('employee_name', '')
-                employee = await db.employees.find_one({"$or": [
-                    {"nom": {"$regex": employee_name, "$options": "i"}},
-                    {"prenom": {"$regex": employee_name, "$options": "i"}}
-                ]})
+                
+                # Search in users collection (where employees are stored)
+                employee = await db.users.find_one({"name": {"$regex": employee_name, "$options": "i"}})
+                
+                # If not found, try searching employees collection as fallback
+                if not employee:
+                    employee = await db.employees.find_one({"$or": [
+                        {"nom": {"$regex": employee_name, "$options": "i"}},
+                        {"prenom": {"$regex": employee_name, "$options": "i"}}
+                    ]})
                 
                 if not employee:
                     errors.append({
