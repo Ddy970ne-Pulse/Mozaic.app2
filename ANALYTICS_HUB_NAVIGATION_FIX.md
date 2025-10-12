@@ -49,45 +49,67 @@ Au lieu d'un bandeau externe, le bouton retour est maintenant **intégré direct
 
 ### Code Modifié
 
-**Fichier:** `/app/frontend/src/components/AnalyticsHub.js`
+**Fichier 1:** `/app/frontend/src/components/AnalyticsHub.js`
 
-**Avant:**
+**Passage de callbacks aux sous-modules:**
 ```javascript
 if (activeModule) {
   const Module = modules.find(m => m.id === activeModule)?.component;
   if (Module) {
-    return <Module user={user} onChangeView={onChangeView} />;
-  }
-}
-```
-
-**Après:**
-```javascript
-if (activeModule) {
-  const currentModule = modules.find(m => m.id === activeModule);
-  const Module = currentModule?.component;
-  if (Module) {
     return (
-      <div className="space-y-4">
-        {/* Bandeau de navigation avec bouton retour */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center justify-between">
-            <button onClick={() => setActiveModule(null)}>
-              ← Retour à Analytics & Rapports
-            </button>
-            <div className="badge-module-actif">
-              {currentModule.icon} {currentModule.name}
-            </div>
-          </div>
-        </div>
-        
-        {/* Contenu du module */}
-        <Module user={user} onChangeView={onChangeView} />
-      </div>
+      <Module 
+        user={user} 
+        onChangeView={onChangeView}
+        onBackToHub={() => setActiveModule(null)}
+        showBackButton={true}
+      />
     );
   }
 }
 ```
+
+**Fichiers 2-4:** Intégration dans chaque sous-module
+
+**StandardReports.js & AbsenceAnalytics.js:**
+```javascript
+const Component = ({ user, onBackToHub, showBackButton }) => {
+  return (
+    <div className="space-y-6 p-6">
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1>Titre du Module</h1>
+            <p>Sous-titre</p>
+          </div>
+          
+          {/* Bouton retour intégré */}
+          {showBackButton && onBackToHub && (
+            <button onClick={onBackToHub}>
+              ← Retour au Hub
+            </button>
+          )}
+        </div>
+      </div>
+      ...
+    </div>
+  );
+};
+```
+
+**AnalyticsNew.js (via ModuleHeader):**
+```javascript
+<ModuleHeader
+  title="Analytics & KPI"
+  subtitle="..."
+  icon="📊"
+  onBackToHub={onBackToHub}
+  showBackButton={showBackButton}
+/>
+```
+
+**Fichier 5:** `/app/frontend/src/components/shared/UIComponents.js`
+
+Modification du `ModuleHeader` pour accepter les props `onBackToHub` et `showBackButton`.
 
 ## Design
 
