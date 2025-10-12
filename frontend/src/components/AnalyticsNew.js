@@ -196,39 +196,134 @@ const AnalyticsNew = ({ user }) => {
         <p className="text-indigo-100">Vue d'ensemble des données RH</p>
       </div>
 
-      {/* Filtres */}
+      {/* Filtres Dynamiques */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-wrap gap-4 items-center">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Année</label>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
-              {[2024, 2025, 2026].map(year => (
-                <option key={year} value={year}>{year}</option>
-              ))}
-            </select>
+        <h3 className="text-sm font-semibold text-gray-700 mb-4">🎯 Filtres & Périodes</h3>
+        
+        {/* Type de période */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Type de Période</label>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { value: 'monthly', label: '📅 Mensuel' },
+              { value: 'quarterly', label: '📊 Trimestriel' },
+              { value: 'ytd', label: '📈 Année en cours (YTD)' },
+              { value: 'custom', label: '🎯 Période personnalisée' }
+            ].map(period => (
+              <button
+                key={period.value}
+                onClick={() => setPeriodType(period.value)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  periodType === period.value
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {period.label}
+              </button>
+            ))}
           </div>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Mois</label>
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
-              <option value="all">Toute l'année</option>
-              {months.map((month, index) => (
-                <option key={index} value={index + 1}>{month}</option>
-              ))}
-            </select>
-          </div>
+        {/* Filtres selon le type de période */}
+        <div className="flex flex-wrap gap-4 items-end">
+          {periodType === 'monthly' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Année</label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  {[2024, 2025, 2026].map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mois</label>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="all">Toute l'année</option>
+                  {months.map((month, index) => (
+                    <option key={index} value={index + 1}>{month}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          {periodType === 'quarterly' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Année</label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  {[2024, 2025, 2026].map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Trimestre</label>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="0">Q1 (Jan-Mar)</option>
+                  <option value="3">Q2 (Avr-Juin)</option>
+                  <option value="6">Q3 (Juil-Sep)</option>
+                  <option value="9">Q4 (Oct-Déc)</option>
+                </select>
+              </div>
+            </>
+          )}
+
+          {periodType === 'custom' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date Début</label>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date Fin</label>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            </>
+          )}
+
+          {periodType === 'ytd' && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
+              <p className="text-sm text-blue-800">
+                📈 Analyse depuis le 1er janvier {currentYear} jusqu'à aujourd'hui
+              </p>
+            </div>
+          )}
 
           <button
             onClick={fetchAnalytics}
-            className="mt-6 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
           >
             🔄 Actualiser
           </button>
