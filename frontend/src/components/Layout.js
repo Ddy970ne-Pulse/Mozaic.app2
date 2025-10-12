@@ -97,6 +97,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <AbsenceAnalytics user={user} onChangeView={setCurrentView} />;
         case 'analytics':
           return <Analytics user={user} onChangeView={setCurrentView} />;
+        case 'standard-reports':
+          return <StandardReports user={user} onChangeView={setCurrentView} />;
         case 'overtime':
           return <OvertimeModule user={user} onChangeView={setCurrentView} />;
         case 'delegation-hours':
