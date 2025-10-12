@@ -151,7 +151,14 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         let importedAbsences = [];
         if (response.ok) {
           importedAbsences = await response.json();
-          console.log(`✅ Loaded ${importedAbsences.length} imported absences`);
+          console.log(`✅ Loaded ${importedAbsences.length} imported absences for ${selectedMonth + 1}/${selectedYear}`);
+          if (importedAbsences.length > 0) {
+            console.log('📋 Sample absences:', importedAbsences.slice(0, 3).map(a => ({
+              name: a.employee_name,
+              date_debut: a.date_debut,
+              motif: a.motif_absence
+            })));
+          }
         } else {
           console.error('❌ Failed to load imported absences:', response.status);
         }
