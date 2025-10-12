@@ -18,6 +18,7 @@ const ExcelImport = ({ user, onChangeView }) => {
   const [validationResults, setValidationResults] = useState({ valid: [], errors: [], warnings: [] });
   const [importResults, setImportResults] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showDangerZone, setShowDangerZone] = useState(false);
 
   // Fonction pour convertir les dates Excel en format français DD/MM/YYYY
   const excelDateToJSDate = (excelDate) => {
