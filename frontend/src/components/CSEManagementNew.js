@@ -1,0 +1,615 @@
+import React, { useState, useEffect } from 'react';
+
+const CSEManagementNew = ({ user }) => {
+  const [activeTab, setActiveTab] = useState('members');
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState(null);
+  
+  // Données
+  const [titulaires, setTitulaires] = useState([]);
+  const [suppleants, setSuppleants] = useState([]);
+  const [cessions, setCessions] = useState([]);
+  
+  // Formulaire cession
+  const [showCessionModal, setShowCessionModal] = useState(false);
+  const [cessionData, setCessionData] = useState({
+    from_id: '',
+    to_id: '',
+    hours: '',
+    usage_date: '',
+    reason: ''
+  });
+
+  const creditMensuelBase = 10; // CCN66: 50-150 salariés
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      // 1. Charger tous les utilisateurs
+      const usersResponse = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/users`,
+        { headers }
+      );
+      const users = await usersResponse.json();
+
+      // 2. Filtrer les membres CSE automatiquement
+      const cseMembers = users.filter(u => 
+        u.statut_cse === 'Titulaire' || u.statut_cse === 'Suppléant'
+      );
+
+      const tit = cseMembers.filter(m => m.statut_cse === 'Titulaire');
+      const sup = cseMembers.filter(m => m.statut_cse === 'Suppléant');
+
+      setTitulaires(tit);
+      setSuppleants(sup);
+
+      // 3. Charger les cessions (si endpoint existe)
+      try {
+        const cessionsResponse = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/cse/cessions`,
+          { headers }
+        );
+        if (cessionsResponse.ok) {
+          const cessionsData = await cessionsResponse.json();
+          setCessions(cessionsData);
+        }
+      } catch (error) {
+        console.log('Endpoint cessions non disponible');
+      }
+
+    } catch (error) {
+      console.error('Erreur chargement données CSE:', error);
+      showMessage('Erreur lors du chargement des données', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateBalance = (memberId) => {
+    // Calculer le solde d'heures d'un membre
+    const cessionsDonnees = cessions.filter(c => c.from_id === memberId);
+    const cessionsRecues = cessions.filter(c => c.to_id === memberId);
+    
+    const member = [...titulaires, ...suppleants].find(m => m.id === memberId);
+    const creditInitial = member?.statut_cse === 'Titulaire' ? creditMensuelBase : 0;
+    
+    const cedees = cessionsDonnees.reduce((sum, c) => sum + parseFloat(c.hours || 0), 0);
+    const recues = cessionsRecues.reduce((sum, c) => sum + parseFloat(c.hours || 0), 0);
+    
+    return {
+      initial: creditInitial,
+      cedees,
+      recues,
+      balance: creditInitial - cedees + recues
+    };
+  };
+
+  const handleSubmitCession = async (e) => {
+    e.preventDefault();
+    
+    try {
+      // Validations
+      const cedant = titulaires.find(t => t.id === cessionData.from_id);
+      const beneficiaire = [...titulaires, ...suppleants].find(m => m.id === cessionData.to_id);
+      
+      if (!cedant) {
+        showMessage('Cédant non trouvé', 'error');
+        return;
+      }
+
+      if (!beneficiaire) {
+        showMessage('Bénéficiaire non trouvé', 'error');
+        return;
+      }
+
+      // Validation limite 1.5x
+      const beneficiaireBalance = calculateBalance(beneficiaire.id);
+      const newBalance = beneficiaireBalance.balance + parseFloat(cessionData.hours);
+      const maxAllowed = creditMensuelBase * 1.5;
+
+      if (newBalance > maxAllowed) {
+        showMessage(
+          `Dépassement limite: Le bénéficiaire aurait ${newBalance.toFixed(1)}h mais le maximum autorisé est ${maxAllowed}h (1.5× ${creditMensuelBase}h)`,
+          'error'
+        );
+        return;
+      }
+
+      // Validation délai 8 jours
+      const today = new Date();
+      const usageDate = new Date(cessionData.usage_date);
+      const daysDiff = Math.ceil((usageDate - today) / (1000 * 60 * 60 * 24));
+
+      if (daysDiff < 8) {
+        if (!window.confirm(
+          `⚠️ ATTENTION: L'employeur doit être informé au moins 8 jours avant.\n` +
+          `Délai actuel: ${daysDiff} jour(s)\n\n` +
+          `Voulez-vous continuer quand même ?`
+        )) {
+          return;
+        }
+      }
+
+      // Soumettre la cession
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/cse/cessions`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from_id: cessionData.from_id,
+            from_name: cedant.name,
+            to_id: cessionData.to_id,
+            to_name: beneficiaire.name,
+            hours: parseFloat(cessionData.hours),
+            usage_date: cessionData.usage_date,
+            reason: cessionData.reason,
+            created_by: user.name
+          })
+        }
+      );
+
+      if (response.ok) {
+        showMessage('Cession créée avec succès', 'success');
+        setShowCessionModal(false);
+        setCessionData({ from_id: '', to_id: '', hours: '', usage_date: '', reason: '' });
+        fetchData(); // Recharger les données
+      } else {
+        const error = await response.json();
+        showMessage(error.detail || 'Erreur lors de la création', 'error');
+      }
+
+    } catch (error) {
+      console.error('Erreur soumission cession:', error);
+      showMessage('Erreur lors de la soumission', 'error');
+    }
+  };
+
+  const showMessage = (text, type) => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 5000);
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    return new Date(dateStr).toLocaleDateString('fr-FR');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+        <h1 className="text-2xl font-bold mb-2">🏛️ Gestion CSE & Délégation</h1>
+        <p className="text-indigo-100">
+          Module unifié - Membres, Heures de Délégation & Cessions
+        </p>
+      </div>
+
+      {/* Message */}
+      {message && (
+        <div className={`p-4 rounded-lg ${
+          message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        }`}>
+          {message.text}
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="border-b border-gray-200">
+          <div className="flex gap-2 p-2">
+            {[
+              { id: 'members', label: '👥 Membres CSE' },
+              { id: 'hours', label: '⚖️ Heures de Délégation' },
+              { id: 'cessions', label: '🔄 Cessions d\'Heures' },
+              { id: 'reports', label: '📊 Rapports' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-purple-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-6">
+          {/* Tab: Membres CSE */}
+          {activeTab === 'members' && (
+            <div className="space-y-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-blue-800">
+                  ℹ️ <strong>Chargement automatique:</strong> Les membres CSE sont automatiquement 
+                  détectés depuis la Gestion des Utilisateurs (champ "Statut CSE").
+                </p>
+              </div>
+
+              {/* Titulaires */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  👔 Titulaires ({titulaires.length})
+                </h3>
+                {titulaires.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {titulaires.map(member => {
+                      const balance = calculateBalance(member.id);
+                      return (
+                        <div key={member.id} className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-lg p-4">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                              {member.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-800">{member.name}</p>
+                              <p className="text-sm text-gray-600">{member.department || 'N/A'}</p>
+                            </div>
+                          </div>
+                          <div className="space-y-1 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Crédit mensuel:</span>
+                              <span className="font-semibold text-purple-600">{balance.initial}h</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Solde actuel:</span>
+                              <span className="font-bold text-purple-900">{balance.balance.toFixed(1)}h</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                    Aucun titulaire défini. Ajoutez le statut "Titulaire" dans la Gestion des Utilisateurs.
+                  </div>
+                )}
+              </div>
+
+              {/* Suppléants */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  👤 Suppléants ({suppleants.length})
+                </h3>
+                {suppleants.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {suppleants.map(member => {
+                      const balance = calculateBalance(member.id);
+                      return (
+                        <div key={member.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold">
+                              {member.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-800">{member.name}</p>
+                              <p className="text-sm text-gray-600">{member.department || 'N/A'}</p>
+                            </div>
+                          </div>
+                          <div className="space-y-1 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Heures reçues:</span>
+                              <span className="font-semibold text-gray-900">{balance.recues.toFixed(1)}h</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                    Aucun suppléant défini.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Tab: Heures de Délégation */}
+          {activeTab === 'hours' && (
+            <div className="space-y-6">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-yellow-800">
+                  ⚖️ <strong>CCN66:</strong> Crédit de base = {creditMensuelBase}h/mois (50-150 salariés)
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {[...titulaires, ...suppleants].map(member => {
+                  const balance = calculateBalance(member.id);
+                  return (
+                    <div key={member.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-gray-800">{member.name}</p>
+                          <p className="text-sm text-gray-600">
+                            {member.statut_cse} - {member.department || 'N/A'}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-purple-600">{balance.balance.toFixed(1)}h</p>
+                          <p className="text-xs text-gray-500">Solde actuel</p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 grid grid-cols-3 gap-4 text-sm">
+                        <div className="bg-green-50 rounded p-2">
+                          <p className="text-gray-600">Crédit initial</p>
+                          <p className="font-semibold text-green-700">{balance.initial}h</p>
+                        </div>
+                        <div className="bg-orange-50 rounded p-2">
+                          <p className="text-gray-600">Cédées</p>
+                          <p className="font-semibold text-orange-700">-{balance.cedees.toFixed(1)}h</p>
+                        </div>
+                        <div className="bg-blue-50 rounded p-2">
+                          <p className="text-gray-600">Reçues</p>
+                          <p className="font-semibold text-blue-700">+{balance.recues.toFixed(1)}h</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Tab: Cessions */}
+          {activeTab === 'cessions' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Cessions d'Heures</h3>
+                  <p className="text-sm text-gray-600">Mutualisation conforme Code du travail L.2315-9</p>
+                </div>
+                <button
+                  onClick={() => setShowCessionModal(true)}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 shadow-sm"
+                >
+                  ➕ Nouvelle Cession
+                </button>
+              </div>
+
+              {/* Historique */}
+              <div className="space-y-3">
+                {cessions.length > 0 ? (
+                  cessions.map(cession => (
+                    <div key={cession.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold text-gray-800">
+                            {cession.from_name} → {cession.to_name}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {cession.reason || 'Aucun motif'}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Utilisation prévue: {formatDate(cession.usage_date)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-purple-600">{cession.hours}h</p>
+                          <p className="text-xs text-gray-500">{formatDate(cession.created_at)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                    Aucune cession enregistrée
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Tab: Rapports */}
+          {activeTab === 'reports' && (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-gray-800">📊 Statistiques</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-blue-50 rounded-lg p-6">
+                  <p className="text-sm text-blue-600 font-medium mb-2">Total Titulaires</p>
+                  <p className="text-4xl font-bold text-blue-900">{titulaires.length}</p>
+                </div>
+                
+                <div className="bg-purple-50 rounded-lg p-6">
+                  <p className="text-sm text-purple-600 font-medium mb-2">Total Suppléants</p>
+                  <p className="text-4xl font-bold text-purple-900">{suppleants.length}</p>
+                </div>
+                
+                <div className="bg-orange-50 rounded-lg p-6">
+                  <p className="text-sm text-orange-600 font-medium mb-2">Total Cessions</p>
+                  <p className="text-4xl font-bold text-orange-900">{cessions.length}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Modal Nouvelle Cession */}
+      {showCessionModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
+              <h2 className="text-xl font-bold">🔄 Nouvelle Cession d'Heures</h2>
+              <p className="text-sm text-purple-100 mt-1">Mutualisation conforme CCN66</p>
+            </div>
+
+            <form onSubmit={handleSubmitCession} className="p-6 space-y-6">
+              {/* Règles légales */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p className="text-sm text-yellow-800 font-medium mb-2">⚖️ Règles Légales:</p>
+                <ul className="text-xs text-yellow-700 space-y-1 ml-4 list-disc">
+                  <li>Seuls les <strong>titulaires</strong> peuvent céder des heures</li>
+                  <li>Maximum <strong>1.5× le crédit titulaire</strong> par bénéficiaire ({creditMensuelBase * 1.5}h max)</li>
+                  <li>Employeur informé au moins <strong>8 jours avant</strong> utilisation</li>
+                </ul>
+              </div>
+
+              {/* Cédant */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cédant (Titulaire uniquement) *
+                </label>
+                <select
+                  required
+                  value={cessionData.from_id}
+                  onChange={(e) => setCessionData({ ...cessionData, from_id: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="">Sélectionner un titulaire...</option>
+                  {titulaires.map(t => {
+                    const balance = calculateBalance(t.id);
+                    return (
+                      <option key={t.id} value={t.id}>
+                        {t.name} (Solde: {balance.balance.toFixed(1)}h)
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* Bénéficiaire */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Bénéficiaire *
+                </label>
+                <select
+                  required
+                  value={cessionData.to_id}
+                  onChange={(e) => setCessionData({ ...cessionData, to_id: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="">Sélectionner un bénéficiaire...</option>
+                  <optgroup label="Titulaires">
+                    {titulaires.filter(t => t.id !== cessionData.from_id).map(t => {
+                      const balance = calculateBalance(t.id);
+                      return (
+                        <option key={t.id} value={t.id}>
+                          {t.name} (Solde: {balance.balance.toFixed(1)}h)
+                        </option>
+                      );
+                    })}
+                  </optgroup>
+                  <optgroup label="Suppléants">
+                    {suppleants.map(s => {
+                      const balance = calculateBalance(s.id);
+                      return (
+                        <option key={s.id} value={s.id}>
+                          {s.name} (Solde: {balance.balance.toFixed(1)}h)
+                        </option>
+                      );
+                    })}
+                  </optgroup>
+                </select>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Nombre d'heures */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre d'Heures *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0.5"
+                    step="0.5"
+                    value={cessionData.hours}
+                    onChange={(e) => setCessionData({ ...cessionData, hours: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    placeholder="Ex: 5"
+                  />
+                  {cessionData.to_id && cessionData.hours && (
+                    <p className="text-xs text-gray-600 mt-1">
+                      Max autorisé: {creditMensuelBase * 1.5}h (1.5× {creditMensuelBase}h)
+                    </p>
+                  )}
+                </div>
+
+                {/* Date d'utilisation */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date d'Utilisation *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={cessionData.usage_date}
+                    onChange={(e) => setCessionData({ ...cessionData, usage_date: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
+                  <p className="text-xs text-gray-600 mt-1">
+                    ℹ️ Employeur informé 8j avant
+                  </p>
+                </div>
+              </div>
+
+              {/* Motif */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Motif / Raison
+                </label>
+                <textarea
+                  rows="3"
+                  value={cessionData.reason}
+                  onChange={(e) => setCessionData({ ...cessionData, reason: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  placeholder="Réunion extraordinaire, formation, etc."
+                ></textarea>
+              </div>
+
+              {/* Boutons */}
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCessionModal(false);
+                    setCessionData({ from_id: '', to_id: '', hours: '', usage_date: '', reason: '' });
+                  }}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
+                  📤 Créer la Cession
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CSEManagementNew;
