@@ -3,8 +3,8 @@ import { calculateLeaveDeduction, validateLeaveCalculation, generateLeaveReport,
 import { ABSENCE_DEDUCTION_RULES, calculateAbsenceDeduction, validateAbsenceLimits, generateAbsenceReport } from '../shared/absenceRulesSafe';
 import { getRequests, subscribe } from '../shared/requestsData';
 import { getOnCallDataForMonthlyPlanning, onCallBandColor } from '../shared/onCallData';
-// Test data import removed - using real data only
 import { getHolidaysCached } from '../utils/holidays';
+import { ModuleHeader, Button, Message } from './shared/UIComponents';
 
 const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
