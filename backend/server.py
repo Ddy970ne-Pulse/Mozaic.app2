@@ -3487,6 +3487,86 @@ async def get_all_overtime(current_user: User = Depends(get_current_user)):
         return []  # Return empty list if no data
 
 # ==================================================
+# BACKUP & RESTORE ENDPOINTS
+# ==================================================
+
+@api_router.post("/backup/create")
+async def create_backup(current_user: User = Depends(get_current_user)):
+    """Créer un backup de la base de données (admin uniquement)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        from backup_restore import backup_database
+        backup_file = await backup_database()
+        
+        return {
+            "success": True,
+            "message": "Backup créé avec succès",
+            "backup_file": backup_file,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Backup failed: {str(e)}")
+
+@api_router.post("/backup/restore")
+async def restore_backup(
+    backup_file: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Restaurer depuis un backup (admin uniquement)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        from backup_restore import restore_database
+        success = await restore_database(backup_file)
+        
+        if success:
+            return {
+                "success": True,
+                "message": "Données restaurées avec succès",
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        else:
+            raise HTTPException(status_code=404, detail="No backup file found")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Restore failed: {str(e)}")
+
+@api_router.get("/backup/list")
+async def list_backups(current_user: User = Depends(get_current_user)):
+    """Lister tous les backups disponibles (admin uniquement)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        from pathlib import Path
+        backup_dir = Path("/app/data/backups")
+        
+        if not backup_dir.exists():
+            return {"backups": []}
+        
+        backups = []
+        for backup_file in sorted(backup_dir.glob("backup_*.json"), reverse=True):
+            size = backup_file.stat().st_size / 1024  # KB
+            backups.append({
+                "filename": backup_file.name,
+                "path": str(backup_file),
+                "size_kb": round(size, 2),
+                "modified": datetime.fromtimestamp(backup_file.stat().st_mtime, tz=timezone.utc).isoformat()
+            })
+        
+        return {
+            "success": True,
+            "backups": backups,
+            "total": len(backups)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"List failed: {str(e)}")
+
+# ==================================================
 # SEED ENDPOINT - Demo Data Population
 # ==================================================
 
