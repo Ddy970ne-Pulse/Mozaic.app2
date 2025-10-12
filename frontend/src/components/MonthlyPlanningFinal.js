@@ -426,11 +426,20 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
   // Update planning from imported absences (Excel imports)
   const updatePlanningFromImportedAbsences = (absencesList) => {
     if (!Array.isArray(absencesList) || absencesList.length === 0) {
-      console.log('Aucune absence importée à traiter');
+      console.log('📭 Aucune absence importée à traiter');
       return;
     }
     
+    console.log(`🔄 Processing ${absencesList.length} imported absences for month ${selectedMonth + 1}/${selectedYear}`);
+    
     setEmployees(prevEmployees => {
+      if (!prevEmployees || prevEmployees.length === 0) {
+        console.warn('⚠️ No employees loaded yet, cannot apply absences');
+        return prevEmployees;
+      }
+      
+      console.log(`👥 Applying absences to ${prevEmployees.length} employees`);
+      
       return prevEmployees.map(employee => {
         // Find absences for this employee by ID or name
         const employeeAbsences = absencesList.filter(abs => 
@@ -439,18 +448,25 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
           `${abs.nom} ${abs.prenom}`.trim() === employee.name
         );
         
+        if (employeeAbsences.length > 0) {
+          console.log(`✅ Found ${employeeAbsences.length} absences for ${employee.name}`, employeeAbsences);
+        }
+        
         const newAbsences = { ...employee.absences };
-        let totalDays = employee.totalAbsenceDays;
+        let totalDays = employee.totalAbsenceDays || 0;
         
         employeeAbsences.forEach(absence => {
           try {
             const dateDebut = absence.date_debut;
-            const joursAbsence = parseInt(absence.jours_absence) || 1;
+            const dateFin = absence.date_fin;
             const motifAbsence = absence.motif_absence || 'AUT';
             
-            if (!dateDebut) return;
+            if (!dateDebut) {
+              console.warn('⚠️ Absence sans date_debut:', absence);
+              return;
+            }
             
-            // Parse date (format DD/MM/YYYY or YYYY-MM-DD)
+            // Parse start date (format DD/MM/YYYY or YYYY-MM-DD)
             let startDate;
             if (dateDebut.includes('/')) {
               const [day, month, year] = dateDebut.split('/');
@@ -459,27 +475,51 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               startDate = new Date(dateDebut);
             }
             
+            // Parse end date if available (calculated by backend)
+            let endDate;
+            if (dateFin) {
+              if (dateFin.includes('/')) {
+                const [day, month, year] = dateFin.split('/');
+                endDate = new Date(year, month - 1, day);
+              } else {
+                endDate = new Date(dateFin);
+              }
+            } else {
+              // Fallback: use jours_absence
+              const joursAbsence = parseInt(absence.jours_absence) || 1;
+              endDate = new Date(startDate);
+              endDate.setDate(startDate.getDate() + joursAbsence - 1);
+            }
+            
+            console.log(`📅 Processing absence: ${employee.name} - ${motifAbsence} from ${dateDebut} to ${dateFin || 'calculated'}`);
+            
             // Generate all dates for the absence period
-            for (let i = 0; i < joursAbsence; i++) {
-              const currentDate = new Date(startDate);
-              currentDate.setDate(startDate.getDate() + i);
-              
+            const currentDate = new Date(startDate);
+            let daysAdded = 0;
+            
+            while (currentDate <= endDate) {
               const day = currentDate.getDate();
               const month = currentDate.getMonth();
               const year = currentDate.getFullYear();
               
               // Only add if it's in the selected month/year
               if (month === selectedMonth && year === selectedYear) {
-                // Map motif to absence code
                 const absenceCode = motifAbsence.toUpperCase();
                 if (!newAbsences[day.toString()]) {
                   newAbsences[day.toString()] = absenceCode;
                   totalDays++;
+                  daysAdded++;
                 }
               }
+              
+              // Move to next day
+              currentDate.setDate(currentDate.getDate() + 1);
             }
+            
+            console.log(`   ✓ Added ${daysAdded} days to planning for ${employee.name}`);
+            
           } catch (error) {
-            console.error('Erreur traitement absence importée:', error, absence);
+            console.error('❌ Erreur traitement absence importée:', error, absence);
           }
         });
         
