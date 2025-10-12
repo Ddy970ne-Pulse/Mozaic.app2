@@ -1748,10 +1748,7 @@ async def import_employees(
                         
                         await db.cse_delegates.insert_one(delegate_dict)
                         
-                        logger.info(f"✅ Délégué CSE créé: {prenom} {nom} ({cse_status}, {college})")
-                        
-                        if email_cse:
-                            logger.info(f"📧 Email CSE: {email_cse}")
+                        logger.info(f"✅ Délégué CSE créé: {prenom} {nom} ({cse_status}, {college}, 24h/mois)")
                     
                     except Exception as e:
                         logger.error(f"⚠️ Erreur création délégué CSE pour {prenom} {nom}: {str(e)}")
