@@ -24,7 +24,9 @@ const AbsenceRequests = ({ user }) => {
     reason: '',
     halfDay: false,
     documents: [],
-    requiresAcknowledgment: false
+    requiresAcknowledgment: false,
+    absence_unit: 'jours',  // 'jours' ou 'heures'
+    hours_amount: null      // nombre d'heures si unit='heures'
   });
 
   // Suppression de la duplication - utiliser le state requests défini plus haut
