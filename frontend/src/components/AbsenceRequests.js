@@ -256,10 +256,6 @@ const AbsenceRequests = ({ user }) => {
                       <h3 className="text-lg font-semibold text-gray-800">{request.employee}</h3>
                       <p className="text-sm text-gray-600">{request.department}</p>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800">{request.employee}</h3>
-                      <p className="text-sm text-gray-600">{request.department}</p>
-                    </div>
                   </div>
                   
                   <div className="flex items-center space-x-3">
