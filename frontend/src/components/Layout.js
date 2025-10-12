@@ -192,32 +192,35 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
       {/* Menu Principal Glassmorphism - Responsive pour tous les écrans */}
       {showMenu && (
         <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden">
-          {/* Nuages animés améliorés avec effets de la page de connexion */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Nuage principal avec rotation et mouvement */}
+          {/* Nuages animés - Mouvement horizontal réaliste */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {/* Nuage principal - Mouvement lent horizontal */}
             <div 
-              className="cloud cloud-1 absolute w-96 h-96 bg-white/5 rounded-full -top-48 -left-48"
+              className="cloud cloud-1 absolute w-96 h-96 bg-white/5 rounded-full blur-3xl -top-48"
               style={{
-                animation: 'cloudFloat 20s ease-in-out infinite, cloudRotate 30s linear infinite',
-                animationDelay: '0s'
+                animation: 'cloudDrift 60s linear infinite',
+                animationDelay: '0s',
+                left: '-30%'
               }}
             ></div>
             
-            {/* Nuage secondaire avec effet pulsant */}
+            {/* Nuage secondaire - Mouvement moyen */}
             <div 
-              className="cloud cloud-2 absolute w-64 h-64 bg-white/3 rounded-full top-1/4 right-0"
+              className="cloud cloud-2 absolute w-64 h-64 bg-white/3 rounded-full blur-2xl top-1/4"
               style={{
-                animation: 'cloudFloat 25s ease-in-out infinite reverse, cloudPulse 8s ease-in-out infinite',
-                animationDelay: '5s'
+                animation: 'cloudDrift 45s linear infinite',
+                animationDelay: '15s',
+                left: '-20%'
               }}
             ></div>
             
-            {/* Nuage tertiaire avec oscillation */}
+            {/* Nuage tertiaire - Mouvement rapide */}
             <div 
-              className="cloud cloud-3 absolute w-80 h-80 bg-white/4 rounded-full bottom-0 left-1/3"
+              className="cloud cloud-3 absolute w-80 h-80 bg-white/4 rounded-full blur-3xl bottom-0"
               style={{
-                animation: 'cloudFloat 30s ease-in-out infinite, cloudSway 15s ease-in-out infinite',
-                animationDelay: '10s'
+                animation: 'cloudDrift 50s linear infinite',
+                animationDelay: '25s',
+                left: '-25%'
               }}
             ></div>
             
