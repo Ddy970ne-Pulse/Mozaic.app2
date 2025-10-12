@@ -394,6 +394,19 @@ backend:
     status_history:
       - working: false
         agent: "user"
+
+  - task: "Admin Absence Modification - Frontend Integration"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/AbsenceRequests.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "ADMIN ABSENCE MODIFICATION FRONTEND IMPLEMENTED: Successfully integrated frontend UI for admin absence modification feature. IMPLEMENTATION DETAILS: 1) Added new states: showEditModal (boolean) and editingRequest (object) to manage modal visibility and editing data, 2) Created handleEditRequest() function that opens modal with pre-filled absence data (id, date_debut, date_fin, jours_absence, motif_absence, notes, status), 3) Created handleSaveEdit() async function that calls PUT /api/absences/{absence_id} endpoint with JWT authentication, proper error handling, success message, and page reload, 4) Added 'Modifier' button next to Approve/Reject buttons, visible ONLY for users with role='admin', button displays on ALL absences (pending, approved, rejected), 5) Created comprehensive edit modal with: gradient blue header, close button, 6 input fields (date_debut*, date_fin, jours_absence, motif_absence*, notes, status), info box with traçabilité message, footer with Cancel and Save buttons. MODAL FIELDS: Date inputs (type=date), number input for days (min=0), dropdown for absence type (all 21 types), textarea for notes (3 rows), dropdown for status (pending/approved/rejected). DESIGN: Consistent with MOZAIK RH theme using blue/indigo gradients, focus rings, hover effects, shadow-2xl for modal, responsive layout. FUNCTIONALITY: Click 'Modifier' → Opens modal with pre-filled data, User modifies fields → Real-time validation, Click 'Enregistrer' → API PUT call with success/error handling, Click 'Annuler' or X → Closes modal without saving. Backend endpoint PUT /api/absences/{absence_id} already exists (line 3203 in server.py). Frontend restarted successfully. Created comprehensive documentation in ADMIN_ABSENCE_MODIFICATION.md. Ready for testing with admin user to verify: button visibility, modal opening, field editing, API integration, success message, data persistence."
+
         comment: "User reported that tile hover effect still incorrect - tiles were enlarging too much on hover despite previous fix attempts."
       - working: true
         agent: "main"
