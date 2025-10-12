@@ -1657,8 +1657,7 @@ async def import_employees(
                     email=email,
                     date_naissance=employee_data.get('date_naissance'),
                     sexe=employee_data.get('sexe'),
-                    categorie=employee_data.get('categorie'),
-                    employe=employee_data.get('employe'),
+                    categorie_employe=employee_data.get('categorie_employe'),
                     metier=employee_data.get('metier'),
                     fonction=employee_data.get('fonction'),
                     departement=employee_data.get('departement', ''),
@@ -1668,7 +1667,7 @@ async def import_employees(
                     date_debut_contrat=employee_data.get('date_debut_contrat'),
                     date_fin_contrat=employee_data.get('date_fin_contrat'),
                     notes=employee_data.get('notes'),
-                    statut_cse=statut_cse_raw,
+                    membre_cse=membre_cse_raw,
                     created_by=current_user.name
                 )
                 
