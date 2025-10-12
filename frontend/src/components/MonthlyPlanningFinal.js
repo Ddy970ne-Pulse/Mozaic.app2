@@ -134,8 +134,12 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     const loadImportedAbsences = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (!token) return;
+        if (!token) {
+          console.warn('⚠️ No token found, skipping absence import');
+          return;
+        }
 
+        console.log(`📥 Loading imported absences for ${selectedYear}-${selectedMonth + 1}`);
         const response = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/absences/by-period/${selectedYear}/${selectedMonth + 1}`,
           {
@@ -148,12 +152,13 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
 
         if (response.ok) {
           const absences = await response.json();
+          console.log(`✅ Loaded ${absences.length} imported absences:`, absences);
           updatePlanningFromImportedAbsences(absences);
         } else {
-          console.error('Failed to load imported absences');
+          console.error('❌ Failed to load imported absences:', response.status, response.statusText);
         }
       } catch (error) {
-        console.error('Error loading imported absences:', error);
+        console.error('❌ Error loading imported absences:', error);
       }
     };
 
