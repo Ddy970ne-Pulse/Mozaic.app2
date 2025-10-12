@@ -3,7 +3,7 @@ import { calculateLeaveDeduction, validateLeaveCalculation, generateLeaveReport,
 import { ABSENCE_DEDUCTION_RULES, calculateAbsenceDeduction, validateAbsenceLimits, generateAbsenceReport } from '../shared/absenceRulesSafe';
 import { getRequests, subscribe } from '../shared/requestsData';
 import { getOnCallDataForMonthlyPlanning, onCallBandColor } from '../shared/onCallData';
-import { october2025FullPlanning, generateMonthlyReport } from '../shared/october2025TestData';
+// Test data import removed - using real data only
 import { getHolidaysCached } from '../utils/holidays';
 
 const MonthlyPlanningFinal = ({ user, onChangeView }) => {
