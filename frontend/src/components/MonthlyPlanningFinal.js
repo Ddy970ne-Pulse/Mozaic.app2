@@ -49,10 +49,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   };
 
   // 🎉 SYSTÈME DYNAMIQUE: Jours fériés calculés automatiquement pour l'année sélectionnée
-  // Import du système de calcul des jours fériés (ligne à ajouter en haut du fichier)
-  const { getHolidaysCached } = require('../utils/holidays');
-  
-  // Calcul dynamique des jours fériés pour l'année sélectionnée
   const currentHolidays = getHolidaysCached(selectedYear);
   const holidays = currentHolidays.dates;
   const holidayNames = currentHolidays.names;
