@@ -419,18 +419,18 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                     );
                   })}
                   
-                  {/* Raccourcis supplémentaires - Plus petits avec couleurs */}
+                  {/* Raccourcis supplémentaires - Uniformisés avec les autres tuiles */}
                   <button
                     onClick={() => {
                       setCurrentView('settings');
                       setShowMenu(false);
                     }}
-                    className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm"
+                    className={`group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl ${isMobile ? 'p-2' : 'p-4'} text-center transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:-translate-y-2 shadow-sm transform-gpu`}
                   >
-                    <div className="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-gradient-to-br from-gray-500 to-gray-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl backdrop-blur-sm transition-all duration-300">
+                    <div className={`mx-auto ${isMobile ? 'mb-1 w-10 h-10 text-xl' : 'mb-3 w-12 h-12 text-2xl'} rounded-xl flex items-center justify-center bg-gradient-to-br from-gray-500 to-gray-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl backdrop-blur-sm transition-all duration-300`}>
                       <span className="text-white">⚙️</span>
                     </div>
-                    <h3 className="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                    <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-sm'} text-white/90 group-hover:text-white transition-colors duration-200`}>
                       Paramètres
                     </h3>
                   </button>
@@ -440,12 +440,12 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                       setCurrentView('help');
                       setShowMenu(false);
                     }}
-                    className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl p-4 text-center transition-all duration-300 hover:scale-110 shadow-sm"
+                    className={`group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl ${isMobile ? 'p-2' : 'p-4'} text-center transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:-translate-y-2 shadow-sm transform-gpu`}
                   >
-                    <div className="mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl backdrop-blur-sm transition-all duration-300">
+                    <div className={`mx-auto ${isMobile ? 'mb-1 w-10 h-10 text-xl' : 'mb-3 w-12 h-12 text-2xl'} rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:scale-110 group-hover:shadow-xl backdrop-blur-sm transition-all duration-300`}>
                       <span className="text-white">❓</span>
                     </div>
-                    <h3 className="font-semibold text-sm text-white/90 group-hover:text-white transition-colors duration-200">
+                    <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-sm'} text-white/90 group-hover:text-white transition-colors duration-200`}>
                       Aide
                     </h3>
                   </button>
