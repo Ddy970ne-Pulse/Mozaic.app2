@@ -135,32 +135,56 @@ const Dashboard = ({ user, onChangeView }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header du Dashboard - Style Original */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Tableau de Bord</h1>
-            <p className="text-gray-600">Aperçu général de votre activité RH</p>
-          </div>
+      {/* Header du Dashboard - Style Harmonisé */}
+      <ModuleHeader
+        title="Tableau de Bord"
+        subtitle="Aperçu général de votre activité RH"
+        icon="📊"
+        action={
           <div className="flex space-x-3">
-            <button 
+            <Button 
               onClick={() => onChangeView && onChangeView('monthly-planning')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+              variant="secondary"
+              icon="📅"
             >
-              📅 Planning
-            </button>
-            <button 
+              Planning
+            </Button>
+            <Button 
               onClick={() => onChangeView && onChangeView('analytics')}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+              variant="success"
+              icon="📈"
             >
-              📊 Analytics
-            </button>
+              Analytics
+            </Button>
           </div>
-        </div>
+        }
+      />
+
+      {/* Metrics Cards - Style Harmonisé */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        {stats.map((stat, index) => {
+          const colorMap = {
+            'bg-blue-500': 'blue',
+            'bg-orange-500': 'orange',
+            'bg-green-500': 'green',
+            'bg-purple-500': 'purple'
+          };
+          
+          return (
+            <StatCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              color={colorMap[stat.color] || 'blue'}
+              trend={stat.change}
+            />
+          );
+        })}
       </div>
 
-      {/* Metrics Cards - Style BambooHR Consolidé */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+      {/* Ancien style conservé pour transition */}
+      <div style={{ display: 'none' }}>
         {stats.map((stat, index) => (
           <div key={index} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
             <div className="flex items-center justify-between mb-4">
