@@ -35,11 +35,20 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
     };
     window.addEventListener('navigate-to-view', handleCustomNavigation);
 
+    // Fermer les notifications quand on clique en dehors
+    const handleClickOutside = (event) => {
+      if (showNotifications && !event.target.closest('.notifications-panel')) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+
     return () => {
       window.removeEventListener('resize', checkMobile);
       window.removeEventListener('navigate-to-view', handleCustomNavigation);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [showNotifications]);
 
   const menuItems = user.role === 'employee' ? [
     { id: 'employee-dashboard', name: 'Mon Tableau de Bord', icon: '🏠', color: 'from-blue-500 to-blue-600' },
