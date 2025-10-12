@@ -2140,6 +2140,10 @@ async def list_work_hours(current_user: User = Depends(require_admin_access)):
     """List all imported work hours"""
     try:
         work_hours = await db.work_hours.find({}).to_list(length=None)
+        # Remove MongoDB _id field for JSON serialization
+        for wh in work_hours:
+            if '_id' in wh:
+                del wh['_id']
         return work_hours
     except Exception as e:
         logger.error(f"Error listing work hours: {str(e)}")
