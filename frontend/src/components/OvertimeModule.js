@@ -243,7 +243,10 @@ const OvertimeModule = ({ user }) => {
                       </td>
                       <td className="py-4">
                         <button 
-                          onClick={() => setSelectedEmployee(employee)}
+                          onClick={() => {
+                            setSelectedEmployee(employee);
+                            setViewMode('detailed');
+                          }}
                           className="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-medium transition-colors duration-200"
                         >
                           Détails
