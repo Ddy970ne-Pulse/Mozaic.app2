@@ -952,6 +952,7 @@ async def change_password(password_data: PasswordChange, current_user: User = De
             "requires_password_change": False,
             "first_login": False,
             "temp_password_expires": None,
+            "temp_password_plain": None,  # Supprimer le mot de passe temporaire en clair
             "updated_at": datetime.utcnow()
         }}
     )
