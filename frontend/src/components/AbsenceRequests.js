@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getRequests, approveRequest, rejectRequest, subscribe, updateRequests } from '../shared/requestsData';
 import { DOCUMENT_TYPES, SecurityUtils } from '../shared/securityConfig';
-import { ModuleHeader, TabBar, ContentCard, Button, Message } from './shared/UIComponents';
+import { ModuleHeader, TabBar, Button } from './shared/UIComponents';
 
 const AbsenceRequests = ({ user }) => {
   const [activeTab, setActiveTab] = useState('pending');
