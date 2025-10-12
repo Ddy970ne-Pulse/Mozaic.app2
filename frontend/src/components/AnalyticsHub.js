@@ -33,11 +33,39 @@ const AnalyticsHub = ({ user, onChangeView }) => {
     }
   ];
 
-  // Si un module est sélectionné, afficher ce module
+  // Si un module est sélectionné, afficher ce module avec bouton retour
   if (activeModule) {
-    const Module = modules.find(m => m.id === activeModule)?.component;
+    const currentModule = modules.find(m => m.id === activeModule);
+    const Module = currentModule?.component;
     if (Module) {
-      return <Module user={user} onChangeView={onChangeView} />;
+      return (
+        <div className="space-y-4">
+          {/* Bandeau de navigation avec bouton retour */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setActiveModule(null)}
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors group"
+              >
+                <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span className="font-medium">Retour à Analytics & Rapports</span>
+              </button>
+              
+              <div className="flex items-center space-x-3">
+                <div className={`px-4 py-2 rounded-lg bg-gradient-to-r ${currentModule.gradient} text-white flex items-center space-x-2`}>
+                  <span className="text-xl">{currentModule.icon}</span>
+                  <span className="font-semibold">{currentModule.name}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Contenu du module */}
+          <Module user={user} onChangeView={onChangeView} />
+        </div>
+      );
     }
   }
 
