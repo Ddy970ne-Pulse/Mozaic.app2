@@ -211,53 +211,59 @@ const AbsenceRequests = ({ user }) => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">
-              {isEmployee ? 'Mes Demandes d\'Absence' : 'Demandes d\'Absence'}
-            </h1>
-            <p className="text-gray-600">
-              {isEmployee 
-                ? 'Gestion de vos demandes d\'absence et suivi des validations'
-                : 'Validation et suivi des demandes d\'absence des employés'
-              }
-            </p>
-          </div>
-          
-          <button
+      {/* Header - Style Harmonisé */}
+      <ModuleHeader
+        title={isEmployee ? 'Mes Demandes d\'Absence' : 'Demandes d\'Absence'}
+        subtitle={isEmployee 
+          ? 'Gestion de vos demandes d\'absence et suivi des validations'
+          : 'Validation et suivi des demandes d\'absence des employés'
+        }
+        icon="📝"
+        action={
+          <Button
             onClick={() => setShowNewRequest(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+            variant="primary"
+            icon="➕"
           >
-            <span>➕</span>
-            <span>Nouvelle Demande</span>
-          </button>
-        </div>
-      </div>
+            Nouvelle Demande
+          </Button>
+        }
+      />
 
-      {/* Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 px-6">
-            {[
-              { id: 'pending', name: 'En Attente', count: requests.pending.length, icon: '⏳' },
-              { id: 'approved', name: 'Approuvées', count: requests.approved.length, icon: '✅' },
-              { id: 'rejected', name: 'Refusées', count: requests.rejected.length, icon: '❌' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <span>{tab.icon}</span>
-                  <span>{tab.name}</span>
-                  <span className={`px-2 py-1 rounded-full text-xs ${
+      {/* Tabs - Style Harmonisé */}
+      <TabBar
+        tabs={[
+          { id: 'pending', label: `⏳ En Attente (${requests.pending.length})`, icon: '⏳' },
+          { id: 'approved', label: `✅ Approuvées (${requests.approved.length})`, icon: '✅' },
+          { id: 'rejected', label: `❌ Refusées (${requests.rejected.length})`, icon: '❌' }
+        ]}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
+
+      {/* Ancien style caché pour transition */}
+      <div style={{ display: 'none' }}>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8 px-6">
+              {[
+                { id: 'pending', name: 'En Attente', count: requests.pending.length, icon: '⏳' },
+                { id: 'approved', name: 'Approuvées', count: requests.approved.length, icon: '✅' },
+                { id: 'rejected', name: 'Refusées', count: requests.rejected.length, icon: '❌' }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                    activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span>{tab.icon}</span>
+                    <span>{tab.name}</span>
+                    <span className={`px-2 py-1 rounded-full text-xs ${
                     activeTab === tab.id ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'
                   }`}>
                     {tab.count}
