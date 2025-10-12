@@ -418,6 +418,75 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     });
   };
 
+  // Update planning from imported absences (Excel imports)
+  const updatePlanningFromImportedAbsences = (absencesList) => {
+    if (!Array.isArray(absencesList) || absencesList.length === 0) {
+      console.log('Aucune absence importée à traiter');
+      return;
+    }
+    
+    setEmployees(prevEmployees => {
+      return prevEmployees.map(employee => {
+        // Find absences for this employee by ID or name
+        const employeeAbsences = absencesList.filter(abs => 
+          abs.employee_id === employee.id || 
+          abs.employee_name === employee.name ||
+          `${abs.nom} ${abs.prenom}`.trim() === employee.name
+        );
+        
+        const newAbsences = { ...employee.absences };
+        let totalDays = employee.totalAbsenceDays;
+        
+        employeeAbsences.forEach(absence => {
+          try {
+            const dateDebut = absence.date_debut;
+            const joursAbsence = parseInt(absence.jours_absence) || 1;
+            const motifAbsence = absence.motif_absence || 'AUT';
+            
+            if (!dateDebut) return;
+            
+            // Parse date (format DD/MM/YYYY or YYYY-MM-DD)
+            let startDate;
+            if (dateDebut.includes('/')) {
+              const [day, month, year] = dateDebut.split('/');
+              startDate = new Date(year, month - 1, day);
+            } else {
+              startDate = new Date(dateDebut);
+            }
+            
+            // Generate all dates for the absence period
+            for (let i = 0; i < joursAbsence; i++) {
+              const currentDate = new Date(startDate);
+              currentDate.setDate(startDate.getDate() + i);
+              
+              const day = currentDate.getDate();
+              const month = currentDate.getMonth();
+              const year = currentDate.getFullYear();
+              
+              // Only add if it's in the selected month/year
+              if (month === selectedMonth && year === selectedYear) {
+                // Map motif to absence code
+                const absenceCode = motifAbsence.toUpperCase();
+                if (!newAbsences[day.toString()]) {
+                  newAbsences[day.toString()] = absenceCode;
+                  totalDays++;
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Erreur traitement absence importée:', error, absence);
+          }
+        });
+        
+        return {
+          ...employee,
+          absences: newAbsences,
+          totalAbsenceDays: totalDays
+        };
+      });
+    });
+  };
+
   // Mapper les types de demandes vers les codes d'absence
   const mapAbsenceTypeToCode = (requestType) => {
     const mapping = {
