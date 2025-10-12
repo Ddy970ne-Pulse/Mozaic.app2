@@ -231,13 +231,25 @@ Analytics & Rapports Hub
 - ✅ Frontend redémarré
 - ✅ Prêt pour tests
 
-## Fichier Modifié
+## Fichiers Modifiés
 
-- `/app/frontend/src/components/AnalyticsHub.js`
-  - Ajout condition pour afficher bandeau
-  - Ajout bouton retour avec `setActiveModule(null)`
-  - Ajout badge module actif
-  - Wrapping du module enfant dans div avec space-y-4
+1. `/app/frontend/src/components/AnalyticsHub.js`
+   - Passage des props `onBackToHub` et `showBackButton` aux sous-modules
+
+2. `/app/frontend/src/components/StandardReports.js`
+   - Ajout props `onBackToHub, showBackButton`
+   - Intégration bouton retour dans header
+
+3. `/app/frontend/src/components/AbsenceAnalytics.js`
+   - Ajout props `onBackToHub, showBackButton`
+   - Intégration bouton retour dans header
+
+4. `/app/frontend/src/components/AnalyticsNew.js`
+   - Ajout props `onBackToHub, showBackButton`
+   - Passage des props au `ModuleHeader`
+
+5. `/app/frontend/src/components/shared/UIComponents.js`
+   - Modification `ModuleHeader` pour accepter et afficher le bouton retour
 
 ## Prochaines Étapes
 
