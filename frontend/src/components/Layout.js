@@ -155,18 +155,86 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
               
               {/* Boutons d'action harmonisés avec le style établi */}
               <div className="flex items-center space-x-3">
-                <button 
-                  onClick={() => {
-                    // TODO: Implémenter le système de notifications
-                    alert('Système de notifications - À venir prochainement');
-                  }}
-                  className="p-2 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 shadow-lg transition-all duration-200" 
-                  title="Notifications"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM19 12V7a7 7 0 00-14 0v5l-2 3v1h18v-1l-2-3z" />
-                  </svg>
-                </button>
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="p-2 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 shadow-lg transition-all duration-200" 
+                    title="Notifications"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM19 12V7a7 7 0 00-14 0v5l-2 3v1h18v-1l-2-3z" />
+                    </svg>
+                    {/* Badge de compteur de notifications */}
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                      3
+                    </span>
+                  </button>
+                  
+                  {/* Panneau des notifications */}
+                  {showNotifications && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                      {/* Header du panneau */}
+                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-3">
+                        <h3 className="text-white font-semibold text-lg">🔔 Notifications</h3>
+                      </div>
+                      
+                      {/* Liste des notifications */}
+                      <div className="max-h-96 overflow-y-auto">
+                        {/* Notification 1 - Nouvelle demande d'absence */}
+                        <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer transition-colors">
+                          <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                              <span className="text-lg">📝</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900">Nouvelle demande d'absence</p>
+                              <p className="text-xs text-gray-600 mt-1">Marie Leblanc a soumis une demande de congés annuels</p>
+                              <p className="text-xs text-gray-400 mt-1">Il y a 5 minutes</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Notification 2 - Rappel planning */}
+                        <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer transition-colors">
+                          <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                              <span className="text-lg">📅</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900">Planning à valider</p>
+                              <p className="text-xs text-gray-600 mt-1">Le planning du mois prochain attend votre validation</p>
+                              <p className="text-xs text-gray-400 mt-1">Il y a 2 heures</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Notification 3 - Astreinte */}
+                        <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer transition-colors">
+                          <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                              <span className="text-lg">🔔</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900">Astreinte assignée</p>
+                              <p className="text-xs text-gray-600 mt-1">Vous êtes d'astreinte ce week-end</p>
+                              <p className="text-xs text-gray-400 mt-1">Il y a 1 jour</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Footer du panneau */}
+                      <div className="bg-gray-50 px-4 py-3 text-center border-t border-gray-200">
+                        <button 
+                          onClick={() => setShowNotifications(false)}
+                          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          Fermer
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 
                 <button 
                   onClick={() => setCurrentView('settings')}
