@@ -1003,28 +1003,109 @@ const ExcelImport = ({ user, onChangeView }) => {
 
       {/* Étape 5: Terminé */}
       {importStep === 'complete' && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <div className="mx-auto w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-6">
-            <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <div className="text-center">
+            <div className="mx-auto w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-6">
+              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Import terminé avec succès !</h2>
+            
+            {importResults && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <div className="text-3xl font-bold text-green-600">{importResults.success}</div>
+                  <div className="text-sm text-green-700">Lignes importées</div>
+                </div>
+                <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <div className="text-3xl font-bold text-yellow-600">{importResults.warnings}</div>
+                  <div className="text-sm text-yellow-700">Avertissements</div>
+                </div>
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="text-3xl font-bold text-blue-600">{importResults.total}</div>
+                  <div className="text-sm text-blue-700">Total traité</div>
+                </div>
+              </div>
+            )}
           </div>
-          
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Import terminé avec succès !</h2>
-          
-          {importResults && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                <div className="text-3xl font-bold text-green-600">{importResults.success}</div>
-                <div className="text-sm text-green-700">Lignes importées</div>
+
+          {/* Temporary Passwords Section */}
+          {importResults && importResults.created_users && importResults.created_users.length > 0 && (
+            <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+              <h3 className="text-xl font-bold text-blue-900 mb-4 flex items-center">
+                <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                Mots de passe temporaires générés
+              </h3>
+              <p className="text-sm text-blue-700 mb-4">
+                Les employés suivants ont été créés avec des mots de passe temporaires. Ils devront changer leur mot de passe lors de leur première connexion.
+              </p>
+              <div className="bg-white rounded-lg overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mot de passe temporaire</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {importResults.created_users.map((user, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <code className="px-3 py-1 bg-gray-100 text-red-600 rounded font-mono text-sm border border-gray-300">
+                            {user.temporary_password}
+                          </code>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                <div className="text-3xl font-bold text-yellow-600">{importResults.warnings}</div>
-                <div className="text-sm text-yellow-700">Avertissements</div>
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <strong>⚠️ Important :</strong> Notez ces mots de passe dans un endroit sûr ou transmettez-les directement aux employés concernés. 
+                  Ces mots de passe ne seront plus affichés après cette session.
+                </p>
               </div>
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="text-3xl font-bold text-blue-600">{importResults.total}</div>
-                <div className="text-sm text-blue-700">Total traité</div>
+            </div>
+          )}
+
+          {/* Detailed Warnings Section */}
+          {validationResults && validationResults.warnings && validationResults.warnings.length > 0 && (
+            <div className="mt-8 p-6 bg-yellow-50 rounded-lg border border-yellow-200">
+              <h3 className="text-xl font-bold text-yellow-900 mb-4 flex items-center">
+                <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Avertissements détaillés ({validationResults.warnings.length})
+              </h3>
+              <div className="space-y-3">
+                {validationResults.warnings.map((warning, index) => (
+                  <div key={index} className="bg-white p-4 rounded-lg border border-yellow-300 shadow-sm">
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0">
+                        <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-yellow-100 text-yellow-800 font-bold text-sm">
+                          {warning.row || index + 1}
+                        </span>
+                      </div>
+                      <div className="ml-3 flex-1">
+                        <p className="text-sm font-medium text-gray-900">{warning.message}</p>
+                        {warning.field && (
+                          <p className="text-xs text-gray-600 mt-1">Champ concerné : <code className="bg-gray-100 px-2 py-0.5 rounded">{warning.field}</code></p>
+                        )}
+                        {warning.details && (
+                          <p className="text-xs text-gray-600 mt-1">{warning.details}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
