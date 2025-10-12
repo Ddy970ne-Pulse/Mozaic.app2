@@ -1810,14 +1810,31 @@ async def import_absences(
                     })
                     continue
                 
+                # Trouver la méthode de décompte pour ce type d'absence
+                absence_type = next((at for at in demo_absence_types if at["code"] == motif_absence), None)
+                counting_method = absence_type["counting_method"] if absence_type else "Jours Calendaires"
+                
+                # Calculer la date de fin automatiquement
+                date_fin = None
+                if jours_absence and jours_absence.replace('.', '').isdigit():
+                    try:
+                        days_count = int(float(jours_absence))
+                        if days_count > 0:
+                            date_fin = calculate_end_date(date_debut, days_count, counting_method)
+                            logger.info(f"📅 Calcul date fin: {date_debut} + {days_count}j ({counting_method}) = {date_fin}")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Erreur calcul date fin: {str(e)}")
+                
                 # Créer l'objet absence
                 absence = Absence(
                     employee_id=employee["id"],
                     employee_name=employee.get("name", f"{prenom} {nom}"),
                     email=employee.get("email", ""),
                     date_debut=date_debut,
+                    date_fin=date_fin,
                     jours_absence=jours_absence if jours_absence else "Non spécifié",
                     motif_absence=motif_absence,
+                    counting_method=counting_method,
                     notes=notes,
                     created_by=current_user.name
                 )
@@ -1830,7 +1847,7 @@ async def import_absences(
                 # Stocker dans MongoDB
                 await db.absences.insert_one(absence_dict)
                 successful_imports += 1
-                logger.info(f"✅ Ligne {i+1}: Absence créée pour {employee.get('name')}")
+                logger.info(f"✅ Ligne {i+1}: Absence créée pour {employee.get('name')} (du {date_debut} au {date_fin or 'N/A'})")
                 
             except Exception as e:
                 logger.error(f"❌ Erreur ligne {i+1}: {str(e)}")
