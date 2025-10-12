@@ -3486,6 +3486,364 @@ async def get_all_overtime(current_user: User = Depends(get_current_user)):
         logger.error(f"Error fetching overtime data: {str(e)}")
         return []  # Return empty list if no data
 
+# ==================================================
+# SEED ENDPOINT - Demo Data Population
+# ==================================================
+
+@api_router.post("/seed/demo-data")
+async def seed_demo_data(current_user: User = Depends(get_current_user)):
+    """
+    Populate database with comprehensive demo data for MOZAIK RH
+    Can be run multiple times safely (idempotent)
+    """
+    try:
+        logger.info(f"🌱 Seed demo data initiated by {current_user.name}")
+        
+        # ==================================================
+        # 1. CREATE ADMIN USERS (if they don't exist)
+        # ==================================================
+        admin_users_data = [
+            {
+                "name": "Diégo DACALOR",
+                "email": "ddacalor@aaea-gpe.fr",
+                "password": "admin123",
+                "role": "admin",
+                "department": "Direction",
+                "phone": "06.12.34.56.78",
+                "position": "Directeur Général",
+                "hire_date": "2020-01-15",
+                "categorie_employe": "Cadre dirigeant",
+                "sexe": "M",
+                "site": "Siège social",
+                "contrat": "CDI"
+            },
+            {
+                "name": "Sophie Martin",
+                "email": "sophie.martin@company.com",
+                "password": "demo123",
+                "role": "admin",
+                "department": "Ressources Humaines",
+                "phone": "06.23.45.67.89",
+                "position": "DRH",
+                "hire_date": "2021-03-10",
+                "categorie_employe": "Cadre",
+                "sexe": "F",
+                "site": "Siège social",
+                "contrat": "CDI"
+            }
+        ]
+        
+        admin_ids = {}
+        for admin_data in admin_users_data:
+            existing = await db.users.find_one({"email": admin_data["email"]})
+            if not existing:
+                user = UserInDB(
+                    name=admin_data["name"],
+                    email=admin_data["email"],
+                    role=admin_data["role"],
+                    department=admin_data["department"],
+                    phone=admin_data.get("phone"),
+                    position=admin_data.get("position"),
+                    hire_date=admin_data.get("hire_date"),
+                    hashed_password=hash_password(admin_data["password"]),
+                    is_active=True,
+                    requires_password_change=False,
+                    first_login=False,
+                    categorie_employe=admin_data.get("categorie_employe"),
+                    sexe=admin_data.get("sexe"),
+                    site=admin_data.get("site"),
+                    contrat=admin_data.get("contrat"),
+                    created_by="seed_script"
+                )
+                user_dict = user.dict()
+                await db.users.insert_one(user_dict)
+                admin_ids[admin_data["email"]] = user_dict["id"]
+                logger.info(f"✅ Admin created: {admin_data['name']} ({admin_data['email']})")
+            else:
+                admin_ids[admin_data["email"]] = existing["id"]
+                logger.info(f"ℹ️ Admin already exists: {admin_data['name']}")
+        
+        # ==================================================
+        # 2. CREATE SAMPLE EMPLOYEES
+        # ==================================================
+        employees_data = [
+            {
+                "nom": "DUPONT", "prenom": "Jean", "email": "jean.dupont@company.com",
+                "role": "manager", "department": "Production", "phone": "06.34.56.78.90",
+                "position": "Chef de service", "hire_date": "2019-06-01",
+                "categorie_employe": "Cadre", "sexe": "M", "site": "Site principal",
+                "contrat": "CDI", "temps_travail": "Temps plein",
+                "isDelegateCSE": True, "cse_status": "titulaire"
+            },
+            {
+                "nom": "LEBLANC", "prenom": "Marie", "email": "marie.leblanc@company.com",
+                "role": "employee", "department": "Administration", "phone": "06.45.67.89.01",
+                "position": "Assistante administrative", "hire_date": "2020-09-15",
+                "categorie_employe": "Employé", "sexe": "F", "site": "Siège social",
+                "contrat": "CDI", "temps_travail": "Temps plein"
+            },
+            {
+                "nom": "MOREAU", "prenom": "Pierre", "email": "pierre.moreau@company.com",
+                "role": "employee", "department": "Production", "phone": "06.56.78.90.12",
+                "position": "Éducateur spécialisé", "hire_date": "2021-01-20",
+                "categorie_employe": "Éducateur spécialisé", "sexe": "M", "site": "Site principal",
+                "contrat": "CDI", "temps_travail": "Temps plein",
+                "isDelegateCSE": True, "cse_status": "suppléant"
+            },
+            {
+                "nom": "BERNARD", "prenom": "Claire", "email": "claire.bernard@company.com",
+                "role": "employee", "department": "Services généraux", "phone": "06.67.89.01.23",
+                "position": "Agent de service", "hire_date": "2018-11-10",
+                "categorie_employe": "Ouvrier", "sexe": "F", "site": "Site principal",
+                "contrat": "CDI", "temps_travail": "Temps plein"
+            },
+            {
+                "nom": "GREGOIRE", "prenom": "Thomas", "email": "thomas.gregoire@company.com",
+                "role": "manager", "department": "Direction", "phone": "06.78.90.12.34",
+                "position": "Directeur Adjoint", "hire_date": "2017-03-01",
+                "categorie_employe": "Cadre dirigeant", "sexe": "M", "site": "Siège social",
+                "contrat": "CDI", "temps_travail": "Temps plein"
+            },
+            {
+                "nom": "ADOLPHIN", "prenom": "Joël", "email": "joel.adolphin@company.com",
+                "role": "employee", "department": "Production", "phone": "06.89.01.23.45",
+                "position": "Éducateur technique", "hire_date": "2019-09-01",
+                "categorie_employe": "Éducateur technique", "sexe": "M", "site": "Site principal",
+                "contrat": "CDI", "temps_travail": "Temps plein"
+            },
+            {
+                "nom": "LOUBER", "prenom": "Fabrice", "email": "fabrice.louber@company.com",
+                "role": "employee", "department": "Administration", "phone": "06.90.12.34.56",
+                "position": "Comptable", "hire_date": "2020-02-15",
+                "categorie_employe": "Employé", "sexe": "M", "site": "Siège social",
+                "contrat": "CDI", "temps_travail": "Temps plein"
+            }
+        ]
+        
+        employee_ids = {}
+        for emp_data in employees_data:
+            email = emp_data["email"]
+            existing = await db.users.find_one({"email": email})
+            if not existing:
+                # Generate temporary password
+                temp_password = generate_temp_password()
+                temp_expires = datetime.utcnow().replace(tzinfo=timezone.utc) + timedelta(days=30)
+                
+                user = UserInDB(
+                    name=f"{emp_data['prenom']} {emp_data['nom']}",
+                    email=email,
+                    role=emp_data["role"],
+                    department=emp_data["department"],
+                    phone=emp_data.get("phone"),
+                    position=emp_data.get("position"),
+                    hire_date=emp_data.get("hire_date"),
+                    hashed_password=hash_password(temp_password),
+                    is_active=True,
+                    requires_password_change=True,
+                    first_login=True,
+                    temp_password_expires=temp_expires,
+                    isDelegateCSE=emp_data.get("isDelegateCSE", False),
+                    categorie_employe=emp_data.get("categorie_employe"),
+                    sexe=emp_data.get("sexe"),
+                    site=emp_data.get("site"),
+                    contrat=emp_data.get("contrat"),
+                    temps_travail=emp_data.get("temps_travail"),
+                    created_by="seed_script"
+                )
+                user_dict = user.dict()
+                await db.users.insert_one(user_dict)
+                employee_ids[email] = user_dict["id"]
+                logger.info(f"✅ Employee created: {emp_data['prenom']} {emp_data['nom']} (temp password: {temp_password})")
+                
+                # Create CSE delegate if applicable
+                if emp_data.get("isDelegateCSE"):
+                    college = "employes"
+                    if "cadre" in emp_data.get("categorie_employe", "").lower():
+                        college = "cadres"
+                    elif "ouvrier" in emp_data.get("categorie_employe", "").lower():
+                        college = "ouvriers"
+                    
+                    delegate = CSEDelegate(
+                        user_id=user_dict["id"],
+                        user_name=f"{emp_data['prenom']} {emp_data['nom']}",
+                        email=email,
+                        statut=emp_data.get("cse_status", "titulaire"),
+                        heures_mensuelles=24,
+                        college=college,
+                        date_debut=emp_data.get("hire_date", "2024-01-01"),
+                        actif=True,
+                        created_by="seed_script"
+                    )
+                    delegate_dict = delegate.dict()
+                    if isinstance(delegate_dict.get('created_at'), datetime):
+                        delegate_dict['created_at'] = delegate_dict['created_at'].isoformat()
+                    await db.cse_delegates.insert_one(delegate_dict)
+                    logger.info(f"✅ CSE delegate created: {emp_data['prenom']} {emp_data['nom']} ({emp_data.get('cse_status')})")
+            else:
+                employee_ids[email] = existing["id"]
+                logger.info(f"ℹ️ Employee already exists: {emp_data['prenom']} {emp_data['nom']}")
+        
+        # ==================================================
+        # 3. CREATE SAMPLE ABSENCES
+        # ==================================================
+        absences_data = [
+            {
+                "employee_email": "jean.dupont@company.com",
+                "date_debut": "15/01/2025", "jours_absence": "5", "motif_absence": "CA",
+                "notes": "Congés annuels d'hiver"
+            },
+            {
+                "employee_email": "marie.leblanc@company.com",
+                "date_debut": "22/01/2025", "jours_absence": "3", "motif_absence": "AM",
+                "notes": "Arrêt maladie - grippe"
+            },
+            {
+                "employee_email": "pierre.moreau@company.com",
+                "date_debut": "10/01/2025", "jours_absence": "1", "motif_absence": "DEL",
+                "notes": "Réunion CSE", "absence_unit": "heures", "hours_amount": 8.0
+            },
+            {
+                "employee_email": "claire.bernard@company.com",
+                "date_debut": "05/01/2025", "jours_absence": "2", "motif_absence": "REC",
+                "notes": "Récupération heures supplémentaires"
+            },
+            {
+                "employee_email": "joel.adolphin@company.com",
+                "date_debut": "18/01/2025", "jours_absence": "1", "motif_absence": "TEL",
+                "notes": "Télétravail"
+            },
+            {
+                "employee_email": "fabrice.louber@company.com",
+                "date_debut": "25/01/2025", "jours_absence": "3", "motif_absence": "FO",
+                "notes": "Formation professionnelle"
+            },
+            {
+                "employee_email": "thomas.gregoire@company.com",
+                "date_debut": "08/01/2025", "jours_absence": "10", "motif_absence": "CA",
+                "notes": "Congés annuels"
+            }
+        ]
+        
+        for abs_data in absences_data:
+            employee_email = abs_data["employee_email"]
+            if employee_email in employee_ids:
+                employee = await db.users.find_one({"email": employee_email})
+                if employee:
+                    # Find counting method
+                    absence_type = next((at for at in demo_absence_types if at["code"] == abs_data["motif_absence"]), None)
+                    counting_method = absence_type["counting_method"] if absence_type else "Jours Calendaires"
+                    
+                    # Calculate end date
+                    date_fin = None
+                    if abs_data["jours_absence"]:
+                        days_count = int(float(abs_data["jours_absence"]))
+                        if days_count > 0:
+                            date_fin = calculate_end_date(abs_data["date_debut"], days_count, counting_method)
+                    
+                    absence = Absence(
+                        employee_id=employee["id"],
+                        employee_name=employee.get("name"),
+                        email=employee_email,
+                        date_debut=abs_data["date_debut"],
+                        date_fin=date_fin,
+                        jours_absence=abs_data["jours_absence"],
+                        motif_absence=abs_data["motif_absence"],
+                        counting_method=counting_method,
+                        notes=abs_data.get("notes"),
+                        absence_unit=abs_data.get("absence_unit", "jours"),
+                        hours_amount=abs_data.get("hours_amount"),
+                        created_by="seed_script"
+                    )
+                    absence_dict = absence.dict()
+                    if isinstance(absence_dict.get('created_at'), datetime):
+                        absence_dict['created_at'] = absence_dict['created_at'].isoformat()
+                    await db.absences.insert_one(absence_dict)
+                    logger.info(f"✅ Absence created: {employee.get('name')} - {abs_data['motif_absence']} ({abs_data['date_debut']})")
+        
+        # ==================================================
+        # 4. CREATE SAMPLE WORK HOURS
+        # ==================================================
+        work_hours_data = [
+            {"employee_email": "jean.dupont@company.com", "date": "02/01/2025", "heures_travaillees": 8.5},
+            {"employee_email": "jean.dupont@company.com", "date": "03/01/2025", "heures_travaillees": 9.0},
+            {"employee_email": "marie.leblanc@company.com", "date": "02/01/2025", "heures_travaillees": 7.5},
+            {"employee_email": "pierre.moreau@company.com", "date": "02/01/2025", "heures_travaillees": 8.0},
+            {"employee_email": "claire.bernard@company.com", "date": "02/01/2025", "heures_travaillees": 8.0},
+        ]
+        
+        for wh_data in work_hours_data:
+            employee_email = wh_data["employee_email"]
+            if employee_email in employee_ids:
+                employee = await db.users.find_one({"email": employee_email})
+                if employee:
+                    work_hours = ImportWorkHours(
+                        employee_id=employee["id"],
+                        employee_name=employee.get("name"),
+                        date=wh_data["date"],
+                        heures_travaillees=wh_data["heures_travaillees"],
+                        created_by="seed_script"
+                    )
+                    wh_dict = work_hours.dict()
+                    if isinstance(wh_dict.get('created_at'), datetime):
+                        wh_dict['created_at'] = wh_dict['created_at'].isoformat()
+                    await db.work_hours.insert_one(wh_dict)
+                    logger.info(f"✅ Work hours created: {employee.get('name')} - {wh_data['date']} ({wh_data['heures_travaillees']}h)")
+        
+        # ==================================================
+        # 5. INITIALIZE LEAVE BALANCES FOR 2025
+        # ==================================================
+        for email, emp_id in employee_ids.items():
+            existing_balance = await db.leave_balances.find_one({"employee_id": emp_id, "year": 2025})
+            if not existing_balance:
+                employee = await db.users.find_one({"id": emp_id})
+                if employee:
+                    leave_balance = {
+                        "id": str(uuid.uuid4()),
+                        "employee_id": emp_id,
+                        "employee_name": employee.get("name"),
+                        "year": 2025,
+                        "CA": {"total": 25.0, "taken": 0.0, "remaining": 25.0},
+                        "RTT": {"total": 12.0, "taken": 0.0, "remaining": 12.0},
+                        "CT": {"total": 12.0, "taken": 0.0, "remaining": 12.0},
+                        "REC": {"total": 0.0, "taken": 0.0, "remaining": 0.0},
+                        "CEX": {"total": 0.0, "taken": 0.0, "remaining": 0.0},
+                        "updated_at": datetime.now(timezone.utc).isoformat()
+                    }
+                    await db.leave_balances.insert_one(leave_balance)
+                    logger.info(f"✅ Leave balance initialized: {employee.get('name')} (2025)")
+        
+        # ==================================================
+        # SUMMARY
+        # ==================================================
+        users_count = await db.users.count_documents({})
+        absences_count = await db.absences.count_documents({})
+        work_hours_count = await db.work_hours.count_documents({})
+        delegates_count = await db.cse_delegates.count_documents({})
+        balances_count = await db.leave_balances.count_documents({})
+        
+        logger.info(f"🌱 Seed completed successfully!")
+        
+        return {
+            "success": True,
+            "message": "Demo data seeded successfully",
+            "summary": {
+                "users": users_count,
+                "absences": absences_count,
+                "work_hours": work_hours_count,
+                "cse_delegates": delegates_count,
+                "leave_balances": balances_count
+            },
+            "admin_accounts": [
+                {"email": "ddacalor@aaea-gpe.fr", "password": "admin123", "name": "Diégo DACALOR"},
+                {"email": "sophie.martin@company.com", "password": "demo123", "name": "Sophie Martin"}
+            ],
+            "note": "Employee passwords are temporary and require change on first login. Check logs for individual passwords."
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error seeding demo data: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Seed error: {str(e)}")
+
 # Include the router in the main app
 app.include_router(api_router)
 
