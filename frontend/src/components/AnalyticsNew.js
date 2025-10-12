@@ -62,9 +62,31 @@ const AnalyticsNew = ({ user }) => {
   };
 
   const calculateStats = (employees, absences, overtime) => {
-    // Filtrer les absences par année et mois
+    // Filtrer les absences selon le type de période sélectionné
     const filteredAbsences = absences.filter(abs => {
       const absDate = new Date(abs.date_debut || abs.date);
+      
+      // Filtre par période personnalisée
+      if (periodType === 'custom') {
+        if (customStartDate && absDate < new Date(customStartDate)) return false;
+        if (customEndDate && absDate > new Date(customEndDate)) return false;
+        return true;
+      }
+      
+      // Filtre YTD (Year to Date)
+      if (periodType === 'ytd') {
+        const today = new Date();
+        return absDate.getFullYear() === today.getFullYear() && absDate <= today;
+      }
+      
+      // Filtre par trimestre
+      if (periodType === 'quarterly') {
+        const quarter = Math.floor(selectedMonth / 3);
+        const absQuarter = Math.floor(absDate.getMonth() / 3);
+        return absDate.getFullYear() === selectedYear && absQuarter === quarter;
+      }
+      
+      // Filtre mensuel/annuel standard
       const absYear = absDate.getFullYear();
       const absMonth = absDate.getMonth() + 1;
       
