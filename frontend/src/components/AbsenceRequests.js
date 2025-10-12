@@ -825,6 +825,160 @@ const AbsenceRequests = ({ user }) => {
           </div>
         </div>
       )}
+
+      {/* Modal d'édition d'absence (Admin uniquement) */}
+      {showEditModal && editingRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold flex items-center space-x-2">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span>Modifier l'absence</span>
+                  </h2>
+                  <p className="text-blue-100 mt-1">Modification réservée aux administrateurs</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingRequest(null);
+                  }}
+                  className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-6">
+              {/* Date de début */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date de début <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={editingRequest.date_debut || ''}
+                  onChange={(e) => setEditingRequest({...editingRequest, date_debut: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Date de fin */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date de fin
+                </label>
+                <input
+                  type="date"
+                  value={editingRequest.date_fin || ''}
+                  onChange={(e) => setEditingRequest({...editingRequest, date_fin: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Nombre de jours */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre de jours
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={editingRequest.jours_absence || 0}
+                  onChange={(e) => setEditingRequest({...editingRequest, jours_absence: parseInt(e.target.value) || 0})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Type d'absence */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Type d'absence <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={editingRequest.motif_absence || ''}
+                  onChange={(e) => setEditingRequest({...editingRequest, motif_absence: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {Object.entries(absenceTypes).map(([code, type]) => (
+                    <option key={code} value={code}>{type.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Notes/Motif */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Notes / Motif
+                </label>
+                <textarea
+                  value={editingRequest.notes || ''}
+                  onChange={(e) => setEditingRequest({...editingRequest, notes: e.target.value})}
+                  rows="3"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Informations complémentaires..."
+                />
+              </div>
+
+              {/* Statut (Admin only) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Statut
+                </label>
+                <select
+                  value={editingRequest.status || 'pending'}
+                  onChange={(e) => setEditingRequest({...editingRequest, status: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="pending">En attente</option>
+                  <option value="approved">Approuvé</option>
+                  <option value="rejected">Refusé</option>
+                </select>
+              </div>
+
+              {/* Info Box */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="text-sm text-blue-800">
+                    <p className="font-medium">Information importante</p>
+                    <p className="mt-1">Les modifications seront enregistrées dans l'historique et l'employé sera notifié automatiquement.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex items-center justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingRequest(null);
+                }}
+                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 font-medium transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 font-medium transition-all shadow-lg"
+              >
+                Enregistrer les modifications
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
