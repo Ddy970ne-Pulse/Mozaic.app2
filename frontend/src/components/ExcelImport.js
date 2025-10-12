@@ -47,6 +47,40 @@ const ExcelImport = ({ user, onChangeView }) => {
     return excelDate;
   };
 
+  // Fonction pour convertir le format heure en nombre décimal
+  const convertTimeToDecimal = (value) => {
+    // Si c'est déjà un nombre, le retourner
+    if (typeof value === 'number') {
+      // Excel peut stocker les heures comme fraction de jour (ex: 0.208333 = 5 heures)
+      if (value < 1) {
+        const hours = value * 24;
+        console.log(`⏰ Heure Excel décimale convertie: ${value} → ${hours.toFixed(2)}h`);
+        return hours.toFixed(2);
+      }
+      return value.toString();
+    }
+    
+    // Si c'est une chaîne au format "HH:MM" ou "H:MM"
+    if (typeof value === 'string') {
+      const timeMatch = value.match(/^(\d{1,2}):(\d{2})$/);
+      if (timeMatch) {
+        const hours = parseInt(timeMatch[1]);
+        const minutes = parseInt(timeMatch[2]);
+        const decimal = hours + (minutes / 60);
+        console.log(`⏰ Heure convertie: ${value} → ${decimal.toFixed(2)}h`);
+        return decimal.toFixed(2);
+      }
+      
+      // Si c'est déjà un nombre sous forme de chaîne
+      const numMatch = value.match(/^(\d+\.?\d*)$/);
+      if (numMatch) {
+        return parseFloat(value).toFixed(2);
+      }
+    }
+    
+    return value;
+  };
+
   // Fonction pour détecter et convertir les valeurs
   const processExcelValue = (value, headerName) => {
     if (value === null || value === undefined) return '';
@@ -57,11 +91,27 @@ const ExcelImport = ({ user, onChangeView }) => {
       'Date', 'Naissance', 'Début', 'Fin', 'Contrat'
     ];
     
+    // Liste des colonnes qui contiennent des heures
+    const timeKeywords = [
+      'heure', 'heures', 'travaillées', 'travaillees', 'travail',
+      'Heure', 'Heures', 'Travaillées', 'Travaillees', 'Travail'
+    ];
+    
     // Vérifier si le nom de la colonne contient un mot-clé de date
     const headerLower = headerName.toLowerCase();
     const isDateColumn = dateKeywords.some(keyword => 
       headerLower.includes(keyword.toLowerCase())
     );
+    
+    // Vérifier si le nom de la colonne contient un mot-clé d'heure
+    const isTimeColumn = timeKeywords.some(keyword => 
+      headerLower.includes(keyword.toLowerCase())
+    );
+    
+    // Si c'est une colonne d'heures, convertir en nombre décimal
+    if (isTimeColumn) {
+      return convertTimeToDecimal(value);
+    }
     
     // Si c'est une colonne de date ET que la valeur est un nombre Excel
     if (isDateColumn && typeof value === 'number') {
