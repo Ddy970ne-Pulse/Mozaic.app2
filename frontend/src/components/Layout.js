@@ -75,8 +75,6 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <EmployeeSpace user={user} />;
         case 'my-requests':
           return <AbsenceRequests user={user} />;
-        case 'delegation-hours':
-          return <DelegationHours user={user} />;
         case 'settings':
           return <SettingsPage user={user} />;
         default:
