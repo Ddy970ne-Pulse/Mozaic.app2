@@ -47,18 +47,14 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     'AST': { name: 'Astreinte', color: 'bg-orange-600', textColor: 'text-white', type: 'Astreinte cadres', decompte: 'Temps travaillé' }
   };
 
-  // Jours fériés 2025
-  const holidays2025 = [
-    '2025-01-01', '2025-04-21', '2025-05-01', '2025-05-08', '2025-05-29',
-    '2025-06-09', '2025-07-14', '2025-08-15', '2025-11-01', '2025-11-11', '2025-12-25'
-  ];
-
-  const holidayNames = {
-    '2025-01-01': 'Jour de l\'An', '2025-04-21': 'Lundi de Pâques', '2025-05-01': 'Fête du Travail',
-    '2025-05-08': 'Victoire 1945', '2025-05-29': 'Ascension', '2025-06-09': 'Lundi de Pentecôte',
-    '2025-07-14': 'Fête Nationale', '2025-08-15': 'Assomption', '2025-11-01': 'Toussaint',
-    '2025-11-11': 'Armistice', '2025-12-25': 'Noël'
-  };
+  // 🎉 SYSTÈME DYNAMIQUE: Jours fériés calculés automatiquement pour l'année sélectionnée
+  // Import du système de calcul des jours fériés (ligne à ajouter en haut du fichier)
+  const { getHolidaysCached } = require('../utils/holidays');
+  
+  // Calcul dynamique des jours fériés pour l'année sélectionnée
+  const currentHolidays = getHolidaysCached(selectedYear);
+  const holidays = currentHolidays.dates;
+  const holidayNames = currentHolidays.names;
 
   // Initialisation des employés par catégorie
   useEffect(() => {
