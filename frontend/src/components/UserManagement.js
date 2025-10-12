@@ -166,21 +166,27 @@ const UserManagement = ({ user }) => {
   };
 
   const deleteUser = async (userId) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir désactiver cet utilisateur ?')) {
-      return;
-    }
+    const userToDelete = users.find(u => u.id === userId);
+    setUserToDelete(userToDelete);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
 
     try {
       setIsLoading(true);
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userToDelete.id}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
 
       if (response.ok) {
-        setUsers(users.filter(u => u.id !== userId));
+        setUsers(users.filter(u => u.id !== userToDelete.id));
         alert('Utilisateur désactivé avec succès !');
         fetchStatistics();
+        setShowDeleteConfirmModal(false);
+        setUserToDelete(null);
       } else {
         const error = await response.json();
         alert('Erreur: ' + error.detail);
