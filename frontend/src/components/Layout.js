@@ -52,6 +52,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
     { id: 'monthly-planning', name: 'Planning Mensuel', icon: '📅', color: 'from-purple-500 to-purple-600' },
     { id: 'absence-analytics', name: 'Analyse des Absences', icon: '📊', color: 'from-purple-600 to-pink-600' },
     { id: 'analytics', name: 'Analytics & KPI', icon: '📈', color: 'from-indigo-500 to-indigo-600' },
+    { id: 'standard-reports', name: 'Rapports Standards', icon: '📄', color: 'from-teal-500 to-cyan-600' },
     { id: 'overtime', name: 'Heures Supplémentaires', icon: '⏰', color: 'from-red-500 to-red-600' },
     { id: 'delegation-hours', name: 'Heures de Délégation', icon: '⚖️', color: 'from-cyan-500 to-cyan-600' },
     { id: 'on-call-management', name: 'Gestion Astreintes', icon: '🔔', color: 'from-orange-600 to-red-600' },
