@@ -41,7 +41,7 @@ export const colors = {
 };
 
 // 📦 Header avec gradient et avatar
-export const ModuleHeader = ({ title, subtitle, icon, user, action }) => (
+export const ModuleHeader = ({ title, subtitle, icon, user, action, onBackToHub, showBackButton }) => (
   <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white shadow-lg">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
@@ -61,7 +61,20 @@ export const ModuleHeader = ({ title, subtitle, icon, user, action }) => (
           {subtitle && <p className="text-blue-100 mt-1">{subtitle}</p>}
         </div>
       </div>
-      {action && <div>{action}</div>}
+      <div className="flex items-center space-x-3">
+        {showBackButton && onBackToHub && (
+          <button
+            onClick={onBackToHub}
+            className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2 rounded-lg transition-all group"
+          >
+            <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span className="font-medium">Retour au Hub</span>
+          </button>
+        )}
+        {action && <div>{action}</div>}
+      </div>
     </div>
   </div>
 );
