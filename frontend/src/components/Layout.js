@@ -98,8 +98,6 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <StandardReports user={user} onChangeView={setCurrentView} />;
         case 'overtime':
           return <OvertimeModule user={user} onChangeView={setCurrentView} />;
-        case 'delegation-hours':
-          return <DelegationHours user={user} onChangeView={setCurrentView} />;
         case 'hr-toolbox':
           return <HRToolbox user={user} onChangeView={setCurrentView} />;
         case 'excel-import':
