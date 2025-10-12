@@ -1072,7 +1072,7 @@ class BackendTester:
 
     def run_all_tests(self):
         """Run all backend tests"""
-        print(f"Starting MOZAIK RH Backend Tests - Focus on NEW Absence Import Module")
+        print(f"Starting MOZAIK RH Backend Tests - Focus on CSE Cessions API Endpoints")
         print(f"Backend URL: {BASE_URL}")
         print(f"API URL: {API_URL}")
         print("=" * 70)
