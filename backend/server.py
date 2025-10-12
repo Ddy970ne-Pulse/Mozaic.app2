@@ -300,10 +300,23 @@ class UserUpdate(BaseModel):
     role: Optional[str] = None
     department: Optional[str] = None
     phone: Optional[str] = None
+    address: Optional[str] = None
     position: Optional[str] = None
     hire_date: Optional[str] = None
     isDelegateCSE: Optional[bool] = None
     is_active: Optional[bool] = None
+    # Champs additionnels pour données employés complètes
+    date_naissance: Optional[str] = None
+    sexe: Optional[str] = None
+    categorie_employe: Optional[str] = None
+    metier: Optional[str] = None
+    fonction: Optional[str] = None
+    site: Optional[str] = None
+    temps_travail: Optional[str] = None
+    contrat: Optional[str] = None
+    date_debut_contrat: Optional[str] = None
+    date_fin_contrat: Optional[str] = None
+    notes: Optional[str] = None
 
 class PasswordReset(BaseModel):
     new_password: str
