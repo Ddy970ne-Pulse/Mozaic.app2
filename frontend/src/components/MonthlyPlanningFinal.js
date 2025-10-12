@@ -52,6 +52,9 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const currentHolidays = getHolidaysCached(selectedYear);
   const holidays = currentHolidays.dates;
   const holidayNames = currentHolidays.names;
+  
+  // Debug: Log des jours fériés chargés
+  console.log(`📅 Jours fériés ${selectedYear} chargés:`, holidays.length, 'jours', holidays);
 
   // Initialisation des employés par catégorie
   useEffect(() => {
