@@ -15,6 +15,7 @@ import UserManagement from './UserManagement';
 import OnCallManagement from './OnCallManagement';
 import ExcelImport from './ExcelImport';
 import CSEManagement from './CSEManagement';
+import CSEManagementNew from './CSEManagementNew';
 
 const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
   const [showMenu, setShowMenu] = useState(false);
