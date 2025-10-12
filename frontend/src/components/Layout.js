@@ -78,6 +78,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <AbsenceRequests user={user} />;
         case 'settings':
           return <SettingsPage user={user} />;
+        case 'help':
+          return <HelpPage user={user} />;
         default:
           return <EmployeeDashboard user={user} />;
       }
