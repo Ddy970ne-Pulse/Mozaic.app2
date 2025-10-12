@@ -135,9 +135,11 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           return;
         }
 
+        const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/absences/by-period/${selectedYear}/${selectedMonth + 1}`;
         console.log(`📥 Loading imported absences for ${selectedYear}-${selectedMonth + 1}`);
+        console.log(`📞 API URL: ${apiUrl}`);
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/absences/by-period/${selectedYear}/${selectedMonth + 1}`,
+          apiUrl,
           {
             headers: {
               'Authorization': `Bearer ${token}`,
