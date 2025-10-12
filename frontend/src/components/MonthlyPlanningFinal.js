@@ -49,12 +49,16 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   };
 
   // 🎉 SYSTÈME DYNAMIQUE: Jours fériés calculés automatiquement pour l'année sélectionnée
-  const currentHolidays = getHolidaysCached(selectedYear);
+  // useMemo pour recalculer quand selectedYear change
+  const currentHolidays = React.useMemo(() => {
+    console.log(`🔄 Recalculating holidays for year ${selectedYear}...`);
+    const result = getHolidaysCached(selectedYear);
+    console.log(`📅 Jours fériés ${selectedYear}:`, result.dates.length, 'jours', result.dates);
+    return result;
+  }, [selectedYear]);
+  
   const holidays = currentHolidays.dates;
   const holidayNames = currentHolidays.names;
-  
-  // Debug: Log des jours fériés chargés
-  console.log(`📅 Jours fériés ${selectedYear} chargés:`, holidays.length, 'jours', holidays);
 
   // Initialisation des employés par catégorie
   useEffect(() => {
