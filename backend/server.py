@@ -2021,7 +2021,7 @@ async def import_work_hours(
     request: ImportDataRequest,
     current_user: User = Depends(require_admin_access)
 ):
-    """Import work hours data from Excel"""
+    """Import work hours data from Excel - supports both 'employee_name' and 'nom'+'prenom' formats"""
     errors = []
     warnings = []
     successful_imports = 0
@@ -2029,32 +2029,68 @@ async def import_work_hours(
     try:
         for i, work_data in enumerate(request.data):
             try:
-                # Find employee by name to get ID
-                employee_name = work_data.get('employee_name', '')
+                # Support both formats: 'employee_name' OR 'nom'+'prenom'
+                nom = work_data.get('nom', '').strip()
+                prenom = work_data.get('prenom', '').strip()
+                employee_name = work_data.get('employee_name', '').strip()
                 
-                # Search in users collection (where employees are stored)
-                employee = await db.users.find_one({"name": {"$regex": employee_name, "$options": "i"}})
+                # If nom and prenom are provided separately, use them
+                if nom and prenom:
+                    search_name = f"{prenom} {nom}"
+                    display_name = f"{prenom} {nom}"
+                elif employee_name:
+                    search_name = employee_name
+                    display_name = employee_name
+                else:
+                    errors.append({
+                        "row": str(i + 1),
+                        "error": "Nom et prénom (ou employee_name) requis"
+                    })
+                    continue
                 
-                # If not found, try searching employees collection as fallback
+                # UNIFIED EMPLOYEE SEARCH - Try all possible locations
+                employee = None
+                
+                # 1. Try by full name in users.name
+                employee = await db.users.find_one({"name": {"$regex": search_name, "$options": "i"}})
+                
+                # 2. Try by NOM in users collection (case insensitive)
+                if not employee and nom:
+                    employee = await db.users.find_one({
+                        "$or": [
+                            {"name": {"$regex": f".*{nom}.*", "$options": "i"}},
+                            {"email": {"$regex": f".*{nom}.*", "$options": "i"}}
+                        ]
+                    })
+                
+                # 3. Try employees collection as fallback (if it exists)
                 if not employee:
-                    employee = await db.employees.find_one({"$or": [
-                        {"nom": {"$regex": employee_name, "$options": "i"}},
-                        {"prenom": {"$regex": employee_name, "$options": "i"}}
-                    ]})
+                    try:
+                        employee = await db.employees.find_one({
+                            "$or": [
+                                {"nom": {"$regex": nom if nom else search_name, "$options": "i"}},
+                                {"prenom": {"$regex": prenom if prenom else search_name, "$options": "i"}}
+                            ]
+                        })
+                    except:
+                        pass  # employees collection may not exist
                 
                 if not employee:
                     errors.append({
                         "row": str(i + 1),
-                        "error": f"Employé non trouvé: {employee_name}"
+                        "error": f"Employé non trouvé: {display_name}"
                     })
                     continue
                 
+                # Get motif/notes
+                motif = work_data.get('motif', work_data.get('notes', ''))
+                
                 work_hours = ImportWorkHours(
-                    employee_id=employee["id"],
-                    employee_name=employee_name,
+                    employee_id=employee.get("id", employee.get("_id")),
+                    employee_name=employee.get("name", display_name),
                     date=work_data.get('date', ''),
                     heures_travaillees=float(work_data.get('heures_travaillees', 0)),
-                    notes=work_data.get('notes'),
+                    notes=motif,
                     created_by=current_user.name
                 )
                 
