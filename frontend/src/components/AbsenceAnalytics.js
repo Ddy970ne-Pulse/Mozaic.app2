@@ -398,6 +398,9 @@ const AbsenceAnalytics = ({ user }) => {
                         {stats.congesTrimestriels > 0 ? stats.congesTrimestriels.toFixed(1) : ''}
                       </td>
                       <td className="px-4 py-3 text-center text-gray-600">
+                        {stats.rtt > 0 ? stats.rtt.toFixed(1) : ''}
+                      </td>
+                      <td className="px-4 py-3 text-center text-gray-600">
                         {stats.recuperation > 0 ? stats.recuperation.toFixed(1) : ''}
                       </td>
                       <td className="px-4 py-3 text-center text-gray-600">
