@@ -1225,6 +1225,54 @@ const ExcelImport = ({ user, onChangeView }) => {
           </div>
         </div>
       )}
+      
+      {/* Danger Zone - Admin uniquement */}
+      {user?.role === 'admin' && (
+        <div className="mt-8 border-t-4 border-red-500 bg-red-50 rounded-xl p-6">
+          <button
+            onClick={() => setShowDangerZone(!showDangerZone)}
+            className="flex items-center justify-between w-full text-left"
+          >
+            <div className="flex items-center space-x-3">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <h3 className="text-lg font-bold text-red-800">Zone de Danger</h3>
+                <p className="text-sm text-red-600">Actions irréversibles - Utiliser avec précaution extrême</p>
+              </div>
+            </div>
+            <span className="text-2xl text-red-800">{showDangerZone ? '▼' : '▶'}</span>
+          </button>
+          
+          {showDangerZone && (
+            <div className="mt-6 p-6 bg-white border-2 border-red-300 rounded-lg">
+              <div className="bg-red-100 border border-red-400 rounded-lg p-4 mb-4">
+                <p className="text-red-800 font-semibold mb-2">⚠️ ATTENTION CRITIQUE</p>
+                <p className="text-sm text-red-700">
+                  Cette action supprimera <strong>DÉFINITIVEMENT</strong> toutes les données suivantes :
+                </p>
+                <ul className="text-sm text-red-700 mt-2 ml-4 space-y-1">
+                  <li>❌ Toutes les absences importées</li>
+                  <li>❌ Toutes les heures de travail</li>
+                  <li>❌ Tous les employés importés</li>
+                  <li>❌ Tous les utilisateurs (sauf vous)</li>
+                </ul>
+              </div>
+              
+              <button
+                onClick={resetDemoAccounts}
+                disabled={isProcessing}
+                className="w-full px-6 py-3 rounded-lg bg-gradient-to-br from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 shadow-lg transition-all duration-200 font-bold disabled:opacity-50"
+              >
+                🔄 Réinitialiser Système (SUPPRIMER TOUT)
+              </button>
+              
+              <p className="text-xs text-gray-500 text-center mt-3">
+                Nécessite une double confirmation
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
