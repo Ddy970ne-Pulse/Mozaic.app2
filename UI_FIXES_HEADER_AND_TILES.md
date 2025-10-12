@@ -121,11 +121,14 @@ Lorsque l'utilisateur survole une tuile :
 - `/app/frontend/src/components/Layout.js`
 
 ## Tests Requis
-1. ✅ Vérifier que les boutons Notification et Paramètres répondent au clic
-2. ✅ Vérifier que le bouton Paramètres navigue correctement vers la vue settings
-3. ✅ Vérifier que l'effet hover des tuiles ne fait agrandir QUE l'icône
-4. ✅ Vérifier que les tuiles se soulèvent et l'ombre augmente au hover
-5. ✅ Vérifier que le comportement est identique pour toutes les tuiles (menu principal, Paramètres, Aide)
+1. ✅ Vérifier que le bouton Notification ouvre le panneau de notifications
+2. ✅ Vérifier que le badge affiche le nombre de notifications (3)
+3. ✅ Vérifier la fermeture du panneau au clic extérieur
+4. ✅ Vérifier que le bouton Paramètres navigue correctement vers la vue settings
+5. ✅ Vérifier que l'effet hover des tuiles ne fait agrandir QUE l'icône
+6. ✅ Vérifier que les tuiles se soulèvent et l'ombre augmente au hover
+7. ✅ Vérifier que le comportement est identique pour toutes les tuiles (menu principal, Paramètres, Aide)
+8. ✅ Vérifier que le hover des notifications fonctionne (bg-gray-50)
 
 ## Prochaines Étapes
 - [ ] Implémenter le système de notifications complet
