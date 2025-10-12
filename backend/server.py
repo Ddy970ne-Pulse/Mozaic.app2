@@ -263,6 +263,7 @@ class User(BaseModel):
     first_login: bool = True
     last_login: Optional[datetime] = None
     temp_password_expires: Optional[datetime] = None
+    has_temp_email: bool = False  # Email généré automatiquement (sans email pro)
     # Champs additionnels depuis employees
     date_naissance: Optional[str] = None
     sexe: Optional[str] = None
