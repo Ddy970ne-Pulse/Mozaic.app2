@@ -494,32 +494,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
         </div>
       )}
 
-      {/* Mobile Menu Overlay - Style Original Simple */}
-      {showMenu && isMobile && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50">
-          <div className="absolute top-16 left-0 right-0 bg-white shadow-lg">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {menuItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setCurrentView(item.id);
-                    setShowMenu(false);
-                  }}
-                  className={`flex items-center w-full px-3 py-2 rounded-md text-base font-medium ${
-                    currentView === item.id
-                      ? 'text-blue-700 bg-blue-100'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  <span className="mr-2">{item.icon}</span>
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Menu mobile simple supprimé - Utilisation du menu glassmorphism unifié pour tous les écrans */}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
