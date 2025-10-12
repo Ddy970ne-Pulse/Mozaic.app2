@@ -978,7 +978,7 @@ async def change_password(password_data: PasswordChange, current_user: User = De
 
 @api_router.post("/users/{user_id}/reset-password")
 async def reset_user_password(user_id: str, password_data: PasswordReset, current_user: User = Depends(get_current_user)):
-    """Reset user password (admin only - generates new temporary password)"""
+    """Reset user password (admin only - reverts to initial password)"""
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     
@@ -987,27 +987,39 @@ async def reset_user_password(user_id: str, password_data: PasswordReset, curren
     if not existing_user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Generate new temporary password
-    temp_password = generate_temp_password()
-    temp_expires = datetime.utcnow().replace(tzinfo=timezone.utc) + timedelta(days=7)
+    # Récupérer le mot de passe initial
+    initial_password = existing_user.get("initial_password")
     
-    # Update password with temporary settings
-    hashed_password = hash_password(temp_password)
+    if not initial_password:
+        # Si pas de mot de passe initial, générer un nouveau
+        initial_password = generate_temp_password()
+        # Le sauvegarder comme mot de passe initial pour la prochaine fois
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": {"initial_password": initial_password}}
+        )
+    
+    # Réinitialiser avec le mot de passe initial
+    temp_expires = datetime.utcnow().replace(tzinfo=timezone.utc) + timedelta(days=7)
+    hashed_password = hash_password(initial_password)
+    
     await db.users.update_one(
         {"id": user_id}, 
         {"$set": {
             "hashed_password": hashed_password,
             "requires_password_change": True,
+            "first_login": False,  # Pas une première connexion, juste un reset
             "temp_password_expires": temp_expires,
-            "temp_password_plain": temp_password,  # Sauvegarder aussi en clair pour l'admin
+            "temp_password_plain": initial_password,  # Mot de passe actuel = initial
             "updated_at": datetime.utcnow()
         }}
     )
     
     return {
-        "message": "Temporary password generated successfully",
-        "temp_password": temp_password,
-        "expires_at": temp_expires
+        "message": "Password reset to initial password successfully",
+        "temp_password": initial_password,
+        "expires_at": temp_expires,
+        "note": "Password has been reset to the user's initial password"
     }
 
 @api_router.get("/users/temporary-passwords")
