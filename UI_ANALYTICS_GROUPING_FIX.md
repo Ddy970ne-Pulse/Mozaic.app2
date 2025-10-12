@@ -53,8 +53,9 @@ Création d'un hub unifié "Analytics & Rapports" avec accès aux 3 modules.
 **Fonctionnalités:**
 1. **Page d'accueil** avec 3 grandes cartes cliquables
 2. **Navigation** vers chaque module
-3. **Aperçu rapide** avec statistiques
-4. **Design cohérent** avec gradients MOZAIK RH
+3. **Bouton retour** depuis chaque sous-module vers le hub
+4. **Aperçu rapide** avec statistiques
+5. **Design cohérent** avec gradients MOZAIK RH
 
 **Structure:**
 ```
