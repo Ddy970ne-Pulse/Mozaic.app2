@@ -6,7 +6,7 @@ import HRToolbox from './HRToolbox';
 import AbsenceRequests from './AbsenceRequests';
 import EmployeeSpace from './EmployeeSpace';
 import SettingsPage from './SettingsPage';
-import Analytics from './Analytics';
+import Analytics from './AnalyticsNew';
 import AbsenceAnalytics from './AbsenceAnalytics';
 import OvertimeModule from './OvertimeModule';
 import DelegationHours from './DelegationHours';
