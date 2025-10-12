@@ -187,8 +187,9 @@ const ExcelImport = ({ user, onChangeView }) => {
           throw new Error('Aucune en-tête valide trouvée dans le fichier Excel');
         }
 
-        // FIX: Ne pas filtrer les lignes ici - garder TOUTES les lignes qui ont au moins un NOM ou PRENOM
+        // FIX: Filtrer selon le type de données sélectionné
         console.log('🔍 Total dataRows avant filtre:', dataRows.length);
+        console.log('📊 Type de données sélectionné:', dataType);
         
         const cleanData = dataRows
           .map((row, rowIndex) => {
@@ -199,13 +200,32 @@ const ExcelImport = ({ user, onChangeView }) => {
             return obj;
           })
           .filter((obj, index) => {
-            // Garder seulement les lignes qui ont au moins NOM ou PRENOM
-            const hasNom = obj['NOM'] && String(obj['NOM']).trim() !== '';
-            const hasPrenom = obj['PRENOM'] && String(obj['PRENOM']).trim() !== '';
-            const keep = hasNom || hasPrenom;
+            // Filtrage adaptatif selon le type de données
+            let keep = false;
+            
+            if (dataType === 'employees') {
+              // Pour employés: doit avoir NOM ou PRENOM
+              const hasNom = obj['NOM'] && String(obj['NOM']).trim() !== '';
+              const hasPrenom = obj['PRENOM'] && String(obj['PRENOM']).trim() !== '';
+              keep = hasNom || hasPrenom;
+            } else if (dataType === 'planning') {
+              // Pour absences: doit avoir NOM ou Date Début
+              const hasNom = obj['NOM'] && String(obj['NOM']).trim() !== '';
+              const hasDate = obj['Date Début'] && String(obj['Date Début']).trim() !== '';
+              keep = hasNom || hasDate;
+            } else if (dataType === 'hours') {
+              // Pour heures travaillées: doit avoir Employé ou Date ou Heures
+              const hasEmploye = (obj['Employé'] || obj['employé'] || obj['EMPLOYE']) && String(obj['Employé'] || obj['employé'] || obj['EMPLOYE'] || '').trim() !== '';
+              const hasDate = (obj['Date'] || obj['date'] || obj['DATE']) && String(obj['Date'] || obj['date'] || obj['DATE'] || '').trim() !== '';
+              const hasHeures = (obj['Heures Travaillées'] || obj['heures_travaillees']) && String(obj['Heures Travaillées'] || obj['heures_travaillees'] || '').trim() !== '';
+              keep = hasEmploye || hasDate || hasHeures;
+            } else {
+              // Par défaut: garder toutes les lignes non-vides
+              keep = Object.values(obj).some(val => val && String(val).trim() !== '');
+            }
             
             if (!keep) {
-              console.log(`⚠️ Ligne ${index + 1} ignorée (pas de NOM/PRENOM):`, obj);
+              console.log(`⚠️ Ligne ${index + 1} ignorée (vide ou incomplète):`, obj);
             }
             
             return keep;
