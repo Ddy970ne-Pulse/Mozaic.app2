@@ -466,8 +466,10 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
           console.log(`✅ Found ${employeeAbsences.length} absences for ${employee.name}`, employeeAbsences);
         }
         
-        const newAbsences = { ...employee.absences };
-        let totalDays = employee.totalAbsenceDays || 0;
+        // ⚠️ RÉINITIALISER les absences pour éviter pollution entre périodes
+        // Les absences sont spécifiques au mois/année affichés
+        const newAbsences = {};
+        let totalDays = 0;
         
         employeeAbsences.forEach(absence => {
           try {
