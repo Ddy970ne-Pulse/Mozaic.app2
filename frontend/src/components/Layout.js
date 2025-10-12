@@ -155,6 +155,10 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
               {/* Boutons d'action harmonisés avec le style établi */}
               <div className="flex items-center space-x-3">
                 <button 
+                  onClick={() => {
+                    // TODO: Implémenter le système de notifications
+                    alert('Système de notifications - À venir prochainement');
+                  }}
                   className="p-2 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 shadow-lg transition-all duration-200" 
                   title="Notifications"
                 >
@@ -164,6 +168,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                 </button>
                 
                 <button 
+                  onClick={() => setCurrentView('settings')}
                   className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 shadow-lg transition-all duration-200" 
                   title="Paramètres"
                 >
