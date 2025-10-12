@@ -49,12 +49,13 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
     { id: 'my-space', name: 'Mon Espace', icon: '👤', color: 'from-green-500 to-green-600' },
     { id: 'absence-requests', name: 'Demandes d\'Absence', icon: '📝', color: 'from-orange-500 to-orange-600' },
     { id: 'monthly-planning', name: 'Planning Mensuel', icon: '📅', color: 'from-purple-500 to-purple-600' },
-    { id: 'analytics', name: 'Analytics & KPI', icon: '📊', color: 'from-indigo-500 to-indigo-600' },
+    { id: 'absence-analytics', name: 'Analyse des Absences', icon: '📊', color: 'from-purple-600 to-pink-600' },
+    { id: 'analytics', name: 'Analytics & KPI', icon: '📈', color: 'from-indigo-500 to-indigo-600' },
     { id: 'overtime', name: 'Heures Supplémentaires', icon: '⏰', color: 'from-red-500 to-red-600' },
     { id: 'delegation-hours', name: 'Heures de Délégation', icon: '⚖️', color: 'from-cyan-500 to-cyan-600' },
     { id: 'on-call-management', name: 'Gestion Astreintes', icon: '🔔', color: 'from-orange-600 to-red-600' },
     { id: 'hr-toolbox', name: 'Boîte à outils RH', icon: '🛠️', color: 'from-teal-500 to-teal-600' },
-    { id: 'excel-import', name: 'Import Excel', icon: '📊', color: 'from-emerald-500 to-green-600' },
+    { id: 'excel-import', name: 'Import Excel', icon: '📥', color: 'from-emerald-500 to-green-600' },
     { id: 'cse-management', name: 'Gestion CSE', icon: '🏛️', color: 'from-indigo-600 to-purple-600' },
     { id: 'user-management', name: 'Gestion Utilisateurs', icon: '👥', color: 'from-pink-500 to-pink-600' }
   ];
