@@ -127,7 +127,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       return;
     }
     
-    const loadImportedAbsences = async () => {
+    const loadAndMergeAllAbsences = async () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -135,7 +135,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           return;
         }
 
-        console.log(`📥 Loading imported absences for ${selectedYear}-${selectedMonth + 1} (${employees.length} employees ready)`);
+        console.log(`📥 Loading imported absences for ${selectedYear}-${selectedMonth + 1}`);
         const response = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/absences/by-period/${selectedYear}/${selectedMonth + 1}`,
           {
@@ -146,21 +146,28 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           }
         );
 
+        let importedAbsences = [];
         if (response.ok) {
-          const absences = await response.json();
-          console.log(`✅ Loaded ${absences.length} imported absences:`, absences);
-          if (absences.length > 0) {
-            updatePlanningFromImportedAbsences(absences);
-          }
+          importedAbsences = await response.json();
+          console.log(`✅ Loaded ${importedAbsences.length} imported absences`);
         } else {
-          console.error('❌ Failed to load imported absences:', response.status, response.statusText);
+          console.error('❌ Failed to load imported absences:', response.status);
         }
+        
+        // Charger aussi les demandes d'absence approuvées
+        const requestsData = getRequests();
+        const approvedRequests = Array.isArray(requestsData) ? requestsData.filter(r => r.status === 'approved') : [];
+        console.log(`✅ Loaded ${approvedRequests.length} approved requests`);
+        
+        // FUSION: Appliquer toutes les absences en une seule fois
+        applyAllAbsencesToPlanning(importedAbsences, approvedRequests);
+        
       } catch (error) {
-        console.error('❌ Error loading imported absences:', error);
+        console.error('❌ Error loading absences:', error);
       }
     };
 
-    loadImportedAbsences();
+    loadAndMergeAllAbsences();
   }, [employees, selectedYear, selectedMonth]);
 
   // Synchro avec les demandes d'absence approuvées et les astreintes
