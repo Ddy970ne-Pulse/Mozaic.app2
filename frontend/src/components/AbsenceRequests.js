@@ -241,29 +241,21 @@ const AbsenceRequests = ({ user }) => {
         onTabChange={setActiveTab}
       />
 
-      {/* Ancien style caché pour transition */}
-      <div style={{ display: 'none' }}>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8 px-6">
-              {[
-                { id: 'pending', name: 'En Attente', count: requests.pending.length, icon: '⏳' },
-                { id: 'approved', name: 'Approuvées', count: requests.approved.length, icon: '✅' },
-                { id: 'rejected', name: 'Refusées', count: requests.rejected.length, icon: '❌' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <span>{tab.icon}</span>
-                    <span>{tab.name}</span>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
+      {/* Requests List */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-6">
+          <div className="space-y-4">
+            {requests[activeTab].map((request) => (
+              <div key={request.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                      {request.avatar}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800">{request.employee}</h3>
+                      <p className="text-sm text-gray-600">{request.department}</p>
+                    </div>
                     activeTab === tab.id ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'
                   }`}>
                     {tab.count}
