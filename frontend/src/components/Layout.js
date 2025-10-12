@@ -252,21 +252,26 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
 
           {/* Styles CSS pour les animations */}
           <style jsx>{`
-            @keyframes cloudFloat {
-              0%, 100% { transform: translateY(0px) translateX(0px); }
-              25% { transform: translateY(-10px) translateX(20px); }
-              50% { transform: translateY(-5px) translateX(-30px); }
-              75% { transform: translateY(-15px) translateX(10px); }
-            }
-            
-            @keyframes cloudRotate {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
+            @keyframes cloudDrift {
+              0% { 
+                transform: translateX(0vw) translateY(0px);
+                opacity: 0;
+              }
+              10% {
+                opacity: 0.3;
+              }
+              90% {
+                opacity: 0.3;
+              }
+              100% { 
+                transform: translateX(130vw) translateY(-20px);
+                opacity: 0;
+              }
             }
             
             @keyframes cloudPulse {
               0%, 100% { opacity: 0.3; transform: scale(1); }
-              50% { opacity: 0.6; transform: scale(1.2); }
+              50% { opacity: 0.5; transform: scale(1.05); }
             }
             
             @keyframes cloudSway {
