@@ -993,6 +993,36 @@ async def reset_user_password(user_id: str, password_data: PasswordReset, curren
         "expires_at": temp_expires
     }
 
+@api_router.get("/users/temporary-passwords")
+async def get_temporary_passwords(current_user: User = Depends(get_current_user)):
+    """Get all users with temporary passwords (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Récupérer tous les utilisateurs qui ont un mot de passe temporaire
+    users_with_temp = await db.users.find({
+        "temp_password_plain": {"$ne": None, "$exists": True}
+    }).to_list(length=None)
+    
+    # Formater les résultats
+    result = []
+    for user in users_with_temp:
+        result.append({
+            "id": user.get("id"),
+            "name": user.get("name"),
+            "email": user.get("email"),
+            "temp_password": user.get("temp_password_plain"),
+            "expires_at": user.get("temp_password_expires"),
+            "first_login": user.get("first_login", True),
+            "created_at": user.get("created_at")
+        })
+    
+    return {
+        "success": True,
+        "count": len(result),
+        "users": result
+    }
+
 @api_router.post("/users/{user_id}/change-email")
 async def change_user_email(user_id: str, email_data: dict, current_user: User = Depends(get_current_user)):
     """Change user email address (admin only)"""
