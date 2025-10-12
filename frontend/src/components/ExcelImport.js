@@ -384,7 +384,8 @@ const ExcelImport = ({ user, onChangeView }) => {
       
       console.log('📊 Mapped data count:', mappedData.length);
       console.log('📝 Première ligne mappée:', mappedData[0]);
-      console.log('📝 Toutes les lignes mappées:', mappedData);
+      console.log('📝 Dernière ligne mappée:', mappedData[mappedData.length - 1]);
+      console.log('🎯 ENVOI AU BACKEND: ' + mappedData.length + ' lignes');
 
       // Déterminer l'endpoint selon le type de données
       let endpoint = '';
