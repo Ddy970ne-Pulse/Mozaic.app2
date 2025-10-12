@@ -187,14 +187,28 @@ const ExcelImport = ({ user, onChangeView }) => {
           throw new Error('Aucune en-tête valide trouvée dans le fichier Excel');
         }
 
+        // FIX: Ne pas filtrer les lignes ici - garder TOUTES les lignes qui ont au moins un NOM ou PRENOM
+        console.log('🔍 Total dataRows avant filtre:', dataRows.length);
+        
         const cleanData = dataRows
-          .filter(row => row && row.some(cell => cell !== null && cell !== undefined && String(cell).trim() !== ''))
           .map((row, rowIndex) => {
             const obj = {};
             cleanHeaders.forEach((header, index) => {
               obj[header] = row[index] !== undefined ? processExcelValue(row[index], header) : '';
             });
             return obj;
+          })
+          .filter((obj, index) => {
+            // Garder seulement les lignes qui ont au moins NOM ou PRENOM
+            const hasNom = obj['NOM'] && String(obj['NOM']).trim() !== '';
+            const hasPrenom = obj['PRENOM'] && String(obj['PRENOM']).trim() !== '';
+            const keep = hasNom || hasPrenom;
+            
+            if (!keep) {
+              console.log(`⚠️ Ligne ${index + 1} ignorée (pas de NOM/PRENOM):`, obj);
+            }
+            
+            return keep;
           })
           .slice(0, 1000); // Limit to 1000 rows for performance
 
