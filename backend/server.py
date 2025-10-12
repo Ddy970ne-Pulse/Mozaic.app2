@@ -590,6 +590,80 @@ class CSECession(BaseModel):
     created_by: str  # Nom de l'utilisateur qui a créé la cession
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
+# Leave Balance and Transaction Models
+class EmployeeLeaveBalance(BaseModel):
+    """Soldes de congés par employé et par année"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    employee_id: str
+    employee_name: str
+    year: int
+    
+    # Congés Annuels (CA)
+    ca_initial: float = 25.0           # Attribution annuelle (ex: 25 jours/an)
+    ca_taken: float = 0.0               # CA consommés (posés et pris)
+    ca_pending: float = 0.0             # CA posés mais non encore écoulés
+    ca_reintegrated: float = 0.0        # CA réintégrés suite interruption
+    ca_balance: float = 25.0            # Solde disponible = initial - taken + reintegrated
+    
+    # RTT
+    rtt_initial: float = 12.0           # Attribution annuelle (ex: 12 jours/an)
+    rtt_taken: float = 0.0
+    rtt_pending: float = 0.0
+    rtt_reintegrated: float = 0.0
+    rtt_balance: float = 12.0
+    
+    # Congés Trimestriels (CT)
+    ct_initial: float = 0.0             # Variable selon convention
+    ct_taken: float = 0.0
+    ct_pending: float = 0.0
+    ct_reintegrated: float = 0.0
+    ct_balance: float = 0.0
+    
+    # Récupération (REC) - Accumulation variable
+    rec_accumulated: float = 0.0        # Heures sup converties en récup
+    rec_taken: float = 0.0
+    rec_reintegrated: float = 0.0
+    rec_balance: float = 0.0
+    
+    # Congés Exceptionnels (CEX)
+    cex_initial: float = 0.0            # Selon événements familiaux
+    cex_taken: float = 0.0
+    cex_balance: float = 0.0
+    
+    # Métadonnées
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class LeaveTransaction(BaseModel):
+    """Historique des mouvements de compteurs de congés"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    employee_id: str
+    employee_name: str
+    transaction_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    
+    leave_type: str                     # CA, RTT, REC, CT, CEX
+    operation: str                      # "deduct" (pose), "reintegrate" (réintégration), "grant" (attribution), "cancel" (annulation)
+    amount: float                       # Nombre de jours (ou heures pour REC)
+    
+    reason: str                         # Ex: "Pose CA 01-14/01", "Réintégration suite AM 05-10/01"
+    related_absence_id: Optional[str] = None
+    interrupting_absence_type: Optional[str] = None  # Type d'absence qui a interrompu (ex: "AM")
+    
+    balance_before: float               # Solde avant l'opération
+    balance_after: float                # Solde après l'opération
+    
+    created_by: str                     # Utilisateur qui a fait l'opération (système ou admin)
+
+class LeaveBalanceUpdate(BaseModel):
+    """Request pour mettre à jour un solde"""
+    employee_id: str
+    leave_type: str
+    operation: str
+    amount: float
+    reason: str
+    related_absence_id: Optional[str] = None
+    interrupting_absence_type: Optional[str] = None
+
 # Event Management Models
 class Event(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
