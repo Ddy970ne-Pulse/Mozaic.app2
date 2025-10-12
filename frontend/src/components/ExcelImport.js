@@ -98,8 +98,8 @@ const ExcelImport = ({ user, onChangeView }) => {
       name: 'Données Employés (16 colonnes)',
       icon: '👥',
       color: 'from-blue-500 to-blue-600',
-      requiredFields: ['nom', 'prenom', 'email', 'departement'],
-      optionalFields: ['date_naissance', 'sexe', 'categorie_employe', 'metier', 'fonction', 'site', 'temps_travail', 'contrat', 'date_debut_contrat', 'date_fin_contrat', 'notes', 'membre_cse'],
+      requiredFields: ['nom', 'prenom', 'email'],
+      optionalFields: ['date_naissance', 'sexe', 'categorie_employe', 'metier', 'fonction', 'departement', 'site', 'temps_travail', 'contrat', 'date_debut_contrat', 'date_fin_contrat', 'notes', 'membre_cse'],
       validationRules: {
         email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         date_naissance: 'date',
