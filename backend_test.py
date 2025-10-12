@@ -1446,12 +1446,14 @@ class BackendTester:
 
     def run_all_tests(self):
         """Run all backend tests"""
-        print(f"Starting MOZAIK RH Backend Tests - Focus on CSE Cessions API Endpoints")
+        print(f"Starting MOZAIK RH Backend Tests - Focus on Leave Balance Management System")
         print(f"Backend URL: {BASE_URL}")
         print(f"API URL: {API_URL}")
         print("=" * 70)
         
-        # Initialize results for CSE cessions testing
+        # Initialize results for leave balance testing
+        self.results["leave_balance"] = {"status": "unknown", "details": []}
+        self.results["mongodb_validation"] = {"status": "unknown", "details": []}
         self.results["absence_import"] = {"status": "unknown", "details": []}
         self.results["monthly_planning"] = {"status": "unknown", "details": []}
         
@@ -1460,7 +1462,10 @@ class BackendTester:
         
         if api_healthy:
             auth_token = self.test_authentication()
-            # Focus on CSE Cessions API testing as requested
+            # Focus on Leave Balance Management System testing as requested in French review
+            self.test_leave_balance_management_system(auth_token)
+            self.test_mongodb_validation(auth_token)
+            # Also test other systems
             self.test_cse_cessions_endpoints(auth_token)
             self.test_delegation_hours(auth_token)
             self.test_data_retrieval(auth_token)
@@ -1470,7 +1475,7 @@ class BackendTester:
             print("Skipping other tests due to API health issues")
             
         # Determine overall status
-        categories = ["api_health", "authentication", "cse_cessions", "delegation_hours", "data_retrieval", "monthly_planning", "excel_import"]
+        categories = ["api_health", "authentication", "leave_balance", "mongodb_validation", "cse_cessions", "delegation_hours", "data_retrieval", "monthly_planning", "excel_import"]
         passed_tests = sum(1 for cat in categories if self.results[cat]["status"] == "pass")
         
         if passed_tests == len(categories):
