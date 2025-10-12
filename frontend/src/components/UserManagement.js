@@ -418,10 +418,16 @@ const UserManagement = ({ user }) => {
           setAuditLogs([auditEntry, ...auditLogs]);
           
           alert('✅ Utilisateur mis à jour avec succès !');
+          
+          // Fermer le modal et recharger SEULEMENT si succès
+          setShowUserModal(false);
+          setSelectedUser(null);
+          await fetchUsers();
         } else {
-          const errorData = await response.json();
+          const errorData = await response.json().catch(() => ({ detail: 'Erreur réseau' }));
           alert(`❌ Erreur lors de la mise à jour: ${errorData.detail || 'Erreur inconnue'}`);
           console.error('Error updating user:', errorData);
+          // NE PAS fermer le modal en cas d'erreur
         }
       } else {
         // Nouveau utilisateur - CRÉER VIA BACKEND
@@ -471,17 +477,18 @@ const UserManagement = ({ user }) => {
           setAuditLogs([auditEntry, ...auditLogs]);
           
           alert(`✅ Utilisateur créé avec succès !\n\n🔑 Mot de passe temporaire: ${tempPasswordData.temp_password}\n\n⚠️ Notez-le dans un endroit sûr, il ne sera plus affiché.`);
+          
+          // Fermer le modal et recharger SEULEMENT si succès
+          setShowUserModal(false);
+          setSelectedUser(null);
+          await fetchUsers();
         } else {
-          const errorData = await response.json();
+          const errorData = await response.json().catch(() => ({ detail: 'Erreur réseau' }));
           alert(`❌ Erreur lors de la création: ${errorData.detail || 'Erreur inconnue'}`);
           console.error('Error creating user:', errorData);
+          // NE PAS fermer le modal en cas d'erreur
         }
       }
-      
-      setShowUserModal(false);
-      setSelectedUser(null);
-      // Recharger la liste complète des utilisateurs
-      await fetchUsers();
       
     } catch (error) {
       console.error('Error saving user:', error);
