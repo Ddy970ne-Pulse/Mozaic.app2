@@ -418,18 +418,148 @@ const EmployeeSpaceNew = ({ user }) => {
           {/* Tab: Mes Demandes */}
           {activeTab === 'requests' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-800">Mes Demandes d'Absence</h3>
-                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                  ➕ Nouvelle Demande
-                </button>
+              {/* Section Admin/Manager */}
+              {(user.role === 'admin' || user.role === 'manager') && (
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-orange-200 rounded-xl p-6 mb-6">
+                  <div className="flex items-start gap-4">
+                    <div className="text-4xl">👔</div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-gray-800 mb-2">
+                        🎯 Espace Séparé pour {user.role === 'admin' ? 'Administrateur' : 'Manager'}
+                      </h3>
+                      <p className="text-sm text-gray-700 mb-4">
+                        En tant que <strong>{user.role === 'admin' ? 'administrateur' : 'manager'}</strong>, 
+                        vous avez accès à deux espaces distincts :
+                      </p>
+                      
+                      <div className="grid md:grid-cols-2 gap-4 mt-4">
+                        <div className="bg-white rounded-lg p-4 border border-gray-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-2xl">👤</span>
+                            <h4 className="font-semibold text-gray-800">Mon Espace Personnel</h4>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-3">
+                            Cet onglet : Gérez VOS propres demandes d'absence et consultez VOS soldes personnels.
+                          </p>
+                          <div className="text-xs text-green-600 font-medium">
+                            ✓ Vous êtes ici actuellement
+                          </div>
+                        </div>
+
+                        <div className="bg-white rounded-lg p-4 border border-gray-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-2xl">📝</span>
+                            <h4 className="font-semibold text-gray-800">Gestion d'Équipe</h4>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-3">
+                            Module "Demandes d'Absence" : Validez et gérez les demandes de VOTRE équipe.
+                          </p>
+                          <button
+                            onClick={() => window.location.href = '#absence-requests'}
+                            className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+                          >
+                            → Accéder au module
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Formulaire de demande personnelle */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  📝 Faire une Demande d'Absence Personnelle
+                </h3>
+                
+                <form className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Type d'Absence *
+                      </label>
+                      <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <option value="">Sélectionner...</option>
+                        <option value="CA">Congés Annuels (CA)</option>
+                        <option value="CT">Congés Trimestriels (CT)</option>
+                        <option value="RTT">RTT</option>
+                        <option value="REC">Récupération</option>
+                        <option value="AM">Arrêt Maladie</option>
+                        <option value="CSS">Congés Sans Solde</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre de Jours *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        placeholder="Ex: 5"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date de Début *
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date de Fin *
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Motif / Commentaire
+                    </label>
+                    <textarea
+                      rows="3"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      placeholder="Précisez le motif de votre demande..."
+                    ></textarea>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <button
+                      type="button"
+                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                    >
+                      📤 Soumettre Ma Demande
+                    </button>
+                  </div>
+                </form>
               </div>
-              
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p className="text-sm text-yellow-800">
-                  📋 Pour faire une nouvelle demande d'absence, utilisez le module 
-                  "Demandes d'Absence" accessible depuis le menu principal.
-                </p>
+
+              {/* Mes demandes en cours */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  📋 Mes Demandes en Cours
+                </h3>
+                
+                <div className="text-center py-8 text-gray-500">
+                  Aucune demande en cours
+                </div>
               </div>
             </div>
           )}
