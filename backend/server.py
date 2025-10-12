@@ -2389,6 +2389,318 @@ async def delete_employee_work_hours(
         logger.error(f"Error deleting work hours: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Leave Balance Management endpoints
+@api_router.get("/leave-balance/{employee_id}", response_model=EmployeeLeaveBalance)
+async def get_leave_balance(
+    employee_id: str, 
+    year: Optional[int] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Récupère les soldes de congés d'un employé pour une année donnée.
+    Si year non spécifié, utilise l'année courante.
+    """
+    try:
+        if year is None:
+            year = datetime.now().year
+        
+        # Chercher le solde existant
+        balance = await db.leave_balances.find_one({
+            "employee_id": employee_id,
+            "year": year
+        })
+        
+        if balance:
+            # Nettoyer l'ObjectId MongoDB
+            if "_id" in balance:
+                del balance["_id"]
+            return balance
+        else:
+            # Créer un solde par défaut si n'existe pas
+            employee = await db.users.find_one({"id": employee_id})
+            if not employee:
+                raise HTTPException(status_code=404, detail="Employé non trouvé")
+            
+            new_balance = EmployeeLeaveBalance(
+                employee_id=employee_id,
+                employee_name=employee.get("name", ""),
+                year=year
+            )
+            
+            # Sauvegarder en base
+            balance_dict = new_balance.dict()
+            balance_dict['last_updated'] = balance_dict['last_updated'].isoformat()
+            balance_dict['created_at'] = balance_dict['created_at'].isoformat()
+            await db.leave_balances.insert_one(balance_dict)
+            
+            return new_balance
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting leave balance: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/leave-balance/update")
+async def update_leave_balance(
+    update: LeaveBalanceUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Met à jour un solde de congés (déduction, réintégration, attribution).
+    
+    Operations:
+    - "deduct" : Décompte lors de la pose d'absence
+    - "reintegrate" : Réintégration suite à interruption
+    - "grant" : Attribution de jours supplémentaires
+    - "cancel" : Annulation d'une pose
+    """
+    try:
+        year = datetime.now().year
+        
+        # Récupérer le solde actuel
+        balance = await db.leave_balances.find_one({
+            "employee_id": update.employee_id,
+            "year": year
+        })
+        
+        if not balance:
+            # Créer un nouveau solde
+            employee = await db.users.find_one({"id": update.employee_id})
+            if not employee:
+                raise HTTPException(status_code=404, detail="Employé non trouvé")
+            
+            balance = {
+                "id": str(uuid.uuid4()),
+                "employee_id": update.employee_id,
+                "employee_name": employee.get("name", ""),
+                "year": year,
+                "ca_initial": 25.0, "ca_taken": 0.0, "ca_pending": 0.0, "ca_reintegrated": 0.0, "ca_balance": 25.0,
+                "rtt_initial": 12.0, "rtt_taken": 0.0, "rtt_pending": 0.0, "rtt_reintegrated": 0.0, "rtt_balance": 12.0,
+                "ct_initial": 0.0, "ct_taken": 0.0, "ct_pending": 0.0, "ct_reintegrated": 0.0, "ct_balance": 0.0,
+                "rec_accumulated": 0.0, "rec_taken": 0.0, "rec_reintegrated": 0.0, "rec_balance": 0.0,
+                "cex_initial": 0.0, "cex_taken": 0.0, "cex_balance": 0.0,
+                "last_updated": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            await db.leave_balances.insert_one(balance)
+        
+        # Déterminer les champs à mettre à jour selon le type
+        leave_type_map = {
+            "CA": ("ca_balance", "ca_taken", "ca_reintegrated", "ca_pending"),
+            "CP": ("ca_balance", "ca_taken", "ca_reintegrated", "ca_pending"),
+            "RTT": ("rtt_balance", "rtt_taken", "rtt_reintegrated", "rtt_pending"),
+            "CT": ("ct_balance", "ct_taken", "ct_reintegrated", "ct_pending"),
+            "REC": ("rec_balance", "rec_taken", "rec_reintegrated", None),
+            "CEX": ("cex_balance", "cex_taken", None, None)
+        }
+        
+        if update.leave_type not in leave_type_map:
+            raise HTTPException(status_code=400, detail=f"Type de congé non géré: {update.leave_type}")
+        
+        balance_field, taken_field, reint_field, pending_field = leave_type_map[update.leave_type]
+        
+        balance_before = balance.get(balance_field, 0.0)
+        balance_after = balance_before
+        
+        # Appliquer l'opération
+        if update.operation == "deduct":
+            # Déduction : diminue le solde, augmente taken
+            balance_after = balance_before - update.amount
+            await db.leave_balances.update_one(
+                {"employee_id": update.employee_id, "year": year},
+                {
+                    "$set": {
+                        balance_field: balance_after,
+                        "last_updated": datetime.now(timezone.utc).isoformat()
+                    },
+                    "$inc": {taken_field: update.amount}
+                }
+            )
+            
+        elif update.operation == "reintegrate":
+            # Réintégration : augmente le solde et le compteur de réintégration
+            balance_after = balance_before + update.amount
+            update_fields = {
+                balance_field: balance_after,
+                "last_updated": datetime.now(timezone.utc).isoformat()
+            }
+            if reint_field:
+                update_fields[reint_field] = balance.get(reint_field, 0.0) + update.amount
+            
+            await db.leave_balances.update_one(
+                {"employee_id": update.employee_id, "year": year},
+                {"$set": update_fields}
+            )
+            
+        elif update.operation == "grant":
+            # Attribution : augmente le solde initial et le solde disponible
+            balance_after = balance_before + update.amount
+            await db.leave_balances.update_one(
+                {"employee_id": update.employee_id, "year": year},
+                {
+                    "$set": {
+                        balance_field: balance_after,
+                        "last_updated": datetime.now(timezone.utc).isoformat()
+                    },
+                    "$inc": {balance_field.replace("balance", "initial"): update.amount}
+                }
+            )
+            
+        elif update.operation == "cancel":
+            # Annulation : augmente le solde, diminue taken
+            balance_after = balance_before + update.amount
+            await db.leave_balances.update_one(
+                {"employee_id": update.employee_id, "year": year},
+                {
+                    "$set": {
+                        balance_field: balance_after,
+                        "last_updated": datetime.now(timezone.utc).isoformat()
+                    },
+                    "$inc": {taken_field: -update.amount}
+                }
+            )
+        
+        # Créer une transaction dans l'historique
+        transaction = LeaveTransaction(
+            employee_id=update.employee_id,
+            employee_name=balance.get("employee_name", ""),
+            leave_type=update.leave_type,
+            operation=update.operation,
+            amount=update.amount,
+            reason=update.reason,
+            related_absence_id=update.related_absence_id,
+            interrupting_absence_type=update.interrupting_absence_type,
+            balance_before=balance_before,
+            balance_after=balance_after,
+            created_by=current_user.email
+        )
+        
+        transaction_dict = transaction.dict()
+        transaction_dict['transaction_date'] = transaction_dict['transaction_date'].isoformat()
+        await db.leave_transactions.insert_one(transaction_dict)
+        
+        logger.info(f"✅ Leave balance updated: {update.employee_id} - {update.leave_type} {update.operation} {update.amount} days")
+        
+        return {
+            "success": True,
+            "employee_id": update.employee_id,
+            "leave_type": update.leave_type,
+            "operation": update.operation,
+            "amount": update.amount,
+            "balance_before": balance_before,
+            "balance_after": balance_after,
+            "transaction_id": transaction.id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating leave balance: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/leave-transactions/{employee_id}", response_model=List[LeaveTransaction])
+async def get_leave_transactions(
+    employee_id: str,
+    year: Optional[int] = None,
+    leave_type: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Récupère l'historique des transactions de congés pour un employé.
+    """
+    try:
+        query = {"employee_id": employee_id}
+        
+        if year:
+            # Filtrer par année
+            start_date = datetime(year, 1, 1, tzinfo=timezone.utc)
+            end_date = datetime(year, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+            query["transaction_date"] = {
+                "$gte": start_date.isoformat(),
+                "$lte": end_date.isoformat()
+            }
+        
+        if leave_type:
+            query["leave_type"] = leave_type
+        
+        transactions = await db.leave_transactions.find(query).sort("transaction_date", -1).to_list(1000)
+        
+        # Nettoyer les ObjectIds
+        result = []
+        for trans in transactions:
+            if "_id" in trans:
+                del trans["_id"]
+            result.append(trans)
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error getting leave transactions: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/leave-balance/initialize-all")
+async def initialize_all_leave_balances(
+    year: Optional[int] = None,
+    current_user: User = Depends(require_admin_access)
+):
+    """
+    Initialise les soldes de congés pour tous les employés (réservé admin).
+    Utilisé lors de la première installation ou en début d'année.
+    """
+    try:
+        if year is None:
+            year = datetime.now().year
+        
+        # Récupérer tous les employés
+        employees = await db.users.find().to_list(1000)
+        
+        initialized = 0
+        skipped = 0
+        
+        for employee in employees:
+            employee_id = employee.get("id")
+            if not employee_id:
+                continue
+            
+            # Vérifier si le solde existe déjà
+            existing = await db.leave_balances.find_one({
+                "employee_id": employee_id,
+                "year": year
+            })
+            
+            if existing:
+                skipped += 1
+                continue
+            
+            # Créer un nouveau solde
+            balance = EmployeeLeaveBalance(
+                employee_id=employee_id,
+                employee_name=employee.get("name", ""),
+                year=year
+            )
+            
+            balance_dict = balance.dict()
+            balance_dict['last_updated'] = balance_dict['last_updated'].isoformat()
+            balance_dict['created_at'] = balance_dict['created_at'].isoformat()
+            await db.leave_balances.insert_one(balance_dict)
+            
+            initialized += 1
+        
+        logger.info(f"✅ Initialized {initialized} leave balances for year {year}, skipped {skipped} existing")
+        
+        return {
+            "success": True,
+            "year": year,
+            "initialized": initialized,
+            "skipped": skipped,
+            "total_employees": len(employees)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error initializing leave balances: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Event Management endpoints
 @api_router.get("/events", response_model=List[Event])
 async def get_events(current_user: User = Depends(get_current_user)):
