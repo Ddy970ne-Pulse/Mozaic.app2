@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ModuleHeader, TabBar, StatCard, Button, LoadingSpinner } from './shared/UIComponents';
 
 const OvertimeModule = ({ user }) => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
