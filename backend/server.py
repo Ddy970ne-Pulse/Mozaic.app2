@@ -466,6 +466,9 @@ class Absence(BaseModel):
     motif_absence: str
     counting_method: Optional[str] = None  # Méthode de décompte
     notes: Optional[str] = None
+    # Nouveaux champs pour gestion des heures
+    absence_unit: str = "jours"  # "jours" ou "heures"
+    hours_amount: Optional[float] = None  # Nombre d'heures si unit='heures'
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
 
