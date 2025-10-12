@@ -518,7 +518,36 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               
               // Only add if it's in the selected month/year
               if (month === selectedMonth && year === selectedYear) {
-                const absenceCode = motifAbsence.toUpperCase();
+                // Map motif text to absence code
+                const motifMapping = {
+                  'Congés Trimestriels': 'CT',
+                  'Congés annuels': 'CA',
+                  'Congés Annuels': 'CA',
+                  'Arrêt maladie': 'AM',
+                  'Arrêt Maladie': 'AM',
+                  'Accident du travail': 'AT',
+                  'Récupération': 'REC',
+                  'RTT': 'REC',
+                  'Télétravail': 'TEL',
+                  'Formation': 'FO',
+                  'Congé formation': 'FO',
+                  'Congé maternité': 'MAT',
+                  'Congé paternité': 'PAT',
+                  'Evènement familiale': 'FAM',
+                  'Congé exceptionnel': 'CEX',
+                  'Absence autorisée': 'AUT',
+                  'Absence non autorisée': 'NAUT',
+                  'Délégation': 'DEL',
+                  'Stage': 'STG',
+                  'Maladie Professionnelle': 'MPRO',
+                  'Enfants malades': 'EMAL',
+                  'Rendez-vous médical': 'RMED',
+                  'Repos Hebdomadaire': 'RH',
+                  'Repos Dominical': 'RHD',
+                  'Congés Sans Solde': 'CSS'
+                };
+                
+                const absenceCode = motifMapping[motifAbsence] || motifAbsence.toUpperCase().substring(0, 4);
                 if (!newAbsences[day.toString()]) {
                   newAbsences[day.toString()] = absenceCode;
                   totalDays++;
