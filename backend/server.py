@@ -175,6 +175,29 @@ def is_temp_password_expired(expires_at: Optional[datetime]) -> bool:
         return False
     return datetime.utcnow() > expires_at
 
+# Absence hours/days conversion functions
+HOURS_PER_DAY = 8.0  # Configuration: 8 heures par jour
+
+def hours_to_days(hours: float) -> float:
+    """Convert hours to days (8h = 1 day)"""
+    return hours / HOURS_PER_DAY
+
+def days_to_hours(days: float) -> float:
+    """Convert days to hours (1 day = 8h)"""
+    return days * HOURS_PER_DAY
+
+def format_hours_to_hhmm(hours: float) -> str:
+    """Format hours as HH:MM (e.g., 8.5 -> '08:30')"""
+    h = int(hours)
+    m = int((hours - h) * 60)
+    return f"{h:02d}:{m:02d}"
+
+def is_absence_type_hourly(motif: str) -> bool:
+    """Check if absence type can be specified in hours"""
+    # Types autorisés en heures: Heures supplémentaires, Délégation, Récupération, Télétravail
+    hourly_types = ['DEL', 'REC', 'TEL', 'HS']  # HS = Heures Supplémentaires
+    return motif.upper() in hourly_types
+
 # Authentication helper functions
 def create_access_token(user_id: str, email: str, role: str):
     payload = {
