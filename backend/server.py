@@ -1726,9 +1726,9 @@ async def import_employees(
                 # Si c'est un délégué CSE, créer automatiquement son profil de délégué
                 if is_cse_delegate:
                     try:
-                        # Déterminer le collège selon la catégorie
+                        # Déterminer le collège selon la colonne "Catégorie"
                         college = "employes"  # Default
-                        categorie = employee_data.get('categorie_employe', '').lower()
+                        categorie = employee_data.get('categorie', '').lower()
                         if 'cadre' in categorie:
                             college = "cadres"
                         elif 'ouvrier' in categorie or 'agent' in categorie:
