@@ -113,19 +113,21 @@
 #====================================================================================================
 
 user_problem_statement: |
-  PHASE 4 NEW: Excel Import Data Integration System Implementation
+  PHASE 5 NEW: Data Integration & UI Enhancements
   
-  Based on analyzed Excel file "Gestionnaire Absences CAVA.xlsx", implement backend and frontend logic to process and persist data from the four main sections:
-  1. Employee Data (13 columns): nom, prénom, email, département, etc.
-  2. Absence Data (5 columns): employé, date début, jours absence, motif absence
-  3. Work Hours Data (4 columns): employé, date, heures travaillées, notes
-  4. Settings: Configuration parameters
+  CRITICAL ISSUES ADDRESSED:
+  1. Imported absence data was not reflected in other modules (Monthly Planning, Statistics, Overtime)
+  2. Need to group "cadres" (managers) in Monthly Planning for better readability
+  3. Display temporary passwords after personnel import
+  4. Display detailed warning descriptions during Excel import
+  5. Complete PWA integration
   
   USER REQUIREMENTS:
-  - Create new employee records (delete test accounts, create admin for DACALOR Diégo)
-  - Implement specific data validation rules
-  - Only admin can import data
-  - Connect parsed Excel data to backend APIs for database persistence
+  - All imported absences must be visible in Monthly Planning and other modules
+  - Cadres (GREGOIRE, DACALOR, BERGINA, FICADIERE, POULAIN, EDAU) must be grouped with visual separator
+  - Temporary passwords must be displayed after import with secure styling
+  - Warning descriptions must show detailed information (row, field, message)
+  - PWA must be installable on iOS and Android
   
   PREVIOUS PHASES COMPLETED:
   
