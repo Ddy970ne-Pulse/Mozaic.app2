@@ -368,15 +368,42 @@ const EmployeeSpaceNew = ({ user }) => {
                 ))}
               </div>
 
-              {/* Détail par type */}
+              {/* Détail par type avec périodes */}
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-700">Détail par motif</h4>
-                {Object.entries(absenceStats.byType).map(([type, days]) => (
-                  <div key={type} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="font-medium text-gray-800">{type}</span>
-                    <span className="text-lg font-bold text-purple-600">{days.toFixed(1)} jours</span>
-                  </div>
-                ))}
+                {Object.entries(absenceStats.byType).map(([type, days]) => {
+                  // Filtrer les absences de ce type
+                  const absencesOfType = myAbsences.filter(abs => abs.motif_absence === type);
+                  
+                  return (
+                    <div key={type} className="bg-gray-50 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-medium text-gray-800">{type}</span>
+                        <span className="text-lg font-bold text-purple-600">{days.toFixed(1)} jours</span>
+                      </div>
+                      
+                      {/* Liste des périodes */}
+                      {absencesOfType.length > 0 && (
+                        <div className="space-y-2 mt-3 pl-4 border-l-2 border-purple-300">
+                          {absencesOfType.map((absence, idx) => (
+                            <div key={idx} className="text-sm text-gray-600 flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-purple-500">📅</span>
+                                <span>
+                                  Du {absence.date_debut} 
+                                  {absence.date_fin && ` au ${absence.date_fin}`}
+                                </span>
+                              </div>
+                              <span className="font-medium text-gray-700">
+                                {absence.jours_absence} {absence.absence_unit === 'heures' ? 'h' : 'j'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
                 {Object.keys(absenceStats.byType).length === 0 && (
                   <p className="text-center text-gray-500 py-8">Aucune absence enregistrée cette année</p>
                 )}
