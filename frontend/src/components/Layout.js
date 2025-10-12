@@ -181,7 +181,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                   
                   {/* Panneau des notifications */}
                   {showNotifications && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                    <div className="notifications-panel absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                       {/* Header du panneau */}
                       <div className="bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-3">
                         <h3 className="text-white font-semibold text-lg">🔔 Notifications</h3>
