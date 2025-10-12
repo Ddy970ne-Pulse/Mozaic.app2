@@ -77,11 +77,27 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
 
         if (response.ok) {
           const users = await response.json();
+          
+          // Sort users: Cadres first, then others alphabetically
+          const sortedUsers = users.sort((a, b) => {
+            const aIsCadre = (a.categorie_employe || '').toLowerCase().includes('cadre');
+            const bIsCadre = (b.categorie_employe || '').toLowerCase().includes('cadre');
+            
+            // Cadres come first
+            if (aIsCadre && !bIsCadre) return -1;
+            if (!aIsCadre && bIsCadre) return 1;
+            
+            // Within same group, sort alphabetically by name
+            return (a.name || '').localeCompare(b.name || '');
+          });
+          
           // Convert users to employee format for planning
-          const employeesData = users.map(user => ({
+          const employeesData = sortedUsers.map(user => ({
             id: user.id,
             name: user.name,
             category: user.department || 'Non spécifié',
+            categorie_employe: user.categorie_employe || '',
+            isCadre: (user.categorie_employe || '').toLowerCase().includes('cadre'),
             absences: {},
             totalAbsenceDays: 0
           }));
