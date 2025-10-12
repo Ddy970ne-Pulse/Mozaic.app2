@@ -2764,13 +2764,18 @@ async def get_cse_statistics(mois: Optional[str] = None, current_user: User = De
 
 @api_router.get("/overtime/all")
 async def get_all_overtime(current_user: User = Depends(get_current_user)):
-    """Get overtime data for all employees"""
+    """Get overtime data for all employees - includes imported work hours"""
     try:
         # Fetch all overtime records from database
         overtime_records = await db.overtime.find({}).to_list(length=None)
         
+        # Fetch imported work hours (these are treated as accumulated overtime)
+        work_hours_records = await db.work_hours.find({}).to_list(length=None)
+        
         # Group by employee and calculate totals
         employee_overtime = {}
+        
+        # Process overtime records
         for record in overtime_records:
             emp_id = record.get('employee_id')
             emp_name = record.get('employee_name')
@@ -2802,6 +2807,40 @@ async def get_all_overtime(current_user: User = Depends(get_current_user)):
                 'type': record_type,
                 'reason': record.get('reason', ''),
                 'validated': record.get('validated', False)
+            })
+        
+        # Process imported work hours (treated as accumulated overtime)
+        for record in work_hours_records:
+            emp_id = record.get('employee_id')
+            emp_name = record.get('employee_name')
+            hours = record.get('heures_travaillees', 0)
+            
+            if emp_id not in employee_overtime:
+                # Get employee info to get department
+                employee = await db.users.find_one({"id": emp_id})
+                department = employee.get('department', 'N/A') if employee else 'N/A'
+                
+                employee_overtime[emp_id] = {
+                    'id': emp_id,
+                    'name': emp_name,
+                    'department': department,
+                    'accumulated': 0,
+                    'recovered': 0,
+                    'balance': 0,
+                    'thisMonth': 0,
+                    'details': []
+                }
+            
+            # Add imported hours as accumulated overtime
+            employee_overtime[emp_id]['accumulated'] += hours
+            employee_overtime[emp_id]['thisMonth'] += hours
+            
+            employee_overtime[emp_id]['details'].append({
+                'date': record.get('date'),
+                'hours': hours,
+                'type': 'accumulated',
+                'reason': 'Heures importées',
+                'validated': True  # Imported hours are pre-validated
             })
         
         # Calculate balance for each employee
