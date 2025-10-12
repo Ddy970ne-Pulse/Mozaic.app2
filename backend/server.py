@@ -134,6 +134,32 @@ def calculate_end_date(start_date_str: str, days_count: int, counting_method: st
     # Return in French format DD/MM/YYYY
     return end_date.strftime("%d/%m/%Y")
 
+def generate_internal_email(prenom: str, nom: str) -> str:
+    """
+    Generate an internal email for employees without professional email
+    Format: prenom.nom@internal.aaea-gpe.fr
+    """
+    import unicodedata
+    import re
+    
+    # Fonction pour normaliser et retirer les accents
+    def remove_accents(text):
+        nfkd = unicodedata.normalize('NFKD', text)
+        return ''.join([c for c in nfkd if not unicodedata.combining(c)])
+    
+    # Nettoyer et normaliser
+    prenom_clean = remove_accents(prenom.lower().strip())
+    nom_clean = remove_accents(nom.lower().strip())
+    
+    # Retirer caractères spéciaux, garder seulement lettres et chiffres
+    prenom_clean = re.sub(r'[^a-z0-9]', '', prenom_clean)
+    nom_clean = re.sub(r'[^a-z0-9]', '', nom_clean)
+    
+    # Construire l'email
+    email = f"{prenom_clean}.{nom_clean}@internal.aaea-gpe.fr"
+    
+    return email
+
 def generate_temp_password(length: int = 12) -> str:
     """Generate a secure temporary password"""
     # Mélange de lettres majuscules, minuscules et chiffres pour lisibilité
