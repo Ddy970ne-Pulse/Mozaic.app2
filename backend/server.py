@@ -1166,6 +1166,9 @@ class AbsenceRequest(BaseModel):
     rejectionReason: Optional[str] = None
     acknowledgedBy: Optional[str] = None
     acknowledgedDate: Optional[str] = None
+    # Nouveaux champs pour gestion des heures
+    absence_unit: Optional[str] = "jours"  # "jours" ou "heures"
+    hours_amount: Optional[float] = None  # Nombre d'heures si unit='heures'
 
 # On-Call Management Models
 class OnCallAssignment(BaseModel):
