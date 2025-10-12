@@ -1,0 +1,340 @@
+import React, { useState, useEffect } from 'react';
+
+const AnalyticsNew = ({ user }) => {
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [selectedMonth, setSelectedMonth] = useState('all');
+  
+  // États pour les données réelles
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalEmployees: 0,
+    totalAbsences: 0,
+    totalAbsenceDays: 0,
+    overtimeHours: 0,
+    delegationHours: 0
+  });
+  
+  const [absencesByType, setAbsencesByType] = useState([]);
+  const [absencesByMonth, setAbsencesByMonth] = useState([]);
+  const [absencesByDepartment, setAbsencesByDepartment] = useState([]);
+  const [topAbsentEmployees, setTopAbsentEmployees] = useState([]);
+
+  const months = [
+    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+  ];
+
+  // Charger les données réelles
+  useEffect(() => {
+    fetchAnalytics();
+  }, [selectedYear, selectedMonth]);
+
+  const fetchAnalytics = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      // Charger les employés
+      const empResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users`, { headers });
+      const employees = await empResponse.json();
+
+      // Charger les absences
+      const absResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/absences`, { headers });
+      const absences = await absResponse.json();
+
+      // Charger les heures supplémentaires
+      const overtimeResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/overtime/all`, { headers });
+      const overtime = await overtimeResponse.json();
+
+      // Calculer les statistiques
+      calculateStats(employees, absences, overtime);
+
+    } catch (error) {
+      console.error('Erreur chargement analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateStats = (employees, absences, overtime) => {
+    // Filtrer les absences par année et mois
+    const filteredAbsences = absences.filter(abs => {
+      const absDate = new Date(abs.date_debut || abs.date);
+      const absYear = absDate.getFullYear();
+      const absMonth = absDate.getMonth() + 1;
+      
+      if (absYear !== selectedYear) return false;
+      if (selectedMonth !== 'all' && absMonth !== parseInt(selectedMonth)) return false;
+      
+      return true;
+    });
+
+    // Total jours d'absence
+    const totalDays = filteredAbsences.reduce((sum, abs) => {
+      return sum + parseFloat(abs.jours_absence || abs.days || 0);
+    }, 0);
+
+    // Total heures supplémentaires
+    const totalOvertime = overtime.reduce((sum, emp) => sum + emp.accumulated, 0);
+
+    // Absences par type
+    const byType = {};
+    filteredAbsences.forEach(abs => {
+      const type = abs.motif_absence || abs.motif || 'Non spécifié';
+      byType[type] = (byType[type] || 0) + parseFloat(abs.jours_absence || abs.days || 0);
+    });
+
+    const absencesByTypeArray = Object.entries(byType)
+      .map(([type, days]) => ({ type, days: days.toFixed(1), count: Math.round(days) }))
+      .sort((a, b) => b.days - a.days);
+
+    // Absences par mois (pour l'année sélectionnée)
+    const byMonth = Array(12).fill(0);
+    absences.forEach(abs => {
+      const absDate = new Date(abs.date_debut || abs.date);
+      if (absDate.getFullYear() === selectedYear) {
+        const month = absDate.getMonth();
+        byMonth[month] += parseFloat(abs.jours_absence || abs.days || 0);
+      }
+    });
+
+    const monthlyData = byMonth.map((days, index) => ({
+      month: months[index].substring(0, 3),
+      days: days.toFixed(1)
+    }));
+
+    // Absences par département
+    const byDept = {};
+    filteredAbsences.forEach(abs => {
+      const dept = abs.department || 'Non spécifié';
+      byDept[dept] = (byDept[dept] || 0) + parseFloat(abs.jours_absence || abs.days || 0);
+    });
+
+    const deptData = Object.entries(byDept)
+      .map(([dept, days]) => ({ department: dept, days: days.toFixed(1) }))
+      .sort((a, b) => b.days - a.days)
+      .slice(0, 5);
+
+    // Top employés absents
+    const empAbsences = {};
+    filteredAbsences.forEach(abs => {
+      const empName = abs.employee || abs.employee_name || 'Non spécifié';
+      empAbsences[empName] = (empAbsences[empName] || 0) + parseFloat(abs.jours_absence || abs.days || 0);
+    });
+
+    const topEmployees = Object.entries(empAbsences)
+      .map(([name, days]) => ({ name, days: days.toFixed(1) }))
+      .sort((a, b) => b.days - a.days)
+      .slice(0, 10);
+
+    // Mettre à jour les états
+    setStats({
+      totalEmployees: employees.length,
+      totalAbsences: filteredAbsences.length,
+      totalAbsenceDays: totalDays.toFixed(1),
+      overtimeHours: totalOvertime.toFixed(1),
+      delegationHours: 0 // À calculer si données disponibles
+    });
+
+    setAbsencesByType(absencesByTypeArray);
+    setAbsencesByMonth(monthlyData);
+    setAbsencesByDepartment(deptData);
+    setTopAbsentEmployees(topEmployees);
+  };
+
+  const StatCard = ({ title, value, subtitle, icon, color }) => (
+    <div className={`bg-gradient-to-br ${color} rounded-xl p-6 text-white shadow-lg`}>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-medium opacity-90">{title}</h3>
+        <span className="text-2xl">{icon}</span>
+      </div>
+      <div className="text-3xl font-bold mb-1">{value}</div>
+      {subtitle && <p className="text-xs opacity-80">{subtitle}</p>}
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+        <h1 className="text-2xl font-bold mb-2">📊 Analytics & KPI</h1>
+        <p className="text-indigo-100">Vue d'ensemble des données RH</p>
+      </div>
+
+      {/* Filtres */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Année</label>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              {[2024, 2025, 2026].map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mois</label>
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="all">Toute l'année</option>
+              {months.map((month, index) => (
+                <option key={index} value={index + 1}>{month}</option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={fetchAnalytics}
+            className="mt-6 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            🔄 Actualiser
+          </button>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Employés Actifs"
+          value={stats.totalEmployees}
+          icon="👥"
+          color="from-blue-500 to-blue-600"
+        />
+        <StatCard
+          title="Total Absences"
+          value={stats.totalAbsences}
+          subtitle={`${stats.totalAbsenceDays} jours`}
+          icon="📅"
+          color="from-orange-500 to-orange-600"
+        />
+        <StatCard
+          title="Heures Supplémentaires"
+          value={`${stats.overtimeHours}h`}
+          subtitle="Cumulées"
+          icon="⏰"
+          color="from-red-500 to-red-600"
+        />
+        <StatCard
+          title="Moyenne Absence/Employé"
+          value={(stats.totalAbsenceDays / stats.totalEmployees || 0).toFixed(1)}
+          subtitle="jours"
+          icon="📊"
+          color="from-purple-500 to-purple-600"
+        />
+      </div>
+
+      {/* Graphiques et Tableaux */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Absences par Type */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Absences par Type</h2>
+          <div className="space-y-3">
+            {absencesByType.slice(0, 8).map((item, index) => (
+              <div key={index} className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-medium text-gray-700">{item.type}</span>
+                    <span className="text-sm font-semibold text-gray-900">{item.days}j</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full"
+                      style={{ width: `${(item.days / stats.totalAbsenceDays) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Absences par Mois */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Absences Mensuelles {selectedYear}
+          </h2>
+          <div className="space-y-2">
+            {absencesByMonth.map((item, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <span className="text-xs font-medium text-gray-600 w-8">{item.month}</span>
+                <div className="flex-1 bg-gray-200 rounded-full h-6 relative">
+                  <div
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 h-6 rounded-full flex items-center justify-end pr-2"
+                    style={{ width: `${Math.min((item.days / Math.max(...absencesByMonth.map(m => m.days))) * 100, 100)}%` }}
+                  >
+                    {item.days > 0 && (
+                      <span className="text-xs font-semibold text-white">{item.days}j</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Absences par Département */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Top 5 Départements</h2>
+          <div className="space-y-3">
+            {absencesByDepartment.map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${
+                    index === 0 ? 'bg-yellow-500' :
+                    index === 1 ? 'bg-gray-400' :
+                    index === 2 ? 'bg-orange-400' : 'bg-blue-500'
+                  }`}>
+                    {index + 1}
+                  </div>
+                  <span className="font-medium text-gray-800">{item.department}</span>
+                </div>
+                <span className="text-lg font-bold text-purple-600">{item.days}j</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Top Employés Absents */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Top 10 Employés (Absences)</h2>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {topAbsentEmployees.map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-gray-500 w-6">{index + 1}.</span>
+                  <span className="text-sm text-gray-700">{item.name}</span>
+                </div>
+                <span className={`text-sm font-semibold ${
+                  item.days > 20 ? 'text-red-600' :
+                  item.days > 10 ? 'text-orange-600' : 'text-gray-600'
+                }`}>
+                  {item.days}j
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AnalyticsNew;
