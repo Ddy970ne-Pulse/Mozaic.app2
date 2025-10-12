@@ -461,6 +461,59 @@ const AbsenceRequests = ({ user }) => {
                   </select>
                 </div>
                 
+                {/* Toggle Jours/Heures - Seulement pour types autorisés */}
+                {canBeInHours(newRequest.type) && (
+                  <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="text-sm font-semibold text-blue-900">Unité de mesure</label>
+                      <div className="flex items-center space-x-2 bg-white rounded-lg p-1 shadow-sm">
+                        <button
+                          type="button"
+                          onClick={() => setNewRequest({...newRequest, absence_unit: 'jours', hours_amount: null})}
+                          className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                            newRequest.absence_unit === 'jours'
+                              ? 'bg-purple-600 text-white shadow-md'
+                              : 'text-gray-600 hover:bg-gray-100'
+                          }`}
+                        >
+                          📅 Jours
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNewRequest({...newRequest, absence_unit: 'heures'})}
+                          className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                            newRequest.absence_unit === 'heures'
+                              ? 'bg-purple-600 text-white shadow-md'
+                              : 'text-gray-600 hover:bg-gray-100'
+                          }`}
+                        >
+                          ⏰ Heures
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {newRequest.absence_unit === 'heures' && (
+                      <div>
+                        <label className="block text-sm font-medium text-blue-900 mb-2">Nombre d'heures</label>
+                        <input
+                          type="number"
+                          step="0.5"
+                          min="0.5"
+                          max="24"
+                          value={newRequest.hours_amount || ''}
+                          onChange={(e) => setNewRequest({...newRequest, hours_amount: parseFloat(e.target.value)})}
+                          className="w-full px-3 py-2 border-2 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          placeholder="Ex: 8 ou 4.5"
+                          required
+                        />
+                        <p className="text-xs text-blue-700 mt-1">
+                          💡 8 heures = 1 jour | Format décimal accepté (ex: 4.5 pour 4h30)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
