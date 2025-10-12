@@ -1096,7 +1096,7 @@ class BackendTester:
             print("Skipping other tests due to API health issues")
             
         # Determine overall status
-        categories = ["api_health", "authentication", "absence_import", "delegation_hours", "data_retrieval", "monthly_planning", "excel_import"]
+        categories = ["api_health", "authentication", "cse_cessions", "delegation_hours", "data_retrieval", "monthly_planning", "excel_import"]
         passed_tests = sum(1 for cat in categories if self.results[cat]["status"] == "pass")
         
         if passed_tests == len(categories):
