@@ -1120,65 +1120,135 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
           </thead>
 
           <tbody>
-            {Object.entries(groupedEmployees).map(([category, categoryEmployees]) => (
-              <React.Fragment key={category}>
-                {/* En-tête de catégorie */}
-                <tr className="bg-blue-50">
-                  <td colSpan={dateRange.length + 2} className="border border-gray-200 px-3 py-2 font-bold text-blue-800 text-center">
-                    {category}
-                  </td>
-                </tr>
-                
-                {/* Employés de la catégorie */}
-                {categoryEmployees.map((employee, index) => (
-                  <tr key={employee.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}>
-                    <td className="border border-gray-200 px-3 py-2 sticky left-0 bg-white z-10">
-                      <div className="font-semibold text-sm text-gray-800">{employee.name}</div>
-                    </td>
-                    <td className="border border-gray-200 px-2 py-2 text-center font-bold text-lg">
-                      {employee.totalAbsenceDays}
-                    </td>
-                    {dateRange.map((dateObj, index) => {
-                      const dayKey = useCustomPeriod ? 
-                        `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}` :
-                        dateObj.day.toString();
-                      
-                      const absence = employee.absences[dayKey] || employee.absences[dateObj.day.toString()];
-                      const isWknd = isWeekend(dateObj.day, dateObj.month, dateObj.year);
-                      const isHol = isHoliday(dateObj.day, dateObj.month, dateObj.year);
-                      
-                      // Vérifier si ce jour fait partie d'une semaine d'astreinte pour cet employé
-                      const dateStr = `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
-                      const hasOnCall = isInOnCallWeek(employee.id, dateStr);
-                      
-                      // Priorité : Absence > Astreinte > Vide
-                      const displayCode = absence || (hasOnCall ? 'AST' : null);
-                      const codeInfo = displayCode ? absenceColorMap[displayCode] : null;
-                      
-                      return (
-                        <td 
-                          key={`${dateObj.year}-${dateObj.month}-${dateObj.day}`} 
-                          className={`border border-gray-200 px-1 py-1 text-center text-xs ${
-                            isWknd && !displayCode ? 'bg-gray-50' : 
-                            isHol && !displayCode ? 'bg-red-25' : ''
-                          }`}
-                        >
-                          {/* Code uniforme : absence ou astreinte */}
-                          {codeInfo && (
-                            <span 
-                              className={`${codeInfo.color} ${codeInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help`}
-                              title={`${codeInfo.name} - ${employee.name} - ${codeInfo.type} - ${codeInfo.decompte}${hasOnCall && absence ? ' + Astreinte semaine' : ''}`}
-                            >
-                              {displayCode}
-                            </span>
-                          )}
+            {/* Cadres Section */}
+            {(() => {
+              const cadres = employees.filter(emp => emp.isCadre);
+              if (cadres.length > 0) {
+                return (
+                  <React.Fragment>
+                    <tr className="bg-gradient-to-r from-purple-100 to-purple-50 border-t-4 border-purple-500">
+                      <td colSpan={dateRange.length + 2} className="border border-gray-200 px-3 py-3 font-bold text-purple-900 text-center text-sm">
+                        👔 CADRES ({cadres.length})
+                      </td>
+                    </tr>
+                    {cadres.map((employee, index) => (
+                      <tr key={employee.id} className={index % 2 === 0 ? 'bg-purple-25' : 'bg-white'}>
+                        <td className="border border-gray-200 px-3 py-2 sticky left-0 bg-white z-10">
+                          <div className="font-semibold text-sm text-gray-800 flex items-center">
+                            <span className="text-purple-600 mr-2">●</span>
+                            {employee.name}
+                          </div>
                         </td>
-                      );
-                    })}
+                        <td className="border border-gray-200 px-2 py-2 text-center font-bold text-lg">
+                          {employee.totalAbsenceDays}
+                        </td>
+                        {dateRange.map((dateObj, index) => {
+                          const dayKey = useCustomPeriod ? 
+                            `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}` :
+                            dateObj.day.toString();
+                          
+                          const absence = employee.absences[dayKey] || employee.absences[dateObj.day.toString()];
+                          const isWknd = isWeekend(dateObj.day, dateObj.month, dateObj.year);
+                          const isHol = isHoliday(dateObj.day, dateObj.month, dateObj.year);
+                          
+                          const dateStr = `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+                          const hasOnCall = isInOnCallWeek(employee.id, dateStr);
+                          
+                          const displayCode = absence || (hasOnCall ? 'AST' : null);
+                          const codeInfo = displayCode ? absenceColorMap[displayCode] : null;
+                          
+                          return (
+                            <td 
+                              key={`${dateObj.year}-${dateObj.month}-${dateObj.day}`} 
+                              className={`border border-gray-200 px-1 py-1 text-center text-xs ${
+                                isWknd && !displayCode ? 'bg-gray-50' : 
+                                isHol && !displayCode ? 'bg-red-25' : ''
+                              }`}
+                            >
+                              {codeInfo && (
+                                <span 
+                                  className={`${codeInfo.color} ${codeInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help`}
+                                  title={`${codeInfo.name} - ${employee.name} - ${codeInfo.type} - ${codeInfo.decompte}${hasOnCall && absence ? ' + Astreinte semaine' : ''}`}
+                                >
+                                  {displayCode}
+                                </span>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                    {/* Separator row */}
+                    <tr className="bg-gray-200">
+                      <td colSpan={dateRange.length + 2} className="border-t-2 border-b-2 border-gray-400 py-1"></td>
+                    </tr>
+                  </React.Fragment>
+                );
+              }
+              return null;
+            })()}
+            
+            {/* Other Employees by Category */}
+            {Object.entries(groupedEmployees).map(([category, categoryEmployees]) => {
+              // Filter out cadres (already displayed above)
+              const nonCadres = categoryEmployees.filter(emp => !emp.isCadre);
+              if (nonCadres.length === 0) return null;
+              
+              return (
+                <React.Fragment key={category}>
+                  <tr className="bg-blue-50">
+                    <td colSpan={dateRange.length + 2} className="border border-gray-200 px-3 py-2 font-bold text-blue-800 text-center">
+                      {category}
+                    </td>
                   </tr>
-                ))}
-              </React.Fragment>
-            ))}
+                  
+                  {nonCadres.map((employee, index) => (
+                    <tr key={employee.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}>
+                      <td className="border border-gray-200 px-3 py-2 sticky left-0 bg-white z-10">
+                        <div className="font-semibold text-sm text-gray-800">{employee.name}</div>
+                      </td>
+                      <td className="border border-gray-200 px-2 py-2 text-center font-bold text-lg">
+                        {employee.totalAbsenceDays}
+                      </td>
+                      {dateRange.map((dateObj, index) => {
+                        const dayKey = useCustomPeriod ? 
+                          `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}` :
+                          dateObj.day.toString();
+                        
+                        const absence = employee.absences[dayKey] || employee.absences[dateObj.day.toString()];
+                        const isWknd = isWeekend(dateObj.day, dateObj.month, dateObj.year);
+                        const isHol = isHoliday(dateObj.day, dateObj.month, dateObj.year);
+                        
+                        const dateStr = `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+                        const hasOnCall = isInOnCallWeek(employee.id, dateStr);
+                        
+                        const displayCode = absence || (hasOnCall ? 'AST' : null);
+                        const codeInfo = displayCode ? absenceColorMap[displayCode] : null;
+                        
+                        return (
+                          <td 
+                            key={`${dateObj.year}-${dateObj.month}-${dateObj.day}`} 
+                            className={`border border-gray-200 px-1 py-1 text-center text-xs ${
+                              isWknd && !displayCode ? 'bg-gray-50' : 
+                              isHol && !displayCode ? 'bg-red-25' : ''
+                            }`}
+                          >
+                            {codeInfo && (
+                              <span 
+                                className={`${codeInfo.color} ${codeInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help`}
+                                title={`${codeInfo.name} - ${employee.name} - ${codeInfo.type} - ${codeInfo.decompte}${hasOnCall && absence ? ' + Astreinte semaine' : ''}`}
+                              >
+                                {displayCode}
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </React.Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>
