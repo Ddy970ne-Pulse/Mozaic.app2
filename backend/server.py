@@ -1022,6 +1022,38 @@ async def reset_user_password(user_id: str, password_data: PasswordReset, curren
         "note": "Password has been reset to the user's initial password"
     }
 
+@api_router.post("/users/send-credentials-bulk")
+async def send_credentials_bulk(user_ids: list[str], current_user: User = Depends(get_current_user)):
+    """Send credential emails to multiple users (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    from email_service import send_bulk_credential_emails
+    
+    # Récupérer les utilisateurs
+    users_data = []
+    for user_id in user_ids:
+        user = await db.users.find_one({"id": user_id})
+        if user and user.get("initial_password"):
+            users_data.append({
+                "name": user.get("name"),
+                "email": user.get("email"),
+                "password": user.get("initial_password"),
+                "department": user.get("department")
+            })
+    
+    # Envoyer les emails
+    results = send_bulk_credential_emails(users_data)
+    
+    return {
+        "success": True,
+        "sent": results["sent"],
+        "failed": results["failed"],
+        "skipped": results["skipped"],
+        "details": results["details"],
+        "message": f"{results['sent']} email(s) envoyé(s), {results['failed']} échec(s), {results['skipped']} ignoré(s) (adresses internes)"
+    }
+
 @api_router.post("/users/{user_id}/send-credentials")
 async def send_user_credentials_email(user_id: str, current_user: User = Depends(get_current_user)):
     """Send credential email to a specific user (admin only)"""
