@@ -1669,9 +1669,7 @@ async def import_employees(
                     date_debut_contrat=employee_data.get('date_debut_contrat'),
                     date_fin_contrat=employee_data.get('date_fin_contrat'),
                     notes=employee_data.get('notes'),
-                    email_cse=email_cse,
-                    is_cse_delegate=is_cse_delegate,
-                    cse_status=cse_status,
+                    statut_cse=statut_cse_raw,
                     created_by=current_user.name
                 )
                 
