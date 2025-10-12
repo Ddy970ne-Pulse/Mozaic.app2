@@ -222,18 +222,34 @@ const ExcelImport = ({ user, onChangeView }) => {
               const hasNom = obj['NOM'] && String(obj['NOM']).trim() !== '';
               const hasDate = obj['Date Début'] && String(obj['Date Début']).trim() !== '';
               keep = hasNom || hasDate;
-            } else if (dataType === 'hours') {
-              // Pour heures travaillées: doit avoir Employé ou Date ou Heures
-              const hasEmploye = (obj['Employé'] || obj['employé'] || obj['EMPLOYE']) && String(obj['Employé'] || obj['employé'] || obj['EMPLOYE'] || '').trim() !== '';
-              const hasDate = (obj['Date'] || obj['date'] || obj['DATE']) && String(obj['Date'] || obj['date'] || obj['DATE'] || '').trim() !== '';
-              const hasHeures = (obj['Heures Travaillées'] || obj['heures_travaillees']) && String(obj['Heures Travaillées'] || obj['heures_travaillees'] || '').trim() !== '';
+            } else if (dataType === 'timedata') {
+              // Pour heures travaillées: doit avoir employee_name ou Date ou Heures
+              // Recherche flexible avec différentes variantes de colonnes
+              const hasEmploye = Object.keys(obj).some(key => {
+                const keyLower = key.toLowerCase();
+                return (keyLower.includes('employ') || keyLower.includes('nom') || keyLower.includes('prenom')) 
+                  && obj[key] && String(obj[key]).trim() !== '';
+              });
+              const hasDate = Object.keys(obj).some(key => {
+                const keyLower = key.toLowerCase();
+                return keyLower.includes('date') && obj[key] && String(obj[key]).trim() !== '';
+              });
+              const hasHeures = Object.keys(obj).some(key => {
+                const keyLower = key.toLowerCase();
+                return (keyLower.includes('heure') || keyLower.includes('travail')) 
+                  && obj[key] && String(obj[key]).trim() !== '';
+              });
               keep = hasEmploye || hasDate || hasHeures;
+              
+              if (!keep) {
+                console.log(`⚠️ Ligne ${index + 1} [Heures Travaillées] ignorée (vide ou incomplète):`, obj);
+              }
             } else {
               // Par défaut: garder toutes les lignes non-vides
               keep = Object.values(obj).some(val => val && String(val).trim() !== '');
             }
             
-            if (!keep) {
+            if (!keep && dataType !== 'timedata') {
               console.log(`⚠️ Ligne ${index + 1} ignorée (vide ou incomplète):`, obj);
             }
             
