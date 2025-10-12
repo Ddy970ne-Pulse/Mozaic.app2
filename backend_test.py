@@ -1077,7 +1077,7 @@ class BackendTester:
         print(f"API URL: {API_URL}")
         print("=" * 70)
         
-        # Initialize results for new absence import testing
+        # Initialize results for CSE cessions testing
         self.results["absence_import"] = {"status": "unknown", "details": []}
         self.results["monthly_planning"] = {"status": "unknown", "details": []}
         
@@ -1086,8 +1086,8 @@ class BackendTester:
         
         if api_healthy:
             auth_token = self.test_authentication()
-            # Focus on NEW Absence Import Module testing
-            self.test_absence_import_new_format(auth_token)
+            # Focus on CSE Cessions API testing as requested
+            self.test_cse_cessions_endpoints(auth_token)
             self.test_delegation_hours(auth_token)
             self.test_data_retrieval(auth_token)
             self.test_monthly_planning_support(auth_token)
