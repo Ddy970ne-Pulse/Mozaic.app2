@@ -29,6 +29,7 @@ class BackendTester:
         self.results = {
             "api_health": {"status": "unknown", "details": []},
             "authentication": {"status": "unknown", "details": []},
+            "cse_cessions": {"status": "unknown", "details": []},
             "delegation_hours": {"status": "unknown", "details": []},
             "data_retrieval": {"status": "unknown", "details": []},
             "excel_import": {"status": "unknown", "details": []},
