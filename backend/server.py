@@ -1694,7 +1694,7 @@ async def import_employees(
                     # Champs additionnels depuis employee
                     date_naissance=employee_data.get('date_naissance'),
                     sexe=employee_data.get('sexe'),
-                    categorie_employe=employee_data.get('categorie'),  # Colonne "Catégorie"
+                    categorie_employe=employee_data.get('categorie_employe'),
                     metier=employee_data.get('metier'),
                     fonction=employee_data.get('fonction'),
                     site=employee_data.get('site'),
