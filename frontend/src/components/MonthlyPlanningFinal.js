@@ -692,6 +692,21 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         
         console.log(`   → ${employee.name}: ${totalDays} jours d'absence en ${selectedMonth + 1}/${selectedYear}`);
         
+        // 💰 APPLIQUER LES RÉINTÉGRATIONS: Après avoir traité tous les jours
+        if (employee.replacedAbsences && Object.keys(employee.replacedAbsences).length > 0) {
+          Object.entries(employee.replacedAbsences).forEach(([absenceType, data]) => {
+            const daysToReintegrate = data.count;
+            const interruptedBy = data.interruptedBy;
+            const reason = `Interrompu par ${interruptedBy} (${daysToReintegrate} jour(s)) en ${selectedMonth + 1}/${selectedYear}`;
+            
+            // Appeler l'API de réintégration (asynchrone mais on ne bloque pas l'UI)
+            reintegrateLeave(employee, absenceType, daysToReintegrate, reason, interruptedBy);
+          });
+          
+          // Nettoyer pour le prochain traitement
+          delete employee.replacedAbsences;
+        }
+        
         return {
           ...employee,
           absences: newAbsences,
