@@ -182,20 +182,17 @@ const AnalyticsNew = ({ user }) => {
   );
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    );
+    return <LoadingSpinner text="Chargement des analytics..." />;
   }
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white shadow-lg">
-        <h1 className="text-2xl font-bold mb-2">📊 Analytics & KPI</h1>
-        <p className="text-indigo-100">Vue d'ensemble des données RH</p>
-      </div>
+      {/* Header - Style Harmonisé */}
+      <ModuleHeader
+        title="Analytics & KPI"
+        subtitle="Vue d'ensemble des données RH avec périodes personnalisées"
+        icon="📊"
+      />
 
       {/* Filtres Dynamiques */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
