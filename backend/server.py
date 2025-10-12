@@ -405,8 +405,10 @@ class Absence(BaseModel):
     employee_name: str  # Nom complet pour affichage
     email: str
     date_debut: str
+    date_fin: Optional[str] = None  # Calculée automatiquement
     jours_absence: str
     motif_absence: str
+    counting_method: Optional[str] = None  # Méthode de décompte
     notes: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
