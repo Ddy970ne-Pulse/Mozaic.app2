@@ -455,23 +455,22 @@ const UserManagement = ({ user }) => {
         });
 
         if (response.ok) {
-          const newUser = await response.json();
-          setUsers([...users, newUser]);
+          const tempPasswordData = await response.json();
           
           // Log audit
           const auditEntry = {
             id: Date.now().toString(),
             timestamp: new Date().toLocaleString(),
             action: 'USER_CREATED',
-            userId: newUser.id,
-            userName: newUser.name,
+            userId: 'pending',
+            userName: selectedUser.name,
             performedBy: user.name,
             details: 'Création nouvel utilisateur',
             ipAddress: '192.168.1.100'
           };
           setAuditLogs([auditEntry, ...auditLogs]);
           
-          alert('✅ Utilisateur créé avec succès !');
+          alert(`✅ Utilisateur créé avec succès !\n\n🔑 Mot de passe temporaire: ${tempPasswordData.temp_password}\n\n⚠️ Notez-le dans un endroit sûr, il ne sera plus affiché.`);
         } else {
           const errorData = await response.json();
           alert(`❌ Erreur lors de la création: ${errorData.detail || 'Erreur inconnue'}`);
