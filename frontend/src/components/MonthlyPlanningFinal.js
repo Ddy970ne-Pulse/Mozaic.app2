@@ -196,8 +196,8 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     }
   }, [selectedMonth, selectedYear]);
 
-  // Fonction pour activer le mode test octobre 2025
-  const loadOctober2025TestData = () => {
+  // Test data function removed - using real data only
+  const loadOctober2025TestData_REMOVED = () => {
     setSelectedMonth(9); // Octobre
     setSelectedYear(2025);
     setIsTestMode(true);
