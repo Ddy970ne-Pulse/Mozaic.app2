@@ -350,6 +350,7 @@ const AbsenceAnalytics = ({ user }) => {
                   <th className="px-4 py-3 text-center font-semibold text-gray-700">Evènement familiale</th>
                   <th className="px-4 py-3 text-center font-semibold text-gray-700">Congés annuels</th>
                   <th className="px-4 py-3 text-center font-semibold text-gray-700">Congés Trimestriels</th>
+                  <th className="px-4 py-3 text-center font-semibold text-gray-700">RTT</th>
                   <th className="px-4 py-3 text-center font-semibold text-gray-700">Récupération</th>
                   <th className="px-4 py-3 text-center font-semibold text-gray-700">Stage</th>
                 </tr>
