@@ -1639,10 +1639,34 @@ async def import_employees(
     try:
         for i, employee_data in enumerate(request.data):
             try:
-                email = employee_data.get('email', '').lower().strip()
+                email_raw = employee_data.get('email', '').strip()
                 nom = employee_data.get('nom', '').strip()
                 prenom = employee_data.get('prenom', '').strip()
                 membre_cse_raw = employee_data.get('membre_cse', '').strip().lower()
+                
+                # Vérifier les champs vraiment obligatoires (NOM et PRENOM uniquement)
+                if not nom or not prenom:
+                    error_msg = f"NOM et PRENOM sont obligatoires - reçu: nom={nom!r}, prenom={prenom!r}"
+                    logger.warning(f"❌ Ligne {i+1}: {error_msg}")
+                    errors.append({
+                        "row": i + 1,
+                        "error": error_msg,
+                        "data_received": employee_data
+                    })
+                    continue
+                
+                # Gérer l'email : générer automatiquement si absent
+                has_temp_email = False
+                if not email_raw:
+                    email = generate_internal_email(prenom, nom)
+                    has_temp_email = True
+                    logger.info(f"📧 Ligne {i+1}: Email ABSENT - Email interne généré: {email}")
+                    warnings.append({
+                        "row": i + 1,
+                        "warning": f"Email généré automatiquement pour {prenom} {nom}: {email}"
+                    })
+                else:
+                    email = email_raw.lower()
                 
                 # Détecter si c'est un membre CSE via la colonne 16 "Membre CSE"
                 is_cse_delegate = False
@@ -1657,17 +1681,7 @@ async def import_employees(
                     cse_status = 'suppléant'
                     logger.info(f"🏛️ Ligne {i+1}: Membre CSE SUPPLÉANT détecté - {prenom} {nom}")
                 
-                logger.info(f"🔍 Ligne {i+1}: email='{email}', nom='{nom}', prenom='{prenom}', membre_cse='{membre_cse_raw}', CSE={is_cse_delegate}")
-                
-                if not email or not nom or not prenom:
-                    error_msg = f"Email={email!r}, nom={nom!r}, prénom={prenom!r} sont obligatoires"
-                    logger.warning(f"❌ Ligne {i+1}: {error_msg}")
-                    errors.append({
-                        "row": i + 1,
-                        "error": error_msg,
-                        "data_received": employee_data
-                    })
-                    continue
+                logger.info(f"🔍 Ligne {i+1}: email='{email}' (généré={has_temp_email}), nom='{nom}', prenom='{prenom}', membre_cse='{membre_cse_raw}', CSE={is_cse_delegate}")
                 
                 # Check if user already exists
                 existing_user = await db.users.find_one({"email": email})
