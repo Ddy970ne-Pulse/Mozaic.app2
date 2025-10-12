@@ -2206,6 +2206,64 @@ async def delete_absence(absence_id: str, current_user: User = Depends(get_curre
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting absence: {str(e)}")
 
+@api_router.get("/absences/by-period/{year}/{month}", response_model=List[dict])
+async def get_absences_by_period(
+    year: int, 
+    month: int, 
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get all absences for a specific month and year
+    Returns absences with date_debut in the specified month
+    """
+    try:
+        # Admin and managers can see all absences
+        if current_user.role in ["admin", "manager"]:
+            # Find all absences where date_debut is in the specified month/year
+            # date_debut format can be DD/MM/YYYY or YYYY-MM-DD
+            absences = await db.absences.find({}).to_list(1000)
+        else:
+            # Employees see only their own absences
+            absences = await db.absences.find({"employee_id": current_user.id}).to_list(100)
+        
+        # Filter by month and year
+        filtered_absences = []
+        for absence in absences:
+            date_debut = absence.get("date_debut", "")
+            if not date_debut:
+                continue
+                
+            try:
+                # Parse date in both formats
+                if '/' in date_debut:
+                    # Format DD/MM/YYYY
+                    date_parts = date_debut.split('/')
+                    if len(date_parts) == 3:
+                        absence_month = int(date_parts[1])
+                        absence_year = int(date_parts[2])
+                else:
+                    # Format YYYY-MM-DD
+                    date_parts = date_debut.split('-')
+                    if len(date_parts) == 3:
+                        absence_year = int(date_parts[0])
+                        absence_month = int(date_parts[1])
+                
+                # Check if matches the requested period
+                if absence_month == month and absence_year == year:
+                    # Clean ObjectIds
+                    if "_id" in absence:
+                        del absence["_id"]
+                    filtered_absences.append(absence)
+            except (ValueError, IndexError):
+                # Skip malformed dates
+                continue
+        
+        return filtered_absences
+        
+    except Exception as e:
+        logger.error(f"Error getting absences by period: {e}")
+        return []
+
 # ========================================
 # CSE MANAGEMENT ENDPOINTS
 # ========================================
