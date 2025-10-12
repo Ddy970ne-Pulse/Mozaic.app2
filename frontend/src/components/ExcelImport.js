@@ -214,7 +214,9 @@ const ExcelImport = ({ user, onChangeView }) => {
 
         console.log('✅ Final headers count:', cleanHeaders.length);
         console.log('✅ Final data count:', cleanData.length);
-        console.log('✅ Sample data:', cleanData.slice(0, 2));
+        console.log('✅ Sample data (first 2):', cleanData.slice(0, 2));
+        console.log('✅ Sample data (last 2):', cleanData.slice(-2));
+        console.log('🎯 OBJECTIF: Toutes les lignes avec NOM ou PRENOM doivent être importées');
 
         // Store in state with validation
         if (cleanHeaders.length === 0) {
