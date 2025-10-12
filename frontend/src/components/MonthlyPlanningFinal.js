@@ -444,6 +444,144 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     });
   };
 
+  // 🔄 FONCTION UNIFIÉE: Applique TOUTES les absences (importées + demandes)
+  // avec réinitialisation complète pour éviter pollution entre périodes
+  const applyAllAbsencesToPlanning = (importedAbsences = [], approvedRequests = []) => {
+    console.log(`🔄 Applying ALL absences for ${selectedMonth + 1}/${selectedYear}:`, 
+                `${importedAbsences.length} imported + ${approvedRequests.length} requests`);
+    
+    setEmployees(prevEmployees => {
+      if (!prevEmployees || prevEmployees.length === 0) {
+        console.warn('⚠️ No employees loaded yet');
+        return prevEmployees;
+      }
+      
+      return prevEmployees.map(employee => {
+        // 🚨 RÉINITIALISATION COMPLÈTE pour ce mois/année
+        const newAbsences = {};
+        let totalDays = 0;
+        
+        // SOURCE 1: Absences importées depuis Excel
+        const employeeImportedAbsences = importedAbsences.filter(abs => 
+          abs.employee_id === employee.id || 
+          abs.employee_name === employee.name ||
+          `${abs.nom} ${abs.prenom}`.trim() === employee.name
+        );
+        
+        employeeImportedAbsences.forEach(absence => {
+          try {
+            const dateDebut = absence.date_debut;
+            const dateFin = absence.date_fin;
+            const motifAbsence = absence.motif_absence || 'AUT';
+            
+            if (!dateDebut) return;
+            
+            // Parse dates
+            let startDate, endDate;
+            if (dateDebut.includes('/')) {
+              const [day, month, year] = dateDebut.split('/');
+              startDate = new Date(year, month - 1, day);
+            } else {
+              startDate = new Date(dateDebut);
+            }
+            
+            if (dateFin) {
+              if (dateFin.includes('/')) {
+                const [day, month, year] = dateFin.split('/');
+                endDate = new Date(year, month - 1, day);
+              } else {
+                endDate = new Date(dateFin);
+              }
+            } else {
+              const joursAbsence = parseInt(absence.jours_absence) || 1;
+              endDate = new Date(startDate);
+              endDate.setDate(startDate.getDate() + joursAbsence - 1);
+            }
+            
+            // Générer toutes les dates SEULEMENT pour le mois/année affichés
+            const currentDate = new Date(startDate);
+            while (currentDate <= endDate) {
+              const day = currentDate.getDate();
+              const month = currentDate.getMonth();
+              const year = currentDate.getFullYear();
+              
+              // ✅ BARRIÈRE STRICTE: Seulement si dans la période affichée
+              if (month === selectedMonth && year === selectedYear) {
+                // Map motif to code
+                const motifMapping = {
+                  'Congés Trimestriels': 'CT',
+                  'Congés annuels': 'CA',
+                  'Congés Annuels': 'CA',
+                  'Arrêt maladie': 'AM',
+                  'Arrêt Maladie': 'AM',
+                  'Accident du travail': 'AT',
+                  'Récupération': 'REC',
+                  'RTT': 'REC',
+                  'Télétravail': 'TEL',
+                  'Formation': 'FO',
+                  'Congé maternité': 'MAT',
+                  'Congé paternité': 'PAT',
+                  'Evènement familiale': 'FAM',
+                  'Congé exceptionnel': 'CEX',
+                  'Absence autorisée': 'AUT',
+                  'Absence non autorisée': 'NAUT',
+                  'Délégation': 'DEL',
+                };
+                
+                const absenceCode = motifMapping[motifAbsence] || motifAbsence.toUpperCase().substring(0, 4);
+                if (!newAbsences[day.toString()]) {
+                  newAbsences[day.toString()] = absenceCode;
+                  totalDays++;
+                }
+              }
+              
+              currentDate.setDate(currentDate.getDate() + 1);
+            }
+          } catch (error) {
+            console.error('❌ Error processing imported absence:', error);
+          }
+        });
+        
+        // SOURCE 2: Demandes d'absence approuvées
+        const employeeRequests = approvedRequests.filter(req => 
+          req.employee === employee.name
+        );
+        
+        employeeRequests.forEach(request => {
+          try {
+            const startDate = new Date(request.startDate);
+            const endDate = new Date(request.endDate);
+            
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+              const day = d.getDate();
+              const month = d.getMonth();
+              const year = d.getFullYear();
+              
+              // ✅ BARRIÈRE STRICTE: Seulement si dans la période affichée
+              if (month === selectedMonth && year === selectedYear) {
+                const absenceCode = mapAbsenceTypeToCode(request.type);
+                if (!newAbsences[day.toString()]) {
+                  newAbsences[day.toString()] = absenceCode;
+                  totalDays++;
+                }
+              }
+            }
+          } catch (error) {
+            console.error('❌ Error processing request:', error);
+          }
+        });
+        
+        console.log(`   → ${employee.name}: ${totalDays} jours d'absence en ${selectedMonth + 1}/${selectedYear}`);
+        
+        return {
+          ...employee,
+          absences: newAbsences,
+          totalAbsenceDays: totalDays
+        };
+      });
+    });
+  };
+
   // Update planning from imported absences (Excel imports)
   const updatePlanningFromImportedAbsences = (absencesList) => {
     if (!Array.isArray(absencesList) || absencesList.length === 0) {
