@@ -119,21 +119,14 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     loadEmployees();
   }, []);
 
-  // Synchro avec les demandes d'absence approuvées, absences importées et les astreintes
+  // Load imported absences when employees are ready AND month/year changes
   useEffect(() => {
-    const loadRequests = () => {
-      try {
-        const requestsData = getRequests();
-        const safeRequests = Array.isArray(requestsData) ? requestsData : [];
-        setRequests(safeRequests);
-        updatePlanningFromRequests(safeRequests);
-      } catch (error) {
-        console.error('Erreur chargement demandes:', error);
-        setRequests([]);
-      }
-    };
-
-    // Load imported absences from database
+    // Only load if employees are already loaded
+    if (employees.length === 0) {
+      console.log('⏳ Waiting for employees to load before loading absences');
+      return;
+    }
+    
     const loadImportedAbsences = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -142,7 +135,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           return;
         }
 
-        console.log(`📥 Loading imported absences for ${selectedYear}-${selectedMonth + 1}`);
+        console.log(`📥 Loading imported absences for ${selectedYear}-${selectedMonth + 1} (${employees.length} employees ready)`);
         const response = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/absences/by-period/${selectedYear}/${selectedMonth + 1}`,
           {
@@ -156,12 +149,31 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         if (response.ok) {
           const absences = await response.json();
           console.log(`✅ Loaded ${absences.length} imported absences:`, absences);
-          updatePlanningFromImportedAbsences(absences);
+          if (absences.length > 0) {
+            updatePlanningFromImportedAbsences(absences);
+          }
         } else {
           console.error('❌ Failed to load imported absences:', response.status, response.statusText);
         }
       } catch (error) {
         console.error('❌ Error loading imported absences:', error);
+      }
+    };
+
+    loadImportedAbsences();
+  }, [employees, selectedYear, selectedMonth]);
+
+  // Synchro avec les demandes d'absence approuvées et les astreintes
+  useEffect(() => {
+    const loadRequests = () => {
+      try {
+        const requestsData = getRequests();
+        const safeRequests = Array.isArray(requestsData) ? requestsData : [];
+        setRequests(safeRequests);
+        updatePlanningFromRequests(safeRequests);
+      } catch (error) {
+        console.error('Erreur chargement demandes:', error);
+        setRequests([]);
       }
     };
 
@@ -183,7 +195,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     });
     
     loadRequests();
-    loadImportedAbsences();
     loadOnCallData();
     return unsubscribe;
   }, [selectedYear, selectedMonth]);
