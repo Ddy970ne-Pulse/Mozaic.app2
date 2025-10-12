@@ -551,7 +551,20 @@ const ExcelImport = ({ user, onChangeView }) => {
 
   // Réinitialiser les comptes de démo et créer l'admin DACALOR Diégo
   const resetDemoAccounts = async () => {
-    if (!window.confirm('Cette action va supprimer tous les comptes de test et créer un nouveau compte admin pour DACALOR Diégo. Êtes-vous sûr ?')) {
+    // Double confirmation avec message d'avertissement fort
+    if (!window.confirm('⚠️ ATTENTION : Cette action va SUPPRIMER DÉFINITIVEMENT toutes les données !\n\n' +
+                        '❌ Absences importées\n' +
+                        '❌ Heures de travail\n' +
+                        '❌ Employés importés\n' +
+                        '❌ Tous les utilisateurs sauf vous\n\n' +
+                        'Êtes-vous ABSOLUMENT SÛR de vouloir continuer ?')) {
+      return;
+    }
+    
+    // Deuxième confirmation
+    const confirmText = prompt('Pour confirmer, tapez "SUPPRIMER TOUT" en majuscules:');
+    if (confirmText !== 'SUPPRIMER TOUT') {
+      alert('❌ Annulation - La phrase de confirmation ne correspond pas');
       return;
     }
     
