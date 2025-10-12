@@ -271,16 +271,5 @@ export const Section = ({ title, icon, children, className = '' }) => (
   </div>
 );
 
-// Exports nommés (pas de default export pour éviter les conflits)
-export {
-  ModuleHeader,
-  TabBar,
-  StatCard,
-  Message,
-  ContentCard,
-  Button,
-  Input,
-  LoadingSpinner,
-  Section,
-  colors
-};
+// Les composants sont déjà exportés individuellement avec export const
+// Pas besoin de ré-export
