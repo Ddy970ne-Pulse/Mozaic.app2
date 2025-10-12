@@ -16,6 +16,7 @@ const OvertimeModule = ({ user }) => {
   const fetchOvertimeData = async () => {
     try {
       setIsLoading(true);
+      console.log('📊 Fetching overtime data...');
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/overtime/all`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -24,13 +25,14 @@ const OvertimeModule = ({ user }) => {
       
       if (response.ok) {
         const data = await response.json();
+        console.log(`✅ Loaded ${data.length} overtime records`, data);
         setOvertimeData(data);
       } else {
-        console.error('Failed to fetch overtime data');
+        console.error('❌ Failed to fetch overtime data:', response.status, response.statusText);
         setOvertimeData([]);
       }
     } catch (error) {
-      console.error('Error fetching overtime data:', error);
+      console.error('❌ Error fetching overtime data:', error);
       setOvertimeData([]);
     } finally {
       setIsLoading(false);
