@@ -481,6 +481,48 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     });
   };
 
+  // 🏛️ FONCTION DE RÉINTÉGRATION: Appelle l'API pour réintégrer des jours
+  const reintegrateLeave = async (employee, absenceType, days, reason, interruptingType) => {
+    // Vérifier si ce type d'absence doit être réintégré
+    const reintegrableTypes = ['CA', 'CP', 'CT', 'RTT', 'REC', 'CEX'];
+    if (!reintegrableTypes.includes(absenceType)) {
+      return; // Ce type ne nécessite pas de réintégration
+    }
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/leave-balance/update`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          employee_id: employee.id,
+          leave_type: absenceType,
+          operation: 'reintegrate',
+          amount: days,
+          reason: reason,
+          interrupting_absence_type: interruptingType
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`✅ ${employee.name} : ${days} jour(s) de ${absenceType} réintégré(s) (solde: ${result.balance_before} → ${result.balance_after})`);
+        
+        // Optionnel : Afficher une notification toast
+        // showToast(`${employee.name} : ${days}j de ${absenceType} réintégrés`, 'success');
+      } else {
+        console.error(`❌ Erreur réintégration pour ${employee.name}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error(`❌ Erreur lors de la réintégration:`, error);
+    }
+  };
+
   // 🔄 FONCTION UNIFIÉE: Applique TOUTES les absences (importées + demandes)
   // avec réinitialisation complète pour éviter pollution entre périodes
   const applyAllAbsencesToPlanning = (importedAbsences = [], approvedRequests = []) => {
