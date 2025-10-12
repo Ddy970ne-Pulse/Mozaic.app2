@@ -256,6 +256,18 @@ backend:
         agent: "testing"
         comment: "COMPREHENSIVE BACKEND TESTING COMPLETED ✅ Successfully tested all backend endpoints for monthly planning and print functionality support as requested: 1) AUTHENTICATION: Sophie Martin login (sophie.martin@company.com / demo123) working perfectly with JWT token generation and user profile retrieval, all demo accounts functional, 2) DELEGATION HOURS MODULE: All endpoints operational (/delegation/delegates, /delegation/usage, /delegation/cessions, /absence-types, /absence-requests) with proper data retrieval, found all required absence codes for monthly planning (AM, MAT, CA, CT, REC, TEL, DEL, FO, STG), 3) DATA RETRIEVAL: User management endpoints working (/users returns 5 users including Sophie Martin), HR configuration endpoints functional (/hr-config/departments, /sites, /contracts, /employee-categories), on-call management endpoints operational (5 employees, 4 assignments), 4) MONTHLY PLANNING SUPPORT: Analytics KPI endpoint provides planning statistics with monthly trends and categories, on-call export functionality supports enhanced print features, CCN66 compliance validation working for on-call assignments, 5) API HEALTH: Root endpoint accessible, status endpoints functional. ALL 5 test categories PASSED. Backend fully supports monthly planning display and enhanced print functionality. No critical issues found."
 
+  - task: "Absence Data Integration API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW ENDPOINT IMPLEMENTED: Created GET /api/absences/by-period/{year}/{month} endpoint to retrieve all absences for a specific month and year. Endpoint filters absences from MongoDB based on date_debut field, supports both DD/MM/YYYY and YYYY-MM-DD formats, implements role-based access control (admin/manager see all, employees see own), cleans ObjectIds, and handles parsing errors gracefully. This endpoint is crucial for integrating imported absence data into Monthly Planning and other modules."
+
   - task: "Excel Import Module Frontend Testing"
     implemented: true
     working: true
