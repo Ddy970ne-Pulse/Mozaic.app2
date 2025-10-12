@@ -13,7 +13,6 @@ import OvertimeModule from './OvertimeModule';
 import UserManagement from './UserManagement';
 import OnCallManagement from './OnCallManagement';
 import ExcelImport from './ExcelImport';
-import CSEManagement from './CSEManagement';
 import CSEManagementNew from './CSEManagementNew';
 import HelpPage from './HelpPage';
 
