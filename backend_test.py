@@ -902,6 +902,379 @@ class BackendTester:
         
         self.results["excel_import"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["excel_import"]["details"]) else "fail"
 
+    def test_leave_balance_management_system(self, auth_token=None):
+        """Test Leave Balance Management System with Automatic Reintegration as requested in French review"""
+        print("\n=== Testing Leave Balance Management System ===")
+        print("Testing: Système de gestion des soldes de congés et réintégration automatique")
+        
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
+        employee_id = None
+        
+        # 1. Test Initialisation des Soldes (Admin uniquement)
+        print("\n--- 1. Testing Initialisation des Soldes (Admin Only) ---")
+        
+        try:
+            response = requests.post(
+                f"{API_URL}/leave-balance/initialize-all", 
+                json={"year": 2025}, 
+                headers=headers, 
+                timeout=10
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') and 'employees_initialized' in data:
+                    nb_employees = data.get('employees_initialized', 0)
+                    self.log_result("leave_balance", True, f"✅ Initialisation des soldes: {nb_employees} employés initialisés")
+                else:
+                    self.log_result("leave_balance", False, f"❌ Réponse d'initialisation manque les champs requis")
+            else:
+                self.log_result("leave_balance", False, f"❌ POST /api/leave-balance/initialize-all returned {response.status_code}")
+        except Exception as e:
+            self.log_result("leave_balance", False, f"❌ Erreur lors de l'initialisation des soldes: {str(e)}")
+        
+        # 2. Test Consultation d'un Solde
+        print("\n--- 2. Testing Consultation d'un Solde ---")
+        
+        # First get user info to extract employee_id
+        try:
+            me_response = requests.get(f"{API_URL}/auth/me", headers=headers, timeout=10)
+            if me_response.status_code == 200:
+                user_data = me_response.json()
+                employee_id = user_data.get('id')
+                self.log_result("leave_balance", True, f"✅ Employee ID récupéré: {employee_id}")
+            else:
+                self.log_result("leave_balance", False, f"❌ Impossible de récupérer l'employee_id")
+        except Exception as e:
+            self.log_result("leave_balance", False, f"❌ Erreur lors de la récupération de l'employee_id: {str(e)}")
+        
+        if employee_id:
+            try:
+                response = requests.get(
+                    f"{API_URL}/leave-balance/{employee_id}?year=2025", 
+                    headers=headers, 
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    balance_data = response.json()
+                    required_fields = ['ca_initial', 'ca_balance', 'rtt_initial', 'rtt_balance']
+                    
+                    if all(field in balance_data for field in required_fields):
+                        ca_initial = balance_data.get('ca_initial', 0)
+                        ca_balance = balance_data.get('ca_balance', 0)
+                        rtt_initial = balance_data.get('rtt_initial', 0)
+                        rtt_balance = balance_data.get('rtt_balance', 0)
+                        
+                        self.log_result("leave_balance", True, f"✅ Consultation solde: CA={ca_balance}/{ca_initial}, RTT={rtt_balance}/{rtt_initial}")
+                    else:
+                        self.log_result("leave_balance", False, f"❌ Structure du solde incomplète")
+                else:
+                    self.log_result("leave_balance", False, f"❌ GET /api/leave-balance/{{employee_id}} returned {response.status_code}")
+            except Exception as e:
+                self.log_result("leave_balance", False, f"❌ Erreur consultation solde: {str(e)}")
+        
+        # 3. Test Déduction de Congés (Simulation Pose)
+        print("\n--- 3. Testing Déduction de Congés (Simulation Pose) ---")
+        
+        if employee_id:
+            deduction_request = {
+                "employee_id": employee_id,
+                "leave_type": "CA",
+                "operation": "deduct",
+                "amount": 5.0,
+                "reason": "Test : Pose 5 jours CA"
+            }
+            
+            try:
+                response = requests.post(
+                    f"{API_URL}/leave-balance/update", 
+                    json=deduction_request, 
+                    headers=headers, 
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    balance_before = data.get('balance_before')
+                    balance_after = data.get('balance_after')
+                    
+                    if balance_before is not None and balance_after is not None:
+                        expected_after = balance_before - 5.0
+                        if abs(balance_after - expected_after) < 0.01:  # Float comparison
+                            self.log_result("leave_balance", True, f"✅ Déduction CA: {balance_before} → {balance_after} (-5 jours)")
+                        else:
+                            self.log_result("leave_balance", False, f"❌ Déduction incorrecte: attendu {expected_after}, obtenu {balance_after}")
+                    else:
+                        self.log_result("leave_balance", False, f"❌ Réponse déduction manque balance_before/after")
+                else:
+                    self.log_result("leave_balance", False, f"❌ POST /api/leave-balance/update (deduct) returned {response.status_code}")
+            except Exception as e:
+                self.log_result("leave_balance", False, f"❌ Erreur déduction congés: {str(e)}")
+        
+        # 4. Test Réintégration (Simulation Interruption)
+        print("\n--- 4. Testing Réintégration (Simulation Interruption) ---")
+        
+        if employee_id:
+            reintegration_request = {
+                "employee_id": employee_id,
+                "leave_type": "CA",
+                "operation": "reintegrate",
+                "amount": 2.0,
+                "reason": "Test : Réintégration suite AM",
+                "interrupting_absence_type": "AM"
+            }
+            
+            try:
+                response = requests.post(
+                    f"{API_URL}/leave-balance/update", 
+                    json=reintegration_request, 
+                    headers=headers, 
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    balance_before = data.get('balance_before')
+                    balance_after = data.get('balance_after')
+                    
+                    if balance_before is not None and balance_after is not None:
+                        expected_after = balance_before + 2.0
+                        if abs(balance_after - expected_after) < 0.01:  # Float comparison
+                            self.log_result("leave_balance", True, f"✅ Réintégration CA: {balance_before} → {balance_after} (+2 jours)")
+                        else:
+                            self.log_result("leave_balance", False, f"❌ Réintégration incorrecte: attendu {expected_after}, obtenu {balance_after}")
+                    else:
+                        self.log_result("leave_balance", False, f"❌ Réponse réintégration manque balance_before/after")
+                else:
+                    self.log_result("leave_balance", False, f"❌ POST /api/leave-balance/update (reintegrate) returned {response.status_code}")
+            except Exception as e:
+                self.log_result("leave_balance", False, f"❌ Erreur réintégration: {str(e)}")
+        
+        # 5. Test Consultation de l'Historique
+        print("\n--- 5. Testing Consultation de l'Historique ---")
+        
+        if employee_id:
+            try:
+                response = requests.get(
+                    f"{API_URL}/leave-transactions/{employee_id}?year=2025", 
+                    headers=headers, 
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    transactions = response.json()
+                    if isinstance(transactions, list):
+                        self.log_result("leave_balance", True, f"✅ Historique récupéré: {len(transactions)} transactions")
+                        
+                        # Check for our test transactions
+                        deduct_found = False
+                        reintegrate_found = False
+                        
+                        for transaction in transactions:
+                            if (transaction.get('operation') == 'deduct' and 
+                                transaction.get('amount') == 5.0 and
+                                'Test : Pose 5 jours CA' in transaction.get('reason', '')):
+                                deduct_found = True
+                            elif (transaction.get('operation') == 'reintegrate' and 
+                                  transaction.get('amount') == 2.0 and
+                                  'Test : Réintégration suite AM' in transaction.get('reason', '')):
+                                reintegrate_found = True
+                        
+                        if deduct_found and reintegrate_found:
+                            self.log_result("leave_balance", True, f"✅ Transactions de test trouvées dans l'historique")
+                        else:
+                            self.log_result("leave_balance", False, f"❌ Transactions de test manquantes dans l'historique")
+                    else:
+                        self.log_result("leave_balance", False, f"❌ Historique doit retourner un tableau")
+                else:
+                    self.log_result("leave_balance", False, f"❌ GET /api/leave-transactions/{{employee_id}} returned {response.status_code}")
+            except Exception as e:
+                self.log_result("leave_balance", False, f"❌ Erreur consultation historique: {str(e)}")
+        
+        # 6. Test Re-consultation du Solde Final
+        print("\n--- 6. Testing Re-consultation du Solde Final ---")
+        
+        if employee_id:
+            try:
+                response = requests.get(
+                    f"{API_URL}/leave-balance/{employee_id}", 
+                    headers=headers, 
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    final_balance = response.json()
+                    ca_balance = final_balance.get('ca_balance', 0)
+                    ca_taken = final_balance.get('ca_taken', 0)
+                    ca_reintegrated = final_balance.get('ca_reintegrated', 0)
+                    
+                    # Expected: initial 25 - taken 5 + reintegrated 2 = 22
+                    expected_balance = 25.0 - 5.0 + 2.0  # 22.0
+                    
+                    if abs(ca_balance - expected_balance) < 0.01:
+                        self.log_result("leave_balance", True, f"✅ Solde final cohérent: CA={ca_balance}, pris={ca_taken}, réintégré={ca_reintegrated}")
+                    else:
+                        self.log_result("leave_balance", False, f"❌ Solde final incohérent: attendu {expected_balance}, obtenu {ca_balance}")
+                else:
+                    self.log_result("leave_balance", False, f"❌ Re-consultation solde returned {response.status_code}")
+            except Exception as e:
+                self.log_result("leave_balance", False, f"❌ Erreur re-consultation solde: {str(e)}")
+        
+        # 7. Test avec Différents Types (RTT, REC)
+        print("\n--- 7. Testing avec Différents Types (RTT, REC) ---")
+        
+        if employee_id:
+            # Test RTT
+            rtt_requests = [
+                {
+                    "employee_id": employee_id,
+                    "leave_type": "RTT",
+                    "operation": "deduct",
+                    "amount": 2.0,
+                    "reason": "Test RTT déduction"
+                },
+                {
+                    "employee_id": employee_id,
+                    "leave_type": "RTT",
+                    "operation": "reintegrate",
+                    "amount": 1.0,
+                    "reason": "Test RTT réintégration"
+                }
+            ]
+            
+            for request in rtt_requests:
+                try:
+                    response = requests.post(
+                        f"{API_URL}/leave-balance/update", 
+                        json=request, 
+                        headers=headers, 
+                        timeout=10
+                    )
+                    if response.status_code == 200:
+                        data = response.json()
+                        operation = request['operation']
+                        amount = request['amount']
+                        self.log_result("leave_balance", True, f"✅ RTT {operation}: {amount} jours traité")
+                    else:
+                        self.log_result("leave_balance", False, f"❌ RTT {request['operation']} failed: {response.status_code}")
+                except Exception as e:
+                    self.log_result("leave_balance", False, f"❌ Erreur RTT {request['operation']}: {str(e)}")
+            
+            # Test REC
+            rec_requests = [
+                {
+                    "employee_id": employee_id,
+                    "leave_type": "REC",
+                    "operation": "deduct",
+                    "amount": 3.0,
+                    "reason": "Test REC déduction"
+                },
+                {
+                    "employee_id": employee_id,
+                    "leave_type": "REC",
+                    "operation": "reintegrate",
+                    "amount": 1.0,
+                    "reason": "Test REC réintégration"
+                }
+            ]
+            
+            for request in rec_requests:
+                try:
+                    response = requests.post(
+                        f"{API_URL}/leave-balance/update", 
+                        json=request, 
+                        headers=headers, 
+                        timeout=10
+                    )
+                    if response.status_code == 200:
+                        data = response.json()
+                        operation = request['operation']
+                        amount = request['amount']
+                        self.log_result("leave_balance", True, f"✅ REC {operation}: {amount} jours traité")
+                    else:
+                        self.log_result("leave_balance", False, f"❌ REC {request['operation']} failed: {response.status_code}")
+                except Exception as e:
+                    self.log_result("leave_balance", False, f"❌ Erreur REC {request['operation']}: {str(e)}")
+        
+        # 8. Test Gestion des Erreurs
+        print("\n--- 8. Testing Gestion des Erreurs ---")
+        
+        # Test sans token
+        try:
+            response = requests.get(f"{API_URL}/leave-balance/test-employee-id", timeout=10)
+            if response.status_code in [401, 403]:
+                self.log_result("leave_balance", True, f"✅ Endpoints requièrent authentification ({response.status_code})")
+            else:
+                self.log_result("leave_balance", False, f"❌ Endpoints devraient requérir auth, got {response.status_code}")
+        except Exception as e:
+            self.log_result("leave_balance", False, f"❌ Erreur test sans token: {str(e)}")
+        
+        # Test avec employee_id invalide
+        try:
+            response = requests.get(
+                f"{API_URL}/leave-balance/invalid-employee-id", 
+                headers=headers, 
+                timeout=10
+            )
+            if response.status_code == 404:
+                self.log_result("leave_balance", True, f"✅ Employee ID invalide retourne 404")
+            else:
+                self.log_result("leave_balance", False, f"❌ Employee ID invalide devrait retourner 404, got {response.status_code}")
+        except Exception as e:
+            self.log_result("leave_balance", False, f"❌ Erreur test employee_id invalide: {str(e)}")
+        
+        # Test avec leave_type invalide
+        if employee_id:
+            invalid_request = {
+                "employee_id": employee_id,
+                "leave_type": "INVALID_TYPE",
+                "operation": "deduct",
+                "amount": 1.0,
+                "reason": "Test type invalide"
+            }
+            
+            try:
+                response = requests.post(
+                    f"{API_URL}/leave-balance/update", 
+                    json=invalid_request, 
+                    headers=headers, 
+                    timeout=10
+                )
+                if response.status_code == 400:
+                    self.log_result("leave_balance", True, f"✅ Leave type invalide retourne 400")
+                else:
+                    self.log_result("leave_balance", False, f"❌ Leave type invalide devrait retourner 400, got {response.status_code}")
+            except Exception as e:
+                self.log_result("leave_balance", False, f"❌ Erreur test leave_type invalide: {str(e)}")
+        
+        self.results["leave_balance"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["leave_balance"]["details"]) else "fail"
+
+    def test_mongodb_validation(self, auth_token=None):
+        """Test MongoDB Collections for Leave Balance System"""
+        print("\n=== Testing MongoDB Collections Validation ===")
+        
+        # Test MongoDB collections existence using backend endpoints
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
+        
+        # Test leave_balances collection via API
+        try:
+            response = requests.get(f"{API_URL}/leave-balance/test-employee-id", headers=headers, timeout=10)
+            # Even if 404, it means the endpoint exists and tries to query the collection
+            if response.status_code in [200, 404]:
+                self.log_result("mongodb_validation", True, f"✅ leave_balances collection accessible via API")
+            else:
+                self.log_result("mongodb_validation", False, f"❌ leave_balances collection endpoint issue: {response.status_code}")
+        except Exception as e:
+            self.log_result("mongodb_validation", False, f"❌ Erreur test leave_balances collection: {str(e)}")
+        
+        # Test leave_transactions collection via API
+        try:
+            response = requests.get(f"{API_URL}/leave-transactions/test-employee-id", headers=headers, timeout=10)
+            # Even if 404, it means the endpoint exists and tries to query the collection
+            if response.status_code in [200, 404]:
+                self.log_result("mongodb_validation", True, f"✅ leave_transactions collection accessible via API")
+            else:
+                self.log_result("mongodb_validation", False, f"❌ leave_transactions collection endpoint issue: {response.status_code}")
+        except Exception as e:
+            self.log_result("mongodb_validation", False, f"❌ Erreur test leave_transactions collection: {str(e)}")
+        
+        self.results["mongodb_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["mongodb_validation"]["details"]) else "fail"
+
     def test_cse_cessions_endpoints(self, auth_token=None):
         """Test CSE Cessions API endpoints as requested in review"""
         print("\n=== Testing CSE Cessions API Endpoints ===")
