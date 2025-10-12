@@ -451,6 +451,9 @@ class ImportAbsence(BaseModel):
     jours_absence: Optional[str] = None
     motif_absence: str
     notes: Optional[str] = None
+    # Nouveaux champs pour gestion des heures
+    absence_unit: Optional[str] = "jours"  # "jours" ou "heures"
+    hours_amount: Optional[float] = None  # Nombre d'heures si unit='heures'
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
 
