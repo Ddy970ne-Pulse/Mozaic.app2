@@ -2569,20 +2569,42 @@ async def delete_cse_delegate(delegate_id: str, current_user: User = Depends(get
         raise HTTPException(status_code=403, detail="Accès refusé")
     
     try:
-        # Marquer comme inactif plutôt que supprimer
-        result = await db.cse_delegates.update_one(
-            {"id": delegate_id},
-            {"$set": {"actif": False, "updated_at": datetime.utcnow().isoformat()}}
-        )
+        result = await db.cse_delegates.delete_one({"id": delegate_id})
         
-        if result.matched_count == 0:
+        if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Délégué non trouvé")
         
-        return {"message": "Délégué désactivé avec succès"}
+        return {"message": "Délégué supprimé avec succès", "id": delegate_id}
         
     except HTTPException:
         raise
     except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@api_router.delete("/cse/test-data/cleanup")
+async def cleanup_delegation_test_data(current_user: User = Depends(require_admin_access)):
+    """Supprimer toutes les données de test de délégation (admin uniquement)"""
+    try:
+        # Supprimer tous les délégués
+        delegates_result = await db.cse_delegates.delete_many({})
+        
+        # Supprimer toutes les utilisations
+        usage_result = await db.delegation_usage.delete_many({})
+        
+        # Supprimer toutes les cessions
+        cessions_result = await db.cse_hour_transfers.delete_many({})
+        
+        return {
+            "message": "Données de test supprimées avec succès",
+            "deleted": {
+                "delegates": delegates_result.deleted_count,
+                "usage": usage_result.deleted_count,
+                "cessions": cessions_result.deleted_count
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur suppression données test: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
 # ========================================
