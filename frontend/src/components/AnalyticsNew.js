@@ -28,10 +28,10 @@ const AnalyticsNew = ({ user }) => {
     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
   ];
 
-  // Charger les données réelles
+  // Charger les données réelles - Recalcul automatique quand les filtres changent
   useEffect(() => {
     fetchAnalytics();
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, periodType, customStartDate, customEndDate]);
 
   const fetchAnalytics = async () => {
     setLoading(true);
