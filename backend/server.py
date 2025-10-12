@@ -982,6 +982,7 @@ async def reset_user_password(user_id: str, password_data: PasswordReset, curren
             "hashed_password": hashed_password,
             "requires_password_change": True,
             "temp_password_expires": temp_expires,
+            "temp_password_plain": temp_password,  # Sauvegarder aussi en clair pour l'admin
             "updated_at": datetime.utcnow()
         }}
     )
