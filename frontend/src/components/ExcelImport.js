@@ -95,11 +95,11 @@ const ExcelImport = ({ user, onChangeView }) => {
   // Modèles de données pour différents types d'import basés sur l'analyse du fichier Excel
   const dataModels = {
     employees: {
-      name: 'Données Employés (13 colonnes)',
+      name: 'Données Employés (16 colonnes)',
       icon: '👥',
       color: 'from-blue-500 to-blue-600',
       requiredFields: ['nom', 'prenom', 'email', 'departement'],
-      optionalFields: ['date_naissance', 'sexe', 'categorie_employe', 'metier', 'fonction', 'site', 'temps_travail', 'contrat', 'date_debut_contrat', 'date_fin_contrat', 'notes'],
+      optionalFields: ['date_naissance', 'sexe', 'categorie_employe', 'metier', 'fonction', 'site', 'temps_travail', 'contrat', 'date_debut_contrat', 'date_fin_contrat', 'notes', 'email_cse'],
       validationRules: {
         email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         date_naissance: 'date',
