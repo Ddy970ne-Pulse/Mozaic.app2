@@ -30,6 +30,17 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Startup event for auto-backup and restore
+@app.on_event("startup")
+async def startup_event():
+    """Événement de démarrage - Auto-restore si DB vide"""
+    try:
+        from backup_restore import auto_restore_if_empty
+        logger.info("🔄 Checking database state on startup...")
+        await auto_restore_if_empty()
+    except Exception as e:
+        logger.warning(f"⚠️ Startup auto-restore check failed: {str(e)}")
+
 # Security
 security = HTTPBearer()
 
