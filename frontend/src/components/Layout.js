@@ -183,8 +183,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
       </header>
 
       {/* Menu Flottant - Effets Dynamiques Page de Connexion */}
-      {/* Menu Principal - Desktop et Tablet uniquement */}
-      {showMenu && !isMobile && (
+      {/* Menu Principal Glassmorphism - Responsive pour tous les écrans */}
+      {showMenu && (
         <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden">
           {/* Nuages animés améliorés avec effets de la page de connexion */}
           <div className="absolute inset-0 pointer-events-none">
