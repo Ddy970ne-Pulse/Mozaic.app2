@@ -271,7 +271,8 @@ export const Section = ({ title, icon, children, className = '' }) => (
   </div>
 );
 
-export default {
+// Exports nommés (pas de default export pour éviter les conflits)
+export {
   ModuleHeader,
   TabBar,
   StatCard,
