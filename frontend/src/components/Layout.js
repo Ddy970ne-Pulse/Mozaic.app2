@@ -389,8 +389,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                           animationDelay: `${index * 20}ms`
                         }}
                       >
-                        {/* Icône avec couleur spécifique */}
-                        <div className={`mx-auto mb-3 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm transition-all duration-300 bg-gradient-to-br ${getItemColors(item.id)} shadow-lg ${
+                        {/* Icône avec couleur spécifique - Plus petite sur mobile */}
+                        <div className={`mx-auto ${isMobile ? 'mb-1 w-10 h-10 text-xl' : 'mb-3 w-12 h-12 text-2xl'} rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-300 bg-gradient-to-br ${getItemColors(item.id)} shadow-lg ${
                           currentView === item.id
                             ? 'transform scale-110 shadow-xl'
                             : 'group-hover:scale-110 group-hover:shadow-xl'
@@ -398,8 +398,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                           <span className="text-white">{item.icon}</span>
                         </div>
                         
-                        {/* Titre plus compact */}
-                        <h3 className={`font-semibold text-sm transition-colors duration-200 ${
+                        {/* Titre plus compact - Plus petit sur mobile */}
+                        <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-sm'} transition-colors duration-200 ${
                           currentView === item.id
                             ? 'text-white'
                             : 'text-white/90 group-hover:text-white'
