@@ -91,6 +91,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <AbsenceRequests user={user} onChangeView={setCurrentView} />;
         case 'monthly-planning':
           return <MonthlyPlanningFinal user={user} onChangeView={setCurrentView} />;
+        case 'absence-analytics':
+          return <AbsenceAnalytics user={user} onChangeView={setCurrentView} />;
         case 'analytics':
           return <Analytics user={user} onChangeView={setCurrentView} />;
         case 'overtime':
