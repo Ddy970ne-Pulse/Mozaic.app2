@@ -12,11 +12,11 @@ L'utilisateur a signalé qu'une fois dans un sous-module du hub Analytics (ex: R
 2. Click sur "Rapports Standards" → ✅ Module s'affiche
 3. Vouloir revenir au hub pour choisir un autre module → ❌ **IMPOSSIBLE**
 
-## Solution Implémentée
+## Solution Implémentée (Version 2 - Corrigée)
 
-### Ajout d'un Bandeau de Navigation
+### Bouton Retour Intégré dans Chaque Sous-Module
 
-Quand un sous-module est affiché, on ajoute maintenant un bandeau de navigation en haut avec :
+Au lieu d'un bandeau externe, le bouton retour est maintenant **intégré directement dans le header** de chaque sous-module :
 
 #### 1. Bouton Retour
 ```javascript
