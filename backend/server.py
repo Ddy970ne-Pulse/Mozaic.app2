@@ -1192,16 +1192,76 @@ async def create_absence_request(request_data: dict, current_user: User = Depend
 
 @api_router.put("/absence-requests/{request_id}/approve", response_model=dict)
 async def approve_absence_request(request_id: str, current_user: User = Depends(get_current_user)):
+    """Approve absence request and handle automatic overtime deduction for recuperation"""
     if current_user.role not in ["admin", "manager"]:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # In real implementation, update database
-    return {
-        "message": "Request approved successfully",
-        "request_id": request_id,
-        "approved_by": current_user.name,
-        "approved_date": datetime.utcnow().isoformat()
-    }
+    try:
+        # Get the absence request from database
+        absence_request = await db.absence_requests.find_one({"id": request_id})
+        
+        if not absence_request:
+            raise HTTPException(status_code=404, detail="Demande d'absence non trouvée")
+        
+        # Update status to approved
+        approved_date = datetime.utcnow().isoformat()
+        await db.absence_requests.update_one(
+            {"id": request_id},
+            {"$set": {
+                "status": "approved",
+                "approver": current_user.name,
+                "approvedDate": approved_date
+            }}
+        )
+        
+        # If this is a recuperation request (REC), create overtime "recovered" entry
+        if absence_request.get("type") == "REC" or (absence_request.get("type") and "récup" in absence_request.get("type", "").lower()):
+            # Get employee info
+            employee_name = absence_request.get("employee")
+            employee = await db.users.find_one({"name": employee_name})
+            
+            if employee:
+                # Calculate hours from duration (assuming 7h per day)
+                duration_str = absence_request.get("duration", "0")
+                try:
+                    # Parse duration like "1 jour" or "0.5 jour"
+                    duration_days = float(duration_str.split()[0]) if duration_str else 0
+                    hours_recovered = duration_days * 7  # 7 heures par jour standard
+                except:
+                    hours_recovered = 0
+                
+                # Create overtime "recovered" entry
+                overtime_entry = {
+                    "id": str(uuid.uuid4()),
+                    "employee_id": employee.get("id"),
+                    "employee_name": employee_name,
+                    "department": absence_request.get("department", employee.get("department", "N/A")),
+                    "date": absence_request.get("startDate"),
+                    "hours": hours_recovered,
+                    "type": "recovered",
+                    "reason": f"Récupération validée - {absence_request.get('reason', 'Récupération')}",
+                    "validated": True,
+                    "validated_by": current_user.name,
+                    "validated_at": approved_date,
+                    "created_at": approved_date
+                }
+                
+                await db.overtime.insert_one(overtime_entry)
+                logger.info(f"✅ Récupération créée: {hours_recovered}h déduits du solde de {employee_name}")
+        
+        return {
+            "message": "Demande approuvée avec succès",
+            "request_id": request_id,
+            "approved_by": current_user.name,
+            "approved_date": approved_date,
+            "overtime_deducted": absence_request.get("type") == "REC"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur lors de l'approbation: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
 @api_router.put("/absence-requests/{request_id}/reject", response_model=dict)
 async def reject_absence_request(request_id: str, rejection_data: dict, current_user: User = Depends(get_current_user)):
