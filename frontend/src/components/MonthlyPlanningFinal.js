@@ -68,6 +68,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
+        console.log('👥 Loading employees from database...');
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -77,6 +78,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
 
         if (response.ok) {
           const users = await response.json();
+          console.log(`✅ Loaded ${users.length} employees`);
           
           // Sort users: Cadres first, then others alphabetically
           const sortedUsers = users.sort((a, b) => {
@@ -103,6 +105,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           }));
           
           setEmployees(employeesData);
+          console.log('✅ Employees loaded and ready for absences');
         } else {
           console.error('Failed to load employees');
           setEmployees([]); // Empty array if no data
