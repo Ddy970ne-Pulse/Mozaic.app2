@@ -371,6 +371,34 @@ backend:
         agent: "main"
         comment: "PWA INTEGRATION COMPLETED: Added complete Progressive Web App support to index.html. Configured: Manifest link (manifest.json), Apple touch icon (icon.svg), iOS-specific meta tags (apple-mobile-web-app-capable, status-bar-style, title), Service Worker registration script with load event listener, PWA install script (install-pwa.js), Theme color #1e40af (MOZAIK RH blue). Changed lang to 'fr', updated title to 'MOZAIK RH | Gestion des Ressources Humaines'. App is now installable on iOS and Android devices as native-like application with offline capabilities via service worker. Existing manifest.json and service-worker.js files already present in public folder."
 
+
+  - task: "Header Buttons Functionality - Notification and Settings"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/Layout.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "HEADER BUTTONS FIXED: Added onClick handlers to non-functional header buttons. 1) Notification button (yellow/orange gradient): Added onClick handler with placeholder alert ('Système de notifications - À venir prochainement'), 2) Paramètres/Settings button (purple/indigo gradient): Added onClick handler that navigates to settings view via setCurrentView('settings'). Both buttons now functional and provide user feedback when clicked. Logout button was already functional."
+
+  - task: "Menu Tiles Hover Effect Correction"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/Layout.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported that tile hover effect still incorrect - tiles were enlarging too much on hover despite previous fix attempts."
+      - working: true
+        agent: "main"
+        comment: "TILE HOVER EFFECT CORRECTED: Fixed the double enlargement effect on menu tiles. 1) REMOVED hover:scale-110 from main tile button (line 397) - this was causing the entire tile to enlarge, 2) KEPT group-hover:scale-110 on icon div only - now only the icon enlarges on hover, not the entire tile, 3) Applied same fix to 'Paramètres' and 'Aide' tiles (lines 437-499), 4) KEPT hover effects: shadow-2xl (enhanced shadow), -translate-y-2 (lift up effect), bg-white/20 (background opacity change), 5) Changed transition duration from 500ms to 300ms for smoother feel. Now hovering over a tile: icon enlarges, tile lifts up, shadow increases, background lightens - but the tile itself does not scale."
+
   - task: "UserManagement Tabbed Interface"
     implemented: true
     working: false
