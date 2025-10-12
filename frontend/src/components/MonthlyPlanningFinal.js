@@ -170,21 +170,8 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     loadAndMergeAllAbsences();
   }, [employees, selectedYear, selectedMonth]);
 
-  // Synchro avec les demandes d'absence approuvées et les astreintes
+  // Charger les astreintes
   useEffect(() => {
-    const loadRequests = () => {
-      try {
-        const requestsData = getRequests();
-        const safeRequests = Array.isArray(requestsData) ? requestsData : [];
-        setRequests(safeRequests);
-        updatePlanningFromRequests(safeRequests);
-      } catch (error) {
-        console.error('Erreur chargement demandes:', error);
-        setRequests([]);
-      }
-    };
-
-    // Charger les données d'astreinte
     const loadOnCallData = () => {
       try {
         const onCallDataForMonth = getOnCallDataForMonthlyPlanning(selectedMonth, selectedYear);
@@ -195,15 +182,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       }
     };
 
-    const unsubscribe = subscribe((newRequests) => {
-      const safeRequests = Array.isArray(newRequests) ? newRequests : [];
-      setRequests(safeRequests);
-      updatePlanningFromRequests(safeRequests);
-    });
-    
-    loadRequests();
     loadOnCallData();
-    return unsubscribe;
   }, [selectedYear, selectedMonth]);
 
   // Recharger les données d'astreinte quand le mois/année change
