@@ -1603,7 +1603,8 @@ async def import_employees(
     
     # Log détaillé pour debugging
     logger.info(f"📥 Import lancé par {current_user.name}")
-    logger.info(f"📊 Nombre de lignes reçues: {len(request.data)}")
+    logger.info(f"📊 Nombre TOTAL de lignes reçues: {len(request.data)}")
+    logger.info(f"🎯 OBJECTIF: Importer TOUTES les lignes (même avec données manquantes)")
     if len(request.data) > 0:
         logger.info(f"📋 Colonnes de la première ligne: {list(request.data[0].keys())}")
         logger.info(f"📝 Données de la première ligne: {request.data[0]}")
