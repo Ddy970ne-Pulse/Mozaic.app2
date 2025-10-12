@@ -372,8 +372,7 @@ class ImportEmployee(BaseModel):
     email: str
     date_naissance: Optional[str] = None
     sexe: Optional[str] = None
-    categorie: Optional[str] = None  # Ex: Cadre, Technicien, Ouvrier qualifié
-    employe: Optional[str] = None  # Ex: Employé, Agent administratif
+    categorie_employe: Optional[str] = None  # Ex: Cadre, Technicien, Ouvrier qualifié, Agent administratif
     metier: Optional[str] = None
     fonction: Optional[str] = None
     departement: str
@@ -383,7 +382,7 @@ class ImportEmployee(BaseModel):
     date_debut_contrat: Optional[str] = None
     date_fin_contrat: Optional[str] = None
     notes: Optional[str] = None
-    statut_cse: Optional[str] = None  # Colonne 17: "titulaire", "suppléant" ou vide
+    membre_cse: Optional[str] = None  # Colonne 16: "titulaire", "suppléant" ou vide
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
 
