@@ -72,6 +72,68 @@ def verify_password(password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
+def calculate_end_date(start_date_str: str, days_count: int, counting_method: str) -> str:
+    """
+    Calculate end date based on absence counting method
+    
+    Args:
+        start_date_str: Start date in YYYY-MM-DD or DD/MM/YYYY format
+        days_count: Number of days
+        counting_method: "Jours Calendaires", "Jours Ouvrés", or "Jours Ouvrables"
+    
+    Returns:
+        End date in DD/MM/YYYY format
+    """
+    from datetime import datetime as dt, timedelta
+    
+    # Parse start date (handle both formats)
+    try:
+        if '/' in start_date_str:
+            # Format DD/MM/YYYY
+            start_date = dt.strptime(start_date_str, "%d/%m/%Y")
+        else:
+            # Format YYYY-MM-DD
+            start_date = dt.strptime(start_date_str, "%Y-%m-%d")
+    except:
+        return ""
+    
+    if days_count <= 0:
+        return start_date_str
+    
+    # Calculate end date based on counting method
+    if counting_method == "Jours Calendaires":
+        # All days count (including weekends)
+        end_date = start_date + timedelta(days=days_count - 1)
+    
+    elif counting_method == "Jours Ouvrés":
+        # Monday to Saturday (6 days/week)
+        days_added = 0
+        current_date = start_date
+        while days_added < days_count:
+            if current_date.weekday() < 6:  # Monday=0 to Saturday=5
+                days_added += 1
+            if days_added < days_count:
+                current_date += timedelta(days=1)
+        end_date = current_date
+    
+    elif counting_method == "Jours Ouvrables":
+        # Monday to Friday (5 days/week)
+        days_added = 0
+        current_date = start_date
+        while days_added < days_count:
+            if current_date.weekday() < 5:  # Monday=0 to Friday=4
+                days_added += 1
+            if days_added < days_count:
+                current_date += timedelta(days=1)
+        end_date = current_date
+    
+    else:
+        # Default: calendar days
+        end_date = start_date + timedelta(days=days_count - 1)
+    
+    # Return in French format DD/MM/YYYY
+    return end_date.strftime("%d/%m/%Y")
+
 def generate_temp_password(length: int = 12) -> str:
     """Generate a secure temporary password"""
     # Mélange de lettres majuscules, minuscules et chiffres pour lisibilité
