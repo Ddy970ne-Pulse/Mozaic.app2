@@ -833,6 +833,16 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                   if (canOverride) {
                     if (existingAbsence && absenceInfo.priority < existingInfo.priority) {
                       console.log(`⚠️ ${employee.name} - ${day}/${month + 1}: ${absenceCode} (priorité ${absenceInfo.priority}) remplace ${existingAbsence} (priorité ${existingInfo.priority})`);
+                      
+                      // 💰 RÉINTÉGRATION: Comptabiliser les jours remplacés
+                      if (!employee.replacedAbsences) employee.replacedAbsences = {};
+                      if (!employee.replacedAbsences[existingAbsence]) {
+                        employee.replacedAbsences[existingAbsence] = {
+                          count: 0,
+                          interruptedBy: absenceCode
+                        };
+                      }
+                      employee.replacedAbsences[existingAbsence].count++;
                     }
                     newAbsences[day.toString()] = absenceCode;
                     if (!existingAbsence) totalDays++;
