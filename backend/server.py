@@ -1614,10 +1614,27 @@ async def import_employees(
         for i, employee_data in enumerate(request.data):
             try:
                 email = employee_data.get('email', '').lower().strip()
-                nom = employee_data.get('nom', '').strip()
+                nom_original = employee_data.get('nom', '').strip()
                 prenom = employee_data.get('prenom', '').strip()
+                email_cse = employee_data.get('email_cse', '').strip()
                 
-                logger.info(f"🔍 Ligne {i+1}: email='{email}', nom='{nom}', prenom='{prenom}'")
+                # Détecter si c'est un délégué CSE (préfixe dans le NOM)
+                is_cse_delegate = False
+                cse_status = None
+                nom = nom_original
+                
+                if nom_original.lower().startswith('délégué '):
+                    is_cse_delegate = True
+                    cse_status = 'titulaire'
+                    nom = nom_original[8:].strip()  # Enlever "Délégué "
+                    logger.info(f"🏛️ Ligne {i+1}: Délégué CSE TITULAIRE détecté - {nom}")
+                elif nom_original.lower().startswith('suppléant '):
+                    is_cse_delegate = True
+                    cse_status = 'suppléant'
+                    nom = nom_original[10:].strip()  # Enlever "Suppléant "
+                    logger.info(f"🏛️ Ligne {i+1}: Délégué CSE SUPPLÉANT détecté - {nom}")
+                
+                logger.info(f"🔍 Ligne {i+1}: email='{email}', nom='{nom}', prenom='{prenom}', CSE={is_cse_delegate}")
                 
                 if not email or not nom or not prenom:
                     error_msg = f"Email={email!r}, nom={nom!r}, prénom={prenom!r} sont obligatoires"
