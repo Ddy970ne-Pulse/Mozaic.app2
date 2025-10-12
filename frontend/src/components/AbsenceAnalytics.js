@@ -116,7 +116,9 @@ const AbsenceAnalytics = ({ user }) => {
         stats.congesAnnuels += jours;
       } else if (motif.includes('trimestriel') || motif.includes('ct')) {
         stats.congesTrimestriels += jours;
-      } else if (motif.includes('récupération') || motif.includes('recup')) {
+      } else if (motif.includes('rtt')) {
+        stats.rtt += jours;
+      } else if (motif.includes('récupération') || motif.includes('recup') || motif.includes('rec')) {
         stats.recuperation += jours;
       } else if (motif.includes('stage') || motif.includes('formation')) {
         stats.stage += jours;
