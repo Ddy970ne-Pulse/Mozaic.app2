@@ -371,8 +371,15 @@ const ExcelImport = ({ user, onChangeView }) => {
         
         return mappedRow;
       }).filter(row => {
-        // Ne garder que les lignes qui ont au moins nom, prenom et email
-        return row.nom && row.prenom && row.email;
+        // Ne garder que les lignes qui ont au moins nom ET prenom (email optionnel)
+        const hasNom = row.nom && String(row.nom).trim() !== '';
+        const hasPrenom = row.prenom && String(row.prenom).trim() !== '';
+        
+        if (!hasNom || !hasPrenom) {
+          console.log('⚠️ Ligne ignorée dans mapping (manque nom ou prenom):', row);
+        }
+        
+        return hasNom && hasPrenom;
       });
       
       console.log('📊 Mapped data count:', mappedData.length);
