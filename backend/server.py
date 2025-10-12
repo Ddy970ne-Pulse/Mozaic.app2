@@ -1613,27 +1613,24 @@ async def import_employees(
         for i, employee_data in enumerate(request.data):
             try:
                 email = employee_data.get('email', '').lower().strip()
-                nom_original = employee_data.get('nom', '').strip()
+                nom = employee_data.get('nom', '').strip()
                 prenom = employee_data.get('prenom', '').strip()
-                email_cse = employee_data.get('email_cse', '').strip()
+                statut_cse_raw = employee_data.get('statut_cse', '').strip().lower()
                 
-                # Détecter si c'est un délégué CSE (préfixe dans le NOM)
+                # Détecter si c'est un membre CSE via la colonne 17
                 is_cse_delegate = False
                 cse_status = None
-                nom = nom_original
                 
-                if nom_original.lower().startswith('délégué '):
+                if statut_cse_raw in ['titulaire', 'délégué', 'delegue']:
                     is_cse_delegate = True
                     cse_status = 'titulaire'
-                    nom = nom_original[8:].strip()  # Enlever "Délégué "
-                    logger.info(f"🏛️ Ligne {i+1}: Délégué CSE TITULAIRE détecté - {nom}")
-                elif nom_original.lower().startswith('suppléant '):
+                    logger.info(f"🏛️ Ligne {i+1}: Membre CSE TITULAIRE détecté - {prenom} {nom}")
+                elif statut_cse_raw in ['suppléant', 'suppleant', 'suppléante', 'suppleante']:
                     is_cse_delegate = True
                     cse_status = 'suppléant'
-                    nom = nom_original[10:].strip()  # Enlever "Suppléant "
-                    logger.info(f"🏛️ Ligne {i+1}: Délégué CSE SUPPLÉANT détecté - {nom}")
+                    logger.info(f"🏛️ Ligne {i+1}: Membre CSE SUPPLÉANT détecté - {prenom} {nom}")
                 
-                logger.info(f"🔍 Ligne {i+1}: email='{email}', nom='{nom}', prenom='{prenom}', CSE={is_cse_delegate}")
+                logger.info(f"🔍 Ligne {i+1}: email='{email}', nom='{nom}', prenom='{prenom}', statut_cse='{statut_cse_raw}', CSE={is_cse_delegate}")
                 
                 if not email or not nom or not prenom:
                     error_msg = f"Email={email!r}, nom={nom!r}, prénom={prenom!r} sont obligatoires"
