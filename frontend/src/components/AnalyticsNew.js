@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ModuleHeader, StatCard, ContentCard, Button, LoadingSpinner } from './shared/UIComponents';
 
 const AnalyticsNew = ({ user }) => {
   const currentYear = new Date().getFullYear();
