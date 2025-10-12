@@ -625,9 +625,21 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                   (absenceInfo.skipHolidays && isHoliday(day, month, year))
                 );
                 
-                if (!shouldSkipThisDay && !newAbsences[day.toString()]) {
-                  newAbsences[day.toString()] = absenceCode;
-                  totalDays++;
+                if (!shouldSkipThisDay) {
+                  const existingAbsence = newAbsences[day.toString()];
+                  const existingInfo = existingAbsence ? absenceColorMap[existingAbsence] : null;
+                  
+                  // 🏛️ RÈGLE DE PRIORITÉ: Vérifier si la nouvelle absence peut remplacer l'existante
+                  const canOverride = !existingAbsence || 
+                                     (absenceInfo && existingInfo && absenceInfo.priority < existingInfo.priority);
+                  
+                  if (canOverride) {
+                    if (existingAbsence && absenceInfo.priority < existingInfo.priority) {
+                      console.log(`⚠️ ${employee.name} - ${day}/${month + 1}: ${absenceCode} (priorité ${absenceInfo.priority}) remplace ${existingAbsence} (priorité ${existingInfo.priority})`);
+                    }
+                    newAbsences[day.toString()] = absenceCode;
+                    if (!existingAbsence) totalDays++;
+                  }
                 }
               }
             }
