@@ -1,104 +1,83 @@
 <analysis>
-The previous AI engineer initiated the MOZAIK RH application, focusing on PWA conversion and implementing core HR modules. The trajectory involved extensive debugging and feature development. Initially, fixes targeted data persistence, incorrect absence planning due to mapping issues, hardcoded holidays, and a duplicate hamburger menu. The engineer systematically addressed these by refining data models, API endpoints, and UI logic across the frontend and backend. Key actions included dynamic period filtering for absences, consolidating absence application logic, dynamic holiday calculation, user data persistence, and UI unification. Later, the engineer tackled Heures Travaillées import failures, integration of worked hours into overtime, dynamic analytics, CCN66 compliance for delegation hours, and a full refactor of the Mon Espace module. The most recent efforts revolve around unifying redundant CSE/Delegation Hours modules into a new  component, and investigating a missing Mes Demandes tab in , indicating a shift towards module consolidation and UI completeness.
+The AI engineer's trajectory focused on enhancing the MOZAIK RH application, addressing critical bugs, and implementing new features. Initial efforts involved unifying CSE/Delegation modules, debugging a missing Mes Demandes tab, and creating backend endpoints for CSE cessions. Subsequently, the engineer tackled Absence en Heures by modifying Pydantic models and adding conversion utilities. A major UI harmonization effort was initiated, centralizing styles into , but this led to JSX errors requiring extensive debugging in . Critical data persistence issues (imported data disappearing) were diagnosed, pointing to accidental deletion via a reset-demo endpoint and missing persistence for imported data. Recent work involved implementing a robust absence priority and re-integration logic in  and developing backend models/APIs for absence counters. The trajectory ended mid-diagnosis of the data persistence problem, with a plan to implement a data seeding solution.
 </analysis>
-
 <product_requirements>
-The MOZAIK RH application aims to be a comprehensive HR management system with the following detailed functionalities:
-1.  **UI/UX**: Implement a responsive, glassmorphism-style hamburger menu with dynamic colors, logo, and compact tile design for mobile.
-2.  **Mass Data Integration (Excel Import)**: Robust parsing and import for personnel, absences, and worked hours. This includes correct French date mapping, automatic absence end date calculation, full row import with optional fields, auto-generated internal emails/temporary passwords, accurate CSE member identification, and proper Catégorie Employé handling, displaying warnings and temporary passwords.
-3.  **Admin & User Management**: Initial admin setup (Diego DACALOR), comprehensive user CRUD, password hashing, individual user deletion, and persistence of manually edited user data.
-4.  **Data Integrity & Cleanup**: Eliminate hardcoded data, ensure storage and display of all optional imported fields.
-5.  **Temporary Password System**: Secure auto-generated temporary passwords requiring first-login change.
+The MOZAIK RH application is designed as a comprehensive HR management system, currently featuring:
+1.  **UI/UX**: Responsive, glassmorphism-style hamburger menu, dynamic colors, compact tile design. An ongoing task is to generalize the Mon Espace visual style across all modules for harmonization.
+2.  **Mass Data Integration (Excel Import)**: Robust parsing for personnel, absences, and worked hours, including correct French date mapping, auto-generated emails/passwords, accurate CSE member identification. The system must prevent accidental data deletion during imports.
+3.  **Admin & User Management**: Admin setup, user CRUD, password hashing, individual deletion, and data persistence.
+4.  **Data Integrity & Cleanup**: Eliminate hardcoded data and ensure optional fields are stored.
+5.  **Temporary Password System**: Secure auto-generated passwords requiring first-login change.
 6.  **Dashboard Data**: Display real-time, dynamic data.
 7.  **Event Management**: API and system for Événements à venir.
-8.  **Mobile Accessibility (PWA)**: Installable PWA with real-time data, manifest, and service worker.
-9.  **CSE Management Module**: Designate CSE members, manage delegation hours (default 24h, modifiable, compliant with CCN66), and implement prise de connaissance validation with quota alerts. It should also handle dynamic selection of delegates and cession of hours between delegates.
-10. **Dynamic Temporal Data Handling**: Modules (Planning, Analytics, Reports) must dynamically adapt to new years, filter data by month/year/custom period, and prevent data bleeding.
-11. **Overtime & Recovery**: Heures Travaillées data from imports must integrate correctly into the Overtime module, and Récupération absence requests must automatically affect overtime balances.
-12. **Personal Space**: For Admin/Manager/RH roles, Mon Espace should have a distinct section for personal requests, separate from general request validation.
+8.  **Mobile Accessibility (PWA)**: Installable PWA with real-time data.
+9.  **CSE Management Module**: Unified module for CSE members, delegation hours (CCN66 compliant), prise de connaissance validation, dynamic delegate selection, and cession (hour transfers).
+10. **Dynamic Temporal Data Handling**: Modules (Planning, Analytics, Reports) adapt to new years, filter data by period, and prevent data bleeding.
+11. **Overtime & Recovery**: Heures Travaillées integrate into Overtime, and Récupération absences affect overtime.
+12. **Personal Space**: Mon Espace for Admin/Manager/RH with personal requests.
+13. **Absences in Hours**: Allow specific absence types (overtime, delegation, recovery, telework) to be requested and displayed in hours (HH:MM), with 8 hours = 1 day conversion, impacting payroll, planning, and statistics.
+14. **Absence Logic**: Ensure absence calculation respects weekends/holidays and implements priority rules (e.g., sick leave interrupts annual leave), correctly affecting remaining balances.
 </product_requirements>
-
 <key_technical_concepts>
 -   **Full-Stack**: React (frontend with Hooks), FastAPI (Python backend).
--   **Database**: MongoDB (using UUIDs for IDs).
--   **UI/UX**: Responsive CSS, Tailwind CSS, glassmorphism design.
--   **Data Processing**:  library for Excel parsing, complex date/time conversions.
+-   **Database**: MongoDB (using UUIDs).
+-   **UI/UX**: Responsive CSS, Tailwind CSS, glassmorphism design, reusable UI components ().
+-   **Data Processing**:  for Excel parsing, complex date/time conversions.
 -   **Authentication/Authorization**: JWT, bcrypt, role-based access control.
 -   **API Design**: RESTful APIs, Pydantic for data validation.
 -   **Mobile Development**: Progressive Web App (PWA).
 </key_technical_concepts>
-
 <code_architecture>
-The application utilizes a monorepo structure with a React frontend and a FastAPI backend.
 
-
-
--   ****
-    -   **Importance**: Central for FastAPI routes, MongoDB models, and business logic.
-    -   **Changes**: Updated , , , ,  models. Added utility functions. Enhanced existing and added new API endpoints for dynamic data fetching, user management, and CSE operations. Modified  to query  with  and . Implemented  to link Récupération absences to overtime. Added , ,  endpoints.
--   ****
-    -   **Importance**: Manages global layout, navigation, and menu rendering.
-    -   **Changes**: Integrated , , , , and  into the menu. Refactored hamburger menu logic and tile sizing for responsiveness.
--   ****
-    -   **Importance**: Handles Excel file uploads and data parsing.
-    -   **Changes**: Fixed Heures Travaillées filter bug (). Added  function and integrated into  to handle 5:00 time format. Updated  to use separate ,  and include .
--   ****
-    -   **Importance**: Admin interface for user CRUD.
-    -   **Changes**: Implemented user delete,  for persisting data.
--   ****
-    -   **Importance**: Displays monthly planning data.
-    -   **Changes**: Logic for loading absences, manager grouping,  for , motif mapping,  for temporal data separation, dynamic holiday calculation.
--   ****
-    -   **Importance**: Manages overtime data.
-    -   **Changes**: Fixed . Updated Details button to correctly switch  to detailed when  is set.
--   ****
-    -   **Importance**: Manages delegation hours.
-    -   **Changes**: Corrected CCN66 delegation hour thresholds. Identified a selection problem in Nouvelle Cession modal due to filtering.
--   ** (Old)**
-    -   **Importance**: Displays analytics and KPIs.
-    -   **Changes**: Replaced by  due to hardcoded data.
--   ** (New File)**
-    -   **Importance**: New module for detailed absence analysis.
-    -   **Changes**: Newly created file to provide filters and a detailed table for absence data, including RTT column.
--   ** (New File)**
-    -   **Importance**: Refactored analytics module to use real-time, dynamic data with custom periods.
-    -   **Changes**: Newly created and integrated, replacing the old , with logic for dynamic data fetching and period filters.
--   ** (Old)**
-    -   **Importance**: Personal space for employees.
-    -   **Changes**: Replaced by  due to hardcoded data.
--   ** (New File)**
-    -   **Importance**: Refactored employee personal space with API integration and a Mes Demandes Personnelles section for admins/managers.
-    -   **Changes**: Newly created and integrated, replacing the old .
--   ** (New File)**
-    -   **Importance**: New module for generating standard reports with custom date-to-date periods.
-    -   **Changes**: Newly created and integrated into the layout.
--   ** (New File)**
-    -   **Importance**: New, unified module for CSE management and delegation hours, intended to replace  and .
-    -   **Changes**: Newly created, under development to integrate CSE member management, delegation hours, and cession functionalities.
--   ****
-    -   **Importance**: Provides dynamic calculation of public holidays.
-    -   **Changes**: Newly created with  for efficient holiday retrieval.
--   ****
-    -   **Importance**: Enables PWA functionality and offline caching.
-    -   **Changes**: Modified to avoid caching POST requests.
+-   ****:
+    -   **Importance**: Central for FastAPI routes and MongoDB models.
+    -   **Changes**: Added , , ,  Pydantic models. Created new API endpoints for CSE cessions (), leave balances (, ), and re-integration (). Modified , ,  models to include  and  fields. Added  and  utility functions.  endpoint was identified as a data deletion risk.
+-   ****:
+    -   **Importance**: Manages global layout and navigation.
+    -   **Changes**: Integrated , . Removed imports and rendering logic for old  and . Corrected 'Aide' menu item to correctly route to . Removed unused  and old  imports.
+-   ****:
+    -   **Importance**: Handles Excel uploads.
+    -   **Changes**: Modified to hide the Réinitialiser comptes button within a collapsible Danger Zone to prevent accidental data deletion. Added stronger warning to the confirmation.
+-   ****:
+    -   **Importance**: Displays monthly planning.
+    -   **Changes**: Added  helper. Modified  and  functions to respect  and  rules for absence types and implement absence priority logic (e.g., sick leave overriding annual leave). Integrated calls to  API for updating leave counters.
+-   ****:
+    -   **Importance**: Manages absence requests.
+    -   **Changes**: Added state for  and . Implemented  function. Modified the absence request form to include a toggle for days/hours and an input for hours. Debugged and extensively cleaned up JSX structure due to compilation errors and duplicated content. Removed unused  and  imports.
+-   ****, ****, ****:
+    -   **Importance**: Core application modules.
+    -   **Changes**: Initiated UI harmonization by replacing older UI elements with new reusable components from . Removed unused  and  imports in Dashboard.js.
+-   ** (New File)**:
+    -   **Importance**: Unified module for CSE management.
+    -   **Changes**: Newly created, in development for integrating CSE member management, delegation hours, and cession functionalities.
+-   ** (New File)**:
+    -   **Importance**: Centralized reusable UI components for consistent design.
+    -   **Changes**: Created components like , , , , , , , , . Resolved initial export issues (default vs. named exports).
+-   ** (New File)**:
+    -   **Importance**: Provides help/guidance to users.
+    -   **Changes**: Newly created simple component, integrated into the  routing.
+-   ****, ****, ****, ****, ****, ****, ****: New documentation files created to track problem analysis, implementation details, and testing guides for specific features/fixes.
 </code_architecture>
-
 <pending_tasks>
--   **UI Bug**: The user reported that the duplicate hamburger menu persists. (Originally from initial pending tasks, not fully resolved).
--   **UI Bug**: The Mes Demandes tab is present in  code but not visible to the user.
--   **CSE Unification**: Complete the unification of  and  into .
--   **CSE Cession Logic**: Implement the backend endpoint for hour cessions in the new CSE module.
--   **PWA Confirmation**: Verify full PWA functionality, specifically the service worker's correct operation and offline capabilities.
+-   **UI Bug**: Duplicate hamburger menu persists.
+-   **UI Bug**: Mes Demandes tab is present in  code but not visible to the user.
+-   **PWA Confirmation**: Verify full PWA functionality.
+-   **CSE Unification**: Complete the frontend integration and logic for .
+-   **Absence in Hours**: Finalize display in Planning, Export Paie, and Statistics modules.
+-   **Analytics & KPI**: Complete missing analyses and visualizations based on user-provided images.
+-   **UI Harmonization**: Finish applying the Mon Espace style to all remaining modules.
+-   **Data Persistence**: Implement a solution for imported data disappearing after restarts (beyond just hiding reset button and suggesting backup/restore).
+-   **Absence Counters**: Fully implement the logic for updating leave balances when absences are re-integrated or overridden.
+-   **Merge Analytics Modules**: Consolidate , , and .
 </pending_tasks>
-
 <current_work>
-Immediately before this summary request, the AI engineer was addressing a complex set of user requests regarding module redundancy and UI issues. The user confirmed the plan to merge  and  modules into a new, unified  component (Chat Message 443). Concurrently, the user reported that the Mes Demandes tab was not visible in their personal space (), despite the engineer's previous implementation (Chat Message 443).
+Immediately before this summary request, the AI engineer was addressing a critical data persistence issue. The user reported that imported employee, absence, and work hour data disappeared after the application restarted or forking. The engineer confirmed this by inspecting MongoDB collections, noting that  and  collections were empty, while  and  persisted.
 
-The engineer investigated  and found that the Mes Demandes tab logic was present in the code, suggesting a rendering or visibility issue rather than a missing feature (Chat Message 445-446). However, the immediate priority was shifted to the CSE module unification.
+The engineer previously identified that a  endpoint was deleting data and mitigated this by hiding the associated frontend button in a Danger Zone. However, the current problem indicates a deeper issue: imported data is either not being properly persisted in MongoDB (despite frontend sending to backend and backend appearing to save), or it's being deleted by another mechanism not yet identified.
 
-The very last actions involved creating the new  component (Chat Message 447) and preparing to create the corresponding backend endpoint for cessions (hour transfers) within this new module (Chat Message 448). This indicates the engineer is currently in the process of building out the new, unified CSE functionality, with the Mes Demandes tab visibility issue noted for subsequent investigation.
+The last action taken was to propose a solution involving creating an automatic backup system and a rapid restoration script, along with a seed endpoint to quickly reload data for debugging and development. The engineer was about to create this seed endpoint to address the disappearing data.
+keep all imported datas. Never delete them as they are important
 </current_work>
-
 <optional_next_step>
-Create the backend endpoint for cessions (hour transfers) within the new  module.
+Create a backend seed endpoint to quickly re-populate demo data.
 </optional_next_step>
