@@ -168,11 +168,11 @@ const ExcelImport = ({ user, onChangeView }) => {
       }
     },
     timedata: {
-      name: 'Données Heures Travaillées (4 colonnes)',
+      name: 'Données Heures Travaillées (5 colonnes)',
       icon: '⏰',
       color: 'from-orange-500 to-orange-600',
-      requiredFields: ['employee_name', 'date', 'heures_travaillees'],
-      optionalFields: ['notes'],
+      requiredFields: ['nom', 'prenom', 'date', 'heures_travaillees'],
+      optionalFields: ['motif'],
       validationRules: {
         date: 'date',
         heures_travaillees: 'number'
