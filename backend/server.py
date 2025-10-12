@@ -1692,7 +1692,7 @@ async def import_employees(
                     address=employee_data.get('adresse') or employee_data.get('address'),
                     position=employee_data.get('fonction'),
                     hire_date=employee_data.get('date_debut_contrat'),
-                    isDelegateCSE=False,  # Default, can be updated later
+                    isDelegateCSE=is_cse_delegate,  # Marqué si délégué CSE détecté
                     is_active=True,
                     requires_password_change=True,
                     first_login=True,
@@ -1718,7 +1718,52 @@ async def import_employees(
                 
                 # Store both employee and user records
                 await db.employees.insert_one(employee.dict())
-                await db.users.insert_one(user_account.dict())
+                user_dict = user_account.dict()
+                await db.users.insert_one(user_dict)
+                
+                # Si c'est un délégué CSE, créer automatiquement son profil de délégué
+                if is_cse_delegate:
+                    try:
+                        # Déterminer le collège selon la catégorie
+                        college = "employes"  # Default
+                        categorie = employee_data.get('categorie_employe', '').lower()
+                        if 'cadre' in categorie:
+                            college = "cadres"
+                        elif 'ouvrier' in categorie or 'agent' in categorie:
+                            college = "ouvriers"
+                        
+                        # Créer le délégué CSE avec 24h par défaut
+                        delegate = CSEDelegate(
+                            user_id=user_dict["id"],
+                            user_name=f"{prenom} {nom}",
+                            email=email,
+                            statut=cse_status,
+                            heures_mensuelles=24,  # Défaut pour +250 salariés
+                            college=college,
+                            date_debut=employee_data.get('date_debut_contrat') or datetime.utcnow().strftime("%Y-%m-%d"),
+                            date_fin=None,
+                            actif=True,
+                            created_by=current_user.name
+                        )
+                        
+                        # Préparer pour MongoDB
+                        delegate_dict = delegate.dict()
+                        if isinstance(delegate_dict.get('created_at'), datetime):
+                            delegate_dict['created_at'] = delegate_dict['created_at'].isoformat()
+                        
+                        await db.cse_delegates.insert_one(delegate_dict)
+                        
+                        logger.info(f"✅ Délégué CSE créé: {prenom} {nom} ({cse_status}, {college})")
+                        
+                        if email_cse:
+                            logger.info(f"📧 Email CSE: {email_cse}")
+                    
+                    except Exception as e:
+                        logger.error(f"⚠️ Erreur création délégué CSE pour {prenom} {nom}: {str(e)}")
+                        warnings.append({
+                            "row": i + 1,
+                            "warning": f"Employé créé mais erreur création délégué CSE: {str(e)}"
+                        })
                 
                 # Track created user info for admin
                 created_users.append({
