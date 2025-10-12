@@ -2061,7 +2061,8 @@ async def import_employees(
                     first_login=True,
                     last_login=None,
                     temp_password_expires=temp_expires,
-                    temp_password_plain=temp_password,  # Sauvegarder le mot de passe temporaire en clair
+                    temp_password_plain=temp_password,  # Mot de passe temporaire actuel
+                    initial_password=temp_password,  # Mot de passe initial PERMANENT
                     has_temp_email=has_temp_email,  # Indique si email généré auto
                     # Champs additionnels depuis employee
                     date_naissance=employee_data.get('date_naissance'),
