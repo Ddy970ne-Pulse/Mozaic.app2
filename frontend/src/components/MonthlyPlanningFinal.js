@@ -24,8 +24,47 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
 
   // Liste complète des 21 motifs d'absence selon l'image
   const absenceColorMap = {
-    'AT': { name: 'Accident du travail / Trajet', color: 'bg-red-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
-    'AM': { name: 'Arrêt maladie', color: 'bg-red-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
+    // Niveau 1 : PRIORITÉ ABSOLUE - Absences médicales (interrompent tout)
+    'AT': { name: 'Accident du travail / Trajet', color: 'bg-red-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 1 },
+    'MPRO': { name: 'Maladie Professionnelle', color: 'bg-red-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 2 },
+    'AM': { name: 'Arrêt maladie', color: 'bg-red-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 3 },
+    'EMAL': { name: 'Enfants malades', color: 'bg-pink-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 4 },
+    
+    // Niveau 2 : PRIORITÉ TRÈS HAUTE - Congés familiaux légaux
+    'MAT': { name: 'Congé maternité', color: 'bg-pink-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 5 },
+    'PAT': { name: 'Congé paternité', color: 'bg-blue-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 6 },
+    'FAM': { name: 'Evènement familiale', color: 'bg-purple-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 7 },
+    
+    // Niveau 3 : PRIORITÉ HAUTE - Absences planifiées
+    'STG': { name: 'Stage', color: 'bg-teal-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 8 },
+    'FO': { name: 'Congé formation', color: 'bg-indigo-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 9 },
+    
+    // Niveau 4 : PRIORITÉ MOYENNE-HAUTE - Congés payés
+    'CA': { name: 'Congés annuels', color: 'bg-blue-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 10 },
+    'CP': { name: 'Congés Payés', color: 'bg-blue-300', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 11 },
+    'CT': { name: 'Congés Trimestriels', color: 'bg-green-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true, priority: 12 },
+    'CEX': { name: 'Congé exceptionnel', color: 'bg-violet-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 13 },
+    
+    // Niveau 5 : PRIORITÉ MOYENNE - Récupérations et RTT
+    'RTT': { name: 'RTT', color: 'bg-green-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true, priority: 14 },
+    'REC': { name: 'Récupération', color: 'bg-yellow-400', textColor: 'text-black', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 15 },
+    
+    // Niveau 6 : PRIORITÉ MOYENNE-BASSE - Télétravail et délégation
+    'TEL': { name: 'Télétravail', color: 'bg-yellow-300', textColor: 'text-black', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 16 },
+    'DEL': { name: 'Délégation', color: 'bg-orange-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 17 },
+    
+    // Niveau 7 : PRIORITÉ BASSE - Repos
+    'RH': { name: 'Repos Hebdomadaire', color: 'bg-cyan-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: false, priority: 18 },
+    'RHD': { name: 'Repos Dominical', color: 'bg-cyan-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 19 },
+    
+    // Niveau 8 : PRIORITÉ MINIMALE - Absences non justifiées
+    'NAUT': { name: 'Absence non autorisée', color: 'bg-gray-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 20 },
+    'AUT': { name: 'Absence autorisée', color: 'bg-gray-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 21 },
+    'CSS': { name: 'Congés Sans Solde', color: 'bg-gray-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 22 },
+    
+    // Niveau 9 : CAS SPÉCIAUX
+    'RMED': { name: 'Rendez-vous médical', color: 'bg-emerald-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true, priority: 23 },
+    'AST': { name: 'Astreinte', color: 'bg-orange-600', textColor: 'text-white', type: 'Astreinte cadres', decompte: 'Temps travaillé', skipWeekends: false, skipHolidays: false, priority: 24 },
     'NAUT': { name: 'Absence non autorisée', color: 'bg-gray-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
     'AUT': { name: 'Absence autorisée', color: 'bg-gray-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
     'FAM': { name: 'Evènement familiale', color: 'bg-purple-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
