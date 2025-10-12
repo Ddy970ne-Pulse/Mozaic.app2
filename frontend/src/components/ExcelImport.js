@@ -270,7 +270,7 @@ const ExcelImport = ({ user, onChangeView }) => {
       }
     };
     reader.readAsArrayBuffer(uploadedFile);
-  }, []);
+  }, [dataType]); // Dépendance sur dataType pour filtrage adaptatif
 
   // Configuration du mapping des colonnes
   const handleColumnMapping = (excelColumn, modelField) => {
