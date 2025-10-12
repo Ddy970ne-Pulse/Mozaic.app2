@@ -19,19 +19,28 @@
 
 ### 1. Boutons Header - Ajout des Handlers onClick
 
-#### Bouton Notification (Lignes 157-164)
+#### Bouton Notification (Lignes 157-220) - SYSTÈME COMPLET
 ```javascript
 <button 
-  onClick={() => {
-    // TODO: Implémenter le système de notifications
-    alert('Système de notifications - À venir prochainement');
-  }}
+  onClick={() => setShowNotifications(!showNotifications)}
   className="p-2 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500..."
   title="Notifications"
 >
+  <svg>...</svg>
+  {/* Badge de compteur de notifications */}
+  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+    3
+  </span>
+</button>
 ```
-- ✅ Ajout d'un onClick avec alert temporaire
-- ✅ Informe l'utilisateur que la fonctionnalité est en développement
+- ✅ Ajout d'un vrai système de notifications avec panneau dropdown
+- ✅ Badge rouge avec compteur de notifications (3 notifications)
+- ✅ Panneau de 320px avec liste de notifications mockées
+- ✅ Fermeture automatique au clic extérieur
+- ✅ Bouton "Fermer" dans le footer
+- ✅ 3 types de notifications : Demande d'absence (📝), Planning (📅), Astreinte (🔔)
+- ✅ Hover effects sur chaque notification
+- ✅ Header gradient jaune/orange cohérent avec le bouton
 
 #### Bouton Paramètres (Lignes 166-174)
 ```javascript
