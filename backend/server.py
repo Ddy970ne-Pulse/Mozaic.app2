@@ -1676,11 +1676,15 @@ async def import_employees(
                 temp_expires = datetime.utcnow().replace(tzinfo=timezone.utc) + timedelta(days=7)
                 
                 # Create user account automatically with ALL employee data
+                departement_value = employee_data.get('departement')
+                if not departement_value or not departement_value.strip():
+                    departement_value = 'Non renseigné'
+                
                 user_account = UserInDB(
                     name=f"{prenom} {nom}",
                     email=email,
                     role="employee",  # Default role
-                    department=employee_data.get('departement', 'Non spécifié'),
+                    department=departement_value,
                     phone=employee_data.get('telephone') or employee_data.get('phone'),
                     address=employee_data.get('adresse') or employee_data.get('address'),
                     position=employee_data.get('fonction'),
