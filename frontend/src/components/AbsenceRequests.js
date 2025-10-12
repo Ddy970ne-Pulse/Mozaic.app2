@@ -446,6 +446,12 @@ const AbsenceRequests = ({ user }) => {
                       <option value="STG">STG - Stage</option>
                     </optgroup>
                     
+                    <optgroup label="⏰ Heures (peut être en heures)">
+                      <option value="HS">HS - Heures supplémentaires</option>
+                      <option value="DEL">DEL - Heures de délégation</option>
+                      <option value="REC">REC - Récupération (heures)</option>
+                    </optgroup>
+                    
                     <optgroup label="⚠️ Autres absences">
                       <option value="NAUT">NAUT - Absence non autorisée</option>
                       <option value="AUT">AUT - Absence autorisée</option>
