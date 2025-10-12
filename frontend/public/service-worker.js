@@ -77,13 +77,17 @@ self.addEventListener('fetch', (event) => {
             return response;
           }
 
-          // Cloner la réponse
-          const responseToCache = response.clone();
+          // ✅ Ne mettre en cache que les requêtes GET
+          // Les requêtes POST/PUT/DELETE ne peuvent pas être cachées
+          if (request.method === 'GET') {
+            // Cloner la réponse
+            const responseToCache = response.clone();
 
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(request, responseToCache);
-            });
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(request, responseToCache);
+              });
+          }
 
           return response;
         });
