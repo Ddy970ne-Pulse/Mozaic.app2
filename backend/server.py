@@ -172,13 +172,29 @@ def generate_internal_email(prenom: str, nom: str) -> str:
     
     return email
 
-def generate_temp_password(length: int = 12) -> str:
-    """Generate a secure temporary password"""
-    # Mélange de lettres majuscules, minuscules et chiffres pour lisibilité
-    alphabet = string.ascii_uppercase + string.ascii_lowercase + string.digits
-    # Éviter les caractères ambigus
-    alphabet = alphabet.replace('0', '').replace('O', '').replace('1', '').replace('l', '').replace('I', '')
-    return ''.join(secrets.choice(alphabet) for _ in range(length))
+def generate_temp_password(format_type: str = "strong") -> str:
+    """
+    Generate a secure temporary password
+    Format: XXXX-XXXX-XXXX-XXXX (16 caractères + 3 tirets)
+    Mélange de lettres majuscules, minuscules, chiffres et caractères spéciaux
+    """
+    # Caractères autorisés (sans ambiguïtés)
+    uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ'  # Sans I, O
+    lowercase = 'abcdefghijkmnpqrstuvwxyz'  # Sans l, o
+    digits = '23456789'  # Sans 0, 1
+    special = '!@#$%&*+-='  # Caractères spéciaux sûrs
+    
+    # Pool de tous les caractères
+    all_chars = uppercase + lowercase + digits + special
+    
+    # Générer 4 groupes de 4 caractères
+    groups = []
+    for _ in range(4):
+        group = ''.join(secrets.choice(all_chars) for _ in range(4))
+        groups.append(group)
+    
+    # Joindre avec des tirets
+    return '-'.join(groups)
 
 def is_temp_password_expired(expires_at: Optional[datetime]) -> bool:
     """Check if temporary password has expired"""
