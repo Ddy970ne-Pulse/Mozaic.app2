@@ -433,20 +433,37 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                     );
                   })}
                   
-                  {/* Raccourcis supplémentaires - Harmonisés avec les autres tuiles (sans agrandissement) */}
+                  {/* Raccourcis supplémentaires - Complètement harmonisés avec les autres tuiles */}
                   <button
                     onClick={() => {
                       setCurrentView('settings');
                       setShowMenu(false);
                     }}
-                    className={`group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl ${isMobile ? 'p-2' : 'p-4'} text-center transition-all duration-200 shadow-sm transform-gpu`}
+                    className={`group relative backdrop-blur-sm rounded-xl ${isMobile ? 'p-2' : 'p-4'} text-center transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:-translate-y-2 border transform-gpu ${
+                      currentView === 'settings'
+                        ? 'bg-white/25 border-white/50 shadow-xl scale-105'
+                        : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/40 shadow-sm'
+                    }`}
                   >
-                    <div className={`mx-auto ${isMobile ? 'mb-1 w-10 h-10 text-xl' : 'mb-3 w-12 h-12 text-2xl'} rounded-xl flex items-center justify-center bg-gradient-to-br from-gray-500 to-gray-600 shadow-lg backdrop-blur-sm transition-all duration-200`}>
+                    <div className={`mx-auto ${isMobile ? 'mb-1 w-10 h-10 text-xl' : 'mb-3 w-12 h-12 text-2xl'} rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-gray-500 to-gray-600 shadow-lg ${
+                      currentView === 'settings'
+                        ? 'transform scale-110 shadow-xl'
+                        : 'group-hover:scale-110 group-hover:shadow-xl'
+                    }`}>
                       <span className="text-white">⚙️</span>
                     </div>
-                    <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-sm'} text-white/90 group-hover:text-white transition-colors duration-200`}>
+                    <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-sm'} transition-colors duration-200 ${
+                      currentView === 'settings'
+                        ? 'text-white'
+                        : 'text-white/90 group-hover:text-white'
+                    }`}>
                       Paramètres
                     </h3>
+                    {currentView === 'settings' && (
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-orange-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                    )}
                   </button>
 
                   <button
@@ -454,14 +471,31 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                       setCurrentView('help');
                       setShowMenu(false);
                     }}
-                    className={`group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 rounded-xl ${isMobile ? 'p-2' : 'p-4'} text-center transition-all duration-200 shadow-sm transform-gpu`}
+                    className={`group relative backdrop-blur-sm rounded-xl ${isMobile ? 'p-2' : 'p-4'} text-center transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:-translate-y-2 border transform-gpu ${
+                      currentView === 'help'
+                        ? 'bg-white/25 border-white/50 shadow-xl scale-105'
+                        : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/40 shadow-sm'
+                    }`}
                   >
-                    <div className={`mx-auto ${isMobile ? 'mb-1 w-10 h-10 text-xl' : 'mb-3 w-12 h-12 text-2xl'} rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg backdrop-blur-sm transition-all duration-200`}>
+                    <div className={`mx-auto ${isMobile ? 'mb-1 w-10 h-10 text-xl' : 'mb-3 w-12 h-12 text-2xl'} rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-300 bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg ${
+                      currentView === 'help'
+                        ? 'transform scale-110 shadow-xl'
+                        : 'group-hover:scale-110 group-hover:shadow-xl'
+                    }`}>
                       <span className="text-white">❓</span>
                     </div>
-                    <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-sm'} text-white/90 group-hover:text-white transition-colors duration-200`}>
+                    <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-sm'} transition-colors duration-200 ${
+                      currentView === 'help'
+                        ? 'text-white'
+                        : 'text-white/90 group-hover:text-white'
+                    }`}>
                       Aide
                     </h3>
+                    {currentView === 'help' && (
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-orange-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                    )}
                   </button>
                 </div>
               </div>
