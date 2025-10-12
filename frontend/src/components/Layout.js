@@ -380,7 +380,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                           setCurrentView(item.id);
                           setShowMenu(false);
                         }}
-                        className={`menu-item group relative backdrop-blur-sm rounded-xl p-4 text-center transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:-translate-y-2 border transform-gpu ${
+                        className={`menu-item group relative backdrop-blur-sm rounded-xl ${isMobile ? 'p-2' : 'p-4'} text-center transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:-translate-y-2 border transform-gpu ${
                           currentView === item.id
                             ? 'bg-white/25 border-white/50 shadow-xl scale-105'
                             : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/40 shadow-sm'
