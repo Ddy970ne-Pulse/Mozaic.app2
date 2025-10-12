@@ -113,7 +113,7 @@ Lorsque l'utilisateur survole une tuile :
 5. ✅ **La tuile elle-même ne s'agrandit PAS** - Conforme aux attentes
 
 ### Boutons Header
-- ✅ **Notification** : Affiche un message d'info (fonctionnalité à venir)
+- ✅ **Notification** : Ouvre un panneau de notifications avec badge compteur (3) et liste déroulante
 - ✅ **Paramètres** : Navigate vers la page Paramètres
 - ✅ **Déconnexion** : Fonctionne (déjà opérationnel)
 
