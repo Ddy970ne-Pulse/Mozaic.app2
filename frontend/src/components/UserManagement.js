@@ -1765,6 +1765,51 @@ const UserManagement = ({ user }) => {
       )}
 
       {/* Modal confirmation suppression utilisateurs de test */}
+      {/* Modal de confirmation de suppression utilisateur individuel */}
+      {userToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-red-600 mb-4">⚠️ Confirmation de suppression</h2>
+              
+              <p className="text-gray-700 mb-4">
+                Êtes-vous sûr de vouloir désactiver cet utilisateur ?
+              </p>
+
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-600 font-medium mb-2">Utilisateur :</p>
+                <p className="text-base font-semibold text-gray-800">{userToDelete.name}</p>
+                <p className="text-sm text-gray-600">{userToDelete.email}</p>
+                <p className="text-sm text-gray-500">{userToDelete.department}</p>
+              </div>
+
+              <p className="text-sm text-orange-600 font-medium mb-6">
+                ℹ️ L'utilisateur sera désactivé (soft delete), ses données seront conservées.
+              </p>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setUserToDelete(null);
+                  }}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmDeleteUser}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 disabled:opacity-50"
+                >
+                  {isLoading ? 'Suppression...' : '🗑️ Désactiver'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmation de suppression en masse des utilisateurs de test */}
       {showDeleteConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full">
