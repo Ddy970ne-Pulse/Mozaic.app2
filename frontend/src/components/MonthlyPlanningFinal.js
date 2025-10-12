@@ -641,7 +641,7 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
 
   const isHoliday = (day, month = selectedMonth, year = selectedYear) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return holidays2025.includes(dateStr);
+    return holidays.includes(dateStr);
   };
 
   const getHolidayName = (day) => {
