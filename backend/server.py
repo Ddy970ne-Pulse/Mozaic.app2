@@ -1660,7 +1660,7 @@ async def import_employees(
                     categorie_employe=employee_data.get('categorie_employe'),
                     metier=employee_data.get('metier'),
                     fonction=employee_data.get('fonction'),
-                    departement=employee_data.get('departement', ''),
+                    departement=employee_data.get('departement') or None,  # Peut être vide
                     site=employee_data.get('site'),
                     temps_travail=employee_data.get('temps_travail'),
                     contrat=employee_data.get('contrat'),
