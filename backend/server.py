@@ -1022,6 +1022,200 @@ async def reset_user_password(user_id: str, password_data: PasswordReset, curren
         "note": "Password has been reset to the user's initial password"
     }
 
+@api_router.get("/users/{user_id}/credential-card")
+async def get_user_credential_card(user_id: str, current_user: User = Depends(get_current_user)):
+    """Generate a printable credential card for a user (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Récupérer l'utilisateur
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    initial_password = user.get("initial_password")
+    if not initial_password:
+        raise HTTPException(status_code=400, detail="No initial password found for this user")
+    
+    # Retourner les informations pour impression
+    return {
+        "success": True,
+        "user": {
+            "name": user.get("name"),
+            "email": user.get("email"),
+            "initial_password": initial_password,
+            "department": user.get("department"),
+            "position": user.get("position"),
+            "created_at": user.get("created_at")
+        },
+        "html_template": f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Carte d'Identification - {user.get('name')}</title>
+            <style>
+                @media print {{
+                    body {{ margin: 0; }}
+                    .no-print {{ display: none; }}
+                }}
+                body {{
+                    font-family: 'Arial', sans-serif;
+                    padding: 20px;
+                    background: #f5f5f5;
+                }}
+                .credential-card {{
+                    width: 400px;
+                    margin: 20px auto;
+                    background: white;
+                    border: 2px solid #2563eb;
+                    border-radius: 12px;
+                    padding: 30px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                }}
+                .header {{
+                    text-align: center;
+                    border-bottom: 2px solid #2563eb;
+                    padding-bottom: 15px;
+                    margin-bottom: 20px;
+                }}
+                .header h1 {{
+                    color: #2563eb;
+                    margin: 0;
+                    font-size: 24px;
+                }}
+                .header p {{
+                    color: #666;
+                    margin: 5px 0;
+                }}
+                .info-row {{
+                    margin: 15px 0;
+                    padding: 10px;
+                    background: #f8f9fa;
+                    border-radius: 6px;
+                }}
+                .info-label {{
+                    font-weight: bold;
+                    color: #333;
+                    display: block;
+                    margin-bottom: 5px;
+                }}
+                .info-value {{
+                    color: #2563eb;
+                    font-size: 18px;
+                    font-family: 'Courier New', monospace;
+                }}
+                .password-box {{
+                    background: #fef3c7;
+                    border: 2px dashed #f59e0b;
+                    padding: 15px;
+                    border-radius: 8px;
+                    text-align: center;
+                    margin: 20px 0;
+                }}
+                .password-box .password {{
+                    font-size: 20px;
+                    font-weight: bold;
+                    color: #92400e;
+                    font-family: 'Courier New', monospace;
+                    letter-spacing: 2px;
+                }}
+                .instructions {{
+                    background: #dbeafe;
+                    padding: 15px;
+                    border-radius: 6px;
+                    margin-top: 20px;
+                }}
+                .instructions h3 {{
+                    color: #1e40af;
+                    margin-top: 0;
+                }}
+                .instructions ul {{
+                    margin: 10px 0;
+                    padding-left: 20px;
+                }}
+                .instructions li {{
+                    margin: 5px 0;
+                    color: #1e3a8a;
+                }}
+                .footer {{
+                    text-align: center;
+                    margin-top: 20px;
+                    padding-top: 15px;
+                    border-top: 1px solid #e5e7eb;
+                    color: #6b7280;
+                    font-size: 12px;
+                }}
+                .no-print {{
+                    text-align: center;
+                    margin-top: 20px;
+                }}
+                .print-btn {{
+                    background: #2563eb;
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 16px;
+                }}
+                .print-btn:hover {{
+                    background: #1d4ed8;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="credential-card">
+                <div class="header">
+                    <h1>🔐 MOZAIK RH</h1>
+                    <p>Carte d'Identification Employé</p>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Nom complet :</span>
+                    <span class="info-value">{user.get('name')}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Adresse email :</span>
+                    <span class="info-value">{user.get('email')}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Département :</span>
+                    <span class="info-value">{user.get('department', 'N/A')}</span>
+                </div>
+                
+                <div class="password-box">
+                    <div class="info-label">⚠️ Mot de Passe Initial</div>
+                    <div class="password">{initial_password}</div>
+                    <small style="color: #92400e;">À conserver en lieu sûr</small>
+                </div>
+                
+                <div class="instructions">
+                    <h3>📋 Instructions de Première Connexion</h3>
+                    <ul>
+                        <li>Connectez-vous sur MOZAIK RH</li>
+                        <li>Utilisez votre email et le mot de passe ci-dessus</li>
+                        <li>Vous devrez changer votre mot de passe</li>
+                        <li>Conservez cette carte pour réinitialisation future</li>
+                    </ul>
+                </div>
+                
+                <div class="footer">
+                    Document confidentiel - Ne pas partager<br>
+                    En cas d'oubli, contactez l'administrateur pour réinitialisation
+                </div>
+            </div>
+            
+            <div class="no-print">
+                <button class="print-btn" onclick="window.print()">🖨️ Imprimer cette carte</button>
+            </div>
+        </body>
+        </html>
+        """
+    }
+
 @api_router.get("/users/temporary-passwords")
 async def get_temporary_passwords(current_user: User = Depends(get_current_user)):
     """Get all users with temporary passwords (admin only)"""
