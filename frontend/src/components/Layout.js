@@ -9,6 +9,7 @@ import SettingsPage from './SettingsPage';
 import Analytics from './AnalyticsNew';
 import AbsenceAnalytics from './AbsenceAnalytics';
 import StandardReports from './StandardReports';
+import AnalyticsHub from './AnalyticsHub';
 import OvertimeModule from './OvertimeModule';
 import UserManagement from './UserManagement';
 import OnCallManagement from './OnCallManagement';
