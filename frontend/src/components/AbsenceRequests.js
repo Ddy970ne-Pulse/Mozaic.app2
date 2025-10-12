@@ -120,6 +120,53 @@ const AbsenceRequests = ({ user }) => {
     }
   };
 
+  // Fonction pour ouvrir le modal d'édition
+  const handleEditRequest = (request) => {
+    setEditingRequest({
+      id: request.id,
+      date_debut: request.startDate,
+      date_fin: request.endDate,
+      jours_absence: parseInt(request.duration) || 0,
+      motif_absence: request.type,
+      notes: request.reason || '',
+      status: request.status
+    });
+    setShowEditModal(true);
+  };
+
+  // Fonction pour sauvegarder les modifications
+  const handleSaveEdit = async () => {
+    if (!editingRequest) return;
+
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${backendUrl}/api/absences/${editingRequest.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editingRequest)
+      });
+
+      if (response.ok) {
+        alert('✅ Absence modifiée avec succès');
+        setShowEditModal(false);
+        setEditingRequest(null);
+        // Recharger les données
+        window.location.reload();
+      } else {
+        const error = await response.json();
+        alert(`❌ Erreur: ${error.detail || 'Impossible de modifier l\'absence'}`);
+      }
+    } catch (error) {
+      console.error('Error updating absence:', error);
+      alert('❌ Erreur de connexion au serveur');
+    }
+  };
+
   const handleSubmitRequest = (e) => {
     e.preventDefault();
     
