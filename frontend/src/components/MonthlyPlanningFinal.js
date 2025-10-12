@@ -1488,9 +1488,12 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header avec sélecteurs */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4 lg:mb-0">📅 Planning Mensuel</h1>
+      {/* Header avec sélecteurs - Style Harmonisé */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white shadow-lg mb-6">
+        <h1 className="text-3xl font-bold mb-4 flex items-center gap-3">
+          <span>📅</span>
+          <span>Planning Mensuel</span>
+        </h1>
         
         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           {/* Toggle période personnalisée */}
