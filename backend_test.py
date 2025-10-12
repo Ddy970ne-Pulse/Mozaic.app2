@@ -161,7 +161,7 @@ class BackendTester:
                     self.log_result("authentication", False, f"Sophie Martin login also failed: {auth_response.status_code}")
                 
             # Test other accounts
-            for account in test_accounts[1:]:
+            for account in test_accounts[2:]:
                 try:
                     auth_response = requests.post(
                         f"{API_URL}{auth_endpoint}", 
