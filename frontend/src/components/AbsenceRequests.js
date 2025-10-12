@@ -256,26 +256,6 @@ const AbsenceRequests = ({ user }) => {
                       <h3 className="text-lg font-semibold text-gray-800">{request.employee}</h3>
                       <p className="text-sm text-gray-600">{request.department}</p>
                     </div>
-                    activeTab === tab.id ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'
-                  }`}>
-                    {tab.count}
-                  </span>
-                </div>
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Requests List */}
-        <div className="p-6">
-          <div className="space-y-4">
-            {requests[activeTab].map((request) => (
-              <div key={request.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      {request.avatar}
-                    </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800">{request.employee}</h3>
                       <p className="text-sm text-gray-600">{request.department}</p>
