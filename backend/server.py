@@ -369,7 +369,7 @@ class ImportEmployee(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     nom: str
     prenom: str
-    email: str
+    email: Optional[str] = None  # Maintenant optionnel - généré auto si absent
     date_naissance: Optional[str] = None
     sexe: Optional[str] = None
     categorie_employe: Optional[str] = None  # Ex: Cadre, Technicien, Ouvrier qualifié, Agent administratif
@@ -383,6 +383,7 @@ class ImportEmployee(BaseModel):
     date_fin_contrat: Optional[str] = None
     notes: Optional[str] = None
     membre_cse: Optional[str] = None  # Colonne 16: "titulaire", "suppléant" ou vide
+    has_temp_email: bool = False  # Indique si l'email a été généré automatiquement
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
 
