@@ -2132,7 +2132,35 @@ async def get_import_statistics(current_user: User = Depends(require_admin_acces
             "total_records": employees_count + absences_count + work_hours_count
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error getting statistics: {str(e)}")
+        logger.error(f"Error getting statistics: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/import/work-hours/list")
+async def list_work_hours(current_user: User = Depends(require_admin_access)):
+    """List all imported work hours"""
+    try:
+        work_hours = await db.work_hours.find({}).to_list(length=None)
+        return work_hours
+    except Exception as e:
+        logger.error(f"Error listing work hours: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/import/work-hours/{employee_id}")
+async def delete_employee_work_hours(
+    employee_id: str,
+    current_user: User = Depends(require_admin_access)
+):
+    """Delete all work hours for a specific employee"""
+    try:
+        result = await db.work_hours.delete_many({"employee_id": employee_id})
+        return {
+            "success": True,
+            "deleted_count": result.deleted_count,
+            "employee_id": employee_id
+        }
+    except Exception as e:
+        logger.error(f"Error deleting work hours: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Event Management endpoints
 @api_router.get("/events", response_model=List[Event])
