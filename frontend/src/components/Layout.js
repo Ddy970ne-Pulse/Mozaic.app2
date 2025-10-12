@@ -7,6 +7,7 @@ import AbsenceRequests from './AbsenceRequests';
 import EmployeeSpace from './EmployeeSpace';
 import SettingsPage from './SettingsPage';
 import Analytics from './Analytics';
+import AbsenceAnalytics from './AbsenceAnalytics';
 import OvertimeModule from './OvertimeModule';
 import DelegationHours from './DelegationHours';
 import UserManagement from './UserManagement';
