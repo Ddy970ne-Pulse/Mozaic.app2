@@ -167,6 +167,14 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         const requestsData = getRequests();
         const approvedRequests = Array.isArray(requestsData) ? requestsData.filter(r => r.status === 'approved') : [];
         console.log(`✅ Loaded ${approvedRequests.length} approved requests`);
+        if (approvedRequests.length > 0) {
+          console.log('📋 Sample requests:', approvedRequests.slice(0, 3).map(r => ({
+            employee: r.employee,
+            startDate: r.startDate,
+            endDate: r.endDate,
+            type: r.type
+          })));
+        }
         
         // FUSION: Appliquer toutes les absences en une seule fois
         applyAllAbsencesToPlanning(importedAbsences, approvedRequests);
