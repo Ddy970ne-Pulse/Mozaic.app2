@@ -3200,6 +3200,88 @@ async def delete_absence(absence_id: str, current_user: User = Depends(get_curre
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting absence: {str(e)}")
 
+@api_router.put("/absences/{absence_id}")
+async def update_absence(
+    absence_id: str,
+    absence_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update an existing absence
+    Admin can update any absence, employees can update only their own pending absences
+    """
+    # Récupérer l'absence existante
+    existing_absence = await db.absences.find_one({"id": absence_id})
+    if not existing_absence:
+        raise HTTPException(status_code=404, detail="Absence not found")
+    
+    # Vérifier les permissions
+    if current_user.role != "admin":
+        # Les employés peuvent modifier seulement leurs propres absences en attente
+        if existing_absence.get("employee_id") != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized to update this absence")
+        if existing_absence.get("status") != "pending":
+            raise HTTPException(status_code=403, detail="Cannot update validated absences")
+    
+    # Préparer les données de mise à jour
+    update_fields = {}
+    allowed_fields = ['date_debut', 'date_fin', 'jours_absence', 'motif_absence', 
+                      'notes', 'absence_unit', 'hours_amount', 'counting_method']
+    
+    for field in allowed_fields:
+        if field in absence_data:
+            update_fields[field] = absence_data[field]
+    
+    # Ajouter updated_at
+    update_fields['updated_at'] = datetime.utcnow().isoformat()
+    
+    # Si admin, permettre de changer le statut
+    if current_user.role == "admin" and 'status' in absence_data:
+        update_fields['status'] = absence_data['status']
+    
+    # Mettre à jour
+    result = await db.absences.update_one(
+        {"id": absence_id},
+        {"$set": update_fields}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="No changes made")
+    
+    # Récupérer l'absence mise à jour
+    updated_absence = await db.absences.find_one({"id": absence_id})
+    if "_id" in updated_absence:
+        del updated_absence["_id"]
+    
+    return {
+        "success": True,
+        "message": "Absence updated successfully",
+        "absence": updated_absence
+    }
+
+@api_router.delete("/absences/{absence_id}")
+async def delete_absence(
+    absence_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Delete an absence
+    Admin can delete any absence
+    """
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Supprimer l'absence
+    result = await db.absences.delete_one({"id": absence_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Absence not found")
+    
+    return {
+        "success": True,
+        "message": "Absence deleted successfully"
+    }
+
 @api_router.get("/absences/by-period/{year}/{month}", response_model=List[dict])
 async def get_absences_by_period(
     year: int, 
