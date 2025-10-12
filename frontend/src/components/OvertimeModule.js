@@ -133,21 +133,7 @@ const OvertimeModule = ({ user }) => {
             </select>
           </div>
           
-          {!isTestMode && (
-            <button
-              onClick={() => {
-                setIsTestMode(true);
-                setFilterPeriod('current-month');
-                alert('🧪 Données de test Octobre 2025 chargées !\n\n📊 Vous pouvez maintenant voir les heures supplémentaires et récupérations de tous les employés pour octobre 2025.');
-              }}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
-            >
-              🧪 Test Oct 2025
-            </button>
-          )}
-          
-          {isTestMode && (
-            <div className="flex items-center space-x-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-lg text-sm">
+          {/* Test October 2025 button removed - production mode only */}
               <span>🧪</span>
               <span>Mode Test Actif</span>
               <button
