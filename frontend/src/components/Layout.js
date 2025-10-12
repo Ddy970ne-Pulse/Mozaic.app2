@@ -364,7 +364,6 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                         'absence-analytics': 'from-purple-600 to-pink-600',
                         'analytics': 'from-yellow-500 to-orange-500',
                         'overtime': 'from-indigo-500 to-indigo-600',
-                        'delegation-hours': 'from-pink-500 to-pink-600',
                         'hr-toolbox': 'from-teal-500 to-teal-600',
                         'excel-import': 'from-emerald-500 to-green-600',
                         'cse-management': 'from-indigo-600 to-purple-600',
