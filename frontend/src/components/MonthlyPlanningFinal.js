@@ -1661,15 +1661,6 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         </button>
 
         {/* Test October 2025 button removed - production mode only */}
-                setIsTestMode(false);
-                window.location.reload();
-              }}
-              className="ml-2 text-purple-600 hover:text-purple-800 underline"
-            >
-              Désactiver
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Info intégration */}
