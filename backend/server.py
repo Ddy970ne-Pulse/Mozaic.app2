@@ -1022,6 +1022,51 @@ async def reset_user_password(user_id: str, password_data: PasswordReset, curren
         "note": "Password has been reset to the user's initial password"
     }
 
+@api_router.post("/users/{user_id}/send-credentials")
+async def send_user_credentials_email(user_id: str, current_user: User = Depends(get_current_user)):
+    """Send credential email to a specific user (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Récupérer l'utilisateur
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Vérifier qu'il y a un mot de passe initial
+    initial_password = user.get("initial_password")
+    if not initial_password:
+        raise HTTPException(status_code=400, detail="No initial password found for this user")
+    
+    # Importer le service email
+    from email_service import send_credential_email
+    
+    # Envoyer l'email
+    success = send_credential_email(
+        recipient_email=user.get("email"),
+        recipient_name=user.get("name"),
+        password=initial_password,
+        department=user.get("department")
+    )
+    
+    if success:
+        return {
+            "success": True,
+            "message": f"Email envoyé avec succès à {user.get('email')}",
+            "recipient": user.get("email")
+        }
+    else:
+        # Si adresse interne
+        if "@internal.aaea-gpe.fr" in user.get("email"):
+            return {
+                "success": False,
+                "message": "Email non envoyé : adresse interne auto-générée",
+                "reason": "internal_email",
+                "recipient": user.get("email")
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send email")
+
 @api_router.get("/users/{user_id}/credential-card")
 async def get_user_credential_card(user_id: str, current_user: User = Depends(get_current_user)):
     """Generate a printable credential card for a user (admin only)"""
