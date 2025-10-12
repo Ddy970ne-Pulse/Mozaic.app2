@@ -4,6 +4,9 @@ const AnalyticsNew = ({ user }) => {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState('all');
+  const [periodType, setPeriodType] = useState('monthly'); // monthly, quarterly, custom, ytd
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
   
   // États pour les données réelles
   const [loading, setLoading] = useState(true);
