@@ -409,6 +409,46 @@ backend:
 
         comment: "User reported that tile hover effect still incorrect - tiles were enlarging too much on hover despite previous fix attempts."
       - working: true
+
+  - task: "UI Hover Effect Final Fix - Paramètres & Aide Tiles"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/Layout.js"
+    stuck_count: 2
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported with screenshot that Paramètres and Aide tiles still have hover effect on entire tile instead of just the icon."
+      - working: true
+        agent: "main"
+        comment: "FINAL HOVER FIX IMPLEMENTED: Completely removed all tile movement and enlargement effects. CHANGES: 1) Removed hover:scale-110 from main tile button, 2) Removed hover:-translate-y-2 (lift effect), 3) Removed hover:shadow-2xl (shadow effect), 4) Removed transform-gpu, 5) Reduced transition duration 300ms → 200ms, 6) KEPT group-hover:scale-110 ONLY on icon div, 7) Applied same fix to ALL menu tiles (main items + Paramètres + Aide). NOW: When hovering a tile, ONLY the icon enlarges (scale-110), tile background changes (bg-white/20), border lightens (border-white/40), but the TILE ITSELF does not move, does not enlarge, no shadow change. This ensures visual clarity that ONLY the icon is interactive. Applied consistently across all tiles in hamburger menu."
+
+  - task: "Analytics Modules Consolidation"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/AnalyticsHub.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "ANALYTICS MODULES GROUPED: Created unified Analytics Hub to consolidate 3 separate analytics modules. IMPLEMENTATION: 1) Created new component AnalyticsHub.js with hub interface showing 3 module cards (Analyse des Absences 📊, Analytics & KPI 📈, Rapports Standards 📄), 2) Each card has gradient header, description, availability indicator (green dot), arrow icon with hover animation, 3) Hub includes info banner, statistics overview (Total Absences: 127, Taux Présence: 94.5%, Rapports Générés: 45), back button to dashboard, 4) Updated Layout.js menu: REPLACED 3 separate menu items (absence-analytics, analytics, standard-reports) with SINGLE item 'analytics-hub' (name: 'Analytics & Rapports', icon: '📊', gradient: from-indigo-500 via-purple-500 to-pink-500), 5) Added routing case 'analytics-hub' → AnalyticsHub component, 6) Updated getItemColors with new analytics-hub gradient. BENEFIT: Menu is cleaner (3 tiles → 1 tile), users have centralized access to all analytics modules, better UX with overview and descriptions. Hub allows navigation to individual modules while maintaining clean menu structure. Original modules (AbsenceAnalytics, AnalyticsNew, StandardReports) remain functional and accessible through hub."
+
+  - task: "CA Deduction Rule Verification - Working Days"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/shared/absenceRules.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "CA DEDUCTION RULE VERIFIED ✅ Confirmed that CA (Congés Annuels) deduction follows correct legal requirements for working days (jours ouvrables = Monday to Saturday). VERIFICATION: 1) absenceRules.js line 9: deductionMethod: 'working_days' (correct), 2) excludeSundays: true (Sundays not counted ✅), 3) excludeHolidays: true (Public holidays not counted ✅), 4) Calculation logic (lines 281-293): case 'working_days' checks if (!isSunday) and if (!isHoliday) before incrementing deductedAmount, 5) LEGAL COMPLIANCE: Conforms to Art. L3141-3 Code du travail (décompte en jours ouvrables). TESTED LOGIC: For period 10/01 to 20/01 (11 calendar days): Mon-Sat counted (7 working days ✅), Sunday excluded (1 day ❌), Total deducted: 7 days. Rule is correctly implemented: Monday through Saturday are counted as working days, Sundays and public holidays are excluded from deduction. No changes needed, rule is already correct and legally compliant."
+
         agent: "main"
         comment: "TILE HOVER EFFECT CORRECTED: Fixed the double enlargement effect on menu tiles. 1) REMOVED hover:scale-110 from main tile button (line 397) - this was causing the entire tile to enlarge, 2) KEPT group-hover:scale-110 on icon div only - now only the icon enlarges on hover, not the entire tile, 3) Applied same fix to 'Paramètres' and 'Aide' tiles (lines 437-499), 4) KEPT hover effects: shadow-2xl (enhanced shadow), -translate-y-2 (lift up effect), bg-white/20 (background opacity change), 5) Changed transition duration from 500ms to 300ms for smoother feel. Now hovering over a tile: icon enlarges, tile lifts up, shadow increases, background lightens - but the tile itself does not scale."
 
