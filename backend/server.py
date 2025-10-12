@@ -375,7 +375,7 @@ class ImportEmployee(BaseModel):
     categorie_employe: Optional[str] = None  # Ex: Cadre, Technicien, Ouvrier qualifié, Agent administratif
     metier: Optional[str] = None
     fonction: Optional[str] = None
-    departement: str
+    departement: Optional[str] = None  # Maintenant optionnel
     site: Optional[str] = None
     temps_travail: Optional[str] = None
     contrat: Optional[str] = None
