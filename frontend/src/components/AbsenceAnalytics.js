@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const AbsenceAnalytics = ({ user }) => {
+const AbsenceAnalytics = ({ user, onBackToHub, showBackButton }) => {
   const [absences, setAbsences] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
