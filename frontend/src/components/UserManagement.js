@@ -1031,23 +1031,12 @@ const UserManagement = ({ user }) => {
           </Button>
         }
       />
-        
-        {/* Onglets */}
-        <div className="flex border-b border-gray-200 mt-6">
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 ${
-              activeTab === 'users'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            👥 Utilisateurs
-          </button>
-          <button
-            onClick={() => setActiveTab('recovery')}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 ${
-              activeTab === 'recovery'
+      
+      {/* Onglets Harmonisés */}
+      <TabBar
+        tabs={[
+          { id: 'users', label: '👥 Utilisateurs' },
+          { id: 'recovery', label: '🔐 Récupération' },
                 ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
