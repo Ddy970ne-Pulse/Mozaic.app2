@@ -16,6 +16,7 @@ const EmployeeSpaceNew = ({ user }) => {
     totalDays: 0,
     byType: {}
   });
+  const [myAbsences, setMyAbsences] = useState([]);
   const [overtimeBalance, setOvertimeBalance] = useState({
     accumulated: 0,
     recovered: 0,
