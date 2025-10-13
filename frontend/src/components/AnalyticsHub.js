@@ -119,7 +119,11 @@ const AnalyticsHub = ({ user, onChangeView }) => {
         {modules.map((module) => (
           <button
             key={module.id}
-            onClick={() => setActiveModule(module.id)}
+            onClick={() => {
+              console.log('📊 Module cliqué:', module.id, module.name);
+              setActiveModule(module.id);
+              console.log('✅ activeModule défini à:', module.id);
+            }}
             className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-gray-100 hover:border-indigo-300"
           >
             {/* Header avec gradient */}
