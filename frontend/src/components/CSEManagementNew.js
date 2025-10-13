@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ModuleHeader, TabBar, StatCard, Button, ContentCard, Message, LoadingSpinner } from './shared/UIComponents';
 
 const CSEManagementNew = ({ user }) => {
   const [activeTab, setActiveTab] = useState('members');
