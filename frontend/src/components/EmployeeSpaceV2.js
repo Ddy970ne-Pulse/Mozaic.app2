@@ -600,5 +600,5 @@ const EmployeeSpaceV2 = ({ user }) => {
   );
 };
 
-export default EmployeeSpaceNew;
+export default EmployeeSpaceV2;
 // Force rebuild Mon Oct 13 01:39:44 UTC 2025
