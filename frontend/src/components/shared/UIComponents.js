@@ -62,15 +62,16 @@ export const ModuleHeader = ({ title, subtitle, icon, user, action, onBackToHub,
         </div>
       </div>
       <div className="flex items-center space-x-3">
-        {showBackButton && onBackToHub && (
+        {/* Bouton retour au hub - TOUJOURS AFFICHÉ si onBackToHub existe */}
+        {onBackToHub && (
           <button
             onClick={onBackToHub}
-            className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2 rounded-lg transition-all group"
+            className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-lg transition-all border border-white/30 hover:border-white/50 group"
           >
             <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            <span className="font-medium">Retour au Hub</span>
+            <span className="font-semibold">Retour au Hub</span>
           </button>
         )}
         {action && <div>{action}</div>}
