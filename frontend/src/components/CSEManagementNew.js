@@ -188,45 +188,44 @@ const CSEManagementNew = ({ user }) => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white shadow-lg">
-        <h1 className="text-2xl font-bold mb-2">🏛️ Gestion CSE & Délégation</h1>
-        <p className="text-indigo-100">
-          Module unifié - Membres, Heures de Délégation & Cessions
-        </p>
-      </div>
+      {/* Header Harmonisé */}
+      <ModuleHeader
+        title="Gestion CSE & Délégation"
+        subtitle="Module unifié - Membres, Heures de Délégation & Cessions (CCN66)"
+        icon="🏛️"
+      />
 
       {/* Message */}
       {message && (
-        <div className={`p-4 rounded-lg ${
-          message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
+        <Message type={message.type} onClose={() => setMessage(null)}>
           {message.text}
-        </div>
+        </Message>
       )}
 
-      {/* Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200">
+      {/* Tabs Harmonisés */}
+      <TabBar
+        tabs={[
+          { id: 'members', label: '👥 Membres CSE' },
+          { id: 'hours', label: '⚖️ Heures de Délégation' },
+          { id: 'cessions', label: '🔄 Cessions d\'Heures' },
+          { id: 'reports', label: '📊 Rapports' }
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
+
+      <ContentCard>
+        <div className="hidden">
+          {/* Ancien code tabs - à supprimer */}
           <div className="flex gap-2 p-2">
-            {[
-              { id: 'members', label: '👥 Membres CSE' },
-              { id: 'hours', label: '⚖️ Heures de Délégation' },
-              { id: 'cessions', label: '🔄 Cessions d\'Heures' },
-              { id: 'reports', label: '📊 Rapports' }
-            ].map(tab => (
+            {[].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   activeTab === tab.id
                     ? 'bg-purple-600 text-white shadow-sm'
