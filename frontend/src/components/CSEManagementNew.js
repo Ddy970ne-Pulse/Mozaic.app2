@@ -219,22 +219,10 @@ const CSEManagementNew = ({ user }) => {
         onChange={setActiveTab}
       />
 
-      <ContentCard>
-        <div className="hidden">
-          {/* Ancien code tabs - à supprimer */}
-          <div className="flex gap-2 p-2">
-            {[].map(tab => (
-              <button
-                key={tab.id}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-purple-600 text-white shadow-sm'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="border-b border-gray-200">
+          <div className="hidden">
+            {/* Ancien code tabs - masqué */}
           </div>
         </div>
 
