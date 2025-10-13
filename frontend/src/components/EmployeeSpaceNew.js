@@ -49,10 +49,11 @@ const EmployeeSpaceNew = ({ user }) => {
         { headers }
       );
       const allAbsences = await absResponse.json();
-      const myAbsences = allAbsences.filter(
+      const myAbsencesData = allAbsences.filter(
         abs => abs.employee_id === user.id || abs.user_id === user.id
       );
-      calculateAbsenceStats(myAbsences);
+      setMyAbsences(myAbsencesData);
+      calculateAbsenceStats(myAbsencesData);
 
       // 3. Charger les heures supplémentaires
       const overtimeResponse = await fetch(
