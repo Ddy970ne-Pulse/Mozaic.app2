@@ -1009,14 +1009,13 @@ const UserManagement = ({ user }) => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header avec onglets */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Gestion Avancée des Utilisateurs</h1>
-            <p className="text-gray-600">Administration complète avec permissions, RGPD et audit</p>
-          </div>
-          <button
+      {/* Header Harmonisé */}
+      <ModuleHeader
+        title="Gestion Avancée des Utilisateurs"
+        subtitle="Administration complète avec permissions, RGPD et audit"
+        icon="👥"
+        action={
+          <Button
             onClick={() => {
               setSelectedUser({
                 name: '', email: '', role: 'employee', department: '', site: '',
@@ -1026,11 +1025,12 @@ const UserManagement = ({ user }) => {
               });
               setShowUserModal(true);
             }}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+            variant="primary"
           >
             ➕ Nouvel Utilisateur
-          </button>
-        </div>
+          </Button>
+        }
+      />
         
         {/* Onglets */}
         <div className="flex border-b border-gray-200 mt-6">
