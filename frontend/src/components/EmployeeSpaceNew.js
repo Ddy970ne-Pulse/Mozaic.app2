@@ -6,6 +6,8 @@ const EmployeeSpaceNew = ({ user }) => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
   
+  // Fix: myAbsences state declaration
+  
   // Données réelles de l'utilisateur
   const [userData, setUserData] = useState(null);
   const [editedData, setEditedData] = useState({});
