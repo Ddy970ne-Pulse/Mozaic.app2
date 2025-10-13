@@ -60,7 +60,7 @@ const EmployeeSpaceNew = ({ user }) => {
       );
       const overtimeData = await overtimeResponse.json();
       const myOvertime = overtimeData.find(
-        emp => emp.id === user.id || emp.name === user.name
+        emp => emp.id === user?.id || emp.name === user?.name
       );
       if (myOvertime) {
         setOvertimeBalance({
