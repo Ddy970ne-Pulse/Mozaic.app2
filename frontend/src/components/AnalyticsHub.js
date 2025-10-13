@@ -5,6 +5,8 @@ import StandardReports from './StandardReports';
 
 const AnalyticsHub = ({ user, onChangeView }) => {
   const [activeModule, setActiveModule] = useState(null);
+  
+  console.log('🎯 AnalyticsHub render - activeModule:', activeModule);
 
   const modules = [
     {
