@@ -188,8 +188,8 @@ const AbsenceAnalytics = ({ user, onBackToHub, showBackButton }) => {
             <p className="text-purple-100">Vue détaillée et statistiques par employé</p>
           </div>
           
-          {/* Bouton retour au hub */}
-          {showBackButton && onBackToHub && (
+          {/* Bouton retour au hub - TOUJOURS AFFICHÉ */}
+          {onBackToHub && (
             <button
               onClick={onBackToHub}
               className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-lg transition-all border border-white/30 hover:border-white/50 group"
