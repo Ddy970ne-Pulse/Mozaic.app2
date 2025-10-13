@@ -52,24 +52,23 @@ const EmployeeSpaceV2 = ({ user }) => {
         { headers }
       );
       const allAbsences = await absResponse.json();
-      console.log('🔍 Total absences reçues:', allAbsences.length);
-      console.log('👤 User ID actuel:', user.id);
-      console.log('📧 User email:', user.email);
-      console.log('📋 Exemple absence:', allAbsences[0]);
       
-      const myAbsencesData = allAbsences.filter(
-        abs => {
-          const match = abs.employee_id === user.id || 
-                       abs.user_id === user.id || 
-                       abs.email === user.email ||
-                       abs.employee_email === user.email;
-          if (match) {
-            console.log('✅ Absence trouvée pour user:', abs);
-          }
-          return match;
-        }
-      );
-      console.log('✅ Mes absences filtrées:', myAbsencesData.length);
+      // Filtrer par employee_id (prioritaire), email, ou nom
+      const myAbsencesData = allAbsences.filter(abs => {
+        // Méthode 1: Par employee_id (le plus fiable)
+        if (abs.employee_id === user.id) return true;
+        
+        // Méthode 2: Par email
+        if (abs.email && user.email && abs.email.toLowerCase() === user.email.toLowerCase()) return true;
+        
+        // Méthode 3: Par nom (fallback)
+        if (abs.employee_name && user.name && 
+            abs.employee_name.toLowerCase().includes(user.name.toLowerCase())) return true;
+        
+        return false;
+      });
+      
+      console.log(`📊 Absences trouvées: ${myAbsencesData.length}/${allAbsences.length} pour ${user.name}`);
       setMyAbsences(myAbsencesData);
       calculateAbsenceStats(myAbsencesData);
 
