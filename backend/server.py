@@ -524,6 +524,7 @@ class Absence(BaseModel):
     # Nouveaux champs pour gestion des heures
     absence_unit: str = "jours"  # "jours" ou "heures"
     hours_amount: Optional[float] = None  # Nombre d'heures si unit='heures'
+    status: str = "approved"  # Les absences importées sont automatiquement validées
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
 
