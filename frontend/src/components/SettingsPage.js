@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ModuleHeader, TabBar, ContentCard, Button } from './shared/UIComponents';
 
 const SettingsPage = ({ user }) => {
   const [activeSection, setActiveSection] = useState('profile');
