@@ -4,7 +4,7 @@ import EmployeeDashboard from './EmployeeDashboard';
 import MonthlyPlanningFinal from './MonthlyPlanningFinal';
 import HRToolbox from './HRToolbox';
 import AbsenceRequests from './AbsenceRequests';
-import EmployeeSpace from './EmployeeSpaceV2';
+import EmployeeSpaceV2 from './EmployeeSpaceV2';
 import SettingsPage from './SettingsPage';
 import Analytics from './AnalyticsNew';
 import AbsenceAnalytics from './AbsenceAnalytics';
