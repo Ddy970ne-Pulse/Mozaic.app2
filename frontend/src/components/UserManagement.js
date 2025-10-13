@@ -1037,24 +1037,11 @@ const UserManagement = ({ user }) => {
         tabs={[
           { id: 'users', label: '👥 Utilisateurs' },
           { id: 'recovery', label: '🔐 Récupération' },
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            🔧 Récupération
-          </button>
-          <button
-            onClick={() => setActiveTab('audit')}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 ${
-              activeTab === 'audit'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            📋 Audit
-          </button>
-        </div>
-      </div>
+          { id: 'audit', label: '📋 Audit' }
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
 
       {renderTabContent()}
 
