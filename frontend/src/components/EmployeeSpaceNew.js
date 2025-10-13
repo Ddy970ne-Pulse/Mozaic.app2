@@ -452,10 +452,10 @@ const EmployeeSpaceNew = ({ user }) => {
                     <div className="text-4xl">👔</div>
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-gray-800 mb-2">
-                        🎯 Espace Séparé pour {user.role === 'admin' ? 'Administrateur' : 'Manager'}
+                        🎯 Espace Séparé pour {user?.role === 'admin' ? 'Administrateur' : 'Manager'}
                       </h3>
                       <p className="text-sm text-gray-700 mb-4">
-                        En tant que <strong>{user.role === 'admin' ? 'administrateur' : 'manager'}</strong>, 
+                        En tant que <strong>{user?.role === 'admin' ? 'administrateur' : 'manager'}</strong>, 
                         vous avez accès à deux espaces distincts :
                       </p>
                       
