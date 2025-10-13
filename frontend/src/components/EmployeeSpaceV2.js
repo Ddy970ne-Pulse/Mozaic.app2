@@ -52,9 +52,24 @@ const EmployeeSpaceV2 = ({ user }) => {
         { headers }
       );
       const allAbsences = await absResponse.json();
+      console.log('🔍 Total absences reçues:', allAbsences.length);
+      console.log('👤 User ID actuel:', user.id);
+      console.log('📧 User email:', user.email);
+      console.log('📋 Exemple absence:', allAbsences[0]);
+      
       const myAbsencesData = allAbsences.filter(
-        abs => abs.employee_id === user.id || abs.user_id === user.id
+        abs => {
+          const match = abs.employee_id === user.id || 
+                       abs.user_id === user.id || 
+                       abs.email === user.email ||
+                       abs.employee_email === user.email;
+          if (match) {
+            console.log('✅ Absence trouvée pour user:', abs);
+          }
+          return match;
+        }
       );
+      console.log('✅ Mes absences filtrées:', myAbsencesData.length);
       setMyAbsences(myAbsencesData);
       calculateAbsenceStats(myAbsencesData);
 
