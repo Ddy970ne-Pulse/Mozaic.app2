@@ -5,6 +5,8 @@ const AbsenceAnalytics = ({ user, onBackToHub, showBackButton }) => {
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   
+  console.log('📊 AbsenceAnalytics - onBackToHub:', onBackToHub, 'showBackButton:', showBackButton);
+  
   // Filtres
   const [selectedYear, setSelectedYear] = useState(2025);
   const [selectedMonths, setSelectedMonths] = useState([]);
