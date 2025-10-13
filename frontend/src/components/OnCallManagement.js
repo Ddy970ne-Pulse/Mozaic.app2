@@ -331,26 +331,27 @@ const OnCallManagement = ({ user, onChangeView }) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* En-tête avec titre et contrôles */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              🔔 Gestion des Astreintes Cadres
-            </h1>
-            <p className="text-gray-600">
-              Planification par semaines complètes (Dimanche → Samedi) - Conforme CCN66 et droit du travail
-            </p>
-            <div className="mt-2 flex items-center space-x-2 text-sm">
-              <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded">
-                👔 Personnel d'encadrement
-              </span>
-              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                📆 Sélection par semaine recommandée
-              </span>
-            </div>
+    <div className="space-y-6 p-6">
+      {/* Header Harmonisé */}
+      <ModuleHeader
+        title="Gestion des Astreintes Cadres"
+        subtitle="Planification par semaines complètes (Dimanche → Samedi) - Conforme CCN66"
+        icon="🔔"
+        action={
+          <div className="flex items-center space-x-2">
+            <span className="text-xs bg-white/20 px-3 py-1 rounded-lg backdrop-blur-sm border border-white/30">
+              👔 Personnel d'encadrement
+            </span>
+            <span className="text-xs bg-white/20 px-3 py-1 rounded-lg backdrop-blur-sm border border-white/30">
+              📆 Sélection hebdomadaire
+            </span>
           </div>
+        }
+      />
+
+      {/* Contrôles de navigation */}
+      <ContentCard>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
           
           <div className="flex flex-wrap items-center gap-3">
             {/* Sélection mois/année */}
