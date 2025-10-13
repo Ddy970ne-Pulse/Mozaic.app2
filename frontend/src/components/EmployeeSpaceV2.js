@@ -597,15 +597,66 @@ const EmployeeSpaceV2 = ({ user }) => {
                 </form>
               </div>
 
-              {/* Mes demandes en cours */}
+              {/* Mes demandes - Afficher toutes les absences avec leur statut */}
               <div className="bg-white border border-gray-200 rounded-xl p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  📋 Mes Demandes en Cours
+                  📋 Mes Demandes d'Absence
                 </h3>
                 
-                <div className="text-center py-8 text-gray-500">
-                  Aucune demande en cours
-                </div>
+                {myAbsences && myAbsences.length > 0 ? (
+                  <div className="space-y-3">
+                    {myAbsences.map((absence, idx) => {
+                      const statusColors = {
+                        'approved': 'bg-green-100 text-green-800 border-green-300',
+                        'pending': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+                        'rejected': 'bg-red-100 text-red-800 border-red-300'
+                      };
+                      const statusLabels = {
+                        'approved': '✅ Validée',
+                        'pending': '⏳ En attente',
+                        'rejected': '❌ Refusée'
+                      };
+                      const status = absence.status || 'approved';
+                      
+                      return (
+                        <div key={idx} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <span className="text-2xl">{absence.motif_absence === 'CA' ? '🏖️' : 
+                                                             absence.motif_absence === 'RTT' ? '🏝️' : 
+                                                             absence.motif_absence === 'AM' ? '🤒' : '📝'}</span>
+                                <div>
+                                  <h4 className="font-semibold text-gray-800">
+                                    {absence.motif_absence} - {absence.jours_absence} jour(s)
+                                  </h4>
+                                  <p className="text-sm text-gray-600">
+                                    Du {new Date(absence.date_debut).toLocaleDateString('fr-FR')} 
+                                    {absence.date_fin && ` au ${new Date(absence.date_fin).toLocaleDateString('fr-FR')}`}
+                                  </p>
+                                </div>
+                              </div>
+                              {absence.notes && (
+                                <p className="text-sm text-gray-600 mt-2">
+                                  💬 {absence.notes}
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColors[status]}`}>
+                                {statusLabels[status]}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    Aucune demande enregistrée
+                  </div>
+                )}
               </div>
             </div>
           )}
