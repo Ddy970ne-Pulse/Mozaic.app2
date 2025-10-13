@@ -377,8 +377,8 @@ const EmployeeSpaceV2 = ({ user }) => {
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-700">Détail par motif</h4>
                 {Object.entries(absenceStats.byType).map(([type, days]) => {
-                  // Filtrer les absences de ce type
-                  const absencesOfType = myAbsences.filter(abs => abs.motif_absence === type);
+                  // Filtrer les absences de ce type (avec safety check)
+                  const absencesOfType = (myAbsences || []).filter(abs => abs.motif_absence === type);
                   
                   return (
                     <div key={type} className="bg-gray-50 rounded-lg p-4">
