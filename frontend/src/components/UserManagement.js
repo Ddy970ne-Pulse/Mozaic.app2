@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ModuleHeader, TabBar, Button, ContentCard, StatCard, LoadingSpinner, Message } from './shared/UIComponents';
 
 const UserManagement = ({ user }) => {
   const [users, setUsers] = useState([]);
