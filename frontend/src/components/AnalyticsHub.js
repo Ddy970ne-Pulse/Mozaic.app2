@@ -45,7 +45,11 @@ const AnalyticsHub = ({ user, onChangeView }) => {
             <div className="flex items-center justify-between">
               {/* Bouton retour à gauche */}
               <button
-                onClick={() => setActiveModule(null)}
+                onClick={() => {
+                  console.log('🔙 Bouton retour cliqué - activeModule:', activeModule);
+                  setActiveModule(null);
+                  console.log('✅ activeModule réinitialisé à null');
+                }}
                 className="flex items-center space-x-3 bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg border-2 border-gray-300 hover:border-blue-400 group"
               >
                 <svg className="w-6 h-6 transform group-hover:-translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
