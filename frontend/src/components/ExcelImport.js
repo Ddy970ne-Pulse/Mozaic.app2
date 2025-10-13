@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import * as XLSX from 'xlsx';
+import { ModuleHeader, ContentCard, Button, Message, LoadingSpinner } from './shared/UIComponents';
 
 const ExcelImport = ({ user, onChangeView }) => {
   const [importStep, setImportStep] = useState('upload'); // upload, preview, mapping, validation, import, complete
