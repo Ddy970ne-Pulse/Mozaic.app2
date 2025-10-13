@@ -80,7 +80,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
         case 'employee-dashboard':
           return <EmployeeDashboard user={user} />;
         case 'my-space':
-          return <EmployeeSpace user={user} />;
+          return <EmployeeSpaceV2 user={user} />;
         case 'my-requests':
           return <AbsenceRequests user={user} />;
         case 'settings':
