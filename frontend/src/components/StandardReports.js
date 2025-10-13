@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const StandardReports = ({ user, onBackToHub, showBackButton }) => {
+const StandardReports = ({ user }) => {
   const [loading, setLoading] = useState(false);
   const [reportType, setReportType] = useState('absences');
   const [periodType, setPeriodType] = useState('monthly');
