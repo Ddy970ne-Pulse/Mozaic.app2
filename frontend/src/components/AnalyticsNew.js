@@ -192,8 +192,6 @@ const AnalyticsNew = ({ user }) => {
         title="Analytics & KPI"
         subtitle="Vue d'ensemble des données RH avec périodes personnalisées"
         icon="📊"
-        onBackToHub={onBackToHub}
-        showBackButton={showBackButton}
       />
 
       {/* Filtres Dynamiques */}
