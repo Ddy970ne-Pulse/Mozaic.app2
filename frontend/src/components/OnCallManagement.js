@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { october2025OnCallAssignments, testEmployees } from '../shared/october2025TestData';
+import { ModuleHeader, Button, ContentCard, Message, LoadingSpinner } from './shared/UIComponents';
 
 const OnCallManagement = ({ user, onChangeView }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
