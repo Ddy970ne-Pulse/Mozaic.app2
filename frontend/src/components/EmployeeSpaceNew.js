@@ -446,7 +446,7 @@ const EmployeeSpaceNew = ({ user }) => {
           {activeTab === 'requests' && (
             <div className="space-y-6">
               {/* Section Admin/Manager */}
-              {(user.role === 'admin' || user.role === 'manager') && (
+              {(user?.role === 'admin' || user?.role === 'manager') && (
                 <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-orange-200 rounded-xl p-6 mb-6">
                   <div className="flex items-start gap-4">
                     <div className="text-4xl">👔</div>
