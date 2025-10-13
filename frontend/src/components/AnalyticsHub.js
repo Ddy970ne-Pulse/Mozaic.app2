@@ -35,48 +35,17 @@ const AnalyticsHub = ({ user, onChangeView }) => {
     }
   ];
 
-  // Si un module est sélectionné, afficher le bandeau + module
+  // Si un module est sélectionné, passer le callback retour
   if (activeModule) {
-    const currentModule = modules.find(m => m.id === activeModule);
-    const Module = currentModule?.component;
+    const Module = modules.find(m => m.id === activeModule)?.component;
     if (Module) {
       return (
-        <div className="space-y-4">
-          {/* Bandeau de navigation bien visible */}
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-300 rounded-xl p-4 shadow-lg">
-            <div className="flex items-center justify-between">
-              {/* Bouton retour à gauche */}
-              <button
-                onClick={() => {
-                  console.log('🔙 Bouton retour cliqué - activeModule:', activeModule);
-                  setActiveModule(null);
-                  console.log('✅ activeModule réinitialisé à null');
-                }}
-                className="flex items-center space-x-3 bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg border-2 border-gray-300 hover:border-blue-400 group"
-              >
-                <svg className="w-6 h-6 transform group-hover:-translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span className="text-lg">Retour à Analytics & Rapports</span>
-              </button>
-              
-              {/* Badge du module actuel à droite */}
-              <div className={`flex items-center space-x-3 bg-gradient-to-r ${currentModule.gradient} text-white px-6 py-3 rounded-lg shadow-lg`}>
-                <span className="text-2xl">{currentModule.icon}</span>
-                <div>
-                  <p className="text-xs opacity-80">Module actif</p>
-                  <p className="font-bold text-lg">{currentModule.name}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Contenu du module */}
-          <Module 
-            user={user} 
-            onChangeView={onChangeView}
-          />
-        </div>
+        <Module 
+          user={user} 
+          onChangeView={onChangeView}
+          onBackToHub={() => setActiveModule(null)}
+          showBackButton={true}
+        />
       );
     }
   }
