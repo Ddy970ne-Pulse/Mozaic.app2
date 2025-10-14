@@ -1761,6 +1761,81 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         </div>
       </div>
 
+      {/* Barre d'outils d'ajout d'absence (Admin uniquement) */}
+      {user?.role === 'admin' && (
+        <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-purple-200">
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Bouton Mode Ajout */}
+            <button
+              onClick={() => {
+                setAddAbsenceMode(!addAbsenceMode);
+                if (!addAbsenceMode) {
+                  setSelectedEmployee(null);
+                  setSelectionStart(null);
+                  setSelectionEnd(null);
+                  setHoveredDate(null);
+                }
+              }}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                addAbsenceMode
+                  ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-lg'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {addAbsenceMode ? '✓ Mode Ajout Activé' : '➕ Activer Mode Ajout'}
+            </button>
+
+            {/* Sélecteur de type d'absence */}
+            {addAbsenceMode && (
+              <>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">Type d'absence :</label>
+                  <select
+                    value={selectedAbsenceType}
+                    onChange={(e) => setSelectedAbsenceType(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  >
+                    <option value="CA">Congés Annuels</option>
+                    <option value="CT">Congés Trimestriels</option>
+                    <option value="RTT">RTT</option>
+                    <option value="REC">Récupération</option>
+                    <option value="AM">Arrêt Maladie</option>
+                    <option value="AT">Accident du travail</option>
+                    <option value="MAT">Congé Maternité</option>
+                    <option value="PAT">Congé Paternité</option>
+                    <option value="FAM">Événement Familial</option>
+                    <option value="FO">Formation</option>
+                    <option value="STG">Stage</option>
+                    <option value="TEL">Télétravail</option>
+                    <option value="CSS">Congés Sans Solde</option>
+                    <option value="CEX">Congé Exceptionnel</option>
+                  </select>
+                </div>
+
+                {/* Indicateur d'état */}
+                <div className="flex items-center gap-2 text-sm">
+                  {!selectedEmployee && (
+                    <span className="text-gray-600">
+                      👉 Étape 1 : Cliquez sur un employé
+                    </span>
+                  )}
+                  {selectedEmployee && !selectionStart && (
+                    <span className="text-purple-600 font-medium">
+                      👤 {selectedEmployee.name} sélectionné → Cliquez sur la date de début
+                    </span>
+                  )}
+                  {selectedEmployee && selectionStart && !selectionEnd && (
+                    <span className="text-green-600 font-medium">
+                      📅 {formatDateForDisplay(selectionStart)} → Cliquez sur la date de fin
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Barre d'actions harmonisées */}
       <div className="flex flex-wrap gap-4 mb-6">
         <button
