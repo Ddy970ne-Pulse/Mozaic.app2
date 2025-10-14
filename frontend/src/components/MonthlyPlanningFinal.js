@@ -275,6 +275,30 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     loadOnCallData();
   }, [selectedYear, selectedMonth]);
 
+  // Charger les templates depuis localStorage
+  useEffect(() => {
+    const savedTemplates = localStorage.getItem('absenceTemplates');
+    if (savedTemplates) {
+      try {
+        setTemplates(JSON.parse(savedTemplates));
+      } catch (error) {
+        console.error('Erreur chargement templates:', error);
+      }
+    }
+  }, []);
+
+  // Fermer le menu contextuel au clic n'importe où
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (contextMenu) {
+        setContextMenu(null);
+      }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [contextMenu]);
+
   // Recharger les données d'astreinte quand le mois/année change
   useEffect(() => {
     try {
