@@ -179,18 +179,69 @@ const AbsenceRequests = ({ user }) => {
     });
   };
 
-  const handleApprove = (requestId) => {
-    const success = approveRequest(requestId, user.name);
-    if (!success) {
+  const handleApprove = async (requestId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/absences/${requestId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            status: 'approved',
+            approver: user.name,
+            approvedDate: new Date().toISOString().split('T')[0]
+          })
+        }
+      );
+      
+      if (response.ok) {
+        console.log('✅ Demande approuvée');
+        // Recharger les absences
+        loadAbsencesFromAPI();
+      } else {
+        alert('❌ Erreur lors de l\'approbation de la demande');
+      }
+    } catch (error) {
+      console.error('Erreur approbation:', error);
       alert('❌ Erreur lors de l\'approbation de la demande');
     }
   };
 
-  const handleReject = (requestId) => {
+  const handleReject = async (requestId) => {
     const rejectionReason = prompt('Raison du refus (optionnel):');
     if (rejectionReason !== null) { // L'utilisateur n'a pas annulé
-      const success = rejectRequest(requestId, user.name, rejectionReason);
-      if (!success) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/absences/${requestId}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              status: 'rejected',
+              rejectedBy: user.name,
+              rejectedDate: new Date().toISOString().split('T')[0],
+              rejectionReason: rejectionReason || 'Aucune raison spécifiée'
+            })
+          }
+        );
+        
+        if (response.ok) {
+          console.log('✅ Demande rejetée');
+          // Recharger les absences
+          loadAbsencesFromAPI();
+        } else {
+          alert('❌ Erreur lors du rejet de la demande');
+        }
+      } catch (error) {
+        console.error('Erreur rejet:', error);
         alert('❌ Erreur lors du rejet de la demande');
       }
     }
