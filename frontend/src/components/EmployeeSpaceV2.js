@@ -172,6 +172,68 @@ const EmployeeSpaceV2 = ({ user }) => {
     }));
   };
 
+  const handleSubmitAbsenceRequest = async (e) => {
+    e.preventDefault(); // Empêcher le rechargement de la page
+    
+    // Validation
+    if (!absenceRequest.type || !absenceRequest.days || !absenceRequest.startDate || !absenceRequest.endDate) {
+      showMessage('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Préparer les données de l'absence
+      const absenceData = {
+        employee_id: user.id,
+        employee_name: user.name || userData?.name,
+        email: user.email || userData?.email,
+        motif_absence: absenceRequest.type,
+        jours_absence: parseFloat(absenceRequest.days),
+        date_debut: absenceRequest.startDate,
+        date_fin: absenceRequest.endDate,
+        notes: absenceRequest.comment,
+        status: 'pending' // Nouvelle demande en attente
+      };
+      
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(absenceData)
+        }
+      );
+      
+      if (response.ok) {
+        showMessage('✅ Demande soumise avec succès', 'success');
+        // Réinitialiser le formulaire
+        setAbsenceRequest({
+          type: '',
+          days: '',
+          startDate: '',
+          endDate: '',
+          comment: ''
+        });
+        // Recharger les absences
+        fetchUserData();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Erreur lors de la soumission');
+      }
+    } catch (error) {
+      console.error('Erreur soumission demande:', error);
+      showMessage('❌ Erreur lors de la soumission: ' + error.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+  
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
     return new Date(dateStr).toLocaleDateString('fr-FR');
