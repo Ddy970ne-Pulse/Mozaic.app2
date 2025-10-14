@@ -1234,11 +1234,23 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         loadAbsences();
       } else {
         const errorData = await response.json();
-        alert(`❌ Erreur lors de la création: ${errorData.detail || 'Erreur inconnue'}`);
+        console.error('❌ Erreur backend:', errorData);
+        
+        // Formater le message d'erreur
+        let errorMessage = 'Erreur lors de la création';
+        if (typeof errorData.detail === 'string') {
+          errorMessage = errorData.detail;
+        } else if (Array.isArray(errorData.detail)) {
+          errorMessage = errorData.detail.map(e => `${e.loc?.join('.')}: ${e.msg}`).join(', ');
+        } else if (errorData.detail) {
+          errorMessage = JSON.stringify(errorData.detail);
+        }
+        
+        alert(`❌ ${errorMessage}`);
       }
     } catch (error) {
       console.error('Erreur création absence:', error);
-      alert(`❌ Erreur: ${error.message}`);
+      alert(`❌ Erreur: ${error.message || 'Impossible de créer l\'absence'}`);
     } finally {
       setCreatingAbsence(false);
     }
