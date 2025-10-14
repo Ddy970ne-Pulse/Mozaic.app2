@@ -1028,6 +1028,11 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     return date.getDay() === 0 || date.getDay() === 6;
   };
 
+  const isSunday = (day, month = selectedMonth, year = selectedYear) => {
+    const date = new Date(year, month, day);
+    return date.getDay() === 0; // 0 = dimanche
+  };
+
   const isHoliday = (day, month = selectedMonth, year = selectedYear) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     return holidays.includes(dateStr);
