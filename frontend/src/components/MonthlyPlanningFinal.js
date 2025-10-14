@@ -1819,8 +1819,26 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                   
                   {nonCadres.map((employee, index) => (
                     <tr key={employee.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}>
-                      <td className="border border-gray-200 px-3 py-2 sticky left-0 bg-white z-10">
-                        <div className="font-semibold text-sm text-gray-800">{employee.name}</div>
+                      <td 
+                        className={`border border-gray-200 px-3 py-2 sticky left-0 z-10 transition-all duration-150 ${
+                          addAbsenceMode && selectedEmployee?.id === employee.id
+                            ? 'bg-purple-100 ring-2 ring-purple-400'
+                            : 'bg-white'
+                        } ${
+                          addAbsenceMode ? 'cursor-pointer hover:bg-purple-50' : ''
+                        }`}
+                        onClick={() => handleEmployeeClick(employee)}
+                      >
+                        <div className="font-semibold text-sm text-gray-800 flex items-center">
+                          <span className={`mr-2 ${
+                            addAbsenceMode && selectedEmployee?.id === employee.id
+                              ? 'text-purple-600 text-lg'
+                              : 'text-purple-600'
+                          }`}>
+                            {addAbsenceMode && selectedEmployee?.id === employee.id ? '✓' : '●'}
+                          </span>
+                          {employee.name}
+                        </div>
                       </td>
                       <td className="border border-gray-200 px-2 py-2 text-center font-bold text-lg">
                         {employee.totalAbsenceDays}
@@ -1839,14 +1857,22 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                         
                         const displayCode = absence || (hasOnCall ? 'AST' : null);
                         const codeInfo = displayCode ? absenceColorMap[displayCode] : null;
+                        const isHighlighted = shouldHighlightCell(dateObj.day);
+                        const isClickable = addAbsenceMode && selectedEmployee && employee.id === selectedEmployee.id;
                         
                         return (
                           <td 
                             key={`${dateObj.year}-${dateObj.month}-${dateObj.day}`} 
-                            className={`border border-gray-200 px-1 py-1 text-center text-xs ${
+                            className={`border border-gray-200 px-1 py-1 text-center text-xs transition-all duration-150 ${
                               isWknd && !displayCode ? 'bg-gray-50' : 
                               isHol && !displayCode ? 'bg-red-25' : ''
+                            } ${
+                              isHighlighted ? 'bg-green-200 ring-2 ring-green-400' : ''
+                            } ${
+                              isClickable ? 'cursor-pointer hover:bg-blue-100' : ''
                             }`}
+                            onClick={() => isClickable && handleDateCellClick(dateObj.day)}
+                            onMouseEnter={() => isClickable && handleDateCellHover(dateObj.day)}
                           >
                             {codeInfo && (
                               <span 
