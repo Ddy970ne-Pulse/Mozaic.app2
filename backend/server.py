@@ -3163,6 +3163,51 @@ async def get_absences(current_user: User = Depends(get_current_user)):
         logger.error(f"Error getting absences: {e}")
         return []
 
+@api_router.post("/absences", response_model=dict)
+async def create_absence(absence: Absence, current_user: User = Depends(get_current_user)):
+    """
+    Create a new absence request
+    - Employees can create their own absence requests with status='pending'
+    - Admins can create absences with any status
+    """
+    try:
+        # Vérifier que l'employé ne crée que ses propres demandes (sauf admin)
+        if current_user.role not in ["admin", "manager"]:
+            if absence.employee_id != current_user.id:
+                raise HTTPException(status_code=403, detail="You can only create your own absence requests")
+            # Forcer le statut à "pending" pour les employés
+            absence.status = "pending"
+        
+        # Préparer les données pour MongoDB
+        absence_dict = absence.dict()
+        absence_dict['created_at'] = datetime.utcnow().isoformat()
+        absence_dict['created_by'] = current_user.id
+        
+        # Convertir les dates en ISO format si nécessaire
+        if isinstance(absence_dict.get('date_debut'), str):
+            absence_dict['date_debut'] = absence_dict['date_debut']
+        if isinstance(absence_dict.get('date_fin'), str):
+            absence_dict['date_fin'] = absence_dict['date_fin']
+        
+        # Insérer dans la base de données
+        result = await db.absences.insert_one(absence_dict)
+        
+        if result.inserted_id:
+            logger.info(f"✅ Absence créée: {absence.id} pour {absence.employee_name}")
+            return {
+                "message": "Absence request created successfully",
+                "id": absence.id,
+                "status": absence.status
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create absence")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating absence: {e}")
+        raise HTTPException(status_code=500, detail=f"Error creating absence: {str(e)}")
+
 @api_router.get("/absences/{employee_id}")
 async def get_absences_by_employee(employee_id: str, current_user: User = Depends(get_current_user)):
     """Get absences for a specific employee"""
