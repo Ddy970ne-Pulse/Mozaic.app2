@@ -1,7 +1,7 @@
 // Force rebuild - cache buster v7 - 2025-01-15-fix-422
 import React, { useState, useEffect } from 'react';
 
-const EmployeeSpaceV2 = ({ user }) => {
+const EmployeeSpaceV2 = ({ user, onChangeView }) => {
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
