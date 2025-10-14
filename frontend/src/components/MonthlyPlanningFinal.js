@@ -1018,6 +1018,148 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
   ];
 
+  // Fonctions pour l'ajout d'absence interactif
+  const formatDateForDisplay = (dateStr) => {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatDateISO = (year, month, day) => {
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  };
+
+  const calculateDaysBetween = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 pour inclure le dernier jour
+    return diffDays;
+  };
+
+  const handleEmployeeClick = (employee) => {
+    if (!addAbsenceMode) return;
+    
+    setSelectedEmployee(employee);
+    setSelectionStart(null);
+    setSelectionEnd(null);
+    setHoveredDate(null);
+  };
+
+  const handleDateCellClick = (day) => {
+    if (!addAbsenceMode || !selectedEmployee) return;
+
+    const clickedDate = formatDateISO(selectedYear, selectedMonth, day);
+
+    if (!selectionStart) {
+      // Premier clic : définir la date de début
+      setSelectionStart(clickedDate);
+    } else if (!selectionEnd) {
+      // Deuxième clic : définir la date de fin et ouvrir le modal
+      const start = new Date(selectionStart);
+      const end = new Date(clickedDate);
+      
+      if (end < start) {
+        // Si la date de fin est avant la date de début, inverser
+        setSelectionStart(clickedDate);
+        setSelectionEnd(selectionStart);
+      } else {
+        setSelectionEnd(clickedDate);
+      }
+      
+      setShowConfirmModal(true);
+    }
+  };
+
+  const handleDateCellHover = (day) => {
+    if (!addAbsenceMode || !selectedEmployee || !selectionStart || selectionEnd) return;
+    
+    const hoveredDateStr = formatDateISO(selectedYear, selectedMonth, day);
+    setHoveredDate(hoveredDateStr);
+  };
+
+  const shouldHighlightCell = (day) => {
+    if (!addAbsenceMode || !selectedEmployee || !selectionStart) return false;
+
+    const currentDate = formatDateISO(selectedYear, selectedMonth, day);
+    const start = new Date(selectionStart);
+    const end = hoveredDate ? new Date(hoveredDate) : null;
+    const current = new Date(currentDate);
+
+    if (!end) return currentDate === selectionStart;
+
+    const minDate = start < end ? start : end;
+    const maxDate = start < end ? end : start;
+
+    return current >= minDate && current <= maxDate;
+  };
+
+  const handleConfirmAbsence = async () => {
+    setCreatingAbsence(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const startDate = selectionStart < selectionEnd ? selectionStart : selectionEnd;
+      const endDate = selectionStart < selectionEnd ? selectionEnd : selectionStart;
+      const days = calculateDaysBetween(startDate, endDate);
+
+      const absenceData = {
+        employee_id: selectedEmployee.id,
+        employee_name: selectedEmployee.name,
+        email: selectedEmployee.email,
+        motif_absence: selectedAbsenceType,
+        jours_absence: String(days),
+        date_debut: startDate,
+        date_fin: endDate,
+        notes: absenceNotes || `Absence ajoutée via planning par ${user.name}`,
+        status: 'approved',
+        created_by: user.id
+      };
+
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(absenceData)
+        }
+      );
+
+      if (response.ok) {
+        alert(`✅ Absence créée avec succès pour ${selectedEmployee.name}`);
+        
+        // Réinitialiser
+        setShowConfirmModal(false);
+        setSelectedEmployee(null);
+        setSelectionStart(null);
+        setSelectionEnd(null);
+        setAbsenceNotes('');
+        setAddAbsenceMode(false);
+        
+        // Recharger les données
+        loadAbsences();
+      } else {
+        const errorData = await response.json();
+        alert(`❌ Erreur lors de la création: ${errorData.detail || 'Erreur inconnue'}`);
+      }
+    } catch (error) {
+      console.error('Erreur création absence:', error);
+      alert(`❌ Erreur: ${error.message}`);
+    } finally {
+      setCreatingAbsence(false);
+    }
+  };
+
+  const handleCancelSelection = () => {
+    setShowConfirmModal(false);
+    setSelectionStart(null);
+    setSelectionEnd(null);
+    setAbsenceNotes('');
+  };
+
   // Regroupement des employés par catégorie
   const groupedEmployees = employees.reduce((groups, employee) => {
     const category = employee.category || 'Non classé';
