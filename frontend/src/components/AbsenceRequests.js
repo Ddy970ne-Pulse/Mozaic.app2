@@ -406,6 +406,15 @@ const AbsenceRequests = ({ user }) => {
 
   const isEmployee = user.role === 'employee';
 
+  // Afficher le loading
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header - Style Harmonisé */}
