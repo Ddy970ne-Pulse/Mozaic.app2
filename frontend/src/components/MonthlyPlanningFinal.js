@@ -667,11 +667,20 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                 const absenceInfo = absenceColorMap[absenceCode];
                 
                 // 🚨 NOUVELLE LOGIQUE: Vérifier si on doit skip week-ends/jours fériés
+                const isWeekendDay = isWeekend(day, month, year);
+                const isSundayDay = isSunday(day, month, year);
+                const isSaturdayDay = isWeekendDay && !isSundayDay;
+                
                 const shouldSkipThisDay = absenceInfo && (
-                  (absenceInfo.skipWeekends && isWeekend(day, month, year)) ||
-                  (absenceInfo.skipOnlySundays && isSunday(day, month, year)) ||
+                  (absenceInfo.skipWeekends && isWeekendDay) ||
+                  (absenceInfo.skipOnlySundays && isSundayDay) ||
                   (absenceInfo.skipHolidays && isHoliday(day, month, year))
                 );
+                
+                // Debug pour CA sur samedi
+                if (absenceCode === 'CA' && isSaturdayDay) {
+                  console.log(`🔍 CA Samedi ${day}/${month+1}: skipWeekends=${absenceInfo.skipWeekends}, skipOnlySundays=${absenceInfo.skipOnlySundays}, shouldSkip=${shouldSkipThisDay}`);
+                }
                 
                 if (!shouldSkipThisDay) {
                   const existingAbsence = newAbsences[day.toString()];
