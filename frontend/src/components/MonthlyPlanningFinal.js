@@ -22,6 +22,17 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const [employees, setEmployees] = useState([]);
   const [onCallData, setOnCallData] = useState({});
 
+  // États pour la fonctionnalité d'ajout d'absence interactif
+  const [addAbsenceMode, setAddAbsenceMode] = useState(false);
+  const [selectedAbsenceType, setSelectedAbsenceType] = useState('CA');
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectionStart, setSelectionStart] = useState(null);
+  const [selectionEnd, setSelectionEnd] = useState(null);
+  const [hoveredDate, setHoveredDate] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [absenceNotes, setAbsenceNotes] = useState('');
+  const [creatingAbsence, setCreatingAbsence] = useState(false);
+
   // Liste complète des 21 motifs d'absence selon l'image
   const absenceColorMap = {
     // Niveau 1 : PRIORITÉ ABSOLUE - Absences médicales (interrompent tout)
