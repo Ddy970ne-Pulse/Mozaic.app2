@@ -191,11 +191,12 @@ const EmployeeSpaceV2 = ({ user }) => {
         employee_name: user.name || userData?.name,
         email: user.email || userData?.email,
         motif_absence: absenceRequest.type,
-        jours_absence: parseFloat(absenceRequest.days),
+        jours_absence: String(absenceRequest.days), // Convertir en string pour Pydantic
         date_debut: absenceRequest.startDate,
         date_fin: absenceRequest.endDate,
-        notes: absenceRequest.comment,
-        status: 'pending' // Nouvelle demande en attente
+        notes: absenceRequest.comment || '',
+        status: 'pending', // Nouvelle demande en attente
+        created_by: user.id
       };
       
       console.log('📤 Envoi demande d\'absence:', absenceData);
