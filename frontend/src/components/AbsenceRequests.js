@@ -8,7 +8,83 @@ const AbsenceRequests = ({ user }) => {
   const [showNewRequest, setShowNewRequest] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingRequest, setEditingRequest] = useState(null);
-  const [requests, setRequests] = useState(getRequests());
+  const [requests, setRequests] = useState({ pending: [], approved: [], rejected: [] });
+  const [loading, setLoading] = useState(true);
+
+  // Charger les absences depuis l'API
+  const loadAbsencesFromAPI = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.ok) {
+        const absences = await response.json();
+        
+        // Transformer les absences de l'API en format requests
+        const pending = [];
+        const approved = [];
+        const rejected = [];
+        
+        absences.forEach(absence => {
+          const requestObj = {
+            id: absence.id,
+            employee: absence.employee_name,
+            employeeId: absence.employee_id,
+            email: absence.email,
+            type: absence.motif_absence,
+            startDate: absence.date_debut,
+            endDate: absence.date_fin,
+            days: parseFloat(absence.jours_absence || 0),
+            reason: absence.notes || '',
+            status: absence.status || 'approved',
+            submittedDate: absence.created_at ? absence.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
+            absence_unit: absence.absence_unit || 'jours',
+            hours_amount: absence.hours_amount
+          };
+          
+          if (requestObj.status === 'pending') {
+            pending.push(requestObj);
+          } else if (requestObj.status === 'approved') {
+            approved.push(requestObj);
+          } else if (requestObj.status === 'rejected') {
+            rejected.push(requestObj);
+          }
+        });
+        
+        const newRequests = { pending, approved, rejected };
+        setRequests(newRequests);
+        
+        // Mettre à jour aussi le state partagé
+        updateRequests(newRequests);
+        
+        console.log(`✅ Absences chargées: ${pending.length} en attente, ${approved.length} approuvées, ${rejected.length} rejetées`);
+      } else {
+        console.error('Erreur chargement absences:', response.status);
+      }
+    } catch (error) {
+      console.error('Erreur chargement absences:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Charger les absences au montage et toutes les 30 secondes
+  useEffect(() => {
+    loadAbsencesFromAPI();
+    
+    // Recharger périodiquement
+    const interval = setInterval(loadAbsencesFromAPI, 30000); // 30 secondes
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Souscription aux changements d'état
   useEffect(() => {
