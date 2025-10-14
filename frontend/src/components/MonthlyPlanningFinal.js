@@ -2529,7 +2529,13 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               <div className="text-sm text-gray-600">
                 {!selectedEmployee && !multiSelectMode && '👉 Cliquez sur un employé'}
                 {selectedEmployee && !selectionStart && `👤 ${selectedEmployee.name} → Cliquez sur date début`}
-                {selectedEmployee && selectionStart && !selectionEnd && `📅 ${formatDateForDisplay(selectionStart)} → Cliquez sur date fin`}
+                {selectedEmployee && selectionStart && !selectionEnd && !hoveredDate && `📅 ${formatDateForDisplay(selectionStart)} → Survolez pour voir la période`}
+                {selectedEmployee && selectionStart && !selectionEnd && hoveredDate && (
+                  <span className="font-bold text-green-600">
+                    📅 Du {formatDateForDisplay(selectionStart)} au {formatDateForDisplay(hoveredDate)} 
+                    = {calculateDaysBetween(selectionStart, hoveredDate)} jour(s) ouvrables → Cliquez pour valider
+                  </span>
+                )}
               </div>
             </div>
           )}
