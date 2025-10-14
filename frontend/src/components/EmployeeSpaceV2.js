@@ -25,6 +25,15 @@ const EmployeeSpaceV2 = ({ user }) => {
     recovered: 0,
     balance: 0
   });
+  
+  // État pour le formulaire de demande d'absence
+  const [absenceRequest, setAbsenceRequest] = useState({
+    type: '',
+    days: '',
+    startDate: '',
+    endDate: '',
+    comment: ''
+  });
 
   // Charger les données au montage
   useEffect(() => {
