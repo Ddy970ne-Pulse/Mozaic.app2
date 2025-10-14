@@ -33,6 +33,27 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const [absenceNotes, setAbsenceNotes] = useState('');
   const [creatingAbsence, setCreatingAbsence] = useState(false);
 
+  // États pour les nouvelles fonctionnalités avancées
+  // 1. Multi-sélection d'employés
+  const [multiSelectMode, setMultiSelectMode] = useState(false);
+  const [selectedEmployees, setSelectedEmployees] = useState([]);
+  
+  // 2. Modification/Suppression
+  const [contextMenu, setContextMenu] = useState(null);
+  const [selectedAbsenceForEdit, setSelectedAbsenceForEdit] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  
+  // 3. Copier-Coller
+  const [copiedAbsence, setCopiedAbsence] = useState(null);
+  const [showPasteIndicator, setShowPasteIndicator] = useState(false);
+  
+  // 4. Templates
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [newTemplateName, setNewTemplateName] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+
   // Liste complète des 21 motifs d'absence selon l'image
   const absenceColorMap = {
     // Niveau 1 : PRIORITÉ ABSOLUE - Absences médicales (interrompent tout)
