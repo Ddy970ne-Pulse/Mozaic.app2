@@ -92,7 +92,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     // Niveau 8 : PRIORITÉ MINIMALE - Absences non justifiées
     'NAUT': { name: 'Absence non autorisée', color: 'bg-gray-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 20 },
     'AUT': { name: 'Absence autorisée', color: 'bg-gray-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, priority: 21 },
-    'CSS': { name: 'Congés Sans Solde', color: 'bg-gray-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 22 },
+    'CSS': { name: 'Congés Sans Solde', color: 'bg-gray-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: true, skipOnlySundays: true, priority: 22 },
     
     // Niveau 9 : CAS SPÉCIAUX
     'RMED': { name: 'Rendez-vous médical', color: 'bg-emerald-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true, priority: 23 },
