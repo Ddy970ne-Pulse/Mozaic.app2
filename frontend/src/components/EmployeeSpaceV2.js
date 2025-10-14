@@ -252,19 +252,40 @@ const EmployeeSpaceV2 = ({ user, onChangeView }) => {
   };
   
   const formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A';
+    // Gérer les cas de dates manquantes ou invalides
+    if (!dateStr || dateStr === '' || dateStr === 'null' || dateStr === 'undefined') {
+      return 'Date non renseignée';
+    }
     
-    // Gérer les deux formats de date
-    // Format 1: DD/MM/YYYY (anciennes absences)
-    // Format 2: YYYY-MM-DD (nouvelles absences ISO)
-    
-    if (dateStr.includes('/')) {
-      // Format français DD/MM/YYYY
-      const [day, month, year] = dateStr.split('/');
-      return `${day}/${month}/${year}`;
-    } else {
-      // Format ISO YYYY-MM-DD
-      return new Date(dateStr + 'T00:00:00').toLocaleDateString('fr-FR');
+    try {
+      // Gérer les deux formats de date
+      // Format 1: DD/MM/YYYY (anciennes absences)
+      // Format 2: YYYY-MM-DD (nouvelles absences ISO)
+      
+      if (dateStr.includes('/')) {
+        // Format français DD/MM/YYYY
+        const [day, month, year] = dateStr.split('/');
+        
+        // Vérifier que les parties sont valides
+        if (!day || !month || !year || day === '' || month === '' || year === '') {
+          return 'Date invalide';
+        }
+        
+        return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+      } else {
+        // Format ISO YYYY-MM-DD
+        const date = new Date(dateStr + 'T00:00:00');
+        
+        // Vérifier que la date est valide
+        if (isNaN(date.getTime())) {
+          return 'Date invalide';
+        }
+        
+        return date.toLocaleDateString('fr-FR');
+      }
+    } catch (error) {
+      console.error('Erreur formatage date:', dateStr, error);
+      return 'Date invalide';
     }
   };
 
