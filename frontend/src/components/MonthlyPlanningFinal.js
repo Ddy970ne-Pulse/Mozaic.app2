@@ -669,6 +669,7 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                 // 🚨 NOUVELLE LOGIQUE: Vérifier si on doit skip week-ends/jours fériés
                 const shouldSkipThisDay = absenceInfo && (
                   (absenceInfo.skipWeekends && isWeekend(day, month, year)) ||
+                  (absenceInfo.skipOnlySundays && isSunday(day, month, year)) ||
                   (absenceInfo.skipHolidays && isHoliday(day, month, year))
                 );
                 
@@ -720,6 +721,7 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                 // 🚨 NOUVELLE LOGIQUE: Vérifier si on doit skip week-ends/jours fériés
                 const shouldSkipThisDay = absenceInfo && (
                   (absenceInfo.skipWeekends && isWeekend(day, month, year)) ||
+                  (absenceInfo.skipOnlySundays && isSunday(day, month, year)) ||
                   (absenceInfo.skipHolidays && isHoliday(day, month, year))
                 );
                 
@@ -890,6 +892,7 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                 // 🚨 NOUVELLE LOGIQUE: Vérifier si on doit skip week-ends/jours fériés
                 const shouldSkipThisDay = absenceInfo && (
                   (absenceInfo.skipWeekends && isWeekend(day, month, year)) ||
+                  (absenceInfo.skipOnlySundays && isSunday(day, month, year)) ||
                   (absenceInfo.skipHolidays && isHoliday(day, month, year))
                 );
                 
