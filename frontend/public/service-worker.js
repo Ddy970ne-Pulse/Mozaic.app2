@@ -45,6 +45,11 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Ignorer les requêtes vers les extensions de navigateur et autres protocoles non-HTTP
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
+
   // Pour les API calls, toujours aller chercher sur le réseau (temps réel)
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
@@ -77,15 +82,19 @@ self.addEventListener('fetch', (event) => {
             return response;
           }
 
-          // ✅ Ne mettre en cache que les requêtes GET
-          // Les requêtes POST/PUT/DELETE ne peuvent pas être cachées
-          if (request.method === 'GET') {
+          // ✅ Ne mettre en cache que les requêtes GET HTTP/HTTPS
+          // Exclure les extensions de navigateur et autres protocoles
+          if (request.method === 'GET' && url.protocol.startsWith('http')) {
             // Cloner la réponse
             const responseToCache = response.clone();
 
             caches.open(CACHE_NAME)
               .then((cache) => {
                 cache.put(request, responseToCache);
+              })
+              .catch((error) => {
+                // Ignorer silencieusement les erreurs de cache
+                console.log('[Service Worker] Impossible de mettre en cache:', request.url, error.message);
               });
           }
 
