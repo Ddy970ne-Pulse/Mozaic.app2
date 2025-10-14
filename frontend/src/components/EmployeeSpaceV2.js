@@ -590,13 +590,18 @@ const EmployeeSpaceV2 = ({ user }) => {
                   📝 Faire une Demande d'Absence Personnelle
                 </h3>
                 
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmitAbsenceRequest}>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Type d'Absence *
                       </label>
-                      <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                      <select 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        value={absenceRequest.type}
+                        onChange={(e) => setAbsenceRequest({...absenceRequest, type: e.target.value})}
+                        required
+                      >
                         <option value="">Sélectionner...</option>
                         <option value="CA">Congés Annuels (CA)</option>
                         <option value="CT">Congés Trimestriels (CT)</option>
@@ -616,6 +621,9 @@ const EmployeeSpaceV2 = ({ user }) => {
                         step="0.5"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                         placeholder="Ex: 5"
+                        value={absenceRequest.days}
+                        onChange={(e) => setAbsenceRequest({...absenceRequest, days: e.target.value})}
+                        required
                       />
                     </div>
 
@@ -626,6 +634,9 @@ const EmployeeSpaceV2 = ({ user }) => {
                       <input
                         type="date"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        value={absenceRequest.startDate}
+                        onChange={(e) => setAbsenceRequest({...absenceRequest, startDate: e.target.value})}
+                        required
                       />
                     </div>
 
@@ -636,6 +647,9 @@ const EmployeeSpaceV2 = ({ user }) => {
                       <input
                         type="date"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        value={absenceRequest.endDate}
+                        onChange={(e) => setAbsenceRequest({...absenceRequest, endDate: e.target.value})}
+                        required
                       />
                     </div>
                   </div>
@@ -648,6 +662,8 @@ const EmployeeSpaceV2 = ({ user }) => {
                       rows="3"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                       placeholder="Précisez le motif de votre demande..."
+                      value={absenceRequest.comment}
+                      onChange={(e) => setAbsenceRequest({...absenceRequest, comment: e.target.value})}
                     ></textarea>
                   </div>
 
@@ -655,14 +671,22 @@ const EmployeeSpaceV2 = ({ user }) => {
                     <button
                       type="button"
                       className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                      onClick={() => setAbsenceRequest({
+                        type: '',
+                        days: '',
+                        startDate: '',
+                        endDate: '',
+                        comment: ''
+                      })}
                     >
                       Annuler
                     </button>
                     <button
                       type="submit"
-                      className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                      className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      disabled={saving}
                     >
-                      📤 Soumettre Ma Demande
+                      {saving ? '⏳ Envoi...' : '📤 Soumettre Ma Demande'}
                     </button>
                   </div>
                 </form>
