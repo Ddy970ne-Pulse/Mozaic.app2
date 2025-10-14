@@ -2117,27 +2117,32 @@ def require_admin_access(current_user: User = Depends(get_current_user)):
 
 @api_router.post("/import/reset-demo")
 async def reset_demo_accounts(current_user: User = Depends(require_admin_access)):
-    """Reset system: Clear all data and keep only current admin"""
-    try:
-        # Clear all collections except current admin user
-        await db.employees.delete_many({})
-        await db.absences.delete_many({})
-        await db.work_hours.delete_many({})
-        
-        # Keep only current admin user, remove all others
-        await db.users.delete_many({"id": {"$ne": current_user.id}})
-        
-        return {
-            "success": True,
-            "message": "System reset completed. All demo data cleared.",
-            "remaining_admin": {
-                "name": current_user.name,
-                "email": current_user.email,
-                "role": current_user.role
-            }
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error resetting system: {str(e)}")
+    """Reset system: DÉSACTIVÉ EN PRODUCTION - Trop dangereux (causait perte de données)"""
+    raise HTTPException(
+        status_code=403, 
+        detail="Endpoint désactivé en production pour éviter toute perte de données. Utilisez la fonction de backup/restore si nécessaire."
+    )
+    # ANCIEN CODE DANGEREUX (DÉSACTIVÉ):
+    # try:
+    #     # Clear all collections except current admin user
+    #     await db.employees.delete_many({})
+    #     await db.absences.delete_many({})
+    #     await db.work_hours.delete_many({})
+    #     
+    #     # Keep only current admin user, remove all others
+    #     await db.users.delete_many({"id": {"$ne": current_user.id}})
+    #     
+    #     return {
+    #         "success": True,
+    #         "message": "System reset completed. All demo data cleared.",
+    #         "remaining_admin": {
+    #             "name": current_user.name,
+    #             "email": current_user.email,
+    #             "role": current_user.role
+    #         }
+    #     }
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=f"Error resetting system: {str(e)}")
 
 @api_router.post("/import/validate", response_model=ImportResult)
 async def validate_import_data(
