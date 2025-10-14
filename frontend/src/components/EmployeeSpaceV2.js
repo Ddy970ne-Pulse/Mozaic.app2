@@ -738,8 +738,8 @@ const EmployeeSpaceV2 = ({ user }) => {
                                     {absence.motif_absence} - {absence.jours_absence} jour(s)
                                   </h4>
                                   <p className="text-sm text-gray-600">
-                                    Du {new Date(absence.date_debut).toLocaleDateString('fr-FR')} 
-                                    {absence.date_fin && ` au ${new Date(absence.date_fin).toLocaleDateString('fr-FR')}`}
+                                    Du {formatDate(absence.date_debut)} 
+                                    {absence.date_fin && ` au ${formatDate(absence.date_fin)}`}
                                   </p>
                                 </div>
                               </div>
