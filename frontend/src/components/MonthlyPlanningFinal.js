@@ -2084,6 +2084,7 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                           const codeInfo = displayCode ? absenceColorMap[displayCode] : null;
                           const isHighlighted = shouldHighlightCell(dateObj.day);
                           const isClickable = addAbsenceMode && selectedEmployee && employee.id === selectedEmployee.id;
+                          const isPasteTarget = showPasteIndicator;
                           
                           return (
                             <td 
@@ -2094,15 +2095,24 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                               } ${
                                 isHighlighted ? 'bg-green-200 ring-2 ring-green-400' : ''
                               } ${
-                                isClickable ? 'cursor-pointer hover:bg-blue-100' : ''
+                                isClickable || isPasteTarget ? 'cursor-pointer hover:bg-blue-100' : ''
+                              } ${
+                                displayCode ? 'cursor-context-menu' : ''
                               }`}
-                              onClick={() => isClickable && handleDateCellClick(dateObj.day)}
+                              onClick={() => {
+                                if (isPasteTarget) {
+                                  handleDateCellClick(dateObj.day, employee);
+                                } else if (isClickable) {
+                                  handleDateCellClick(dateObj.day, employee);
+                                }
+                              }}
+                              onContextMenu={(e) => displayCode && handleCellRightClick(e, employee, dateObj, displayCode)}
                               onMouseEnter={() => isClickable && handleDateCellHover(dateObj.day)}
                             >
                               {codeInfo && (
                                 <span 
                                   className={`${codeInfo.color} ${codeInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help`}
-                                  title={`${codeInfo.name} - ${employee.name} - ${codeInfo.type} - ${codeInfo.decompte}${hasOnCall && absence ? ' + Astreinte semaine' : ''}`}
+                                  title={`${codeInfo.name} - ${employee.name} - ${codeInfo.type} - ${codeInfo.decompte}${hasOnCall && absence ? ' + Astreinte semaine' : ''}\n\nClic droit pour modifier/supprimer`}
                                 >
                                   {displayCode}
                                 </span>
