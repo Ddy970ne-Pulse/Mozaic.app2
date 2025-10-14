@@ -1077,9 +1077,23 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
   const calculateDaysBetween = (startDate, endDate) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const diffTime = Math.abs(end - start);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 pour inclure le dernier jour
-    return diffDays;
+    
+    let count = 0;
+    let current = new Date(start);
+    
+    // Parcourir chaque jour de la période
+    while (current <= end) {
+      const dayOfWeek = current.getDay();
+      // Compter tous les jours sauf dimanche (0 = dimanche)
+      // Jours ouvrables = lundi à samedi (1-6)
+      if (dayOfWeek !== 0) {
+        count++;
+      }
+      // Passer au jour suivant
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return count;
   };
 
   const handleEmployeeClick = (employee) => {
