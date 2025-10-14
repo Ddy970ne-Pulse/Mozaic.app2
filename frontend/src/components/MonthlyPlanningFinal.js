@@ -2265,6 +2265,74 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
           </div>
         </div>
       </div>
+
+      {/* Modal de confirmation d'ajout d'absence */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              Confirmer l'ajout d'absence
+            </h3>
+            
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">👤 Employé :</span>
+                <span className="font-semibold">{selectedEmployee?.name}</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">📝 Type :</span>
+                <span className="font-semibold">{absenceColorMap[selectedAbsenceType]?.name}</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">📅 Période :</span>
+                <span className="font-semibold">
+                  Du {formatDateForDisplay(selectionStart < selectionEnd ? selectionStart : selectionEnd)}
+                  {' '}au {formatDateForDisplay(selectionStart < selectionEnd ? selectionEnd : selectionStart)}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">⏱️ Durée :</span>
+                <span className="font-semibold">
+                  {calculateDaysBetween(selectionStart, selectionEnd)} jour(s)
+                </span>
+              </div>
+              
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Notes (optionnel) :
+                </label>
+                <textarea
+                  value={absenceNotes}
+                  onChange={(e) => setAbsenceNotes(e.target.value)}
+                  placeholder="Ajoutez des notes..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  rows="3"
+                />
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancelSelection}
+                disabled={creatingAbsence}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleConfirmAbsence}
+                disabled={creatingAbsence}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {creatingAbsence ? '⏳ Création...' : '✓ Confirmer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
