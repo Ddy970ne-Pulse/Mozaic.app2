@@ -1207,6 +1207,8 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         created_by: user.id
       };
 
+      console.log('📤 Envoi absence:', absenceData);
+
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
         {
