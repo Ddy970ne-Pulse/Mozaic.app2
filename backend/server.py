@@ -33,13 +33,14 @@ api_router = APIRouter(prefix="/api")
 # Startup event for auto-backup and restore
 @app.on_event("startup")
 async def startup_event():
-    """Événement de démarrage - Auto-restore si DB vide"""
+    """Événement de démarrage - Auto-restore DÉSACTIVÉ pour éviter perte de données"""
     try:
-        from backup_restore import auto_restore_if_empty
-        logger.info("🔄 Checking database state on startup...")
-        await auto_restore_if_empty()
+        # DÉSACTIVÉ: L'auto-restore causait une perte de données en restaurant depuis des backups corrompus
+        # from backup_restore import auto_restore_if_empty
+        logger.info("✅ Server starting - auto-restore disabled to prevent data loss")
+        # await auto_restore_if_empty()
     except Exception as e:
-        logger.warning(f"⚠️ Startup auto-restore check failed: {str(e)}")
+        logger.warning(f"⚠️ Startup check failed: {str(e)}")
 
 # Security
 security = HTTPBearer()
