@@ -2807,9 +2807,13 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
               
               <div className="flex items-center gap-2">
                 <span className="text-gray-600">⏱️ Durée :</span>
-                <span className="font-semibold">
-                  {calculateDaysBetween(selectionStart, selectionEnd)} jour(s)
+                <span className="font-semibold text-green-600">
+                  {calculateDaysBetween(selectionStart, selectionEnd)} jour(s) ouvrables
                 </span>
+              </div>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-800">
+                💡 Les jours sont calculés du <strong>lundi au samedi</strong> (dimanches exclus)
               </div>
               
               <div className="mt-4">
