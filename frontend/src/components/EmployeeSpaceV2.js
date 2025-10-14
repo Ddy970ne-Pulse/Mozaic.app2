@@ -236,7 +236,19 @@ const EmployeeSpaceV2 = ({ user }) => {
   
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
-    return new Date(dateStr).toLocaleDateString('fr-FR');
+    
+    // Gérer les deux formats de date
+    // Format 1: DD/MM/YYYY (anciennes absences)
+    // Format 2: YYYY-MM-DD (nouvelles absences ISO)
+    
+    if (dateStr.includes('/')) {
+      // Format français DD/MM/YYYY
+      const [day, month, year] = dateStr.split('/');
+      return `${day}/${month}/${year}`;
+    } else {
+      // Format ISO YYYY-MM-DD
+      return new Date(dateStr + 'T00:00:00').toLocaleDateString('fr-FR');
+    }
   };
 
   if (loading) {
