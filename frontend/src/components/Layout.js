@@ -335,7 +335,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           </div>
 
           {/* Styles CSS pour les animations */}
-          <style jsx>{`
+          <style>{`
             @keyframes cloudDrift {
               0% { 
                 transform: translateX(0vw) translateY(0px);
