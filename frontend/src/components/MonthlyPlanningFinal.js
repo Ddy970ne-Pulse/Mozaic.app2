@@ -1083,6 +1083,13 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
   };
 
   const handleEmployeeClick = (employee) => {
+    // Mode multi-sélection
+    if (multiSelectMode) {
+      toggleEmployeeSelection(employee);
+      return;
+    }
+    
+    // Mode ajout normal
     if (!addAbsenceMode) return;
     
     setSelectedEmployee(employee);
@@ -1091,7 +1098,15 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     setHoveredDate(null);
   };
 
-  const handleDateCellClick = (day) => {
+  const handleDateCellClick = (day, employee) => {
+    // Mode collage
+    if (showPasteIndicator && copiedAbsence) {
+      const targetDate = formatDateISO(selectedYear, selectedMonth, day);
+      handlePasteAbsence(employee, targetDate);
+      return;
+    }
+    
+    // Mode ajout normal
     if (!addAbsenceMode || !selectedEmployee) return;
 
     const clickedDate = formatDateISO(selectedYear, selectedMonth, day);
