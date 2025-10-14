@@ -18,7 +18,7 @@ function App() {
         try {
           // Vérifier que le token est toujours valide
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/auth/verify`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/auth/me`,
             {
               headers: {
                 'Authorization': `Bearer ${token}`
@@ -27,17 +27,19 @@ function App() {
           );
           
           if (response.ok) {
-            // Token valide, restaurer l'utilisateur
-            const userData = JSON.parse(storedUser);
+            // Token valide, restaurer l'utilisateur avec les données à jour
+            const userData = await response.json();
             setUser(userData);
+            // Mettre à jour localStorage avec les données fraîches
+            localStorage.setItem('user', JSON.stringify(userData));
           } else {
-            // Token invalide, nettoyer
+            // Token invalide ou expiré, nettoyer
             localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
         } catch (error) {
           console.error('Erreur vérification auth:', error);
-          // En cas d'erreur réseau, on garde l'utilisateur connecté
+          // En cas d'erreur réseau, on garde l'utilisateur connecté localement
           const userData = JSON.parse(storedUser);
           setUser(userData);
         }
