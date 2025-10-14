@@ -2284,11 +2284,13 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
       {/* Barre d'outils d'ajout d'absence (Admin uniquement) */}
       {user?.role === 'admin' && (
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-purple-200">
-          <div className="flex flex-wrap items-center gap-4">
+          {/* Ligne 1: Modes principaux */}
+          <div className="flex flex-wrap items-center gap-3 mb-3">
             {/* Bouton Mode Ajout */}
             <button
               onClick={() => {
                 setAddAbsenceMode(!addAbsenceMode);
+                setMultiSelectMode(false);
                 if (!addAbsenceMode) {
                   setSelectedEmployee(null);
                   setSelectionStart(null);
@@ -2302,57 +2304,157 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {addAbsenceMode ? '✓ Mode Ajout Activé' : '➕ Activer Mode Ajout'}
+              {addAbsenceMode ? '✓ Mode Ajout' : '➕ Mode Ajout'}
             </button>
 
-            {/* Sélecteur de type d'absence */}
-            {addAbsenceMode && (
-              <>
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700">Type d'absence :</label>
-                  <select
-                    value={selectedAbsenceType}
-                    onChange={(e) => setSelectedAbsenceType(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  >
-                    <option value="CA">Congés Annuels</option>
-                    <option value="CT">Congés Trimestriels</option>
-                    <option value="RTT">RTT</option>
-                    <option value="REC">Récupération</option>
-                    <option value="AM">Arrêt Maladie</option>
-                    <option value="AT">Accident du travail</option>
-                    <option value="MAT">Congé Maternité</option>
-                    <option value="PAT">Congé Paternité</option>
-                    <option value="FAM">Événement Familial</option>
-                    <option value="FO">Formation</option>
-                    <option value="STG">Stage</option>
-                    <option value="TEL">Télétravail</option>
-                    <option value="CSS">Congés Sans Solde</option>
-                    <option value="CEX">Congé Exceptionnel</option>
-                  </select>
-                </div>
+            {/* Bouton Multi-Sélection */}
+            <button
+              onClick={() => {
+                setMultiSelectMode(!multiSelectMode);
+                setAddAbsenceMode(false);
+                if (!multiSelectMode) {
+                  clearEmployeeSelection();
+                }
+              }}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                multiSelectMode
+                  ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {multiSelectMode ? `✓ Multi (${selectedEmployees.length})` : '👥 Multi-Sélection'}
+            </button>
 
-                {/* Indicateur d'état */}
-                <div className="flex items-center gap-2 text-sm">
-                  {!selectedEmployee && (
-                    <span className="text-gray-600">
-                      👉 Étape 1 : Cliquez sur un employé
-                    </span>
+            {/* Bouton Templates */}
+            <div className="relative">
+              <button
+                onClick={() => setSelectedTemplate(selectedTemplate ? null : 'show')}
+                className="px-4 py-2 rounded-lg font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-lg transition-all duration-200"
+              >
+                📚 Templates ({templates.length})
+              </button>
+
+              {selectedTemplate && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-30 min-w-[300px] max-h-[400px] overflow-y-auto">
+                  <h4 className="font-semibold text-gray-800 mb-3">Templates d'absence</h4>
+                  
+                  {templates.length === 0 ? (
+                    <p className="text-sm text-gray-500 italic">Aucun template sauvegardé</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {templates.map(template => (
+                        <div key={template.id} className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h5 className="font-semibold text-sm">{template.name}</h5>
+                              <p className="text-xs text-gray-600">
+                                {absenceColorMap[template.type]?.name} - {template.duration} jour(s)
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => deleteTemplate(template.id)}
+                              className="text-red-500 hover:text-red-700 text-xs"
+                              title="Supprimer"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => applyTemplate(template)}
+                            className="w-full px-3 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700"
+                          >
+                            Appliquer
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
-                  {selectedEmployee && !selectionStart && (
-                    <span className="text-purple-600 font-medium">
-                      👤 {selectedEmployee.name} sélectionné → Cliquez sur la date de début
-                    </span>
-                  )}
-                  {selectedEmployee && selectionStart && !selectionEnd && (
-                    <span className="text-green-600 font-medium">
-                      📅 {formatDateForDisplay(selectionStart)} → Cliquez sur la date de fin
-                    </span>
-                  )}
+                  
+                  <button
+                    onClick={() => {
+                      setSelectedTemplate(null);
+                      saveAsTemplate();
+                    }}
+                    className="w-full mt-3 px-3 py-2 border-2 border-dashed border-green-400 text-green-600 rounded-lg hover:bg-green-50 text-sm font-medium"
+                  >
+                    ➕ Créer nouveau template
+                  </button>
                 </div>
-              </>
+              )}
+            </div>
+
+            {/* Indicateur Copier-Coller */}
+            {showPasteIndicator && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-yellow-100 border border-yellow-300 rounded-lg">
+                <span className="text-sm font-medium text-yellow-800">
+                  📋 Mode Collage: {absenceColorMap[copiedAbsence.type]?.name}
+                </span>
+                <button
+                  onClick={cancelPaste}
+                  className="text-xs text-red-600 hover:text-red-800 font-medium"
+                >
+                  ✕ Annuler
+                </button>
+              </div>
             )}
           </div>
+
+          {/* Ligne 2: Options selon mode */}
+          {addAbsenceMode && (
+            <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gray-200">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">Type :</label>
+                <select
+                  value={selectedAbsenceType}
+                  onChange={(e) => setSelectedAbsenceType(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
+                >
+                  <option value="CA">Congés Annuels</option>
+                  <option value="CT">Congés Trimestriels</option>
+                  <option value="RTT">RTT</option>
+                  <option value="REC">Récupération</option>
+                  <option value="AM">Arrêt Maladie</option>
+                  <option value="AT">Accident du travail</option>
+                  <option value="MAT">Congé Maternité</option>
+                  <option value="PAT">Congé Paternité</option>
+                  <option value="FAM">Événement Familial</option>
+                  <option value="FO">Formation</option>
+                  <option value="STG">Stage</option>
+                  <option value="TEL">Télétravail</option>
+                  <option value="CSS">Congés Sans Solde</option>
+                  <option value="CEX">Congé Exceptionnel</option>
+                </select>
+              </div>
+
+              <div className="text-sm text-gray-600">
+                {!selectedEmployee && !multiSelectMode && '👉 Cliquez sur un employé'}
+                {selectedEmployee && !selectionStart && `👤 ${selectedEmployee.name} → Cliquez sur date début`}
+                {selectedEmployee && selectionStart && !selectionEnd && `📅 ${formatDateForDisplay(selectionStart)} → Cliquez sur date fin`}
+              </div>
+            </div>
+          )}
+
+          {multiSelectMode && selectedEmployees.length > 0 && (
+            <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gray-200">
+              <span className="text-sm font-medium text-gray-700">
+                {selectedEmployees.length} employé(s) sélectionné(s):
+              </span>
+              {selectedEmployees.slice(0, 3).map(emp => (
+                <span key={emp.id} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                  {emp.name}
+                </span>
+              ))}
+              {selectedEmployees.length > 3 && (
+                <span className="text-xs text-gray-500">+{selectedEmployees.length - 3} autres</span>
+              )}
+              <button
+                onClick={clearEmployeeSelection}
+                className="text-xs text-red-600 hover:text-red-800 font-medium"
+              >
+                ✕ Tout désélectionner
+              </button>
+            </div>
+          )}
         </div>
       )}
 
