@@ -1,4 +1,4 @@
-// Force rebuild - cache buster v7 - 2025-01-15-fix-422
+// Force rebuild - cache buster v8 - 2025-01-15-navigation-fix
 import React, { useState, useEffect } from 'react';
 
 const EmployeeSpaceV2 = ({ user, onChangeView }) => {
