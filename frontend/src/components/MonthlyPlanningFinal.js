@@ -1725,9 +1725,24 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                     </tr>
                     {cadres.map((employee, index) => (
                       <tr key={employee.id} className={index % 2 === 0 ? 'bg-purple-25' : 'bg-white'}>
-                        <td className="border border-gray-200 px-3 py-2 sticky left-0 bg-white z-10">
+                        <td 
+                          className={`border border-gray-200 px-3 py-2 sticky left-0 z-10 transition-all duration-150 ${
+                            addAbsenceMode && selectedEmployee?.id === employee.id
+                              ? 'bg-purple-100 ring-2 ring-purple-400'
+                              : 'bg-white'
+                          } ${
+                            addAbsenceMode ? 'cursor-pointer hover:bg-purple-50' : ''
+                          }`}
+                          onClick={() => handleEmployeeClick(employee)}
+                        >
                           <div className="font-semibold text-sm text-gray-800 flex items-center">
-                            <span className="text-purple-600 mr-2">●</span>
+                            <span className={`mr-2 ${
+                              addAbsenceMode && selectedEmployee?.id === employee.id
+                                ? 'text-purple-600 text-lg'
+                                : 'text-purple-600'
+                            }`}>
+                              {addAbsenceMode && selectedEmployee?.id === employee.id ? '✓' : '●'}
+                            </span>
                             {employee.name}
                           </div>
                         </td>
