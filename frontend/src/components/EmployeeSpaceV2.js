@@ -198,6 +198,8 @@ const EmployeeSpaceV2 = ({ user }) => {
         status: 'pending' // Nouvelle demande en attente
       };
       
+      console.log('📤 Envoi demande d\'absence:', absenceData);
+      
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
         {
