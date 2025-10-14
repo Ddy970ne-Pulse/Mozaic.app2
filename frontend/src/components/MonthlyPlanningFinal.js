@@ -2348,6 +2348,39 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         </div>
       </div>
 
+      {/* Carte d'aide pour la fonctionnalité de sélection par période */}
+      {user?.role === 'admin' && !addAbsenceMode && !multiSelectMode && (
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 mb-4 border-2 border-purple-200">
+          <div className="flex items-start gap-3">
+            <div className="text-3xl">📅</div>
+            <div className="flex-1">
+              <h3 className="font-bold text-purple-800 mb-2">
+                💡 Comment ajouter une absence directement dans le planning ?
+              </h3>
+              <ol className="text-sm text-gray-700 space-y-1 list-decimal list-inside">
+                <li><strong>Cliquez sur "➕ Mode Ajout"</strong> ci-dessous</li>
+                <li><strong>Choisissez un type d'absence</strong> (CA, RTT, etc.)</li>
+                <li><strong>Cliquez sur un employé</strong> (la ligne devient violette)</li>
+                <li><strong>Cliquez sur la date de début</strong> (cellule devient verte)</li>
+                <li><strong>Survolez jusqu'à la date de fin</strong> (visualisez la période en vert)</li>
+                <li><strong>Cliquez sur la date de fin</strong> → Modal de confirmation</li>
+              </ol>
+              <p className="text-xs text-purple-600 mt-2 font-medium">
+                ✨ Les jours sont calculés en <strong>jours ouvrables</strong> (lundi-samedi, dimanches exclus)
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setAddAbsenceMode(true);
+              }}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium whitespace-nowrap"
+            >
+              Essayer maintenant
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Barre d'outils d'ajout d'absence (Admin uniquement) */}
       {user?.role === 'admin' && (
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-purple-200">
