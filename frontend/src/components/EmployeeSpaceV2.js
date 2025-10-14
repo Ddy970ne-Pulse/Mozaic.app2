@@ -213,6 +213,8 @@ const EmployeeSpaceV2 = ({ user }) => {
       );
       
       if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Réponse serveur:', result);
         showMessage('✅ Demande soumise avec succès', 'success');
         // Réinitialiser le formulaire
         setAbsenceRequest({
