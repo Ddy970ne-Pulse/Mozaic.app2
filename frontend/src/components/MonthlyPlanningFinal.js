@@ -1160,6 +1160,31 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     setAbsenceNotes('');
   };
 
+  // Fonction pour forcer le rechargement des absences
+  const loadAbsences = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/absences/by-period/${selectedYear}/${selectedMonth + 1}`;
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const importedAbsences = await response.json();
+        const requestsData = getRequests();
+        const approvedRequests = Array.isArray(requestsData) ? requestsData.filter(r => r.status === 'approved') : [];
+        applyAllAbsencesToPlanning(importedAbsences, approvedRequests);
+      }
+    } catch (error) {
+      console.error('Error reloading absences:', error);
+    }
+  };
+
   // Regroupement des employés par catégorie
   const groupedEmployees = employees.reduce((groups, employee) => {
     const category = employee.category || 'Non classé';
