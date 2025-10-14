@@ -2129,7 +2129,8 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                           );
                         })}
                       </tr>
-                    ))}
+                      );
+                    })}
                     {/* Separator row */}
                     <tr className="bg-gray-200">
                       <td colSpan={dateRange.length + 2} className="border-t-2 border-b-2 border-gray-400 py-1"></td>
