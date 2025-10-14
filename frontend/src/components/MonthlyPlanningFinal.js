@@ -1230,6 +1230,265 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
     }
   };
 
+  // ============ NOUVELLES FONCTIONNALITÉS AVANCÉES ============
+
+  // 1. MULTI-SÉLECTION D'EMPLOYÉS
+  const toggleEmployeeSelection = (employee) => {
+    if (!multiSelectMode) return;
+    
+    setSelectedEmployees(prev => {
+      const exists = prev.find(e => e.id === employee.id);
+      if (exists) {
+        return prev.filter(e => e.id !== employee.id);
+      } else {
+        return [...prev, employee];
+      }
+    });
+  };
+
+  const clearEmployeeSelection = () => {
+    setSelectedEmployees([]);
+  };
+
+  // 2. MODIFICATION/SUPPRESSION DIRECTE
+  const handleCellRightClick = (e, employee, dateObj, absenceCode) => {
+    if (!absenceCode || !user?.role === 'admin') return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Trouver l'absence correspondante
+    const dateKey = `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+    
+    setSelectedAbsenceForEdit({
+      employee,
+      date: dateKey,
+      type: absenceCode,
+      dateObj
+    });
+    
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY
+    });
+  };
+
+  const handleEditAbsence = () => {
+    setContextMenu(null);
+    setShowEditModal(true);
+  };
+
+  const handleDeleteAbsence = () => {
+    setContextMenu(null);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteAbsence = async () => {
+    if (!selectedAbsenceForEdit) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Trouver l'ID de l'absence dans la base
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.ok) {
+        const absences = await response.json();
+        const absenceToDelete = absences.find(a => 
+          a.employee_id === selectedAbsenceForEdit.employee.id &&
+          a.date_debut === selectedAbsenceForEdit.date
+        );
+        
+        if (absenceToDelete) {
+          const deleteResponse = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/absences/${absenceToDelete.id}`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          );
+          
+          if (deleteResponse.ok) {
+            alert('✅ Absence supprimée avec succès');
+            loadAbsences();
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erreur suppression:', error);
+      alert('❌ Erreur lors de la suppression');
+    } finally {
+      setShowDeleteConfirm(false);
+      setSelectedAbsenceForEdit(null);
+    }
+  };
+
+  // 3. COPIER-COLLER
+  const handleCopyAbsence = () => {
+    if (!selectedAbsenceForEdit) return;
+    
+    setCopiedAbsence({
+      type: selectedAbsenceForEdit.type,
+      employee: selectedAbsenceForEdit.employee,
+      date: selectedAbsenceForEdit.date,
+      dateObj: selectedAbsenceForEdit.dateObj
+    });
+    
+    setShowPasteIndicator(true);
+    setContextMenu(null);
+    
+    alert('📋 Absence copiée ! Cliquez sur un employé puis sur une date pour coller.');
+  };
+
+  const handlePasteAbsence = async (targetEmployee, targetDate) => {
+    if (!copiedAbsence || !user?.role === 'admin') return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      
+      const absenceData = {
+        employee_id: targetEmployee.id,
+        employee_name: targetEmployee.name,
+        email: targetEmployee.email,
+        motif_absence: copiedAbsence.type,
+        jours_absence: "1",
+        date_debut: targetDate,
+        date_fin: targetDate,
+        notes: `Copié depuis ${copiedAbsence.employee.name} (${copiedAbsence.date})`,
+        status: 'approved',
+        created_by: user.id
+      };
+
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(absenceData)
+        }
+      );
+
+      if (response.ok) {
+        alert('✅ Absence collée avec succès');
+        loadAbsences();
+      }
+    } catch (error) {
+      console.error('Erreur collage:', error);
+      alert('❌ Erreur lors du collage');
+    }
+  };
+
+  const cancelPaste = () => {
+    setCopiedAbsence(null);
+    setShowPasteIndicator(false);
+  };
+
+  // 4. TEMPLATES
+  const saveAsTemplate = () => {
+    if (!selectionStart || !selectionEnd || !selectedAbsenceType) {
+      alert('⚠️ Veuillez d\'abord créer une absence');
+      return;
+    }
+    
+    setShowTemplateModal(true);
+  };
+
+  const confirmSaveTemplate = () => {
+    if (!newTemplateName.trim()) {
+      alert('⚠️ Veuillez donner un nom au template');
+      return;
+    }
+    
+    const template = {
+      id: Date.now().toString(),
+      name: newTemplateName,
+      type: selectedAbsenceType,
+      startDate: selectionStart,
+      endDate: selectionEnd,
+      duration: calculateDaysBetween(selectionStart, selectionEnd),
+      createdAt: new Date().toISOString()
+    };
+    
+    const updatedTemplates = [...templates, template];
+    setTemplates(updatedTemplates);
+    localStorage.setItem('absenceTemplates', JSON.stringify(updatedTemplates));
+    
+    alert('✅ Template sauvegardé !');
+    setShowTemplateModal(false);
+    setNewTemplateName('');
+  };
+
+  const applyTemplate = async (template) => {
+    if (!selectedEmployee && selectedEmployees.length === 0) {
+      alert('⚠️ Veuillez d\'abord sélectionner un ou plusieurs employés');
+      return;
+    }
+    
+    const employeesToApply = multiSelectMode ? selectedEmployees : [selectedEmployee];
+    
+    try {
+      const token = localStorage.getItem('token');
+      let successCount = 0;
+      
+      for (const emp of employeesToApply) {
+        const absenceData = {
+          employee_id: emp.id,
+          employee_name: emp.name,
+          email: emp.email,
+          motif_absence: template.type,
+          jours_absence: String(template.duration),
+          date_debut: template.startDate,
+          date_fin: template.endDate,
+          notes: `Appliqué depuis template: ${template.name}`,
+          status: 'approved',
+          created_by: user.id
+        };
+
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(absenceData)
+          }
+        );
+
+        if (response.ok) successCount++;
+      }
+      
+      alert(`✅ Template appliqué à ${successCount} employé(s)`);
+      loadAbsences();
+      clearEmployeeSelection();
+    } catch (error) {
+      console.error('Erreur application template:', error);
+      alert('❌ Erreur lors de l\'application du template');
+    }
+  };
+
+  const deleteTemplate = (templateId) => {
+    if (!confirm('Supprimer ce template ?')) return;
+    
+    const updatedTemplates = templates.filter(t => t.id !== templateId);
+    setTemplates(updatedTemplates);
+    localStorage.setItem('absenceTemplates', JSON.stringify(updatedTemplates));
+    alert('✅ Template supprimé');
+  };
+
   // Regroupement des employés par catégorie
   const groupedEmployees = employees.reduce((groups, employee) => {
     const category = employee.category || 'Non classé';
