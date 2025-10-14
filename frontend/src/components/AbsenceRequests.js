@@ -324,11 +324,45 @@ const AbsenceRequests = ({ user }) => {
   };
 
   const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    // Gérer les cas de dates manquantes ou invalides
+    if (!dateStr || dateStr === '' || dateStr === 'null' || dateStr === 'undefined') {
+      return 'Date non renseignée';
+    }
+    
+    try {
+      // Gérer les deux formats de date
+      // Format 1: DD/MM/YYYY (absences importées)
+      // Format 2: YYYY-MM-DD (nouvelles absences ISO)
+      
+      if (dateStr.includes('/')) {
+        // Format français DD/MM/YYYY - retourner tel quel
+        const [day, month, year] = dateStr.split('/');
+        
+        // Vérifier que les parties sont valides
+        if (!day || !month || !year || day === '' || month === '' || year === '') {
+          return 'Date invalide';
+        }
+        
+        return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+      } else {
+        // Format ISO YYYY-MM-DD
+        const date = new Date(dateStr + 'T00:00:00');
+        
+        // Vérifier que la date est valide
+        if (isNaN(date.getTime())) {
+          return 'Date invalide';
+        }
+        
+        return date.toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+      }
+    } catch (error) {
+      console.error('Erreur formatage date:', dateStr, error);
+      return 'Date invalide';
+    }
   };
 
   const handleFileUpload = (event) => {
