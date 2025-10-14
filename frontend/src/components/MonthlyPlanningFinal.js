@@ -1748,14 +1748,22 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                           
                           const displayCode = absence || (hasOnCall ? 'AST' : null);
                           const codeInfo = displayCode ? absenceColorMap[displayCode] : null;
+                          const isHighlighted = shouldHighlightCell(dateObj.day);
+                          const isClickable = addAbsenceMode && selectedEmployee && employee.id === selectedEmployee.id;
                           
                           return (
                             <td 
                               key={`${dateObj.year}-${dateObj.month}-${dateObj.day}`} 
-                              className={`border border-gray-200 px-1 py-1 text-center text-xs ${
+                              className={`border border-gray-200 px-1 py-1 text-center text-xs transition-all duration-150 ${
                                 isWknd && !displayCode ? 'bg-gray-50' : 
                                 isHol && !displayCode ? 'bg-red-25' : ''
+                              } ${
+                                isHighlighted ? 'bg-green-200 ring-2 ring-green-400' : ''
+                              } ${
+                                isClickable ? 'cursor-pointer hover:bg-blue-100' : ''
                               }`}
+                              onClick={() => isClickable && handleDateCellClick(dateObj.day)}
+                              onMouseEnter={() => isClickable && handleDateCellHover(dateObj.day)}
                             >
                               {codeInfo && (
                                 <span 
