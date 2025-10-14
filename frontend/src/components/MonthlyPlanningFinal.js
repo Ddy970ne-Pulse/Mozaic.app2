@@ -2042,25 +2042,33 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                         👔 CADRES ({cadres.length})
                       </td>
                     </tr>
-                    {cadres.map((employee, index) => (
+                    {cadres.map((employee, index) => {
+                      const isSelected = multiSelectMode && selectedEmployees.find(e => e.id === employee.id);
+                      const isActiveInAddMode = addAbsenceMode && selectedEmployee?.id === employee.id;
+                      
+                      return (
                       <tr key={employee.id} className={index % 2 === 0 ? 'bg-purple-25' : 'bg-white'}>
                         <td 
                           className={`border border-gray-200 px-3 py-2 sticky left-0 z-10 transition-all duration-150 ${
-                            addAbsenceMode && selectedEmployee?.id === employee.id
+                            isActiveInAddMode
                               ? 'bg-purple-100 ring-2 ring-purple-400'
+                              : isSelected
+                              ? 'bg-blue-100 ring-2 ring-blue-400'
                               : 'bg-white'
                           } ${
-                            addAbsenceMode ? 'cursor-pointer hover:bg-purple-50' : ''
+                            addAbsenceMode || multiSelectMode ? 'cursor-pointer hover:bg-purple-50' : ''
                           }`}
                           onClick={() => handleEmployeeClick(employee)}
                         >
                           <div className="font-semibold text-sm text-gray-800 flex items-center">
                             <span className={`mr-2 ${
-                              addAbsenceMode && selectedEmployee?.id === employee.id
+                              isActiveInAddMode
                                 ? 'text-purple-600 text-lg'
+                                : isSelected
+                                ? 'text-blue-600 text-lg'
                                 : 'text-purple-600'
                             }`}>
-                              {addAbsenceMode && selectedEmployee?.id === employee.id ? '✓' : '●'}
+                              {isActiveInAddMode || isSelected ? '✓' : '●'}
                             </span>
                             {employee.name}
                           </div>
