@@ -601,8 +601,8 @@ const EmployeeSpaceV2 = ({ user, onChangeView }) => {
                             Module "Demandes d'Absence" : Validez et gérez les demandes de VOTRE équipe.
                           </p>
                           <button
-                            onClick={() => window.location.href = '#absence-requests'}
-                            className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+                            onClick={() => onChangeView && onChangeView('absence-requests')}
+                            className="text-xs text-purple-600 hover:text-purple-700 font-medium hover:underline transition-all"
                           >
                             → Accéder au module
                           </button>
