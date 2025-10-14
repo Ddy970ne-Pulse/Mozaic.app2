@@ -3246,6 +3246,25 @@ async def delete_absence(absence_id: str, current_user: User = Depends(get_curre
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting absence: {str(e)}")
 
+@api_router.delete("/absences/bulk/all")
+async def delete_all_absences(current_user: User = Depends(get_current_user)):
+    """Delete ALL absences (admin only) - Use with caution!"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only administrators can delete all absences")
+    
+    try:
+        result = await db.absences.delete_many({})
+        logger.warning(f"🗑️ ALL ABSENCES DELETED by {current_user.name}: {result.deleted_count} absences removed")
+        
+        return {
+            "message": f"All absences deleted successfully",
+            "deleted_count": result.deleted_count
+        }
+        
+    except Exception as e:
+        logger.error(f"Error deleting all absences: {e}")
+        raise HTTPException(status_code=500, detail=f"Error deleting all absences: {str(e)}")
+
 @api_router.put("/absences/{absence_id}")
 async def update_absence(
     absence_id: str,
