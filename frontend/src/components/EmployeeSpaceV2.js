@@ -228,7 +228,19 @@ const EmployeeSpaceV2 = ({ user }) => {
         fetchUserData();
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Erreur lors de la soumission');
+        console.error('❌ Erreur backend:', errorData);
+        
+        // Formater le message d'erreur
+        let errorMessage = 'Erreur lors de la soumission';
+        if (typeof errorData.detail === 'string') {
+          errorMessage = errorData.detail;
+        } else if (Array.isArray(errorData.detail)) {
+          errorMessage = errorData.detail.map(e => `${e.loc?.join('.')}: ${e.msg}`).join(', ');
+        } else if (errorData.detail) {
+          errorMessage = JSON.stringify(errorData.detail);
+        }
+        
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error('Erreur soumission demande:', error);
