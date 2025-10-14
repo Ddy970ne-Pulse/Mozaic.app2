@@ -2242,7 +2242,8 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
                         );
                       })}
                     </tr>
-                  ))}
+                    );
+                  })}
                 </React.Fragment>
               );
             })}
