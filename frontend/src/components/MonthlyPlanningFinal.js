@@ -1202,12 +1202,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         jours_absence: String(days),
         date_debut: startDate,
         date_fin: endDate,
-        notes: absenceNotes || `Absence ajoutée via planning par ${user.name}`,
+        notes: absenceNotes || `Absence ajoutée via planning par ${user?.name || 'Admin'}`,
         status: 'approved',
-        created_by: user.id
+        created_by: user?.id || 'system',
+        absence_unit: 'jours'
       };
 
       console.log('📤 Envoi absence:', absenceData);
+      console.log('🔍 User actuel:', user);
 
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
