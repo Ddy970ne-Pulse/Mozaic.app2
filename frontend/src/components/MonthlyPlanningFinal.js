@@ -78,12 +78,12 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     'CEX': { name: 'Congé exceptionnel', color: 'bg-violet-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: true, skipOnlySundays: true, priority: 13 },
     
     // Niveau 5 : PRIORITÉ MOYENNE - Récupérations et RTT
-    'RTT': { name: 'RTT', color: 'bg-green-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true, priority: 14 },
-    'REC': { name: 'Récupération', color: 'bg-yellow-400', textColor: 'text-black', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 15 },
+    'RTT': { name: 'RTT', color: 'bg-green-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true, skipOnlySundays: false, priority: 14 },
+    'REC': { name: 'Récupération', color: 'bg-yellow-400', textColor: 'text-black', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: true, skipOnlySundays: true, priority: 15 },
     
     // Niveau 6 : PRIORITÉ MOYENNE-BASSE - Télétravail et délégation
-    'TEL': { name: 'Télétravail', color: 'bg-yellow-300', textColor: 'text-black', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 16 },
-    'DEL': { name: 'Délégation', color: 'bg-orange-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true, priority: 17 },
+    'TEL': { name: 'Télétravail', color: 'bg-yellow-300', textColor: 'text-black', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: true, skipOnlySundays: true, priority: 16 },
+    'DEL': { name: 'Délégation', color: 'bg-orange-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: true, skipOnlySundays: true, priority: 17 },
     
     // Niveau 7 : PRIORITÉ BASSE - Repos
     'RH': { name: 'Repos Hebdomadaire', color: 'bg-cyan-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: false, priority: 18 },
