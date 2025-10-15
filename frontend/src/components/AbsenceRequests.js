@@ -279,7 +279,17 @@ const AbsenceRequests = ({ user }) => {
       });
 
       if (response.ok) {
-        alert('✅ Absence modifiée avec succès');
+        const result = await response.json();
+        
+        // Message de succès avec info sur la synchronisation
+        let successMessage = '✅ Absence modifiée avec succès';
+        
+        if (result.counters_synced) {
+          successMessage += '\n🔄 Compteurs de congés mis à jour automatiquement';
+        }
+        
+        alert(successMessage);
+        
         setShowEditModal(false);
         setEditingRequest(null);
         // Recharger les données
