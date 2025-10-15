@@ -3604,10 +3604,17 @@ async def delete_absence(
 ):
     """
     Delete an absence
+    🔄 SYNCHRONISATION AUTOMATIQUE : Si approved, réintègre dans les compteurs
     Admin can delete any absence
     """
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Récupérer l'absence avant suppression pour synchroniser les compteurs
+    absence_to_delete = await db.absences.find_one({"id": absence_id})
+    
+    if not absence_to_delete:
+        raise HTTPException(status_code=404, detail="Absence not found")
     
     # Supprimer l'absence
     result = await db.absences.delete_one({"id": absence_id})
@@ -3615,9 +3622,23 @@ async def delete_absence(
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Absence not found")
     
+    # 🔄 SYNCHRONISATION : Si l'absence était approved, réintégrer dans les compteurs
+    sync_performed = False
+    if absence_to_delete.get("status") == "approved":
+        logger.info(f"🔄 Suppression absence approved {absence_id}: réintégration dans compteurs")
+        sync_result = await sync_service.sync_absence_to_counters(absence_to_delete, operation="delete")
+        sync_performed = sync_result
+        if sync_result:
+            logger.info(f"✅ Compteurs réintégrés après suppression absence {absence_id}")
+        else:
+            logger.warning(f"⚠️ Échec réintégration compteurs pour absence {absence_id}")
+    else:
+        logger.info(f"✅ Suppression absence {absence_id} (status={absence_to_delete.get('status')}) - pas de réintégration")
+    
     return {
         "success": True,
-        "message": "Absence deleted successfully"
+        "message": "Absence deleted successfully",
+        "counters_synced": sync_performed
     }
 
 @api_router.get("/absences/by-period/{year}/{month}", response_model=List[dict])
