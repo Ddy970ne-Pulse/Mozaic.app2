@@ -1909,6 +1909,54 @@ const UserManagement = ({ user }) => {
         </div>
       )}
 
+      {/* Modal de confirmation de suppression utilisateur individuel */}
+      {showDeleteConfirmModal && userToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-red-600 mb-4">⚠️ Désactiver l'utilisateur</h2>
+              
+              <p className="text-gray-700 mb-4">
+                Voulez-vous désactiver l'utilisateur suivant ?
+              </p>
+
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <p className="font-medium text-gray-800">{userToDelete.name}</p>
+                <p className="text-sm text-gray-600">{userToDelete.email}</p>
+                <p className="text-sm text-gray-600">Rôle: {userToDelete.role}</p>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-yellow-800">
+                  ℹ️ L'utilisateur sera désactivé mais ses données seront conservées. 
+                  Il ne pourra plus se connecter à l'application.
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirmModal(false);
+                    setUserToDelete(null);
+                  }}
+                  disabled={isLoading}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmDeleteUser}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 disabled:opacity-50"
+                >
+                  {isLoading ? '⏳ Désactivation...' : '🔒 Désactiver'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal confirmation suppression utilisateurs de test */}
       {/* Modal de confirmation de suppression utilisateur individuel */}
       {userToDelete && (
