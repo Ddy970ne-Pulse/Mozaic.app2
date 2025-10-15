@@ -1391,7 +1391,15 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
           );
           
           if (deleteResponse.ok) {
-            alert('✅ Absence supprimée avec succès');
+            const result = await deleteResponse.json();
+            
+            let successMessage = '✅ Absence supprimée avec succès';
+            if (result.counters_synced) {
+              successMessage += '\n🔄 Compteurs réintégrés automatiquement';
+            }
+            
+            alert(successMessage);
+            console.log('✅ Résultat suppression:', result);
             loadAbsences();
           }
         }
