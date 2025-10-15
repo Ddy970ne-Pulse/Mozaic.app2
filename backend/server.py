@@ -2995,13 +2995,22 @@ async def get_leave_transactions(
 @api_router.post("/leave-balance/initialize-all")
 async def initialize_all_leave_balances(
     year: Optional[int] = None,
+    force_recalculate: bool = False,
     current_user: User = Depends(require_admin_access)
 ):
     """
-    Initialise les soldes de congés pour tous les employés (réservé admin).
+    Initialise les soldes de congés pour tous les employés selon CCN66 (réservé admin).
     Utilisé lors de la première installation ou en début d'année.
+    
+    Calcule automatiquement les droits selon:
+    - Catégorie A (Éducateurs, Ouvriers qualifiés, Chefs): 30j CA + 18j CT + ancienneté
+    - Catégorie B (Autres): 30j CA + 9j CT + ancienneté
+    - Proratisation temps partiel (CA et CT)
+    - Congés d'ancienneté: 2j/5ans (max 6j) NON proratisés
     """
     try:
+        from ccn66_rules import calculate_employee_rights
+        
         if year is None:
             year = datetime.now().year
         
@@ -3009,6 +3018,7 @@ async def initialize_all_leave_balances(
         employees = await db.users.find().to_list(1000)
         
         initialized = 0
+        updated = 0
         skipped = 0
         
         for employee in employees:
@@ -3022,36 +3032,91 @@ async def initialize_all_leave_balances(
                 "year": year
             })
             
-            if existing:
+            if existing and not force_recalculate:
                 skipped += 1
                 continue
             
-            # Créer un nouveau solde
-            balance = EmployeeLeaveBalance(
-                employee_id=employee_id,
-                employee_name=employee.get("name", ""),
-                year=year
+            # Calculer les droits selon CCN66
+            rights = calculate_employee_rights(
+                categorie_employe=employee.get("categorie_employe"),
+                metier=employee.get("metier"),
+                date_embauche=employee.get("date_debut_contrat") or employee.get("hire_date"),
+                temps_travail=employee.get("temps_travail"),
+                reference_year=year
             )
             
-            balance_dict = balance.dict()
-            balance_dict['last_updated'] = balance_dict['last_updated'].isoformat()
-            balance_dict['created_at'] = balance_dict['created_at'].isoformat()
-            await db.leave_balances.insert_one(balance_dict)
+            # Créer ou mettre à jour le solde
+            balance_data = {
+                "employee_id": employee_id,
+                "employee_name": employee.get("name", ""),
+                "year": year,
+                # Congés Payés (CA)
+                "ca_initial": rights["CA"],
+                "ca_taken": existing.get("ca_taken", 0.0) if existing else 0.0,
+                "ca_pending": existing.get("ca_pending", 0.0) if existing else 0.0,
+                "ca_reintegrated": existing.get("ca_reintegrated", 0.0) if existing else 0.0,
+                "ca_balance": rights["CA"] - (existing.get("ca_taken", 0.0) if existing else 0.0) + (existing.get("ca_reintegrated", 0.0) if existing else 0.0),
+                # Congés Trimestriels (CT)
+                "ct_initial": rights["CT"],
+                "ct_taken": existing.get("ct_taken", 0.0) if existing else 0.0,
+                "ct_pending": existing.get("ct_pending", 0.0) if existing else 0.0,
+                "ct_reintegrated": existing.get("ct_reintegrated", 0.0) if existing else 0.0,
+                "ct_balance": rights["CT"] - (existing.get("ct_taken", 0.0) if existing else 0.0) + (existing.get("ct_reintegrated", 0.0) if existing else 0.0),
+                # Congés d'Ancienneté (CEX)
+                "cex_initial": rights["CEX"],
+                "cex_taken": existing.get("cex_taken", 0.0) if existing else 0.0,
+                "cex_balance": rights["CEX"] - (existing.get("cex_taken", 0.0) if existing else 0.0),
+                # RTT (par défaut 0 pour CCN66)
+                "rtt_initial": 0.0,
+                "rtt_taken": existing.get("rtt_taken", 0.0) if existing else 0.0,
+                "rtt_pending": existing.get("rtt_pending", 0.0) if existing else 0.0,
+                "rtt_reintegrated": existing.get("rtt_reintegrated", 0.0) if existing else 0.0,
+                "rtt_balance": 0.0,
+                # Récupération (accumulation variable)
+                "rec_accumulated": existing.get("rec_accumulated", 0.0) if existing else 0.0,
+                "rec_taken": existing.get("rec_taken", 0.0) if existing else 0.0,
+                "rec_reintegrated": existing.get("rec_reintegrated", 0.0) if existing else 0.0,
+                "rec_balance": existing.get("rec_accumulated", 0.0) if existing else 0.0,
+                # Métadonnées CCN66
+                "ccn66_category": rights["category"],
+                "temps_travail_percent": rights["temps_travail_percent"],
+                "is_temps_plein": rights["is_temps_plein"],
+                "last_updated": datetime.now(timezone.utc).isoformat(),
+                "created_at": existing.get("created_at") if existing else datetime.now(timezone.utc).isoformat()
+            }
             
-            initialized += 1
+            if existing:
+                # Mettre à jour
+                await db.leave_balances.update_one(
+                    {"employee_id": employee_id, "year": year},
+                    {"$set": balance_data}
+                )
+                updated += 1
+                logger.info(f"✅ Updated CCN66 rights: {employee.get('name')} - Cat {rights['category']}: CA={rights['CA']}j, CT={rights['CT']}j, CEX={rights['CEX']}j")
+            else:
+                # Créer
+                balance_data['id'] = str(uuid.uuid4())
+                await db.leave_balances.insert_one(balance_data)
+                initialized += 1
+                logger.info(f"✅ Initialized CCN66 rights: {employee.get('name')} - Cat {rights['category']}: CA={rights['CA']}j, CT={rights['CT']}j, CEX={rights['CEX']}j")
         
-        logger.info(f"✅ Initialized {initialized} leave balances for year {year}, skipped {skipped} existing")
+        total_processed = initialized + updated
+        logger.info(f"✅ CCN66 initialization complete: {initialized} created, {updated} updated, {skipped} skipped")
         
         return {
             "success": True,
             "year": year,
             "initialized": initialized,
+            "updated": updated,
             "skipped": skipped,
-            "total_employees": len(employees)
+            "total_employees": len(employees),
+            "total_processed": total_processed
         }
         
     except Exception as e:
-        logger.error(f"Error initializing leave balances: {str(e)}")
+        logger.error(f"Error initializing leave balances with CCN66: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 # Event Management endpoints
