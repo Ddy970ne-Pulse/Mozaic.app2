@@ -338,6 +338,19 @@ class User(BaseModel):
     site: Optional[str] = None
     temps_travail: Optional[str] = None
     contrat: Optional[str] = None
+
+
+class Notification(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str  # Destinataire de la notification
+    type: str  # 'absence_request', 'absence_approved', 'absence_rejected', 'overtime_pending', 'planning_update', 'system'
+    title: str
+    message: str
+    link: Optional[str] = None  # Lien vers la ressource concernée
+    icon: str = "🔔"  # Emoji pour l'icône
+    read: bool = False
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    related_id: Optional[str] = None  # ID de la ressource liée (absence, overtime, etc.)
     date_debut_contrat: Optional[str] = None
     date_fin_contrat: Optional[str] = None
     notes: Optional[str] = None
