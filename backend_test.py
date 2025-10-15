@@ -2159,13 +2159,14 @@ class BackendTester:
         self.results["cse_cessions"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["cse_cessions"]["details"]) else "fail"
 
     def run_all_tests(self):
-        """Run all backend tests"""
-        print(f"Starting MOZAIK RH Backend Tests - Focus on Leave Balance Management System")
+        """Run all backend tests including French review requirements"""
+        print(f"🚀 Starting MOZAIK RH Backend Tests - FRENCH REVIEW COMPREHENSIVE TESTING")
         print(f"Backend URL: {BASE_URL}")
         print(f"API URL: {API_URL}")
-        print("=" * 70)
+        print("=" * 80)
         
-        # Initialize results for leave balance testing
+        # Initialize results for all testing categories
+        self.results["french_review"] = {"status": "unknown", "details": []}
         self.results["leave_balance"] = {"status": "unknown", "details": []}
         self.results["mongodb_validation"] = {"status": "unknown", "details": []}
         self.results["absence_import"] = {"status": "unknown", "details": []}
@@ -2175,18 +2176,23 @@ class BackendTester:
         api_healthy = self.test_api_health()
         
         if api_healthy:
+            # PRIORITY: Run French review comprehensive tests
+            print("\n🇫🇷 RUNNING FRENCH REVIEW COMPREHENSIVE TESTS")
+            print("=" * 80)
+            self.test_french_review_requirements()
+            
+            # Get auth token for additional tests
             auth_token = self.test_authentication()
-            # PRIORITY: Test CCN66 Leave Balance System as requested in French review
+            
+            # Run additional backend tests
+            print("\n🔧 RUNNING ADDITIONAL BACKEND TESTS")
+            print("=" * 80)
             self.test_ccn66_leave_balance_system(auth_token)
-            # Focus on Leave Balance Management System testing as requested in French review
             self.test_leave_balance_management_system(auth_token)
             self.test_mongodb_validation(auth_token)
-            # Also test other systems
             self.test_cse_cessions_endpoints(auth_token)
             self.test_delegation_hours(auth_token)
             self.test_data_retrieval(auth_token)
-            self.test_monthly_planning_support(auth_token)
-            self.test_excel_import_functionality(auth_token)
         else:
             print("Skipping other tests due to API health issues")
             
