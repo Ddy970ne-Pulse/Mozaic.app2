@@ -271,7 +271,12 @@ const OvertimeModule = ({ user }) => {
                           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
                             {employee.name.split(' ').map(n => n[0]).join('')}
                           </div>
-                          <span className="font-medium text-gray-800">{employee.name}</span>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-gray-800">{employee.name}</span>
+                            {employee.is_educational_sector && (
+                              <span className="text-xs text-purple-600">🎓 Secteur éducatif</span>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="py-4 text-gray-600">{employee.department}</td>
