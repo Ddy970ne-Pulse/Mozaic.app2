@@ -304,7 +304,7 @@ class User(BaseModel):
     name: str
     email: str
     role: str  # admin, manager, employee
-    department: str
+    department: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
     position: Optional[str] = None
