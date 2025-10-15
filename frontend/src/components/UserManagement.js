@@ -368,9 +368,12 @@ const UserManagement = ({ user }) => {
     
     try {
       setIsLoading(true);
+      console.log('💾 Sauvegarde utilisateur:', selectedUser);
       
       if (selectedUser.id) {
         // Modifier utilisateur existant - ENVOYER AU BACKEND
+        console.log('📝 Modification utilisateur existant ID:', selectedUser.id);
+        
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${selectedUser.id}`, {
           method: 'PUT',
           headers: getAuthHeaders(),
@@ -400,8 +403,12 @@ const UserManagement = ({ user }) => {
           })
         });
 
+        console.log('📡 Réponse API:', response.status, response.statusText);
+
         if (response.ok) {
           const updatedUser = await response.json();
+          console.log('✅ Utilisateur mis à jour:', updatedUser);
+          
           // Mettre à jour le state local avec les données du serveur
           setUsers(users.map(u => u.id === selectedUser.id ? updatedUser : u));
           
@@ -426,8 +433,8 @@ const UserManagement = ({ user }) => {
           await fetchUsers();
         } else {
           const errorData = await response.json().catch(() => ({ detail: 'Erreur réseau' }));
+          console.error('❌ Erreur API:', errorData);
           alert(`❌ Erreur lors de la mise à jour: ${errorData.detail || 'Erreur inconnue'}`);
-          console.error('Error updating user:', errorData);
           // NE PAS fermer le modal en cas d'erreur
         }
       } else {
