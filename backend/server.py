@@ -915,7 +915,46 @@ async def update_user(user_id: str, user_data: UserUpdate, current_user: User = 
         if "email" in update_data:
             update_data["email"] = update_data["email"].lower().strip()
             
+        # Mettre à jour l'utilisateur
         await db.users.update_one({"id": user_id}, {"$set": update_data})
+        
+        # 🔄 MISE À JOUR INTERACTIVE : Si le nom a changé, mettre à jour toutes les absences
+        if "name" in update_data and update_data["name"] != existing_user.get("name"):
+            old_name = existing_user.get("name", "")
+            new_name = update_data["name"]
+            
+            logger.info(f"🔄 Mise à jour du nom dans les absences: '{old_name}' → '{new_name}'")
+            
+            # Mettre à jour toutes les absences de cet employé
+            absence_update_result = await db.absences.update_many(
+                {"employee_id": user_id},
+                {"$set": {"employee_name": new_name}}
+            )
+            
+            logger.info(f"✅ {absence_update_result.modified_count} absences mises à jour avec le nouveau nom")
+            
+            # Mettre à jour aussi dans leave_balances si existe
+            balance_update_result = await db.leave_balances.update_many(
+                {"employee_id": user_id},
+                {"$set": {"employee_name": new_name}}
+            )
+            
+            if balance_update_result.modified_count > 0:
+                logger.info(f"✅ {balance_update_result.modified_count} compteur(s) de congés mis à jour")
+        
+        # 🔄 Si l'email a changé, mettre à jour aussi dans les absences
+        if "email" in update_data and update_data["email"] != existing_user.get("email"):
+            old_email = existing_user.get("email", "")
+            new_email = update_data["email"]
+            
+            logger.info(f"🔄 Mise à jour de l'email dans les absences: '{old_email}' → '{new_email}'")
+            
+            absence_email_update = await db.absences.update_many(
+                {"email": old_email},
+                {"$set": {"email": new_email}}
+            )
+            
+            logger.info(f"✅ {absence_email_update.modified_count} absences mises à jour avec le nouvel email")
     
     # Return updated user
     updated_user = await db.users.find_one({"id": user_id})
