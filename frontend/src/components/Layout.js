@@ -283,7 +283,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                 <div className="relative">
                   <button 
                     onClick={() => setShowNotifications(!showNotifications)}
-                    className="p-2 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 shadow-lg transition-all duration-200" 
+                    className="notification-button p-2 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 shadow-lg transition-all duration-200" 
                     title="Notifications"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
