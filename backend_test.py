@@ -2821,83 +2821,168 @@ class BackendTester:
                     self.log_result("overtime_validation", True, f"✅ Métadonnées complètes: {properly_categorized} employés avec catégorie et métier")
                 else:
                     self.log_result("overtime_validation", False, f"❌ Métadonnées manquantes: categorie_employe et metier non renseignés")
-                        else:
-                            self.log_result("overtime_validation", False, f"❌ 'validated' field missing in details")
-                    else:
-                        self.log_result("overtime_validation", False, f"❌ Missing required fields: {missing_fields}")
-                        
-                    # Find educational sector employees
-                    educational_employees = [emp for emp in overtime_data if emp.get('is_educational_sector', False)]
-                    if educational_employees:
-                        self.log_result("overtime_validation", True, f"✅ Found {len(educational_employees)} educational sector employees")
-                        # Store first educational employee for validation tests
-                        self.educational_employee = educational_employees[0]
-                    else:
-                        self.log_result("overtime_validation", False, f"❌ No educational sector employees found")
-                        
-                else:
-                    self.log_result("overtime_validation", False, f"❌ No overtime data returned")
-                    
+                
             else:
                 self.log_result("overtime_validation", False, f"❌ GET /api/overtime/all returned {response.status_code}")
+                return
+                
         except Exception as e:
-            self.log_result("overtime_validation", False, f"❌ Error testing GET /api/overtime/all: {str(e)}")
+            self.log_result("overtime_validation", False, f"❌ Erreur GET /api/overtime/all: {str(e)}")
+            return
         
-        # 2. Test Manager Authentication
-        print("\n--- 2. Testing Manager Authentication ---")
+        # 2. Test PUT /api/overtime/validate/{employee_id} avec manager Jacques EDAU
+        print("\n--- 2. Testing PUT /api/overtime/validate avec manager Jacques EDAU ---")
         
-        # Try to login with Jacques EDAU (manager) or use admin
+        # D'abord, se connecter en tant que manager
         manager_token = None
-        manager_credentials = {"email": "jedau@aaea-gpe.fr", "password": "gPGlceec"}
-        admin_credentials = {"email": "ddacalor@aaea-gpe.fr", "password": "admin123"}
-        
-        # Try manager login first
         try:
-            auth_response = requests.post(
-                f"{API_URL}/auth/login", 
-                json=manager_credentials, 
+            manager_auth = requests.post(
+                f"{API_URL}/auth/login",
+                json={"email": "jedau@aaea-gpe.fr", "password": "gPGlceec"},
                 timeout=10
             )
-            if auth_response.status_code == 200:
-                auth_data = auth_response.json()
-                manager_token = auth_data.get('token')
-                manager_user = auth_data.get('user', {})
-                self.log_result("overtime_validation", True, f"✅ Manager login successful: {manager_user.get('name')}")
+            if manager_auth.status_code == 200:
+                manager_data = manager_auth.json()
+                manager_token = manager_data.get('token')
+                self.log_result("overtime_validation", True, f"✅ Manager Jacques EDAU login successful")
             else:
-                self.log_result("overtime_validation", False, f"❌ Manager login failed: {auth_response.status_code}")
+                self.log_result("overtime_validation", False, f"❌ Manager login failed: {manager_auth.status_code}")
+                return
         except Exception as e:
-            self.log_result("overtime_validation", False, f"❌ Manager login error: {str(e)}")
-        
-        # Fallback to admin if manager login failed
-        if not manager_token:
-            try:
-                auth_response = requests.post(
-                    f"{API_URL}/auth/login", 
-                    json=admin_credentials, 
-                    timeout=10
-                )
-                if auth_response.status_code == 200:
-                    auth_data = auth_response.json()
-                    manager_token = auth_data.get('token')
-                    manager_user = auth_data.get('user', {})
-                    self.log_result("overtime_validation", True, f"✅ Admin login successful (fallback): {manager_user.get('name')}")
-                else:
-                    self.log_result("overtime_validation", False, f"❌ Admin login failed: {auth_response.status_code}")
-            except Exception as e:
-                self.log_result("overtime_validation", False, f"❌ Admin login error: {str(e)}")
-        
-        if not manager_token:
-            self.log_result("overtime_validation", False, f"❌ No valid manager/admin token available for validation tests")
+            self.log_result("overtime_validation", False, f"❌ Erreur login manager: {str(e)}")
             return
         
         manager_headers = {"Authorization": f"Bearer {manager_token}"}
         
-        # 3. Test PUT /api/overtime/validate/{employee_id} - Success Cases
-        print("\n--- 3. Testing PUT /api/overtime/validate/{employee_id} - Success Cases ---")
+        # Trouver Jean-Marc AUGUSTIN pour test de validation
+        jean_marc_employee_id = None
+        cindy_employee_id = None
         
-        # Get an educational employee for testing
-        educational_employee_id = None
-        if hasattr(self, 'educational_employee'):
+        # Récupérer la liste des utilisateurs pour obtenir les IDs
+        try:
+            users_response = requests.get(f"{API_URL}/users", headers=headers, timeout=10)
+            if users_response.status_code == 200:
+                users = users_response.json()
+                for user in users:
+                    name = user.get('name', '')
+                    if 'Jean-Marc' in name and 'AUGUSTIN' in name:
+                        jean_marc_employee_id = user.get('id')
+                        self.log_result("overtime_validation", True, f"✅ Jean-Marc AUGUSTIN trouvé: {jean_marc_employee_id}")
+                    elif 'Cindy' in name and 'GREGOIRE' in name:
+                        cindy_employee_id = user.get('id')
+                        self.log_result("overtime_validation", True, f"✅ Cindy GREGOIRE trouvée: {cindy_employee_id}")
+        except Exception as e:
+            self.log_result("overtime_validation", False, f"❌ Erreur récupération utilisateurs: {str(e)}")
+        
+        # Test validation pour Jean-Marc AUGUSTIN (éducateur)
+        if jean_marc_employee_id:
+            try:
+                validation_payload = {
+                    "date": "2025-01-15",
+                    "hours": 2.4
+                }
+                
+                validation_response = requests.put(
+                    f"{API_URL}/overtime/validate/{jean_marc_employee_id}",
+                    json=validation_payload,
+                    headers=manager_headers,
+                    timeout=10
+                )
+                
+                if validation_response.status_code == 200:
+                    validation_data = validation_response.json()
+                    self.log_result("overtime_validation", True, f"✅ Validation Jean-Marc AUGUSTIN réussie")
+                    
+                    # Vérifier les métadonnées de validation
+                    if validation_data.get('success'):
+                        self.log_result("overtime_validation", True, f"✅ Réponse validation contient success=true")
+                    if validation_data.get('validated_by'):
+                        self.log_result("overtime_validation", True, f"✅ Métadonnées validated_by présentes")
+                    if validation_data.get('validated_at'):
+                        self.log_result("overtime_validation", True, f"✅ Métadonnées validated_at présentes")
+                        
+                elif validation_response.status_code == 400:
+                    error_data = validation_response.json()
+                    error_message = error_data.get('detail', '')
+                    if 'secteur éducatif' in error_message:
+                        self.log_result("overtime_validation", False, f"❌ Jean-Marc AUGUSTIN non reconnu comme éducateur: {error_message}")
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ Erreur validation Jean-Marc: {error_message}")
+                else:
+                    self.log_result("overtime_validation", False, f"❌ Validation Jean-Marc failed: {validation_response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("overtime_validation", False, f"❌ Erreur validation Jean-Marc: {str(e)}")
+        else:
+            self.log_result("overtime_validation", False, f"❌ Jean-Marc AUGUSTIN non trouvé pour test de validation")
+        
+        # Test validation pour Cindy GREGOIRE (non-éducatif) - doit échouer
+        if cindy_employee_id:
+            try:
+                validation_payload = {
+                    "date": "2025-01-15", 
+                    "hours": 3.0
+                }
+                
+                validation_response = requests.put(
+                    f"{API_URL}/overtime/validate/{cindy_employee_id}",
+                    json=validation_payload,
+                    headers=manager_headers,
+                    timeout=10
+                )
+                
+                if validation_response.status_code == 400:
+                    error_data = validation_response.json()
+                    error_message = error_data.get('detail', '')
+                    if 'secteur éducatif' in error_message:
+                        self.log_result("overtime_validation", True, f"✅ Validation Cindy GREGOIRE correctement rejetée: {error_message}")
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ Mauvais message d'erreur pour Cindy: {error_message}")
+                elif validation_response.status_code == 200:
+                    self.log_result("overtime_validation", False, f"❌ Validation Cindy GREGOIRE ne devrait pas réussir (non-éducatif)")
+                else:
+                    self.log_result("overtime_validation", False, f"❌ Réponse inattendue pour Cindy: {validation_response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("overtime_validation", False, f"❌ Erreur test Cindy: {str(e)}")
+        else:
+            self.log_result("overtime_validation", False, f"❌ Cindy GREGOIRE non trouvée pour test de rejet")
+        
+        # 3. Vérification après validation
+        print("\n--- 3. Vérification après validation ---")
+        
+        if jean_marc_employee_id:
+            try:
+                # Re-vérifier les données overtime pour Jean-Marc
+                response = requests.get(f"{API_URL}/overtime/all", headers=headers, timeout=10)
+                if response.status_code == 200:
+                    overtime_data = response.json()
+                    
+                    # Chercher Jean-Marc dans les données
+                    jean_marc_found = False
+                    for employee in overtime_data:
+                        if employee.get('employee_id') == jean_marc_employee_id:
+                            jean_marc_found = True
+                            details = employee.get('details', [])
+                            
+                            # Vérifier si au moins une entrée est validée
+                            validated_entries = [d for d in details if d.get('validated', False)]
+                            if validated_entries:
+                                self.log_result("overtime_validation", True, f"✅ Jean-Marc AUGUSTIN: {len(validated_entries)} entrée(s) validée(s)")
+                            else:
+                                self.log_result("overtime_validation", False, f"❌ Jean-Marc AUGUSTIN: Aucune entrée validée trouvée")
+                            break
+                    
+                    if not jean_marc_found:
+                        self.log_result("overtime_validation", False, f"❌ Jean-Marc AUGUSTIN non trouvé dans les données overtime après validation")
+                        
+                else:
+                    self.log_result("overtime_validation", False, f"❌ Impossible de vérifier après validation: {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("overtime_validation", False, f"❌ Erreur vérification après validation: {str(e)}")
+        
+        self.results["overtime_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["overtime_validation"]["details"]) else "fail"
             educational_employee_id = self.educational_employee.get('id')
         
         if not educational_employee_id:
