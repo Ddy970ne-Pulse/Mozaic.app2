@@ -256,7 +256,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
               {/* Menu Hamburger */}
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg transition-all duration-200"
+                className="hamburger-button p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg transition-all duration-200"
               >
                 <span className="sr-only">Ouvrir le menu principal</span>
                 <div className="w-6 h-6 flex flex-col justify-center items-center">
