@@ -1063,13 +1063,20 @@ const UserManagement = ({ user }) => {
         }
       />
       
-      {/* Onglets Harmonisés */}
+      {/* Onglets Harmonisés - Dynamiques selon le rôle */}
       <TabBar
-        tabs={[
-          { id: 'users', label: '👥 Utilisateurs' },
-          { id: 'recovery', label: '🔐 Récupération' },
-          { id: 'audit', label: '📋 Audit' }
-        ]}
+        tabs={
+          user?.role === 'admin' 
+            ? [
+                { id: 'users', label: '👥 Utilisateurs' },
+                { id: 'recovery', label: '🔐 Récupération' },
+                { id: 'audit', label: '📋 Audit' }
+              ]
+            : [
+                { id: 'users', label: '👥 Utilisateurs' },
+                { id: 'audit', label: '📋 Audit' }
+              ]
+        }
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
