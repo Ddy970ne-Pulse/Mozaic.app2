@@ -3030,44 +3030,6 @@ class BackendTester:
             self.results["overall_status"] = "fail"
         
         return self.results
-                        timeout=10
-                    )
-                    
-                    if response.status_code == 403:
-                        self.log_result("overtime_validation", True, f"✅ Employee correctly gets 403 error when trying to validate")
-                    else:
-                        self.log_result("overtime_validation", False, f"❌ Employee should get 403, got {response.status_code}")
-        except Exception as e:
-            self.log_result("overtime_validation", False, f"❌ Error testing employee 403: {str(e)}")
-        
-        # Test 400 error - non-educational employee
-        try:
-            users_response = requests.get(f"{API_URL}/users", headers=headers, timeout=10)
-            if users_response.status_code == 200:
-                users = users_response.json()
-                non_educational_id = None
-                
-                for user in users:
-                    categorie = (user.get('categorie_employe') or '').lower()
-                    metier = (user.get('metier') or '').lower()
-                    # Look for non-educational employee (cadre, administratif, etc.)
-                    if 'cadre' in categorie or 'administratif' in categorie or 'comptable' in metier:
-                        non_educational_id = user.get('id')
-                        break
-                
-                if non_educational_id:
-                    response = requests.put(
-                        f"{API_URL}/overtime/validate/{non_educational_id}",
-                        json={"date": "2025-01-15", "hours": 3.0},
-                        headers=manager_headers,
-                        timeout=10
-                    )
-                    
-                    if response.status_code == 400:
-                        error_detail = response.json().get('detail', '')
-                        if 'secteur éducatif' in error_detail:
-                            self.log_result("overtime_validation", True, f"✅ Correct 400 error for non-educational employee")
-                        else:
                             self.log_result("overtime_validation", False, f"❌ Wrong 400 error message: {error_detail}")
                     else:
                         self.log_result("overtime_validation", False, f"❌ Non-educational employee should get 400, got {response.status_code}")
