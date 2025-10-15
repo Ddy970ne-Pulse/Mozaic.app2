@@ -3021,10 +3021,10 @@ class BackendTester:
             print("❌ API health check failed. Stopping tests.")
         
         # Determine overall status
-        passed_tests = sum(1 for result in self.results.values() if result["status"] == "pass")
-        total_tests = len(self.results)
+        passed_tests = sum(1 for result in self.results.values() if isinstance(result, dict) and result.get("status") == "pass")
+        total_tests = len([k for k in self.results.keys() if k != "overall_status"])
         
-        if passed_tests >= total_tests * 0.7:  # 70% pass rate
+        if total_tests > 0 and passed_tests >= total_tests * 0.7:  # 70% pass rate
             self.results["overall_status"] = "pass"
         else:
             self.results["overall_status"] = "fail"
