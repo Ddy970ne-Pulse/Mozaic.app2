@@ -216,7 +216,7 @@ const CSEManagementNew = ({ user }) => {
           { id: 'reports', label: '📊 Rapports' }
         ]}
         activeTab={activeTab}
-        onChange={setActiveTab}
+        onTabChange={setActiveTab}
       />
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
