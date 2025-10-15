@@ -388,7 +388,15 @@ const OvertimeModule = ({ user }) => {
                   </div>
 
                   {/* Historique détaillé */}
-                  <h3 className="text-md font-semibold text-gray-800 mb-4">Historique des Mouvements</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-md font-semibold text-gray-800">Historique des Mouvements</h3>
+                    {selectedEmployee.is_educational_sector && (
+                      <div className="flex items-center space-x-2 px-3 py-1 bg-purple-50 rounded-lg">
+                        <span className="text-xs text-purple-700 font-medium">🎓 Secteur éducatif</span>
+                        <span className="text-xs text-purple-600">Validation managériale requise</span>
+                      </div>
+                    )}
+                  </div>
                   <div className="space-y-3">
                     {selectedEmployee.details.map((detail, index) => (
                       <div key={index} className={`p-4 rounded-lg border-l-4 ${
@@ -410,12 +418,41 @@ const OvertimeModule = ({ user }) => {
                               <div className="text-sm text-gray-600">{formatDate(detail.date)}</div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className={`text-sm font-medium ${
-                              detail.type === 'accumulated' ? 'text-blue-600' : 'text-green-600'
-                            }`}>
-                              {detail.type === 'accumulated' ? 'Accumulé' : 'Récupéré'}
+                          <div className="text-right flex items-center space-x-3">
+                            <div>
+                              <div className={`text-sm font-medium ${
+                                detail.type === 'accumulated' ? 'text-blue-600' : 'text-green-600'
+                              }`}>
+                                {detail.type === 'accumulated' ? 'Accumulé' : 'Récupéré'}
+                              </div>
+                              {/* Validation status */}
+                              {detail.type === 'accumulated' && (
+                                detail.validated ? (
+                                  <div className="flex items-center space-x-1 text-xs text-green-600 mt-1">
+                                    <span>✓</span>
+                                    <span>Validé</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center space-x-1 text-xs text-orange-600 mt-1">
+                                    <span>⏳</span>
+                                    <span>En attente</span>
+                                  </div>
+                                )
+                              )}
                             </div>
+                            {/* Validation button for managers */}
+                            {user?.role === 'manager' && 
+                             selectedEmployee.is_educational_sector && 
+                             detail.type === 'accumulated' && 
+                             !detail.validated && (
+                              <button
+                                onClick={() => handleValidateOvertime(detail)}
+                                disabled={validatingRecord === detail.date}
+                                className="px-3 py-1 bg-purple-500 text-white text-xs rounded-lg hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+                              >
+                                {validatingRecord === detail.date ? '⏳' : '✓ Valider'}
+                              </button>
+                            )}
                           </div>
                         </div>
                         <div className="text-sm text-gray-600">{detail.reason}</div>
