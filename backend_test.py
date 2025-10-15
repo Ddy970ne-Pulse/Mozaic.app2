@@ -2206,6 +2206,292 @@ class BackendTester:
         
         self.results["cse_cessions"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["cse_cessions"]["details"]) else "fail"
 
+    def test_ccn66_initialization_and_counters(self):
+        """Test CCN66 initialization and specific user counters"""
+        print("\n--- CCN66 Initialization & Counters ---")
+        
+        if not hasattr(self, 'user_tokens') or 'admin' not in self.user_tokens:
+            self.log_result("french_review", False, "❌ No admin token available for CCN66 testing")
+            return
+            
+        admin_token = self.user_tokens['admin']['token']
+        headers = {"Authorization": f"Bearer {admin_token}"}
+        
+        # 1. Initialize CCN66 counters with force_recalculate=true
+        try:
+            response = requests.post(
+                f"{API_URL}/leave-balance/initialize-all?force_recalculate=true", 
+                headers=headers, 
+                timeout=15
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success'):
+                    nb_employees = data.get('employees_initialized', 0)
+                    self.log_result("french_review", True, f"✅ CCN66 initialization: {nb_employees} employees initialized")
+                else:
+                    self.log_result("french_review", False, f"❌ CCN66 initialization failed")
+            else:
+                self.log_result("french_review", False, f"❌ CCN66 initialization returned {response.status_code}")
+        except Exception as e:
+            self.log_result("french_review", False, f"❌ CCN66 initialization error: {str(e)}")
+        
+        # 2. Test specific users from review request
+        test_users = [
+            {"name": "Cindy GREGOIRE", "email": "cgregoire@aaea-gpe.fr", "expected_ca": 30, "expected_ct": 9, "category": "B"},
+            {"name": "Jacques EDAU", "email": "jedau@aaea-gpe.fr", "expected_ca": 30, "expected_ct": 18, "category": "A"},
+            {"name": "Joël ADOLPHIN", "email": "jadolphin@aaea-gpe.fr", "expected_ca": 30, "expected_ct": 18, "category": "A"},
+            {"name": "Stéphy FERIAUX", "email": "sferiaux@aaea-gpe.fr", "expected_ca": 30, "expected_ct": 18, "category": "A"},
+            {"name": "Jean-François BERNARD", "email": "jfbernard@aaea-gpe.fr", "expected_ca": None, "expected_ct": None, "category": "Part-time"}
+        ]
+        
+        # Get users list to find employee IDs
+        users_map = {}
+        try:
+            response = requests.get(f"{API_URL}/users", headers=headers, timeout=10)
+            if response.status_code == 200:
+                users = response.json()
+                for user in users:
+                    users_map[user.get('email', '').lower()] = user.get('id')
+                self.log_result("french_review", True, f"✅ Retrieved {len(users)} users from database")
+            else:
+                self.log_result("french_review", False, f"❌ Cannot get users list: {response.status_code}")
+                return
+        except Exception as e:
+            self.log_result("french_review", False, f"❌ Cannot get users list: {str(e)}")
+            return
+        
+        # Test each user's CCN66 counters
+        for user in test_users:
+            employee_id = users_map.get(user['email'].lower())
+            if not employee_id:
+                self.log_result("french_review", False, f"❌ {user['name']} not found in database ({user['email']})")
+                continue
+            
+            try:
+                response = requests.get(f"{API_URL}/leave-balance/{employee_id}", headers=headers, timeout=10)
+                if response.status_code == 200:
+                    balance = response.json()
+                    ca_initial = balance.get('ca_initial', 0)
+                    ct_initial = balance.get('ct_initial', 0)
+                    cex_initial = balance.get('cex_initial', 0)
+                    
+                    self.log_result("french_review", True, f"✅ {user['name']}: CA={ca_initial}j, CT={ct_initial}j, Ancienneté={cex_initial}j")
+                    
+                    # Verify expected values for CCN66 compliance
+                    if user['expected_ca'] is not None:
+                        if abs(ca_initial - user['expected_ca']) < 0.1:
+                            self.log_result("french_review", True, f"✅ {user['name']}: CA correct ({ca_initial}j - Category {user['category']})")
+                        else:
+                            self.log_result("french_review", False, f"❌ {user['name']}: CA incorrect (expected {user['expected_ca']}, got {ca_initial})")
+                    
+                    if user['expected_ct'] is not None:
+                        if abs(ct_initial - user['expected_ct']) < 0.1:
+                            self.log_result("french_review", True, f"✅ {user['name']}: CT correct ({ct_initial}j - Category {user['category']})")
+                        else:
+                            self.log_result("french_review", False, f"❌ {user['name']}: CT incorrect (expected {user['expected_ct']}, got {ct_initial})")
+                    
+                    # Special check for part-time proratization (Jean-François BERNARD)
+                    if user['category'] == "Part-time":
+                        if ca_initial < 30 or ct_initial < 18:
+                            self.log_result("french_review", True, f"✅ {user['name']}: Part-time proratization applied (CA={ca_initial}, CT={ct_initial})")
+                        else:
+                            self.log_result("french_review", False, f"❌ {user['name']}: Part-time proratization not applied")
+                    
+                    # Check seniority (ancienneté) - should be >= 0 and <= 6
+                    if 0 <= cex_initial <= 6:
+                        self.log_result("french_review", True, f"✅ {user['name']}: Seniority within CCN66 limits ({cex_initial}j)")
+                    else:
+                        self.log_result("french_review", False, f"❌ {user['name']}: Seniority outside CCN66 limits ({cex_initial}j)")
+                        
+                else:
+                    self.log_result("french_review", False, f"❌ {user['name']}: Cannot get leave balance ({response.status_code})")
+            except Exception as e:
+                self.log_result("french_review", False, f"❌ {user['name']}: Error getting counters: {str(e)}")
+
+    def test_absence_period_retrieval(self):
+        """Test GET /api/absences/by-period/{year}/{month} endpoint"""
+        print("\n--- Absence Period Retrieval ---")
+        
+        if not hasattr(self, 'user_tokens') or 'admin' not in self.user_tokens:
+            self.log_result("french_review", False, "❌ No admin token available for absence period testing")
+            return
+            
+        admin_token = self.user_tokens['admin']['token']
+        headers = {"Authorization": f"Bearer {admin_token}"}
+        
+        # Test GET /api/absences/by-period/2025/12 (December 2025 absences)
+        try:
+            response = requests.get(f"{API_URL}/absences/by-period/2025/12", headers=headers, timeout=10)
+            if response.status_code == 200:
+                absences = response.json()
+                self.log_result("french_review", True, f"✅ GET /api/absences/by-period/2025/12 works, returned {len(absences)} absences")
+            else:
+                self.log_result("french_review", False, f"❌ GET /api/absences/by-period/2025/12 returned {response.status_code}")
+        except Exception as e:
+            self.log_result("french_review", False, f"❌ Error testing absence period retrieval: {str(e)}")
+
+    def test_absence_request_creation_and_validation(self):
+        """Test absence request creation and validation workflow"""
+        print("\n--- Absence Request Creation & Validation ---")
+        
+        if not hasattr(self, 'user_tokens'):
+            self.log_result("french_review", False, "❌ No user tokens available for absence request testing")
+            return
+        
+        # Test Cindy creating an absence request
+        if 'employee' in self.user_tokens:
+            cindy_token = self.user_tokens['employee']['token']
+            cindy_headers = {"Authorization": f"Bearer {cindy_token}"}
+            
+            # Create absence request as specified in review
+            absence_request = {
+                "motif_absence": "Congés Payés",
+                "date_debut": "20/01/2026",
+                "date_fin": "24/01/2026", 
+                "jours_absence": "5",
+                "absence_unit": "jours",
+                "notes": "Test demande API"
+            }
+            
+            try:
+                response = requests.post(f"{API_URL}/absences", json=absence_request, headers=cindy_headers, timeout=10)
+                if response.status_code == 200:
+                    created_absence = response.json()
+                    absence_id = created_absence.get('id')
+                    status = created_absence.get('status', 'unknown')
+                    
+                    self.log_result("french_review", True, f"✅ Cindy created absence request (ID: {absence_id}, Status: {status})")
+                    
+                    # Verify status is "pending"
+                    if status == "pending":
+                        self.log_result("french_review", True, f"✅ Absence request has correct initial status: {status}")
+                    else:
+                        self.log_result("french_review", False, f"❌ Absence request status should be 'pending', got '{status}'")
+                    
+                    # Test Diego validating the request (if admin token available)
+                    if 'admin' in self.user_tokens and absence_id:
+                        admin_token = self.user_tokens['admin']['token']
+                        admin_headers = {"Authorization": f"Bearer {admin_token}"}
+                        
+                        # Approve the absence request
+                        try:
+                            update_data = {"status": "approved"}
+                            response = requests.put(f"{API_URL}/absences/{absence_id}", json=update_data, headers=admin_headers, timeout=10)
+                            if response.status_code == 200:
+                                updated_absence = response.json()
+                                new_status = updated_absence.get('status', 'unknown')
+                                
+                                if new_status == "approved":
+                                    self.log_result("french_review", True, f"✅ Diego approved absence request (Status: {new_status})")
+                                else:
+                                    self.log_result("french_review", False, f"❌ Absence approval failed, status: {new_status}")
+                            else:
+                                self.log_result("french_review", False, f"❌ Absence approval returned {response.status_code}")
+                        except Exception as e:
+                            self.log_result("french_review", False, f"❌ Error approving absence: {str(e)}")
+                    
+                else:
+                    self.log_result("french_review", False, f"❌ Cindy absence creation returned {response.status_code}")
+            except Exception as e:
+                self.log_result("french_review", False, f"❌ Error creating absence request: {str(e)}")
+        else:
+            self.log_result("french_review", False, "❌ No employee token (Cindy) available for absence request testing")
+
+    def test_manager_jacques_permissions(self):
+        """Test Jacques EDAU manager permissions and team access"""
+        print("\n--- Manager Jacques Permissions ---")
+        
+        if not hasattr(self, 'user_tokens') or 'admin' not in self.user_tokens:
+            self.log_result("french_review", False, "❌ No admin token available for Jacques testing")
+            return
+            
+        admin_token = self.user_tokens['admin']['token']
+        admin_headers = {"Authorization": f"Bearer {admin_token}"}
+        
+        # Get Jacques user profile
+        try:
+            response = requests.get(f"{API_URL}/users", headers=admin_headers, timeout=10)
+            if response.status_code == 200:
+                users = response.json()
+                jacques_user = None
+                
+                for user in users:
+                    if user.get('email', '').lower() == 'jedau@aaea-gpe.fr':
+                        jacques_user = user
+                        break
+                
+                if jacques_user:
+                    role = jacques_user.get('role', 'unknown')
+                    department = jacques_user.get('department', 'unknown')
+                    
+                    self.log_result("french_review", True, f"✅ Jacques EDAU found - Role: {role}, Department: {department}")
+                    
+                    # Verify manager role
+                    if role == 'manager':
+                        self.log_result("french_review", True, f"✅ Jacques has correct manager role")
+                    else:
+                        self.log_result("french_review", False, f"❌ Jacques role should be 'manager', got '{role}'")
+                    
+                    # Check if he manages "Pôle Educatif"
+                    if 'Pôle Educatif' in department or 'Educatif' in department:
+                        self.log_result("french_review", True, f"✅ Jacques manages Pôle Educatif department")
+                    else:
+                        self.log_result("french_review", False, f"❌ Jacques should manage Pôle Educatif, current department: {department}")
+                        
+                else:
+                    self.log_result("french_review", False, f"❌ Jacques EDAU not found in users list")
+            else:
+                self.log_result("french_review", False, f"❌ Cannot get users list: {response.status_code}")
+        except Exception as e:
+            self.log_result("french_review", False, f"❌ Error testing Jacques permissions: {str(e)}")
+
+    def test_critical_endpoints(self):
+        """Test critical endpoints as specified in review"""
+        print("\n--- Critical Endpoints ---")
+        
+        if not hasattr(self, 'user_tokens') or 'admin' not in self.user_tokens:
+            self.log_result("french_review", False, "❌ No admin token available for critical endpoints testing")
+            return
+            
+        admin_token = self.user_tokens['admin']['token']
+        headers = {"Authorization": f"Bearer {admin_token}"}
+        
+        # Test critical endpoints from review request
+        critical_endpoints = [
+            {"endpoint": "/absence-types", "expected_count": 22, "description": "22 absence types"},
+            {"endpoint": "/hr-config/departments", "expected_count": None, "description": "departments list"},
+            {"endpoint": "/users", "expected_count": None, "description": "users list (filtered by role)"}
+        ]
+        
+        for endpoint_info in critical_endpoints:
+            endpoint = endpoint_info["endpoint"]
+            expected_count = endpoint_info["expected_count"]
+            description = endpoint_info["description"]
+            
+            try:
+                response = requests.get(f"{API_URL}{endpoint}", headers=headers, timeout=10)
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    if isinstance(data, list):
+                        actual_count = len(data)
+                        self.log_result("french_review", True, f"✅ GET {endpoint} works - {description} ({actual_count} items)")
+                        
+                        # Check expected count if specified
+                        if expected_count is not None:
+                            if actual_count >= expected_count:
+                                self.log_result("french_review", True, f"✅ {endpoint}: Expected count met ({actual_count} >= {expected_count})")
+                            else:
+                                self.log_result("french_review", False, f"❌ {endpoint}: Expected {expected_count}, got {actual_count}")
+                    else:
+                        self.log_result("french_review", True, f"✅ GET {endpoint} works - {description}")
+                        
+                else:
+                    self.log_result("french_review", False, f"❌ GET {endpoint} returned {response.status_code}")
+            except Exception as e:
+                self.log_result("french_review", False, f"❌ Error testing {endpoint}: {str(e)}")
+
     def run_all_tests(self):
         """Run all backend tests including French review requirements"""
         print(f"🚀 Starting MOZAIK RH Backend Tests - FRENCH REVIEW COMPREHENSIVE TESTING")
