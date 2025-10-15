@@ -889,7 +889,10 @@ async def create_user(user_data: UserCreate, current_user: User = Depends(get_cu
 
 @api_router.put("/users/{user_id}", response_model=User)
 async def update_user(user_id: str, user_data: UserUpdate, current_user: User = Depends(get_current_user)):
-    """Update user (admin or own profile for basic info)"""
+    """
+    Update user (admin or own profile for basic info)
+    🔄 MISE À JOUR INTERACTIVE : Toute modification se propage automatiquement dans TOUS les modules
+    """
     # Check if user exists
     existing_user = await db.users.find_one({"id": user_id})
     if not existing_user:
@@ -914,47 +917,148 @@ async def update_user(user_id: str, user_data: UserUpdate, current_user: User = 
         update_data["updated_at"] = datetime.utcnow()
         if "email" in update_data:
             update_data["email"] = update_data["email"].lower().strip()
-            
+        
+        # Préparer les changements à propager
+        old_name = existing_user.get("name", "")
+        old_email = existing_user.get("email", "")
+        new_name = update_data.get("name", old_name)
+        new_email = update_data.get("email", old_email)
+        
+        name_changed = "name" in update_data and new_name != old_name
+        email_changed = "email" in update_data and new_email != old_email
+        
         # Mettre à jour l'utilisateur
         await db.users.update_one({"id": user_id}, {"$set": update_data})
         
-        # 🔄 MISE À JOUR INTERACTIVE : Si le nom a changé, mettre à jour toutes les absences
-        if "name" in update_data and update_data["name"] != existing_user.get("name"):
-            old_name = existing_user.get("name", "")
-            new_name = update_data["name"]
+        # 🔄 PROPAGATION INTERACTIVE DANS TOUS LES MODULES
+        if name_changed or email_changed:
+            logger.info(f"🔄 SYNCHRONISATION GLOBALE pour utilisateur {user_id}")
             
-            logger.info(f"🔄 Mise à jour du nom dans les absences: '{old_name}' → '{new_name}'")
+            # Compteur de mises à jour
+            total_updated = 0
             
-            # Mettre à jour toutes les absences de cet employé
-            absence_update_result = await db.absences.update_many(
-                {"employee_id": user_id},
-                {"$set": {"employee_name": new_name}}
-            )
+            # 1️⃣ ABSENCES
+            if name_changed:
+                result = await db.absences.update_many(
+                    {"employee_id": user_id},
+                    {"$set": {"employee_name": new_name}}
+                )
+                total_updated += result.modified_count
+                logger.info(f"   ✅ Absences: {result.modified_count} mises à jour")
             
-            logger.info(f"✅ {absence_update_result.modified_count} absences mises à jour avec le nouveau nom")
+            if email_changed:
+                result = await db.absences.update_many(
+                    {"email": old_email},
+                    {"$set": {"email": new_email}}
+                )
+                total_updated += result.modified_count
+                logger.info(f"   ✅ Absences (email): {result.modified_count} mises à jour")
             
-            # Mettre à jour aussi dans leave_balances si existe
-            balance_update_result = await db.leave_balances.update_many(
-                {"employee_id": user_id},
-                {"$set": {"employee_name": new_name}}
-            )
+            # 2️⃣ LEAVE BALANCES (Compteurs de congés)
+            if name_changed:
+                result = await db.leave_balances.update_many(
+                    {"employee_id": user_id},
+                    {"$set": {"employee_name": new_name}}
+                )
+                total_updated += result.modified_count
+                logger.info(f"   ✅ Compteurs congés: {result.modified_count} mis à jour")
             
-            if balance_update_result.modified_count > 0:
-                logger.info(f"✅ {balance_update_result.modified_count} compteur(s) de congés mis à jour")
-        
-        # 🔄 Si l'email a changé, mettre à jour aussi dans les absences
-        if "email" in update_data and update_data["email"] != existing_user.get("email"):
-            old_email = existing_user.get("email", "")
-            new_email = update_data["email"]
+            # 3️⃣ LEAVE TRANSACTIONS (Historique des transactions)
+            if name_changed:
+                result = await db.leave_transactions.update_many(
+                    {"employee_id": user_id},
+                    {"$set": {"employee_name": new_name}}
+                )
+                total_updated += result.modified_count
+                logger.info(f"   ✅ Transactions congés: {result.modified_count} mises à jour")
             
-            logger.info(f"🔄 Mise à jour de l'email dans les absences: '{old_email}' → '{new_email}'")
+            # 4️⃣ OVERTIME (Heures supplémentaires)
+            if name_changed:
+                result = await db.overtime.update_many(
+                    {"employee_id": user_id},
+                    {"$set": {"employee_name": new_name}}
+                )
+                total_updated += result.modified_count
+                logger.info(f"   ✅ Heures supplémentaires: {result.modified_count} mises à jour")
             
-            absence_email_update = await db.absences.update_many(
-                {"email": old_email},
-                {"$set": {"email": new_email}}
-            )
+            # 5️⃣ ON-CALL (Astreintes)
+            if name_changed:
+                result = await db.on_call.update_many(
+                    {"employee_id": user_id},
+                    {"$set": {"employee_name": new_name}}
+                )
+                total_updated += result.modified_count
+                logger.info(f"   ✅ Astreintes: {result.modified_count} mises à jour")
             
-            logger.info(f"✅ {absence_email_update.modified_count} absences mises à jour avec le nouvel email")
+            # 6️⃣ WORK HOURS (Heures de travail)
+            if name_changed:
+                result = await db.work_hours.update_many(
+                    {"employee_id": user_id},
+                    {"$set": {"employee_name": new_name}}
+                )
+                total_updated += result.modified_count
+                logger.info(f"   ✅ Heures de travail: {result.modified_count} mises à jour")
+            
+            # 7️⃣ EMPLOYEES (Collection séparée si existe)
+            if name_changed or email_changed:
+                employee_update = {}
+                if name_changed:
+                    employee_update["name"] = new_name
+                if email_changed:
+                    employee_update["email"] = new_email
+                
+                result = await db.employees.update_many(
+                    {"user_id": user_id},
+                    {"$set": employee_update}
+                )
+                total_updated += result.modified_count
+                logger.info(f"   ✅ Employees: {result.modified_count} mis à jour")
+            
+            # 8️⃣ CSE CESSIONS (Cessions d'heures CSE)
+            if name_changed:
+                # Mettre à jour comme donneur
+                result_from = await db.cse_cessions.update_many(
+                    {"from_employee_id": user_id},
+                    {"$set": {"from_employee_name": new_name}}
+                )
+                # Mettre à jour comme receveur
+                result_to = await db.cse_cessions.update_many(
+                    {"to_employee_id": user_id},
+                    {"$set": {"to_employee_name": new_name}}
+                )
+                total_updated += result_from.modified_count + result_to.modified_count
+                logger.info(f"   ✅ Cessions CSE: {result_from.modified_count + result_to.modified_count} mises à jour")
+            
+            # 9️⃣ DELEGATION HOURS (Heures de délégation CSE)
+            if name_changed:
+                result = await db.delegation_hours.update_many(
+                    {"employee_id": user_id},
+                    {"$set": {"employee_name": new_name}}
+                )
+                total_updated += result.modified_count
+                logger.info(f"   ✅ Heures délégation: {result.modified_count} mises à jour")
+            
+            # 🔟 ABSENCE REQUESTS (Demandes d'absence si collection séparée)
+            if name_changed or email_changed:
+                request_update = {}
+                if name_changed:
+                    request_update["employee_name"] = new_name
+                if email_changed:
+                    request_update["email"] = new_email
+                
+                result = await db.absence_requests.update_many(
+                    {"employee_id": user_id},
+                    {"$set": request_update}
+                )
+                total_updated += result.modified_count
+                logger.info(f"   ✅ Demandes absence: {result.modified_count} mises à jour")
+            
+            logger.info(f"🎯 TOTAL: {total_updated} enregistrements synchronisés dans tous les modules")
+            
+            if name_changed:
+                logger.info(f"   📝 Nom: '{old_name}' → '{new_name}'")
+            if email_changed:
+                logger.info(f"   📧 Email: '{old_email}' → '{new_email}'")
     
     # Return updated user
     updated_user = await db.users.find_one({"id": user_id})
