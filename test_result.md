@@ -1006,15 +1006,18 @@ test_plan:
 frontend:
   - task: "Overtime Validation System for Educational Sector - Frontend UI"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/components/OvertimeModule.js"
     stuck_count: 0
     priority: "critical"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "FRONTEND UI IMPLEMENTED: Enhanced OvertimeModule.js with educational sector validation features. IMPLEMENTATION DETAILS: 1) Added is_educational_sector field display with 🎓 'Secteur éducatif' badge under employee names in summary view, 2) Enhanced detailed view with educational sector indicator and 'Validation managériale requise' message, 3) Added validation status display (⏳ En attente / ✓ Validé) for each overtime entry, 4) Implemented '✓ Valider' button visible only for managers on non-validated educational sector overtime entries, 5) Added handleValidateOvertime() function that calls PUT /api/overtime/validate/{employee_id} endpoint with proper authentication and error handling, 6) Integrated with backend validation system for CCN66 compliance. UI FEATURES: Educational badge display in summary table, validation status indicators, manager-only validation buttons, success/error alerts, real-time data refresh after validation. Ready for comprehensive frontend testing with manager login (jedau@aaea-gpe.fr / gPGlceec) to verify: navigation to module, educational sector badge visibility, validation button functionality, status updates, and responsive design."
+      - working: false
+        agent: "testing"
+        comment: "OVERTIME VALIDATION FRONTEND TESTING COMPLETED ❌ Comprehensive testing reveals critical backend data issues preventing proper educational sector validation functionality. AUTHENTICATION & NAVIGATION ✅: Manager login (jedau@aaea-gpe.fr / gPGlceec) working perfectly, hamburger menu navigation to 'Heures Supplémentaires' successful, module loads correctly with summary and detailed views. CRITICAL BACKEND DATA ISSUES ❌: 1) API ANALYSIS: GET /api/overtime/all returns is_educational_sector=False for ALL 6 employees (Michel JOHN-ROSE, Jacques EDAU, Jean-Marc AUGUSTIN, Cindy GREGOIRE, Prescile ANASTASE, User Test), categorie_employe and metier fields showing as 'N/A' for all employees, no educational sector employees detected despite backend claiming CCN66 compliance, 2) MISSING UI ELEMENTS: No 🎓 'Secteur éducatif' badges visible in summary view (0 found), no 'Validation managériale requise' messages in detailed view, no validation status indicators (⏳ En attente / ✓ Validé), no '✓ Valider' buttons available for managers, 3) VALIDATION FUNCTIONALITY: Cannot test validation workflow as no educational employees are identified by backend, all overtime entries show as pre-validated (validated=True), no pending validation scenarios available for testing. RESPONSIVE DESIGN ✅: Interface works correctly across Desktop (1920x800), Tablet (768x1024), and Mobile (390x844) viewports, layout adapts properly, all UI elements remain functional and accessible. ROOT CAUSE: Backend GET /api/overtime/all endpoint not properly implementing educational sector detection logic despite backend testing claiming CCN66 compliance. The is_educational_sector field calculation appears broken or not integrated with user profile data (categorie_employe, metier fields). RECOMMENDATION: Main agent must investigate backend educational sector detection logic in GET /api/overtime/all endpoint and ensure proper integration with user management data to identify educational employees (éducateurs, moniteurs, etc.) before frontend validation features can function."
 
 agent_communication:
   - agent: "main" 
