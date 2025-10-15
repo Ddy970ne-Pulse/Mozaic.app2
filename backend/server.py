@@ -4277,6 +4277,108 @@ async def get_all_overtime(current_user: User = Depends(get_current_user)):
         logger.error(f"Error fetching overtime data: {str(e)}")
         return []  # Return empty list if no data
 
+
+@api_router.put("/overtime/validate/{employee_id}")
+async def validate_overtime(
+    employee_id: str,
+    validation_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Validate overtime hours for educational sector employees
+    Managers can validate overtime for specific educational sector employees (éducateurs)
+    
+    CCN66 Compliance: Managers must validate overtime for educational personnel
+    """
+    try:
+        # Check permissions: only managers and admins can validate
+        if current_user.role not in ["admin", "manager"]:
+            raise HTTPException(
+                status_code=403, 
+                detail="Seuls les managers et administrateurs peuvent valider les heures supplémentaires"
+            )
+        
+        # Get employee information
+        employee = await db.users.find_one({"id": employee_id})
+        if not employee:
+            raise HTTPException(status_code=404, detail="Employé non trouvé")
+        
+        # Check if employee is in educational sector
+        from ccn66_rules import is_category_a
+        is_educational = is_category_a(
+            employee.get('categorie_employe'), 
+            employee.get('metier')
+        )
+        
+        if not is_educational:
+            raise HTTPException(
+                status_code=400, 
+                detail="La validation managériale ne s'applique qu'aux employés du secteur éducatif (éducateurs, moniteurs)"
+            )
+        
+        # Get the specific overtime records to validate
+        date_to_validate = validation_data.get('date')
+        hours_to_validate = validation_data.get('hours', 0)
+        
+        # Update overtime records for this employee/date
+        update_result = await db.overtime.update_many(
+            {
+                "employee_id": employee_id,
+                "date": date_to_validate,
+                "type": "accumulated",
+                "validated": False  # Only update non-validated records
+            },
+            {
+                "$set": {
+                    "validated": True,
+                    "validated_by": current_user.id,
+                    "validated_by_name": current_user.name,
+                    "validated_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+        
+        # Also update work_hours records if applicable
+        work_hours_update = await db.work_hours.update_many(
+            {
+                "employee_id": employee_id,
+                "date": date_to_validate
+            },
+            {
+                "$set": {
+                    "validated": True,
+                    "validated_by": current_user.id,
+                    "validated_by_name": current_user.name,
+                    "validated_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+        
+        total_updated = update_result.modified_count + work_hours_update.modified_count
+        
+        if total_updated == 0:
+            logger.warning(f"No overtime records found to validate for employee {employee_id} on {date_to_validate}")
+        
+        logger.info(f"✅ Manager {current_user.name} validated {hours_to_validate}h overtime for {employee.get('name')} ({date_to_validate})")
+        
+        return {
+            "success": True,
+            "message": f"Heures supplémentaires validées pour {employee.get('name')}",
+            "employee_id": employee_id,
+            "employee_name": employee.get('name'),
+            "date": date_to_validate,
+            "hours": hours_to_validate,
+            "validated_by": current_user.name,
+            "validated_at": datetime.now(timezone.utc).isoformat(),
+            "records_updated": total_updated
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error validating overtime: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la validation: {str(e)}")
+
 # ==================================================
 # BACKUP & RESTORE ENDPOINTS
 # ==================================================
