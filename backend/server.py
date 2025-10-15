@@ -4846,6 +4846,151 @@ async def seed_demo_data(current_user: User = Depends(get_current_user)):
         logger.error(f"❌ Error seeding demo data: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Seed error: {str(e)}")
 
+# ==================== NOTIFICATIONS ENDPOINTS ====================
+
+@api_router.get("/notifications")
+async def get_notifications(current_user: User = Depends(get_current_user)):
+    """Récupérer toutes les notifications de l'utilisateur connecté"""
+    try:
+        notifications = await db.notifications.find(
+            {"user_id": current_user.id}
+        ).sort("created_at", -1).to_list(length=50)
+        
+        # Convertir _id MongoDB en string
+        for notif in notifications:
+            if '_id' in notif:
+                del notif['_id']
+        
+        return notifications
+    except Exception as e:
+        logger.error(f"Error fetching notifications: {str(e)}")
+        return []
+
+
+@api_router.get("/notifications/unread-count")
+async def get_unread_count(current_user: User = Depends(get_current_user)):
+    """Compter les notifications non lues"""
+    try:
+        count = await db.notifications.count_documents({
+            "user_id": current_user.id,
+            "read": False
+        })
+        return {"count": count}
+    except Exception as e:
+        logger.error(f"Error counting unread notifications: {str(e)}")
+        return {"count": 0}
+
+
+@api_router.put("/notifications/{notification_id}/read")
+async def mark_notification_read(
+    notification_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Marquer une notification comme lue"""
+    try:
+        result = await db.notifications.update_one(
+            {"id": notification_id, "user_id": current_user.id},
+            {"$set": {"read": True}}
+        )
+        
+        if result.modified_count > 0:
+            return {"success": True, "message": "Notification marquée comme lue"}
+        else:
+            raise HTTPException(status_code=404, detail="Notification non trouvée")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error marking notification as read: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.put("/notifications/read-all")
+async def mark_all_read(current_user: User = Depends(get_current_user)):
+    """Marquer toutes les notifications comme lues"""
+    try:
+        result = await db.notifications.update_many(
+            {"user_id": current_user.id, "read": False},
+            {"$set": {"read": True}}
+        )
+        
+        return {
+            "success": True,
+            "message": f"{result.modified_count} notifications marquées comme lues"
+        }
+    except Exception as e:
+        logger.error(f"Error marking all notifications as read: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.delete("/notifications/{notification_id}")
+async def delete_notification(
+    notification_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Supprimer une notification"""
+    try:
+        result = await db.notifications.delete_one({
+            "id": notification_id,
+            "user_id": current_user.id
+        })
+        
+        if result.deleted_count > 0:
+            return {"success": True, "message": "Notification supprimée"}
+        else:
+            raise HTTPException(status_code=404, detail="Notification non trouvée")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting notification: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/notifications/create")
+async def create_notification(
+    notification: Notification,
+    current_user: User = Depends(require_admin_or_manager)
+):
+    """Créer une nouvelle notification (admin/manager seulement)"""
+    try:
+        notif_dict = notification.dict()
+        await db.notifications.insert_one(notif_dict)
+        
+        logger.info(f"✅ Notification créée pour user {notification.user_id}: {notification.title}")
+        
+        return {"success": True, "notification": notif_dict}
+    except Exception as e:
+        logger.error(f"Error creating notification: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Helper function pour créer des notifications automatiquement
+async def create_auto_notification(
+    user_id: str,
+    notif_type: str,
+    title: str,
+    message: str,
+    icon: str = "🔔",
+    link: Optional[str] = None,
+    related_id: Optional[str] = None
+):
+    """Fonction helper pour créer des notifications automatiques"""
+    try:
+        notification = Notification(
+            user_id=user_id,
+            type=notif_type,
+            title=title,
+            message=message,
+            icon=icon,
+            link=link,
+            related_id=related_id
+        )
+        
+        await db.notifications.insert_one(notification.dict())
+        logger.info(f"🔔 Auto-notification créée: {title} pour user {user_id}")
+    except Exception as e:
+        logger.error(f"Error creating auto-notification: {str(e)}")
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
