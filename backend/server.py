@@ -27,6 +27,10 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# Initialiser le service de synchronisation globale
+sync_service = DataSyncService(db)
+logger.info("🔄 Service de synchronisation initialisé")
+
 # Create the main app without a prefix
 app = FastAPI()
 
