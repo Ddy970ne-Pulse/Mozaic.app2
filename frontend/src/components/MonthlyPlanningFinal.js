@@ -1224,7 +1224,18 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
       );
 
       if (response.ok) {
-        alert(`✅ Absence créée avec succès pour ${selectedEmployee.name}`);
+        const result = await response.json();
+        
+        // Message de succès avec info sur la synchronisation
+        let successMessage = `✅ Absence créée avec succès pour ${selectedEmployee.name}`;
+        
+        if (result.counters_synced) {
+          successMessage += '\n🔄 Compteurs de congés mis à jour automatiquement';
+        }
+        
+        alert(successMessage);
+        
+        console.log('✅ Résultat création:', result);
         
         // Réinitialiser
         setShowConfirmModal(false);
