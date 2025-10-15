@@ -3030,3 +3030,15 @@ class BackendTester:
             self.results["overall_status"] = "fail"
         
         return self.results
+
+if __name__ == "__main__":
+    tester = BackendTester()
+    results = tester.run_all_tests()
+    
+    # Exit with appropriate code
+    if results["overall_status"] == "pass":
+        sys.exit(0)
+    elif results["overall_status"] == "partial":
+        sys.exit(1)
+    else:
+        sys.exit(2)
