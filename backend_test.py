@@ -1684,6 +1684,8 @@ class BackendTester:
         
         if api_healthy:
             auth_token = self.test_authentication()
+            # PRIORITY: Test CCN66 Leave Balance System as requested in French review
+            self.test_ccn66_leave_balance_system(auth_token)
             # Focus on Leave Balance Management System testing as requested in French review
             self.test_leave_balance_management_system(auth_token)
             self.test_mongodb_validation(auth_token)
