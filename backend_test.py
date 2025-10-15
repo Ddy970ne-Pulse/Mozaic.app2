@@ -102,45 +102,30 @@ class BackendTester:
         auth_endpoint = "/auth/login"
         auth_token = None
         
-        try:
-            # Test with DACALOR Diego first (actual admin in database)
-            diego_account = test_accounts[0]   # ddacalor@aaea-gpe.fr
-            sophie_account = test_accounts[1]  # sophie.martin@company.com
-            auth_response = requests.post(
-                f"{API_URL}{auth_endpoint}", 
-                json={"email": diego_account["email"], "password": diego_account["password"]}, 
-                timeout=5
-            )
-            if auth_response.status_code == 200:
-                auth_data = auth_response.json()
-                auth_token = auth_data.get('token')
-                self.log_result("authentication", True, f"✅ DACALOR Diego admin login successful ({diego_account['email']} / admin123)")
-                
-                # Test /auth/me endpoint
-                if auth_token:
-                    me_response = requests.get(
-                        f"{API_URL}/auth/me", 
-                        headers={"Authorization": f"Bearer {auth_token}"}, 
-                        timeout=5
-                    )
-                    if me_response.status_code == 200:
-                        user_data = me_response.json()
-                        self.log_result("authentication", True, f"User profile retrieval works: {user_data.get('name', 'Unknown')}")
-                    else:
-                        self.log_result("authentication", False, f"/auth/me returned {me_response.status_code}")
-            else:
-                self.log_result("authentication", False, f"DACALOR Diego login failed: {auth_response.status_code}")
-                
-                # Try Sophie Martin if Diego fails
+        # Test each account and store tokens for further testing
+        self.user_tokens = {}
+        
+        for account in test_accounts:
+            try:
+                print(f"\n--- Testing {account['name']} ({account['role']}) ---")
                 auth_response = requests.post(
                     f"{API_URL}{auth_endpoint}", 
-                    json={"email": sophie_account["email"], "password": sophie_account["password"]}, 
+                    json={"email": account["email"], "password": account["password"]}, 
                     timeout=5
                 )
                 if auth_response.status_code == 200:
                     auth_data = auth_response.json()
                     auth_token = auth_data.get('token')
-                    self.log_result("authentication", True, f"✅ Sophie Martin login successful ({sophie_account['email']} / demo123)")
+                    user_data = auth_data.get('user', {})
+                    
+                    self.log_result("authentication", True, f"✅ {account['name']} login successful ({account['email']})")
+                    
+                    # Store token for later use
+                    self.user_tokens[account['role']] = {
+                        'token': auth_token,
+                        'user_data': user_data,
+                        'email': account['email']
+                    }
                     
                     # Test /auth/me endpoint
                     if auth_token:
@@ -150,28 +135,28 @@ class BackendTester:
                             timeout=5
                         )
                         if me_response.status_code == 200:
-                            user_data = me_response.json()
-                            self.log_result("authentication", True, f"User profile retrieval works: {user_data.get('name', 'Unknown')}")
+                            profile_data = me_response.json()
+                            self.log_result("authentication", True, f"✅ {account['name']}: Profile retrieval works - Role: {profile_data.get('role', 'Unknown')}")
+                            
+                            # Verify JWT token contains correct user info
+                            if profile_data.get('email') == account['email']:
+                                self.log_result("authentication", True, f"✅ {account['name']}: JWT token verification successful")
+                            else:
+                                self.log_result("authentication", False, f"❌ {account['name']}: JWT token email mismatch")
                         else:
-                            self.log_result("authentication", False, f"/auth/me returned {me_response.status_code}")
+                            self.log_result("authentication", False, f"❌ {account['name']}: /auth/me returned {me_response.status_code}")
                 else:
-                    self.log_result("authentication", False, f"Sophie Martin login also failed: {auth_response.status_code}")
-                
-            # Test other accounts
-            for account in test_accounts[2:]:
-                try:
-                    auth_response = requests.post(
-                        f"{API_URL}{auth_endpoint}", 
-                        json={"email": account["email"], "password": account["password"]}, 
-                        timeout=5
-                    )
-                    if auth_response.status_code == 200:
-                        self.log_result("authentication", True, f"Login successful for {account['name']} ({account['role']})")
-                    else:
-                        self.log_result("authentication", False, f"Login failed for {account['name']}: {auth_response.status_code}")
-                except Exception as e:
-                    self.log_result("authentication", False, f"Error testing login for {account['name']}: {str(e)}")
+                    self.log_result("authentication", False, f"❌ {account['name']} login failed: {auth_response.status_code}")
                     
+            except Exception as e:
+                self.log_result("authentication", False, f"❌ Error testing {account['name']}: {str(e)}")
+                
+        # Set auth_token to admin token for subsequent tests
+        if 'admin' in self.user_tokens:
+            auth_token = self.user_tokens['admin']['token']
+        else:
+            auth_token = None
+            
         except Exception as e:
             self.log_result("authentication", False, f"Error testing authentication: {str(e)}")
             
