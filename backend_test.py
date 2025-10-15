@@ -88,18 +88,14 @@ class BackendTester:
         return self.results["api_health"]["status"] == "pass"
         
     def test_authentication(self):
-        """Test authentication endpoints for different user types"""
-        print("\n=== Testing Authentication ===")
+        """Test authentication endpoints for the 3 specific user accounts from review request"""
+        print("\n=== Testing Authentication for 3 Specific User Accounts ===")
         
-        # Test accounts - use actual admin from database
+        # Test accounts from French review request
         test_accounts = [
-            {"email": "ddacalor@aaea-gpe.fr", "password": "admin123", "role": "admin", "name": "Diégo DACALOR"},
-            {"email": "sophie.martin@company.com", "password": "demo123", "role": "admin", "name": "Sophie Martin"},
-            {"email": "diego.dacalor@company.com", "password": "admin123", "role": "admin", "name": "DACALOR Diégo"},
-            {"email": "admin@company.com", "password": "demo123", "role": "admin", "name": "Sophie Martin"},
-            {"email": "manager@company.com", "password": "demo123", "role": "manager", "name": "Jean Dupont"},
-            {"email": "marie.leblanc@company.com", "password": "demo123", "role": "employee", "name": "Marie Leblanc"},
-            {"email": "pierre.moreau@company.com", "password": "demo123", "role": "employee", "name": "Pierre Moreau"}
+            {"email": "cgregoire@aaea-gpe.fr", "password": "YrQwGiEl", "role": "employee", "name": "CINDY GREGOIRE"},
+            {"email": "ddacalor@aaea-gpe.fr", "password": "admin123", "role": "admin", "name": "DIEGO DACALOR"},
+            {"email": "jedau@aaea-gpe.fr", "password": "gPGlceec", "role": "manager", "name": "JACQUES EDAU"}
         ]
         
         # Check for authentication endpoint
