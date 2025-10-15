@@ -22,6 +22,99 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Charger les notifications depuis l'API
+  useEffect(() => {
+    fetchNotifications();
+    fetchUnreadCount();
+    
+    // Recharger toutes les 30 secondes
+    const interval = setInterval(() => {
+      fetchNotifications();
+      fetchUnreadCount();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/notifications`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/notifications/unread-count`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadCount(data.count);
+      }
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
+
+  const markAsRead = async (notificationId) => {
+    try {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/notifications/${notificationId}/read`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      fetchNotifications();
+      fetchUnreadCount();
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/notifications/read-all`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      fetchNotifications();
+      fetchUnreadCount();
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  };
+
+  const deleteNotification = async (notificationId) => {
+    try {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/notifications/${notificationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      fetchNotifications();
+      fetchUnreadCount();
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -37,10 +130,16 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
     };
     window.addEventListener('navigate-to-view', handleCustomNavigation);
 
-    // Fermer les notifications quand on clique en dehors
+    // Fermer les notifications et le menu quand on clique en dehors
     const handleClickOutside = (event) => {
-      if (showNotifications && !event.target.closest('.notifications-panel')) {
+      // Fermer notifications
+      if (showNotifications && !event.target.closest('.notifications-panel') && !event.target.closest('.notification-button')) {
         setShowNotifications(false);
+      }
+      
+      // Fermer menu hamburger
+      if (showMenu && !event.target.closest('.hamburger-menu') && !event.target.closest('.hamburger-button')) {
+        setShowMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -50,7 +149,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
       window.removeEventListener('navigate-to-view', handleCustomNavigation);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showNotifications]);
+  }, [showNotifications, showMenu]);
 
   const menuItems = user.role === 'employee' ? [
     { id: 'employee-dashboard', name: 'Mon Tableau de Bord', icon: '🏠', color: 'from-blue-500 to-blue-600' },
