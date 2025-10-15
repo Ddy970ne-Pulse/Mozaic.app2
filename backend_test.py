@@ -2715,8 +2715,8 @@ class BackendTester:
                 non_educational_id = None
                 
                 for user in users:
-                    categorie = user.get('categorie_employe', '').lower()
-                    metier = user.get('metier', '').lower()
+                    categorie = (user.get('categorie_employe') or '').lower()
+                    metier = (user.get('metier') or '').lower()
                     # Look for non-educational employee (cadre, administratif, etc.)
                     if 'cadre' in categorie or 'administratif' in categorie or 'comptable' in metier:
                         non_educational_id = user.get('id')
