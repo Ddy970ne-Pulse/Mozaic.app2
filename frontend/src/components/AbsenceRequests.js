@@ -505,21 +505,28 @@ const AbsenceRequests = ({ user }) => {
                        request.status === 'approved' ? 'Approuvé' : 'Refusé'}
                     </span>
                     
+                    {/* Managers ne peuvent pas valider leurs propres demandes */}
                     {!isEmployee && request.status === 'pending' && (
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleApprove(request.id)}
-                          className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200"
-                        >
-                          Approuver
-                        </button>
-                        <button
-                          onClick={() => handleReject(request.id)}
-                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200"
-                        >
-                          Refuser
-                        </button>
-                      </div>
+                      user.role === 'manager' && request.employee_id === user.id ? (
+                        <div className="text-xs text-orange-600 italic px-3 py-1 bg-orange-50 rounded-lg">
+                          🔒 Validation par admin requise
+                        </div>
+                      ) : (
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleApprove(request.id)}
+                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200"
+                          >
+                            Approuver
+                          </button>
+                          <button
+                            onClick={() => handleReject(request.id)}
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200"
+                          >
+                            Refuser
+                          </button>
+                        </div>
+                      )
                     )}
                     
                     {/* Bouton Modifier pour les admins (disponible pour toutes les absences) */}
