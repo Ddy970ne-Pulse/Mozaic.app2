@@ -1071,7 +1071,7 @@ const UserManagement = ({ user }) => {
           { id: 'audit', label: '📋 Audit' }
         ]}
         activeTab={activeTab}
-        onChange={setActiveTab}
+        onTabChange={setActiveTab}
       />
 
       {renderTabContent()}
