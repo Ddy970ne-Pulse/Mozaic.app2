@@ -3030,24 +3030,6 @@ class BackendTester:
             self.results["overall_status"] = "fail"
         
         return self.results
-        
-        # 4. Test Error Cases
-        print("\n--- 4. Testing Error Cases ---")
-        
-        # Test 403 error - employee trying to validate
-        employee_credentials = {"email": "cgregoire@aaea-gpe.fr", "password": "YrQwGiEl"}
-        try:
-            employee_auth = requests.post(f"{API_URL}/auth/login", json=employee_credentials, timeout=10)
-            if employee_auth.status_code == 200:
-                employee_data = employee_auth.json()
-                employee_token = employee_data.get('token')
-                employee_headers = {"Authorization": f"Bearer {employee_token}"}
-                
-                if educational_employee_id:
-                    response = requests.put(
-                        f"{API_URL}/overtime/validate/{educational_employee_id}",
-                        json={"date": "2025-01-15", "hours": 3.0},
-                        headers=employee_headers,
                         timeout=10
                     )
                     
