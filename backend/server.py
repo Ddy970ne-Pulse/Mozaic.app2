@@ -4265,10 +4265,26 @@ async def get_all_overtime(current_user: User = Depends(get_current_user)):
                 'validated': True  # Imported hours are pre-validated
             })
         
-        # Calculate balance for each employee
+        # Calculate balance for each employee and add educational sector flag
         result = []
         for emp_data in employee_overtime.values():
             emp_data['balance'] = emp_data['accumulated'] - emp_data['recovered']
+            
+            # Check if employee is educational sector for manager validation
+            employee = await db.users.find_one({"id": emp_data['id']})
+            if employee:
+                from ccn66_rules import is_category_a
+                emp_data['is_educational_sector'] = is_category_a(
+                    employee.get('categorie_employe'), 
+                    employee.get('metier')
+                )
+                emp_data['categorie_employe'] = employee.get('categorie_employe', 'N/A')
+                emp_data['metier'] = employee.get('metier', 'N/A')
+            else:
+                emp_data['is_educational_sector'] = False
+                emp_data['categorie_employe'] = 'N/A'
+                emp_data['metier'] = 'N/A'
+            
             result.append(emp_data)
         
         return result
