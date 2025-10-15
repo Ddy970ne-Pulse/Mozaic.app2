@@ -152,13 +152,10 @@ class BackendTester:
                 self.log_result("authentication", False, f"❌ Error testing {account['name']}: {str(e)}")
                 
         # Set auth_token to admin token for subsequent tests
-        if 'admin' in self.user_tokens:
+        if hasattr(self, 'user_tokens') and 'admin' in self.user_tokens:
             auth_token = self.user_tokens['admin']['token']
         else:
             auth_token = None
-            
-        except Exception as e:
-            self.log_result("authentication", False, f"Error testing authentication: {str(e)}")
             
         self.results["authentication"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["authentication"]["details"]) else "fail"
         return auth_token
