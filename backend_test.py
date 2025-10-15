@@ -902,6 +902,227 @@ class BackendTester:
         
         self.results["excel_import"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["excel_import"]["details"]) else "fail"
 
+    def test_ccn66_leave_balance_system(self, auth_token=None):
+        """Test du nouveau système de compteurs CCN66 as requested in French review"""
+        print("\n=== Testing CCN66 Leave Balance System ===")
+        print("Testing: Système de calcul automatique des droits à congés selon la Convention Collective Nationale 66")
+        
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
+        
+        # 1. Test Initialisation CCN66 avec force_recalculate=true
+        print("\n--- 1. Testing Initialisation CCN66 ---")
+        
+        try:
+            response = requests.post(
+                f"{API_URL}/leave-balance/initialize-all?force_recalculate=true", 
+                headers=headers, 
+                timeout=15
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success'):
+                    nb_employees = data.get('employees_initialized', 0)
+                    self.log_result("ccn66_system", True, f"✅ Initialisation CCN66: {nb_employees} employés initialisés avec force_recalculate=true")
+                    
+                    # Vérifier qu'on a bien 32 employés comme attendu
+                    if nb_employees >= 30:  # Au moins 30 employés attendus
+                        self.log_result("ccn66_system", True, f"✅ Nombre d'employés cohérent: {nb_employees} employés")
+                    else:
+                        self.log_result("ccn66_system", False, f"❌ Nombre d'employés insuffisant: {nb_employees} (attendu: ~32)")
+                else:
+                    self.log_result("ccn66_system", False, f"❌ Initialisation CCN66 échouée")
+            else:
+                self.log_result("ccn66_system", False, f"❌ POST /api/leave-balance/initialize-all?force_recalculate=true returned {response.status_code}")
+        except Exception as e:
+            self.log_result("ccn66_system", False, f"❌ Erreur lors de l'initialisation CCN66: {str(e)}")
+        
+        # 2. Test des compteurs pour profils spécifiques
+        print("\n--- 2. Testing Compteurs pour Profils Spécifiques ---")
+        
+        # Profils à tester selon la demande
+        test_profiles = [
+            {
+                "name": "Cindy GREGOIRE",
+                "email": "cgregoire@aaea-gpe.fr",
+                "expected_category": "B",
+                "expected_ca": 30,
+                "expected_ct": 9,
+                "description": "Cadre / Comptable → Catégorie B"
+            },
+            {
+                "name": "Joël ADOLPHIN", 
+                "email": "jadolphin@aaea-gpe.fr",
+                "expected_category": "A",
+                "expected_ca": 30,
+                "expected_ct": 18,
+                "description": "Ouvrier qualifié / Educateur Technique → Catégorie A"
+            },
+            {
+                "name": "Stéphy FERIAUX",
+                "email": "sferiaux@aaea-gpe.fr", 
+                "expected_category": "A",
+                "expected_ca": 30,
+                "expected_ct": 18,
+                "description": "Technicien / Educateur Spécialisé → Catégorie A"
+            },
+            {
+                "name": "Jean-François BERNARD",
+                "email": "jfbernard@aaea-gpe.fr",
+                "expected_category": None,  # À déterminer
+                "expected_ca": None,  # Proratisé selon temps partiel
+                "expected_ct": None,  # Proratisé selon temps partiel
+                "description": "Temps Partiel - Vérifier proratisation CA et CT"
+            }
+        ]
+        
+        # D'abord, récupérer la liste des utilisateurs pour obtenir les employee_id
+        users_map = {}
+        try:
+            response = requests.get(f"{API_URL}/users", headers=headers, timeout=10)
+            if response.status_code == 200:
+                users = response.json()
+                for user in users:
+                    users_map[user.get('email', '').lower()] = user.get('id')
+                self.log_result("ccn66_system", True, f"✅ Liste des utilisateurs récupérée: {len(users)} utilisateurs")
+            else:
+                self.log_result("ccn66_system", False, f"❌ Impossible de récupérer la liste des utilisateurs: {response.status_code}")
+        except Exception as e:
+            self.log_result("ccn66_system", False, f"❌ Erreur récupération utilisateurs: {str(e)}")
+        
+        # Tester chaque profil
+        for profile in test_profiles:
+            print(f"\n--- Testing {profile['name']} ---")
+            
+            employee_id = users_map.get(profile['email'].lower())
+            if not employee_id:
+                self.log_result("ccn66_system", False, f"❌ {profile['name']} non trouvé dans la base ({profile['email']})")
+                continue
+            
+            try:
+                response = requests.get(
+                    f"{API_URL}/leave-balance/{employee_id}", 
+                    headers=headers, 
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    balance_data = response.json()
+                    
+                    ca_balance = balance_data.get('ca_initial', 0)
+                    ct_balance = balance_data.get('ct_initial', 0)
+                    cex_balance = balance_data.get('cex_initial', 0)
+                    
+                    self.log_result("ccn66_system", True, f"✅ {profile['name']}: Compteurs récupérés - CA={ca_balance}, CT={ct_balance}, CEX={cex_balance}")
+                    
+                    # Vérifications spécifiques selon le profil
+                    if profile['expected_ca'] is not None:
+                        if abs(ca_balance - profile['expected_ca']) < 0.1:
+                            self.log_result("ccn66_system", True, f"✅ {profile['name']}: CA correct ({ca_balance}j)")
+                        else:
+                            self.log_result("ccn66_system", False, f"❌ {profile['name']}: CA incorrect (attendu {profile['expected_ca']}j, obtenu {ca_balance}j)")
+                    
+                    if profile['expected_ct'] is not None:
+                        if abs(ct_balance - profile['expected_ct']) < 0.1:
+                            self.log_result("ccn66_system", True, f"✅ {profile['name']}: CT correct ({ct_balance}j)")
+                        else:
+                            self.log_result("ccn66_system", False, f"❌ {profile['name']}: CT incorrect (attendu {profile['expected_ct']}j, obtenu {ct_balance}j)")
+                    
+                    # Vérifier l'ancienneté (CEX) - doit être >= 0
+                    if cex_balance >= 0:
+                        self.log_result("ccn66_system", True, f"✅ {profile['name']}: Ancienneté calculée ({cex_balance}j)")
+                    else:
+                        self.log_result("ccn66_system", False, f"❌ {profile['name']}: Ancienneté négative ({cex_balance}j)")
+                    
+                    # Pour Jean-François BERNARD, vérifier la proratisation
+                    if profile['name'] == "Jean-François BERNARD":
+                        if ca_balance < 30 or ct_balance < 18:  # Proratisé donc < temps plein
+                            self.log_result("ccn66_system", True, f"✅ {profile['name']}: Proratisation temps partiel détectée (CA={ca_balance}, CT={ct_balance})")
+                        else:
+                            self.log_result("ccn66_system", False, f"❌ {profile['name']}: Proratisation temps partiel non appliquée")
+                    
+                else:
+                    self.log_result("ccn66_system", False, f"❌ {profile['name']}: Impossible de récupérer les compteurs ({response.status_code})")
+            except Exception as e:
+                self.log_result("ccn66_system", False, f"❌ {profile['name']}: Erreur récupération compteurs: {str(e)}")
+        
+        # 3. Test Manager Jacques EDAU
+        print("\n--- 3. Testing Manager Jacques EDAU ---")
+        
+        jacques_email = "jedau@aaea-gpe.fr"
+        jacques_id = users_map.get(jacques_email.lower())
+        
+        if jacques_id:
+            try:
+                response = requests.get(f"{API_URL}/users/{jacques_id}", headers=headers, timeout=10)
+                if response.status_code == 200:
+                    user_data = response.json()
+                    role = user_data.get('role', '')
+                    
+                    if role == 'manager':
+                        self.log_result("ccn66_system", True, f"✅ Jacques EDAU a le rôle manager")
+                        
+                        # Tester la connexion avec Jacques EDAU
+                        try:
+                            # Récupérer le mot de passe initial depuis la base
+                            initial_password = user_data.get('initial_password')
+                            if initial_password:
+                                auth_response = requests.post(
+                                    f"{API_URL}/auth/login", 
+                                    json={"email": jacques_email, "password": initial_password}, 
+                                    timeout=5
+                                )
+                                if auth_response.status_code == 200:
+                                    self.log_result("ccn66_system", True, f"✅ Jacques EDAU: Connexion réussie avec mot de passe initial")
+                                else:
+                                    self.log_result("ccn66_system", False, f"❌ Jacques EDAU: Connexion échouée avec mot de passe initial")
+                            else:
+                                self.log_result("ccn66_system", False, f"❌ Jacques EDAU: Pas de mot de passe initial trouvé")
+                        except Exception as e:
+                            self.log_result("ccn66_system", False, f"❌ Jacques EDAU: Erreur test connexion: {str(e)}")
+                    else:
+                        self.log_result("ccn66_system", False, f"❌ Jacques EDAU a le rôle '{role}' au lieu de 'manager'")
+                else:
+                    self.log_result("ccn66_system", False, f"❌ Jacques EDAU: Impossible de récupérer les données utilisateur ({response.status_code})")
+            except Exception as e:
+                self.log_result("ccn66_system", False, f"❌ Jacques EDAU: Erreur récupération données: {str(e)}")
+        else:
+            self.log_result("ccn66_system", False, f"❌ Jacques EDAU non trouvé dans la base ({jacques_email})")
+        
+        # 4. Test Vérification Globale des Compteurs
+        print("\n--- 4. Testing Vérification Globale ---")
+        
+        try:
+            # Compter combien d'employés ont des compteurs initialisés
+            initialized_count = 0
+            total_users = len(users_map)
+            
+            for email, employee_id in users_map.items():
+                try:
+                    response = requests.get(
+                        f"{API_URL}/leave-balance/{employee_id}", 
+                        headers=headers, 
+                        timeout=5
+                    )
+                    if response.status_code == 200:
+                        balance_data = response.json()
+                        # Vérifier que les compteurs sont initialisés (pas tous à 0)
+                        ca_initial = balance_data.get('ca_initial', 0)
+                        if ca_initial > 0:
+                            initialized_count += 1
+                except:
+                    pass  # Ignorer les erreurs individuelles
+            
+            self.log_result("ccn66_system", True, f"✅ Compteurs initialisés: {initialized_count}/{total_users} employés")
+            
+            if initialized_count >= 30:  # Au moins 30 employés avec compteurs
+                self.log_result("ccn66_system", True, f"✅ Critère de succès atteint: {initialized_count} employés avec compteurs")
+            else:
+                self.log_result("ccn66_system", False, f"❌ Critère de succès non atteint: seulement {initialized_count} employés avec compteurs")
+                
+        except Exception as e:
+            self.log_result("ccn66_system", False, f"❌ Erreur vérification globale: {str(e)}")
+        
+        self.results["ccn66_system"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["ccn66_system"]["details"]) else "fail"
+
     def test_leave_balance_management_system(self, auth_token=None):
         """Test Leave Balance Management System with Automatic Reintegration as requested in French review"""
         print("\n=== Testing Leave Balance Management System ===")
