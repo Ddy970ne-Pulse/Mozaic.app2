@@ -975,7 +975,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Absence Import Module Enhancement - NEW EXCEL FORMAT"
+    - "Overtime Validation System for Educational Sector - CCN66 Compliance"
   - agent: "main"
     message: "UI PHASE 3 COMPLETED ✅ Successfully addressed 3 critical user requests with comprehensive solutions. 1) HOVER EFFECT FINAL FIX: User provided screenshot showing Paramètres and Aide tiles still had entire tile hover effect. SOLUTION: Completely removed all tile movement effects (hover:scale-110, hover:-translate-y-2, hover:shadow-2xl, transform-gpu) from tile button elements, kept ONLY group-hover:scale-110 on icon div, applied consistently to ALL menu tiles. NOW: Only icon enlarges on hover, tile remains completely stable - no movement, no shadow change, no scale. 2) ANALYTICS CONSOLIDATION: Created AnalyticsHub.js - unified hub interface with 3 large module cards (Analyse des Absences, Analytics & KPI, Rapports Standards), each with gradient header, description, availability indicator, hover animations. Replaced 3 separate menu tiles with SINGLE 'Analytics & Rapports' tile (gradient indigo→purple→pink). Menu cleaner (3→1 tile), centralized access with overview statistics. 3) CA DEDUCTION VERIFICATION: Verified absenceRules.js - CA correctly uses 'working_days' method, excludes Sundays (excludeSundays: true), excludes holidays (excludeHolidays: true), calculation logic line 281-293 implements Monday-Saturday counting correctly, legally compliant with Art. L3141-3. No changes needed. Created comprehensive documentation UI_ANALYTICS_GROUPING_FIX.md. Frontend restarted. Ready for user testing: hover effects, analytics hub navigation, CA calculations."
 
