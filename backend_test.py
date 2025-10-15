@@ -2983,21 +2983,6 @@ class BackendTester:
                 self.log_result("overtime_validation", False, f"❌ Erreur vérification après validation: {str(e)}")
         
         self.results["overtime_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["overtime_validation"]["details"]) else "fail"
-            educational_employee_id = self.educational_employee.get('id')
-        
-        if not educational_employee_id:
-            # Try to find an educational employee from users
-            try:
-                users_response = requests.get(f"{API_URL}/users", headers=headers, timeout=10)
-                if users_response.status_code == 200:
-                    users = users_response.json()
-                    for user in users:
-                        # Check if user is educational sector
-                        categorie = (user.get('categorie_employe') or '').lower()
-                        metier = (user.get('metier') or '').lower()
-                        if any(keyword in f"{categorie} {metier}" for keyword in ["educateur", "éducateur", "moniteur", "technique", "spécialisé"]):
-                            educational_employee_id = user.get('id')
-                            self.log_result("overtime_validation", True, f"✅ Found educational employee: {user.get('name')}")
                             break
             except Exception as e:
                 self.log_result("overtime_validation", False, f"❌ Error finding educational employee: {str(e)}")
