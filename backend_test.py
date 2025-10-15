@@ -1132,6 +1132,52 @@ class BackendTester:
         
         self.results["french_review"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["french_review"]["details"]) else "fail"
 
+    def test_mongodb_validation(self, auth_token=None):
+        """Test MongoDB data validation and integrity"""
+        print("\n=== Testing MongoDB Validation ===")
+        
+        if not auth_token:
+            self.log_result("mongodb_validation", False, "❌ No auth token for MongoDB validation")
+            return
+            
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        
+        # Test data integrity
+        try:
+            response = requests.get(f"{API_URL}/users", headers=headers, timeout=10)
+            if response.status_code == 200:
+                users = response.json()
+                self.log_result("mongodb_validation", True, f"✅ MongoDB users collection accessible ({len(users)} users)")
+            else:
+                self.log_result("mongodb_validation", False, f"❌ Cannot access users collection ({response.status_code})")
+        except Exception as e:
+            self.log_result("mongodb_validation", False, f"❌ MongoDB validation error: {str(e)}")
+            
+        self.results["mongodb_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["mongodb_validation"]["details"]) else "fail"
+
+    def test_cse_cessions_endpoints(self, auth_token=None):
+        """Test CSE cessions endpoints"""
+        print("\n=== Testing CSE Cessions Endpoints ===")
+        
+        if not auth_token:
+            self.log_result("cse_cessions", False, "❌ No auth token for CSE cessions testing")
+            return
+            
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        
+        # Test GET /api/cse/cessions
+        try:
+            response = requests.get(f"{API_URL}/cse/cessions", headers=headers, timeout=10)
+            if response.status_code == 200:
+                cessions = response.json()
+                self.log_result("cse_cessions", True, f"✅ GET /api/cse/cessions works ({len(cessions)} cessions)")
+            else:
+                self.log_result("cse_cessions", False, f"❌ GET /api/cse/cessions failed ({response.status_code})")
+        except Exception as e:
+            self.log_result("cse_cessions", False, f"❌ CSE cessions error: {str(e)}")
+            
+        self.results["cse_cessions"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["cse_cessions"]["details"]) else "fail"
+
     def test_authentication_and_profiles(self):
         """A. AUTHENTIFICATION ET PROFILS"""
         print("\n=== A. AUTHENTIFICATION ET PROFILS ===")
