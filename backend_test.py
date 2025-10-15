@@ -1104,27 +1104,32 @@ class BackendTester:
 
     def test_french_review_requirements(self):
         """Test comprehensive requirements from French review request"""
-        print("\n=== TESTS COMPLETS DES 3 COMPTES UTILISATEURS + FLUX CRITIQUES ===")
+        print("\n=== TESTS COMPLETS SYSTÈME MOZAIK RH AVEC CCN66 ===")
+        print("Testing 3 user accounts + Critical flows as requested in French review")
         
         # Initialize results for French review
         self.results["french_review"] = {"status": "unknown", "details": []}
         
-        # A. Test Authentication and Profiles
+        # Phase 1: AUTHENTIFICATION & COMPTEURS CCN66
+        print("\n### PHASE 1: AUTHENTIFICATION & COMPTEURS CCN66 ###")
         self.test_authentication_and_profiles()
+        self.test_ccn66_initialization_and_counters()
         
-        # B. Test CCN66 Leave Balance Counters
-        self.test_ccn66_counters_specific_users()
-        
-        # C. Test Absences by Role
+        # Phase 2: ABSENCES & PERMISSIONS
+        print("\n### PHASE 2: ABSENCES & PERMISSIONS ###")
         self.test_absences_by_role()
+        self.test_absence_period_retrieval()
         
-        # D. Test Absence Request Flow
-        self.test_absence_request_flow()
+        # Phase 3: DEMANDE & VALIDATION D'ABSENCE
+        print("\n### PHASE 3: DEMANDE & VALIDATION D'ABSENCE ###")
+        self.test_absence_request_creation_and_validation()
         
-        # E. Test User Management
-        self.test_user_management_by_role()
+        # Phase 4: VÉRIFICATIONS MANAGER JACQUES
+        print("\n### PHASE 4: VÉRIFICATIONS MANAGER JACQUES ###")
+        self.test_manager_jacques_permissions()
         
-        # F. Test Critical Endpoints
+        # Phase 5: ENDPOINTS CRITIQUES
+        print("\n### PHASE 5: ENDPOINTS CRITIQUES ###")
         self.test_critical_endpoints()
         
         self.results["french_review"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["french_review"]["details"]) else "fail"
