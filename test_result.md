@@ -281,6 +281,21 @@ backend:
         agent: "testing"
         comment: "LEAVE BALANCE MANAGEMENT SYSTEM COMPREHENSIVE TESTING COMPLETED ✅ Successfully tested the complete leave balance management system with automatic reintegration as requested in French review. ALL CRITICAL SUCCESS CRITERIA VERIFIED: ✅ AUTHENTICATION: DACALOR Diego admin login (ddacalor@aaea-gpe.fr / admin123) working perfectly with JWT token generation, ✅ INITIALISATION DES SOLDES: POST /api/leave-balance/initialize-all successfully initialized 33 employee leave balances for 2025, ✅ CONSULTATION SOLDE: GET /api/leave-balance/{employee_id} returns complete balance structure (CA=25.0/25.0, RTT=12.0/12.0), ✅ DÉDUCTION CONGÉS: POST /api/leave-balance/update with operation='deduct' correctly reduces balance (25.0 → 20.0 for 5 CA days), ✅ RÉINTÉGRATION: POST /api/leave-balance/update with operation='reintegrate' correctly increases balance (20.0 → 22.0 for 2 CA days with interrupting_absence_type='AM'), ✅ HISTORIQUE TRANSACTIONS: GET /api/leave-transactions/{employee_id} returns complete transaction history with proper chronological order, ✅ SOLDE FINAL COHÉRENT: Final balance calculation correct (CA=22.0, taken=5.0, reintegrated=2.0), ✅ DIFFÉRENTS TYPES: RTT and REC leave types working correctly with deduction and reintegration operations, ✅ GESTION ERREURS: Proper authentication required (403 without token), invalid employee_id returns 404, invalid leave_type returns 400, ✅ MONGODB VALIDATION: Collections leave_balances (33 records) and leave_transactions (6 records) created and populated correctly, ✅ BACKEND LOGS: All operations logged correctly showing successful balance updates. SYSTEM FUNCTIONALITY: Complete leave balance management with automatic reintegration when priority absences (AM) interrupt planned leave is fully operational and production-ready."
 
+  - task: "CCN66 Leave Balance Calculation System"
+    implemented: true
+    working: true
+    file: "/app/backend/ccn66_rules.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NOUVEAU SYSTÈME CCN66 IMPLÉMENTÉ: Créé module ccn66_rules.py avec fonctions de calcul automatique des droits à congés selon Convention Collective Nationale 66. Endpoint amélioré POST /api/leave-balance/initialize-all?force_recalculate=true. Règles CCN66: Catégorie A (Éducateurs, Ouvriers qualifiés, Chefs) 30j CA + 18j CT + ancienneté, Catégorie B (Autres) 30j CA + 9j CT + ancienneté, Ancienneté 2j/5ans (max 6j) NON proratisés, Proratisation temps partiel pour CA et CT uniquement."
+      - working: true
+        agent: "testing"
+        comment: "CCN66 LEAVE BALANCE CALCULATION SYSTEM COMPREHENSIVE TESTING COMPLETED ✅ Successfully tested the new CCN66 automatic leave calculation system as specifically requested in French review. ALL CRITICAL SUCCESS CRITERIA VERIFIED: ✅ AUTHENTICATION: DACALOR Diego admin login (ddacalor@aaea-gpe.fr / admin123) working perfectly, ✅ INITIALISATION CCN66: POST /api/leave-balance/initialize-all?force_recalculate=true endpoint functional, ✅ CALCULS CATÉGORIE A: Joël ADOLPHIN (Ouvrier qualifié/Educateur Technique) correctly calculated with 30j CA + 18j CT + 0j ancienneté, ✅ CALCULS CATÉGORIE A: Stéphy FERIAUX (Technicien/Educateur Spécialisé) correctly calculated with 30j CA + 18j CT + 6j ancienneté, ✅ CALCULS CATÉGORIE B: Cindy GREGOIRE (Cadre/Comptable) correctly calculated with 30j CA + 9j CT + 6j ancienneté, ✅ PRORATISATION TEMPS PARTIEL: Jean-François BERNARD correctly prorated with CA=24.0j, CT=14.4j (temps partiel detected), ancienneté=6j (non proratisé), ✅ TOUS LES EMPLOYÉS: 32/32 employés have initialized counters, meeting success criteria, ✅ RÈGLES CCN66: Category A detection working (éducateurs, ouvriers qualifiés, chefs), Category B for others (cadres, administratifs), seniority calculation correct (2j/5ans, max 6j), part-time proratization applied only to CA and CT (not seniority). MINOR ISSUE: Jacques EDAU has 'employee' role instead of 'manager' but this doesn't affect CCN66 calculations. The CCN66 leave balance calculation system is production-ready and fully compliant with Convention Collective Nationale 66 requirements."
+
   - task: "Leave Balance Management System - Backend API"
     implemented: true
     working: true
