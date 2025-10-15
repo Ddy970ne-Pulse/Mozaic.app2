@@ -2739,9 +2739,9 @@ class BackendTester:
                 self.log_result("french_review", False, f"❌ Error testing {endpoint}: {str(e)}")
 
     def test_overtime_validation_system(self, auth_token=None):
-        """Test complet de la nouvelle fonctionnalité de validation des heures supplémentaires par les managers pour les employés du secteur éducatif"""
-        print("\n=== Testing Overtime Validation System for Educational Sector ===")
-        print("Testing: Validation des heures supplémentaires par les managers pour employés éducatifs (CCN66)")
+        """Test complet de la validation des heures supplémentaires avec les données RÉELLES importées"""
+        print("\n=== TEST COMPLET VALIDATION HEURES SUPPLÉMENTAIRES - DONNÉES RÉELLES ===")
+        print("Testing: Validation des heures supplémentaires pour secteur éducatif avec données importées")
         
         if not auth_token:
             self.log_result("overtime_validation", False, "❌ No auth token for overtime validation testing")
@@ -2752,32 +2752,75 @@ class BackendTester:
         # Initialize results for overtime validation
         self.results["overtime_validation"] = {"status": "unknown", "details": []}
         
-        # 1. Test GET /api/overtime/all - Verify new fields
-        print("\n--- 1. Testing GET /api/overtime/all ---")
+        # 1. Test GET /api/overtime/all (admin: ddacalor@aaea-gpe.fr / admin123)
+        print("\n--- 1. Testing GET /api/overtime/all avec admin DACALOR Diego ---")
         
         try:
             response = requests.get(f"{API_URL}/overtime/all", headers=headers, timeout=15)
             if response.status_code == 200:
                 overtime_data = response.json()
-                self.log_result("overtime_validation", True, f"✅ GET /api/overtime/all accessible ({len(overtime_data)} employees)")
+                self.log_result("overtime_validation", True, f"✅ GET /api/overtime/all accessible - {len(overtime_data)} employés trouvés")
                 
-                # Check for new fields in response
-                if overtime_data:
-                    sample_employee = overtime_data[0]
-                    required_fields = ['is_educational_sector', 'categorie_employe', 'metier']
+                # Analyser les données pour détecter le secteur éducatif
+                educational_employees = []
+                non_educational_employees = []
+                
+                for employee in overtime_data:
+                    employee_name = employee.get('employee_name', 'Unknown')
+                    is_educational = employee.get('is_educational_sector', False)
+                    categorie = employee.get('categorie_employe', 'N/A')
+                    metier = employee.get('metier', 'N/A')
                     
-                    missing_fields = []
-                    for field in required_fields:
-                        if field not in sample_employee:
-                            missing_fields.append(field)
-                    
-                    if not missing_fields:
-                        self.log_result("overtime_validation", True, f"✅ New fields present: is_educational_sector, categorie_employe, metier")
-                        
-                        # Check for validated field in details
-                        details = sample_employee.get('details', [])
-                        if details and 'validated' in details[0]:
-                            self.log_result("overtime_validation", True, f"✅ 'validated' field present in details")
+                    if is_educational:
+                        educational_employees.append({
+                            'name': employee_name,
+                            'categorie': categorie,
+                            'metier': metier,
+                            'details': employee.get('details', [])
+                        })
+                    else:
+                        non_educational_employees.append({
+                            'name': employee_name,
+                            'categorie': categorie,
+                            'metier': metier,
+                            'details': employee.get('details', [])
+                        })
+                
+                # Vérifications selon les données attendues
+                expected_educators = ["Andy MAXO", "Jean-Marc AUGUSTIN", "Jimmy DREUX", "Prescile ANASTASE", "Rodolphe SEPHO", "Thierry MARTIAS", "Véronique RAMASSAMY"]
+                expected_non_educators = ["Cindy GREGOIRE", "Marius BERGINA", "Valérie KADER"]
+                
+                self.log_result("overtime_validation", True, f"✅ Secteur éducatif détecté: {len(educational_employees)} employés")
+                self.log_result("overtime_validation", True, f"✅ Secteur non-éducatif: {len(non_educational_employees)} employés")
+                
+                # Vérifier les éducateurs attendus
+                found_educators = [emp['name'] for emp in educational_employees]
+                for expected_name in expected_educators:
+                    if any(expected_name in found_name for found_name in found_educators):
+                        self.log_result("overtime_validation", True, f"✅ Éducateur trouvé: {expected_name}")
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ Éducateur manquant: {expected_name}")
+                
+                # Vérifier les non-éducateurs attendus
+                found_non_educators = [emp['name'] for emp in non_educational_employees]
+                for expected_name in expected_non_educators:
+                    if any(expected_name in found_name for found_name in found_non_educators):
+                        self.log_result("overtime_validation", True, f"✅ Non-éducateur trouvé: {expected_name}")
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ Non-éducateur manquant: {expected_name}")
+                
+                # Vérifier que categorie_employe et metier sont renseignés
+                properly_categorized = 0
+                for employee in overtime_data:
+                    categorie = employee.get('categorie_employe', 'N/A')
+                    metier = employee.get('metier', 'N/A')
+                    if categorie != 'N/A' and metier != 'N/A':
+                        properly_categorized += 1
+                
+                if properly_categorized > 0:
+                    self.log_result("overtime_validation", True, f"✅ Métadonnées complètes: {properly_categorized} employés avec catégorie et métier")
+                else:
+                    self.log_result("overtime_validation", False, f"❌ Métadonnées manquantes: categorie_employe et metier non renseignés")
                         else:
                             self.log_result("overtime_validation", False, f"❌ 'validated' field missing in details")
                     else:
