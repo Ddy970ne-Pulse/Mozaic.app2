@@ -8,6 +8,7 @@ const OvertimeModule = ({ user }) => {
   const [overtimeData, setOvertimeData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isTestMode, setIsTestMode] = useState(false);
+  const [validatingRecord, setValidatingRecord] = useState(null);
 
   // Load overtime data from backend
   useEffect(() => {
@@ -37,6 +38,49 @@ const OvertimeModule = ({ user }) => {
       setOvertimeData([]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleValidateOvertime = async (detail) => {
+    try {
+      setValidatingRecord(detail.date);
+      
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/overtime/validate/${selectedEmployee.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            date: detail.date,
+            hours: Math.abs(detail.hours)
+          })
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`✅ ${result.message}\n🔄 ${Math.abs(detail.hours)}h validées pour ${result.employee_name}`);
+        
+        // Reload data to reflect validation
+        await fetchOvertimeData();
+        
+        // Update selected employee
+        const updatedEmployee = overtimeData.find(emp => emp.id === selectedEmployee.id);
+        if (updatedEmployee) {
+          setSelectedEmployee(updatedEmployee);
+        }
+      } else {
+        const error = await response.json();
+        alert(`❌ Erreur: ${error.detail || 'Impossible de valider les heures'}`);
+      }
+    } catch (error) {
+      console.error('Error validating overtime:', error);
+      alert('❌ Erreur de connexion au serveur');
+    } finally {
+      setValidatingRecord(null);
     }
   };
 
