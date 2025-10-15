@@ -2619,8 +2619,8 @@ class BackendTester:
                     users = users_response.json()
                     for user in users:
                         # Check if user is educational sector
-                        categorie = user.get('categorie_employe', '').lower()
-                        metier = user.get('metier', '').lower()
+                        categorie = (user.get('categorie_employe') or '').lower()
+                        metier = (user.get('metier') or '').lower()
                         if any(keyword in f"{categorie} {metier}" for keyword in ["educateur", "éducateur", "moniteur", "technique", "spécialisé"]):
                             educational_employee_id = user.get('id')
                             self.log_result("overtime_validation", True, f"✅ Found educational employee: {user.get('name')}")
