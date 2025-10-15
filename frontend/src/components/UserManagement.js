@@ -1312,23 +1312,67 @@ const UserManagement = ({ user }) => {
               </h2>
             </div>
             <div className="p-6">
-              {/* Templates de rôles */}
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-800 mb-3">Templates de Rôles</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {Object.entries(roleTemplates).map(([key, template]) => (
-                    <button
-                      key={key}
-                      onClick={() => applyRoleTemplate(key)}
-                      className="p-3 border border-gray-200 rounded-lg text-left hover:bg-blue-50 hover:border-blue-300 transition-colors duration-200"
-                    >
-                      <div className="font-medium text-gray-800">{template.name}</div>
-                      <div className="text-sm text-gray-600">{template.description}</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {template.permissions.length} permission(s)
+              {/* Rôle actuel */}
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-600 mb-1">Rôle Actuel</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">
+                        {selectedUser.role === 'admin' ? '👑' : selectedUser.role === 'manager' ? '👔' : '👤'}
+                      </span>
+                      <div>
+                        <div className="text-lg font-semibold text-gray-800">
+                          {roleTemplates[selectedUser.role]?.name || selectedUser.role}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {roleTemplates[selectedUser.role]?.description}
+                        </div>
                       </div>
-                    </button>
-                  ))}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {(selectedUser.permissions || []).length}
+                    </div>
+                    <div className="text-xs text-gray-600">permissions actives</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Templates de rôles disponibles */}
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-800 mb-2">Changer de Rôle</h3>
+                <p className="text-sm text-gray-600 mb-3">Cliquez sur un template pour appliquer les permissions correspondantes</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {Object.entries(roleTemplates).map(([key, template]) => {
+                    const isCurrentRole = selectedUser.role === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => applyRoleTemplate(key)}
+                        disabled={isCurrentRole}
+                        className={`p-3 border rounded-lg text-left transition-all duration-200 ${
+                          isCurrentRole 
+                            ? 'bg-blue-50 border-blue-400 cursor-not-allowed opacity-75' 
+                            : 'border-gray-200 hover:bg-blue-50 hover:border-blue-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="font-medium text-gray-800">{template.name}</div>
+                          {isCurrentRole && (
+                            <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded-full">
+                              Actif
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">{template.description}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {template.permissions.length} permission(s)
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
