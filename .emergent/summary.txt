@@ -1,0 +1,107 @@
+<analysis>
+The trajectory details the AI engineer's work on the MOZAIK RH application, primarily addressing critical data persistence issues, refining user authentication, and implementing complex permission logic and data synchronization across the system. Initial efforts focused on fixing frontend bugs and adding new absence creation features, leading to a persistent  error that was resolved by identifying a database mismatch and Pydantic model discrepancies. Subsequent work involved implementing detailed CCN66 leave rules, fixing interactive data synchronization for user profile updates, and a comprehensive overhaul of manager/RH permissions. The most recent focus has been on integrating a global synchronization service into backend absence endpoints and refining frontend messaging.
+</analysis>
+
+<product_requirements>
+The MOZAIK RH application is an HR management system featuring a responsive, glassmorphism UI. It includes Excel import for personnel and absence data, auto-generated credentials, and CSE member identification. Core requirements emphasize user management, data integrity, a temporary password system, dynamic dashboards, event management, and PWA mobile accessibility. The CSE Management Module unifies delegation hour tracking. Temporal data handling across planning and analytics, overtime/recovery integration, and a personal employee space displaying absences by type and validated requests are critical. Absence calculations must respect weekends/holidays and priority rules, allowing specific types to be tracked in hours. Admins must modify any absence (even validated ones) and can now directly create/manage absences on the monthly planning (multi-employee selection, copy/paste, recurring absence templates). Managers/RH must validate others' requests but not their own, have restricted access to admin-only modules (Excel import, user management, management des astreintes), and can validate overtime for specific educational sector employees. All data changes must propagate instantly throughout the system. Mascot integration remains a pending visual enhancement.
+</product_requirements>
+
+<key_technical_concepts>
+- **Full-Stack**: React (frontend with Hooks), FastAPI (Python backend).
+- **Database**: MongoDB (using UUIDs).
+- **UI/UX**: Tailwind CSS, glassmorphism design.
+- **Data Processing**:  for Excel parsing, date/time conversions, CCN66 leave rules.
+- **Authentication/Authorization**: JWT, bcrypt, role-based access control.
+- **API Design**: RESTful APIs, Pydantic for data validation.
+- **Data Synchronization**: Global real-time updates across related collections.
+- **Email Service**: SMTP (Gmail) (authentication unresolved).
+</key_technical_concepts>
+
+<code_architecture>
+The application follows a standard full-stack architecture with a React frontend and a FastAPI/MongoDB backend.
+
+
+
+-   ****:
+    -   **Importance**: Central for FastAPI routes and MongoDB models.
+    -   **Changes**: Disabled auto-restore on startup. Secured  to return 403.  Pydantic model's  field made optional.  updated to trigger global synchronization for user-related data. Integrated  instance globally. , ,  modified to call . Corrected logger initialization order.
+-   ****:
+    -   **Importance**: Handles email notifications.
+    -   **Changes**: Existed, but SMTP authentication issue with Gmail app password persists.
+-   ** (New File)**:
+    -   **Importance**: Defines CCN66 rules for calculating leave entitlements.
+    -   **Changes**: Created to encapsulate CCN66 logic.
+-   ** (New File)**:
+    -   **Importance**: Script to import employee data from Excel into MongoDB.
+    -   **Changes**: Created for robust Excel import of 32 employees, handling password hashing and role assignment.
+-   ** (New File)**:
+    -   **Importance**: Script to import absence data from Excel into MongoDB.
+    -   **Changes**: Created for robust Excel import of 178 absences, including date conversions and employee matching.
+-   ** (New File)**:
+    -   **Importance**: Centralized service for global data synchronization across collections.
+    -   **Changes**: Created to handle synchronization flows, particularly Absences to Leave Balances.
+-   ****:
+    -   **Importance**: Manages global state, user session, and routing.
+    -   **Changes**: No recent changes.
+-   ****:
+    -   **Importance**: Manages global layout and navigation.
+    -   **Changes**: Created separate  for admin and manager roles to restrict access. Integrated .
+-   ****:
+    -   **Importance**: Displays personal absences, allows new requests.
+    -   **Changes**: No recent direct changes; changes were mostly in the initial setup of this file.
+-   ****:
+    -   **Importance**: Admin/Manager interface for absence management.
+    -   **Changes**: Added logic to prevent managers from approving/rejecting their own absence requests.
+-   ****:
+    -   **Importance**: Visualizes absences and allows interactive creation/management.
+    -   **Changes**:  message for saving absences updated to reflect successful synchronization. Ongoing work to update messages for modification and deletion.
+-   ****:
+    -   **Importance**: Admin interface for user creation, modification, and permission management.
+    -   **Changes**:
+        *   Corrected display in Gestion des Permissions modal to clarify it's for *applying* role templates, not showing current permissions.
+        *   Restricted action buttons (edit, reset password, delete, permissions) to admins only.
+        *   Added a dedicated modal for individual user deletion.
+        *   Fixed  component to use  prop instead of .
+        *   Implemented dynamic tab display based on user role to restrict Récupération tab to admins.
+        *   Added debug logs and improved error handling for the Enregistrer (Save) button in user modification.
+-   ** (New File)**:
+    -   **Importance**: New component to display on-call planning.
+    -   **Changes**: Created as a read-only module, accessible to employees and managers.
+-   ****:
+    -   **Importance**: Manages CSE related data.
+    -   **Changes**: Fixed  component to use  prop instead of .
+-   ****:
+    -   **Importance**: Progressive Web App (PWA) service worker.
+    -   **Changes**: No recent direct changes mentioned in this trajectory.
+-   ** (New File)**:
+    -   **Importance**: Documents the architecture for global data synchronization.
+    -   **Changes**: Created to outline data flow and synchronization strategy.
+</code_architecture>
+
+<pending_tasks>
+- **Email Sending**: Resolve SMTP authentication issue for Gmail app password in .
+- **PWA Confirmation**: Verify full PWA functionality.
+- **CSE Unification**: Complete frontend integration and logic for .
+- **Absence in Hours**: Finalize display in Planning, Export Paie, and Statistics modules.
+- **Analytics & KPI**: Complete missing analyses/visualizations based on user images.
+- **Absence Counters**: Fully implement logic for updating leave balances (CCN66 rules applied, but needs full integration).
+- **UI Bug**: Paramètres button in header (Notification panel done, Parameter needs routing).
+- **Printable Password Document**: Implement generation logic.
+- **Checkbox Issue**: Unchecking checkbox bug.
+- **Mascot Integration**: Integrate mascot image.
+- **Analytics Hub Navigation**: Back button still reported as non-visible/non-functional.
+- **Monthly Planning Frontend Sync**: Enhance messages for absence modification and deletion to reflect synchronization.
+- **Manager Overtime Validation**: Implement validation of overtime for specific educational sector employees.
+</pending_tasks>
+
+<current_work>
+Immediately before this summary, the AI engineer was actively working on implementing a global data synchronization system. This involved creating  and integrating it into critical backend endpoints. Specifically, , , and  in  have been modified to trigger the  after any absence-related operation, ensuring that data like leave balances are automatically updated.
+
+During this integration, a  related to the  in  was encountered and resolved by correcting the logger's initialization order and removing a duplicate definition.
+
+On the frontend, the AI engineer was addressing the user's request to ensure all data changes are reflected throughout the system. It was confirmed that  already uses the  endpoint for absence creation, which now benefits from the backend synchronization. The current task involves enhancing the user feedback in  by updating confirmation messages for absence creation to explicitly mention synchronization. The AI engineer was in the process of extending this improvement to absence modification () and deletion () messages to provide consistent user experience.
+</current_work>
+
+<optional_next_step>
+Enhance the confirmation messages for absence modification and deletion in .
+</optional_next_step>
