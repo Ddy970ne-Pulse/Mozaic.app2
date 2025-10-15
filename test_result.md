@@ -388,6 +388,21 @@ backend:
         agent: "main"
         comment: "PWA INTEGRATION COMPLETED: Added complete Progressive Web App support to index.html. Configured: Manifest link (manifest.json), Apple touch icon (icon.svg), iOS-specific meta tags (apple-mobile-web-app-capable, status-bar-style, title), Service Worker registration script with load event listener, PWA install script (install-pwa.js), Theme color #1e40af (MOZAIK RH blue). Changed lang to 'fr', updated title to 'MOZAIK RH | Gestion des Ressources Humaines'. App is now installable on iOS and Android devices as native-like application with offline capabilities via service worker. Existing manifest.json and service-worker.js files already present in public folder."
 
+  - task: "Overtime Validation System for Educational Sector - CCN66 Compliance"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "OVERTIME VALIDATION SYSTEM IMPLEMENTED: Created comprehensive overtime validation system for educational sector employees according to CCN66 requirements. BACKEND IMPLEMENTATION: 1) Enhanced GET /api/overtime/all endpoint to include new fields: is_educational_sector (boolean), categorie_employe (string), metier (string), and validated field in details array, 2) Implemented PUT /api/overtime/validate/{employee_id} endpoint with manager/admin access control, educational sector validation using CCN66 rules, database updates for overtime and work_hours collections with validation metadata (validated_by, validated_by_name, validated_at), 3) Integrated with ccn66_rules.py is_category_a() function to automatically detect educational employees (éducateurs, moniteurs, ouvriers qualifiés, chefs de service), 4) Comprehensive error handling: 403 for non-managers/admins, 400 for non-educational employees with clear French error messages, 404 for non-existent employees. VALIDATION WORKFLOW: Manager/admin selects educational employee → provides date and hours → system validates employee is educational sector → updates database with validation metadata → returns success response with all required fields. System fully compliant with CCN66 requirements for managerial validation of educational personnel overtime."
+      - working: true
+        agent: "testing"
+        comment: "OVERTIME VALIDATION SYSTEM COMPREHENSIVE TESTING COMPLETED ✅ Successfully tested the new overtime validation functionality for educational sector employees as specifically requested in French review. ALL CRITICAL SUCCESS CRITERIA VERIFIED: ✅ GET /api/overtime/all endpoint accessible and returns new required fields (is_educational_sector, categorie_employe, metier) plus validated field in details array, ✅ Manager authentication working (Jacques EDAU login successful), ✅ PUT /api/overtime/validate/{employee_id} endpoint functional with proper payload (date: 2025-01-15, hours: 5.0), ✅ Educational employee validation successful (Stéphy FERIAUX - Educateur Spécialisé validated successfully), ✅ Response contains all required fields: success, message, validated_by, validated_at with proper values, ✅ Error handling working correctly: Employee gets 403 error when trying to validate ('Seuls les managers et administrateurs peuvent valider les heures supplémentaires'), Non-educational employee gets 400 error ('La validation managériale ne s'applique qu'aux employés du secteur éducatif'), ✅ Database integration working (records_updated field in response), ✅ CCN66 compliance verified through automatic educational sector detection using is_category_a() function. AUTHENTICATION TESTED: Admin (ddacalor@aaea-gpe.fr / admin123) and Manager (jedau@aaea-gpe.fr / gPGlceec) both working. EDUCATIONAL EMPLOYEES DETECTED: System correctly identifies educational personnel (Educateur Spécialisé, Educateur Technique Spécialisé) vs non-educational (Cadre, Comptable). The overtime validation system is production-ready and fully meets CCN66 requirements for managerial validation of educational sector overtime hours."
+
 
   - task: "Header Buttons Functionality - Notification and Settings"
     implemented: true
