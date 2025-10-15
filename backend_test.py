@@ -2983,8 +2983,8 @@ class BackendTester:
                 self.log_result("overtime_validation", False, f"❌ Erreur vérification après validation: {str(e)}")
         
         self.results["overtime_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["overtime_validation"]["details"]) else "fail"
-        
-        if educational_employee_id:
+
+    def run_all_tests(self):
             # Test successful validation
             validation_payload = {
                 "date": "2025-01-15",
