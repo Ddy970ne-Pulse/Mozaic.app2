@@ -299,53 +299,66 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                   {showNotifications && (
                     <div className="notifications-panel absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                       {/* Header du panneau */}
-                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-3">
+                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-3 flex items-center justify-between">
                         <h3 className="text-white font-semibold text-lg">🔔 Notifications</h3>
+                        {notifications.length > 0 && unreadCount > 0 && (
+                          <button
+                            onClick={markAllAsRead}
+                            className="text-xs text-white hover:text-gray-100 underline"
+                          >
+                            Tout marquer lu
+                          </button>
+                        )}
                       </div>
                       
                       {/* Liste des notifications */}
                       <div className="max-h-96 overflow-y-auto">
-                        {/* Notification 1 - Nouvelle demande d'absence */}
-                        <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer transition-colors">
-                          <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                              <span className="text-lg">📝</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900">Nouvelle demande d'absence</p>
-                              <p className="text-xs text-gray-600 mt-1">Marie Leblanc a soumis une demande de congés annuels</p>
-                              <p className="text-xs text-gray-400 mt-1">Il y a 5 minutes</p>
-                            </div>
+                        {notifications.length === 0 ? (
+                          <div className="px-4 py-8 text-center text-gray-500">
+                            <p className="text-sm">Aucune notification</p>
                           </div>
-                        </div>
-                        
-                        {/* Notification 2 - Rappel planning */}
-                        <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer transition-colors">
-                          <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                              <span className="text-lg">📅</span>
+                        ) : (
+                          notifications.map((notif) => (
+                            <div 
+                              key={notif.id}
+                              onClick={() => !notif.read && markAsRead(notif.id)}
+                              className={`px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer transition-colors ${!notif.read ? 'bg-blue-50' : ''}`}
+                            >
+                              <div className="flex items-start space-x-3">
+                                <div className={`flex-shrink-0 w-10 h-10 ${!notif.read ? 'bg-blue-100' : 'bg-gray-100'} rounded-full flex items-center justify-center`}>
+                                  <span className="text-lg">{notif.icon}</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between">
+                                    <p className={`text-sm ${!notif.read ? 'font-semibold' : 'font-medium'} text-gray-900`}>
+                                      {notif.title}
+                                    </p>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        deleteNotification(notif.id);
+                                      }}
+                                      className="text-gray-400 hover:text-red-500 ml-2"
+                                      title="Supprimer"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                  <p className="text-xs text-gray-600 mt-1">{notif.message}</p>
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    {new Date(notif.created_at).toLocaleString('fr-FR', {
+                                      day: '2-digit',
+                                      month: '2-digit',
+                                      year: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900">Planning à valider</p>
-                              <p className="text-xs text-gray-600 mt-1">Le planning du mois prochain attend votre validation</p>
-                              <p className="text-xs text-gray-400 mt-1">Il y a 2 heures</p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Notification 3 - Astreinte */}
-                        <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer transition-colors">
-                          <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                              <span className="text-lg">🔔</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900">Astreinte assignée</p>
-                              <p className="text-xs text-gray-600 mt-1">Vous êtes d'astreinte ce week-end</p>
-                              <p className="text-xs text-gray-400 mt-1">Il y a 1 jour</p>
-                            </div>
-                          </div>
-                        </div>
+                          ))
+                        )}
                       </div>
                       
                       {/* Footer du panneau */}
