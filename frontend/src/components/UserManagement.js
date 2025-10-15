@@ -856,58 +856,82 @@ const UserManagement = ({ user }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex flex-wrap gap-1">
-                      <button
-                        onClick={() => handleEditUser(userItem)}
-                        className="text-blue-600 hover:text-blue-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
-                        title="Modifier infos"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => handleEditPermissions(userItem)}
-                        className="text-purple-600 hover:text-purple-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
-                        title="Gérer permissions"
-                      >
-                        🔐
-                      </button>
-                      <button
-                        onClick={() => handleEditGdpr(userItem)}
-                        className="text-green-600 hover:text-green-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
-                        title="Données RGPD"
-                      >
-                        👤
-                      </button>
-                      <button
-                        onClick={() => handleChangeEmail(userItem)}
-                        className="text-teal-600 hover:text-teal-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
-                        title="Modifier Email"
-                      >
-                        ✉️
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedUser(userItem);
-                          setShowPasswordReset(true);
-                        }}
-                        className="text-orange-600 hover:text-orange-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
-                        title="Reset MdP"
-                      >
-                        🔑
-                      </button>
-                      <button
-                        onClick={() => handleViewAudit(userItem)}
-                        className="text-gray-600 hover:text-gray-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
-                        title="Audit"
-                      >
-                        📋
-                      </button>
-                      <button
-                        onClick={() => deleteUser(userItem.id)}
-                        className="text-red-600 hover:text-red-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
-                        title="Supprimer utilisateur"
-                      >
-                        🗑️
-                      </button>
+                      {/* Boutons réservés aux ADMINS uniquement */}
+                      {user?.role === 'admin' && (
+                        <>
+                          <button
+                            onClick={() => handleEditUser(userItem)}
+                            className="text-blue-600 hover:text-blue-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                            title="Modifier infos"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => handleEditPermissions(userItem)}
+                            className="text-purple-600 hover:text-purple-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                            title="Gérer permissions"
+                          >
+                            🔐
+                          </button>
+                          <button
+                            onClick={() => handleEditGdpr(userItem)}
+                            className="text-green-600 hover:text-green-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                            title="Données RGPD"
+                          >
+                            👤
+                          </button>
+                          <button
+                            onClick={() => handleChangeEmail(userItem)}
+                            className="text-teal-600 hover:text-teal-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                            title="Modifier Email"
+                          >
+                            ✉️
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedUser(userItem);
+                              setShowPasswordReset(true);
+                            }}
+                            className="text-orange-600 hover:text-orange-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                            title="Reset MdP"
+                          >
+                            🔑
+                          </button>
+                          <button
+                            onClick={() => handleViewAudit(userItem)}
+                            className="text-gray-600 hover:text-gray-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                            title="Audit"
+                          >
+                            📋
+                          </button>
+                          <button
+                            onClick={() => {
+                              setUserToDelete(userItem);
+                              setShowDeleteConfirmModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                            title="Supprimer utilisateur"
+                          >
+                            🗑️
+                          </button>
+                        </>
+                      )}
+                      
+                      {/* Manager: Vue lecture seule */}
+                      {user?.role === 'manager' && (
+                        <>
+                          <button
+                            onClick={() => handleViewAudit(userItem)}
+                            className="text-gray-600 hover:text-gray-900 transition-colors duration-200 px-2 py-1 rounded text-xs"
+                            title="Voir informations"
+                          >
+                            👁️
+                          </button>
+                          <span className="text-xs text-gray-500 italic px-2">
+                            (Vue lecture seule)
+                          </span>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
