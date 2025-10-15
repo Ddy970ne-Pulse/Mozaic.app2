@@ -735,6 +735,18 @@ const UserManagement = ({ user }) => {
       case 'users':
         return renderUsersTab();
       case 'recovery':
+        // Onglet réservé aux admins uniquement
+        if (user?.role !== 'admin') {
+          return (
+            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200">
+              <div className="text-center text-gray-500">
+                <div className="text-4xl mb-4">🔒</div>
+                <h3 className="text-lg font-medium text-gray-800 mb-2">Accès Restreint</h3>
+                <p className="text-sm">Cette section est réservée aux administrateurs.</p>
+              </div>
+            </div>
+          );
+        }
         return renderRecoveryTab();
       case 'audit':
         return renderAuditTab();
