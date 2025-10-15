@@ -2492,6 +2492,287 @@ class BackendTester:
             except Exception as e:
                 self.log_result("french_review", False, f"❌ Error testing {endpoint}: {str(e)}")
 
+    def test_overtime_validation_system(self, auth_token=None):
+        """Test complet de la nouvelle fonctionnalité de validation des heures supplémentaires par les managers pour les employés du secteur éducatif"""
+        print("\n=== Testing Overtime Validation System for Educational Sector ===")
+        print("Testing: Validation des heures supplémentaires par les managers pour employés éducatifs (CCN66)")
+        
+        if not auth_token:
+            self.log_result("overtime_validation", False, "❌ No auth token for overtime validation testing")
+            return
+            
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        
+        # Initialize results for overtime validation
+        self.results["overtime_validation"] = {"status": "unknown", "details": []}
+        
+        # 1. Test GET /api/overtime/all - Verify new fields
+        print("\n--- 1. Testing GET /api/overtime/all ---")
+        
+        try:
+            response = requests.get(f"{API_URL}/overtime/all", headers=headers, timeout=15)
+            if response.status_code == 200:
+                overtime_data = response.json()
+                self.log_result("overtime_validation", True, f"✅ GET /api/overtime/all accessible ({len(overtime_data)} employees)")
+                
+                # Check for new fields in response
+                if overtime_data:
+                    sample_employee = overtime_data[0]
+                    required_fields = ['is_educational_sector', 'categorie_employe', 'metier']
+                    
+                    missing_fields = []
+                    for field in required_fields:
+                        if field not in sample_employee:
+                            missing_fields.append(field)
+                    
+                    if not missing_fields:
+                        self.log_result("overtime_validation", True, f"✅ New fields present: is_educational_sector, categorie_employe, metier")
+                        
+                        # Check for validated field in details
+                        details = sample_employee.get('details', [])
+                        if details and 'validated' in details[0]:
+                            self.log_result("overtime_validation", True, f"✅ 'validated' field present in details")
+                        else:
+                            self.log_result("overtime_validation", False, f"❌ 'validated' field missing in details")
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ Missing required fields: {missing_fields}")
+                        
+                    # Find educational sector employees
+                    educational_employees = [emp for emp in overtime_data if emp.get('is_educational_sector', False)]
+                    if educational_employees:
+                        self.log_result("overtime_validation", True, f"✅ Found {len(educational_employees)} educational sector employees")
+                        # Store first educational employee for validation tests
+                        self.educational_employee = educational_employees[0]
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ No educational sector employees found")
+                        
+                else:
+                    self.log_result("overtime_validation", False, f"❌ No overtime data returned")
+                    
+            else:
+                self.log_result("overtime_validation", False, f"❌ GET /api/overtime/all returned {response.status_code}")
+        except Exception as e:
+            self.log_result("overtime_validation", False, f"❌ Error testing GET /api/overtime/all: {str(e)}")
+        
+        # 2. Test Manager Authentication
+        print("\n--- 2. Testing Manager Authentication ---")
+        
+        # Try to login with Jacques EDAU (manager) or use admin
+        manager_token = None
+        manager_credentials = {"email": "jedau@aaea-gpe.fr", "password": "gPGlceec"}
+        admin_credentials = {"email": "ddacalor@aaea-gpe.fr", "password": "admin123"}
+        
+        # Try manager login first
+        try:
+            auth_response = requests.post(
+                f"{API_URL}/auth/login", 
+                json=manager_credentials, 
+                timeout=10
+            )
+            if auth_response.status_code == 200:
+                auth_data = auth_response.json()
+                manager_token = auth_data.get('token')
+                manager_user = auth_data.get('user', {})
+                self.log_result("overtime_validation", True, f"✅ Manager login successful: {manager_user.get('name')}")
+            else:
+                self.log_result("overtime_validation", False, f"❌ Manager login failed: {auth_response.status_code}")
+        except Exception as e:
+            self.log_result("overtime_validation", False, f"❌ Manager login error: {str(e)}")
+        
+        # Fallback to admin if manager login failed
+        if not manager_token:
+            try:
+                auth_response = requests.post(
+                    f"{API_URL}/auth/login", 
+                    json=admin_credentials, 
+                    timeout=10
+                )
+                if auth_response.status_code == 200:
+                    auth_data = auth_response.json()
+                    manager_token = auth_data.get('token')
+                    manager_user = auth_data.get('user', {})
+                    self.log_result("overtime_validation", True, f"✅ Admin login successful (fallback): {manager_user.get('name')}")
+                else:
+                    self.log_result("overtime_validation", False, f"❌ Admin login failed: {auth_response.status_code}")
+            except Exception as e:
+                self.log_result("overtime_validation", False, f"❌ Admin login error: {str(e)}")
+        
+        if not manager_token:
+            self.log_result("overtime_validation", False, f"❌ No valid manager/admin token available for validation tests")
+            return
+        
+        manager_headers = {"Authorization": f"Bearer {manager_token}"}
+        
+        # 3. Test PUT /api/overtime/validate/{employee_id} - Success Cases
+        print("\n--- 3. Testing PUT /api/overtime/validate/{employee_id} - Success Cases ---")
+        
+        # Get an educational employee for testing
+        educational_employee_id = None
+        if hasattr(self, 'educational_employee'):
+            educational_employee_id = self.educational_employee.get('id')
+        
+        if not educational_employee_id:
+            # Try to find an educational employee from users
+            try:
+                users_response = requests.get(f"{API_URL}/users", headers=headers, timeout=10)
+                if users_response.status_code == 200:
+                    users = users_response.json()
+                    for user in users:
+                        # Check if user is educational sector
+                        categorie = user.get('categorie_employe', '').lower()
+                        metier = user.get('metier', '').lower()
+                        if any(keyword in f"{categorie} {metier}" for keyword in ["educateur", "éducateur", "moniteur", "technique", "spécialisé"]):
+                            educational_employee_id = user.get('id')
+                            self.log_result("overtime_validation", True, f"✅ Found educational employee: {user.get('name')}")
+                            break
+            except Exception as e:
+                self.log_result("overtime_validation", False, f"❌ Error finding educational employee: {str(e)}")
+        
+        if educational_employee_id:
+            # Test successful validation
+            validation_payload = {
+                "date": "2025-01-15",
+                "hours": 5.0
+            }
+            
+            try:
+                response = requests.put(
+                    f"{API_URL}/overtime/validate/{educational_employee_id}",
+                    json=validation_payload,
+                    headers=manager_headers,
+                    timeout=15
+                )
+                
+                if response.status_code == 200:
+                    validation_result = response.json()
+                    required_response_fields = ['success', 'message', 'validated_by', 'validated_at']
+                    
+                    missing_response_fields = []
+                    for field in required_response_fields:
+                        if field not in validation_result:
+                            missing_response_fields.append(field)
+                    
+                    if not missing_response_fields:
+                        self.log_result("overtime_validation", True, f"✅ Manager can validate educational employee overtime")
+                        self.log_result("overtime_validation", True, f"✅ Response contains required fields: {required_response_fields}")
+                        
+                        # Verify response content
+                        if validation_result.get('success'):
+                            self.log_result("overtime_validation", True, f"✅ Validation marked as successful")
+                        if validation_result.get('validated_by'):
+                            self.log_result("overtime_validation", True, f"✅ Validated by: {validation_result.get('validated_by')}")
+                        if validation_result.get('validated_at'):
+                            self.log_result("overtime_validation", True, f"✅ Validation timestamp present")
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ Missing response fields: {missing_response_fields}")
+                        
+                elif response.status_code == 400:
+                    error_detail = response.json().get('detail', '')
+                    if 'secteur éducatif' in error_detail:
+                        self.log_result("overtime_validation", True, f"✅ Proper error for non-educational employee: {error_detail}")
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ Unexpected 400 error: {error_detail}")
+                else:
+                    self.log_result("overtime_validation", False, f"❌ Validation failed with status {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("overtime_validation", False, f"❌ Error testing overtime validation: {str(e)}")
+        else:
+            self.log_result("overtime_validation", False, f"❌ No educational employee found for validation testing")
+        
+        # 4. Test Error Cases
+        print("\n--- 4. Testing Error Cases ---")
+        
+        # Test 403 error - employee trying to validate
+        employee_credentials = {"email": "cgregoire@aaea-gpe.fr", "password": "YrQwGiEl"}
+        try:
+            employee_auth = requests.post(f"{API_URL}/auth/login", json=employee_credentials, timeout=10)
+            if employee_auth.status_code == 200:
+                employee_data = employee_auth.json()
+                employee_token = employee_data.get('token')
+                employee_headers = {"Authorization": f"Bearer {employee_token}"}
+                
+                if educational_employee_id:
+                    response = requests.put(
+                        f"{API_URL}/overtime/validate/{educational_employee_id}",
+                        json={"date": "2025-01-15", "hours": 3.0},
+                        headers=employee_headers,
+                        timeout=10
+                    )
+                    
+                    if response.status_code == 403:
+                        self.log_result("overtime_validation", True, f"✅ Employee correctly gets 403 error when trying to validate")
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ Employee should get 403, got {response.status_code}")
+        except Exception as e:
+            self.log_result("overtime_validation", False, f"❌ Error testing employee 403: {str(e)}")
+        
+        # Test 400 error - non-educational employee
+        try:
+            users_response = requests.get(f"{API_URL}/users", headers=headers, timeout=10)
+            if users_response.status_code == 200:
+                users = users_response.json()
+                non_educational_id = None
+                
+                for user in users:
+                    categorie = user.get('categorie_employe', '').lower()
+                    metier = user.get('metier', '').lower()
+                    # Look for non-educational employee (cadre, administratif, etc.)
+                    if 'cadre' in categorie or 'administratif' in categorie or 'comptable' in metier:
+                        non_educational_id = user.get('id')
+                        break
+                
+                if non_educational_id:
+                    response = requests.put(
+                        f"{API_URL}/overtime/validate/{non_educational_id}",
+                        json={"date": "2025-01-15", "hours": 3.0},
+                        headers=manager_headers,
+                        timeout=10
+                    )
+                    
+                    if response.status_code == 400:
+                        error_detail = response.json().get('detail', '')
+                        if 'secteur éducatif' in error_detail:
+                            self.log_result("overtime_validation", True, f"✅ Correct 400 error for non-educational employee")
+                        else:
+                            self.log_result("overtime_validation", False, f"❌ Wrong 400 error message: {error_detail}")
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ Non-educational employee should get 400, got {response.status_code}")
+        except Exception as e:
+            self.log_result("overtime_validation", False, f"❌ Error testing non-educational 400: {str(e)}")
+        
+        # 5. Test Database Updates
+        print("\n--- 5. Testing Database Updates ---")
+        
+        if educational_employee_id:
+            # Check if validation was persisted by calling GET /api/overtime/all again
+            try:
+                response = requests.get(f"{API_URL}/overtime/all", headers=headers, timeout=10)
+                if response.status_code == 200:
+                    overtime_data = response.json()
+                    
+                    # Find our educational employee
+                    validated_employee = None
+                    for emp in overtime_data:
+                        if emp.get('id') == educational_employee_id:
+                            validated_employee = emp
+                            break
+                    
+                    if validated_employee:
+                        details = validated_employee.get('details', [])
+                        validated_records = [d for d in details if d.get('validated', False)]
+                        
+                        if validated_records:
+                            self.log_result("overtime_validation", True, f"✅ Database updated: {len(validated_records)} validated records found")
+                        else:
+                            self.log_result("overtime_validation", False, f"❌ No validated records found in database")
+                    else:
+                        self.log_result("overtime_validation", False, f"❌ Educational employee not found in overtime data")
+            except Exception as e:
+                self.log_result("overtime_validation", False, f"❌ Error checking database updates: {str(e)}")
+        
+        self.results["overtime_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["overtime_validation"]["details"]) else "fail"
+
     def run_all_tests(self):
         """Run all backend tests including French review requirements"""
         print(f"🚀 Starting MOZAIK RH Backend Tests - FRENCH REVIEW COMPREHENSIVE TESTING")
@@ -2505,6 +2786,7 @@ class BackendTester:
         self.results["mongodb_validation"] = {"status": "unknown", "details": []}
         self.results["absence_import"] = {"status": "unknown", "details": []}
         self.results["monthly_planning"] = {"status": "unknown", "details": []}
+        self.results["overtime_validation"] = {"status": "unknown", "details": []}
         
         # Run tests in order
         api_healthy = self.test_api_health()
@@ -2517,6 +2799,11 @@ class BackendTester:
             
             # Get auth token for additional tests
             auth_token = self.test_authentication()
+            
+            # NEW: Test overtime validation system (PRIORITY)
+            print("\n⏰ TESTING OVERTIME VALIDATION SYSTEM")
+            print("=" * 80)
+            self.test_overtime_validation_system(auth_token)
             
             # Run additional backend tests
             print("\n🔧 RUNNING ADDITIONAL BACKEND TESTS")
