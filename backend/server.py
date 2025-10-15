@@ -3388,6 +3388,7 @@ async def get_absences(current_user: User = Depends(get_current_user)):
 async def create_absence(absence: Absence, current_user: User = Depends(get_current_user)):
     """
     Create a new absence request
+    🔄 SYNCHRONISATION AUTOMATIQUE : Si approved, déduit automatiquement des compteurs
     - Employees can create their own absence requests with status='pending'
     - Admins can create absences with any status
     """
@@ -3415,10 +3416,20 @@ async def create_absence(absence: Absence, current_user: User = Depends(get_curr
         
         if result.inserted_id:
             logger.info(f"✅ Absence créée: {absence.id} pour {absence.employee_name}")
+            
+            # 🔄 SYNCHRONISATION : Si l'absence est approuvée, déduire des compteurs
+            if absence.status == "approved":
+                sync_result = await sync_service.sync_absence_to_counters(absence_dict, operation="create")
+                if sync_result:
+                    logger.info(f"🔄 Compteurs synchronisés pour absence {absence.id}")
+                else:
+                    logger.warning(f"⚠️ Échec synchronisation compteurs pour absence {absence.id}")
+            
             return {
                 "message": "Absence request created successfully",
                 "id": absence.id,
-                "status": absence.status
+                "status": absence.status,
+                "counters_synced": absence.status == "approved"
             }
         else:
             raise HTTPException(status_code=500, detail="Failed to create absence")
