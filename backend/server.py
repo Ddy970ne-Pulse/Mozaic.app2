@@ -3505,6 +3505,7 @@ async def update_absence(
 ):
     """
     Update an existing absence
+    🔄 SYNCHRONISATION AUTOMATIQUE : Changement de statut → Synchronise compteurs
     Admin can update any absence, employees can update only their own pending absences
     """
     # Récupérer l'absence existante
@@ -3512,8 +3513,11 @@ async def update_absence(
     if not existing_absence:
         raise HTTPException(status_code=404, detail="Absence not found")
     
+    old_status = existing_absence.get("status")
+    old_jours = float(existing_absence.get("jours_absence", 0))
+    
     # Vérifier les permissions
-    if current_user.role != "admin":
+    if current_user.role not in ["admin", "manager"]:
         # Les employés peuvent modifier seulement leurs propres absences en attente
         if existing_absence.get("employee_id") != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to update this absence")
@@ -3531,10 +3535,14 @@ async def update_absence(
     
     # Ajouter updated_at
     update_fields['updated_at'] = datetime.utcnow().isoformat()
+    update_fields['updated_by'] = current_user.id
     
-    # Si admin, permettre de changer le statut
-    if current_user.role == "admin" and 'status' in absence_data:
+    # Si admin/manager, permettre de changer le statut
+    if current_user.role in ["admin", "manager"] and 'status' in absence_data:
         update_fields['status'] = absence_data['status']
+    
+    new_status = update_fields.get('status', old_status)
+    new_jours = float(update_fields.get('jours_absence', old_jours))
     
     # Mettre à jour
     result = await db.absences.update_one(
@@ -3543,17 +3551,50 @@ async def update_absence(
     )
     
     if result.modified_count == 0:
-        raise HTTPException(status_code=400, detail="No changes made")
+        # Pas d'erreur si aucun changement, retourner l'absence actuelle
+        logger.info(f"Aucune modification pour absence {absence_id}")
     
     # Récupérer l'absence mise à jour
     updated_absence = await db.absences.find_one({"id": absence_id})
     if "_id" in updated_absence:
         del updated_absence["_id"]
     
+    # 🔄 SYNCHRONISATION : Gérer les changements de statut et de durée
+    sync_performed = False
+    
+    # Cas 1: pending → approved (VALIDATION)
+    if old_status == "pending" and new_status == "approved":
+        logger.info(f"🔄 Validation absence {absence_id}: pending → approved")
+        sync_result = await sync_service.sync_absence_to_counters(updated_absence, operation="approve")
+        sync_performed = sync_result
+        
+    # Cas 2: approved → rejected (ANNULATION)
+    elif old_status == "approved" and new_status == "rejected":
+        logger.info(f"🔄 Rejet absence {absence_id}: approved → rejected (réintégration)")
+        sync_result = await sync_service.sync_absence_to_counters(updated_absence, operation="delete")
+        sync_performed = sync_result
+        
+    # Cas 3: pending → rejected (PAS DE SYNC, jamais déduit)
+    elif old_status == "pending" and new_status == "rejected":
+        logger.info(f"✅ Rejet absence {absence_id}: pending → rejected (pas de déduction)")
+        sync_performed = False
+        
+    # Cas 4: Modification de durée sur absence approved
+    elif old_status == "approved" and new_status == "approved" and old_jours != new_jours:
+        logger.info(f"🔄 Modification durée absence {absence_id}: {old_jours}j → {new_jours}j")
+        # Réintégrer l'ancienne durée
+        old_absence_dict = existing_absence.copy()
+        await sync_service.sync_absence_to_counters(old_absence_dict, operation="delete")
+        # Déduire la nouvelle durée
+        sync_result = await sync_service.sync_absence_to_counters(updated_absence, operation="create")
+        sync_performed = sync_result
+    
     return {
         "success": True,
         "message": "Absence updated successfully",
-        "absence": updated_absence
+        "absence": updated_absence,
+        "counters_synced": sync_performed,
+        "status_change": f"{old_status} → {new_status}" if old_status != new_status else None
     }
 
 @api_router.delete("/absences/{absence_id}")
