@@ -2990,34 +2990,46 @@ class BackendTester:
         print(f"Backend URL: {BASE_URL}")
         print(f"API URL: {API_URL}")
         print("=" * 80)
-                    
-                    if not missing_response_fields:
-                        self.log_result("overtime_validation", True, f"✅ Manager can validate educational employee overtime")
-                        self.log_result("overtime_validation", True, f"✅ Response contains required fields: {required_response_fields}")
-                        
-                        # Verify response content
-                        if validation_result.get('success'):
-                            self.log_result("overtime_validation", True, f"✅ Validation marked as successful")
-                        if validation_result.get('validated_by'):
-                            self.log_result("overtime_validation", True, f"✅ Validated by: {validation_result.get('validated_by')}")
-                        if validation_result.get('validated_at'):
-                            self.log_result("overtime_validation", True, f"✅ Validation timestamp present")
-                    else:
-                        self.log_result("overtime_validation", False, f"❌ Missing response fields: {missing_response_fields}")
-                        
-                elif response.status_code == 400:
-                    error_detail = response.json().get('detail', '')
-                    if 'secteur éducatif' in error_detail:
-                        self.log_result("overtime_validation", True, f"✅ Proper error for non-educational employee: {error_detail}")
-                    else:
-                        self.log_result("overtime_validation", False, f"❌ Unexpected 400 error: {error_detail}")
-                else:
-                    self.log_result("overtime_validation", False, f"❌ Validation failed with status {response.status_code}")
-                    
-            except Exception as e:
-                self.log_result("overtime_validation", False, f"❌ Error testing overtime validation: {str(e)}")
+        
+        # Initialize results for all testing categories
+        self.results["french_review"] = {"status": "unknown", "details": []}
+        self.results["leave_balance"] = {"status": "unknown", "details": []}
+        self.results["mongodb_validation"] = {"status": "unknown", "details": []}
+        self.results["absence_import"] = {"status": "unknown", "details": []}
+        self.results["monthly_planning"] = {"status": "unknown", "details": []}
+        self.results["overtime_validation"] = {"status": "unknown", "details": []}
+        
+        # Run tests in order
+        api_healthy = self.test_api_health()
+        
+        if api_healthy:
+            # Get auth token for tests
+            auth_token = self.test_authentication()
+            
+            # PRIORITY: Test overtime validation system as requested in French review
+            print("\n⏰ TESTING OVERTIME VALIDATION SYSTEM - FRENCH REVIEW")
+            print("=" * 80)
+            self.test_overtime_validation_system(auth_token)
+            
+            # Run additional backend tests
+            print("\n🔧 RUNNING ADDITIONAL BACKEND TESTS")
+            print("=" * 80)
+            self.test_ccn66_leave_balance_system(auth_token)
+            self.test_mongodb_validation(auth_token)
+            self.test_cse_cessions_endpoints(auth_token)
         else:
-            self.log_result("overtime_validation", False, f"❌ No educational employee found for validation testing")
+            print("❌ API health check failed. Stopping tests.")
+        
+        # Determine overall status
+        passed_tests = sum(1 for result in self.results.values() if result["status"] == "pass")
+        total_tests = len(self.results)
+        
+        if passed_tests >= total_tests * 0.7:  # 70% pass rate
+            self.results["overall_status"] = "pass"
+        else:
+            self.results["overall_status"] = "fail"
+        
+        return self.results
         
         # 4. Test Error Cases
         print("\n--- 4. Testing Error Cases ---")
