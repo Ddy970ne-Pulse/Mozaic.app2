@@ -2985,28 +2985,11 @@ class BackendTester:
         self.results["overtime_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["overtime_validation"]["details"]) else "fail"
 
     def run_all_tests(self):
-            # Test successful validation
-            validation_payload = {
-                "date": "2025-01-15",
-                "hours": 5.0
-            }
-            
-            try:
-                response = requests.put(
-                    f"{API_URL}/overtime/validate/{educational_employee_id}",
-                    json=validation_payload,
-                    headers=manager_headers,
-                    timeout=15
-                )
-                
-                if response.status_code == 200:
-                    validation_result = response.json()
-                    required_response_fields = ['success', 'message', 'validated_by', 'validated_at']
-                    
-                    missing_response_fields = []
-                    for field in required_response_fields:
-                        if field not in validation_result:
-                            missing_response_fields.append(field)
+        """Run all backend tests including French review requirements"""
+        print(f"🚀 Starting MOZAIK RH Backend Tests - FRENCH REVIEW COMPREHENSIVE TESTING")
+        print(f"Backend URL: {BASE_URL}")
+        print(f"API URL: {API_URL}")
+        print("=" * 80)
                     
                     if not missing_response_fields:
                         self.log_result("overtime_validation", True, f"✅ Manager can validate educational employee overtime")
