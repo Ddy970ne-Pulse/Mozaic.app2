@@ -3604,16 +3604,52 @@ async def update_absence(
         sync_result = await sync_service.sync_absence_to_counters(updated_absence, operation="approve")
         sync_performed = sync_result
         
+        # 🔔 NOTIFICATION : Notifier l'employé de l'approbation
+        await create_auto_notification(
+            user_id=updated_absence.get('employee_id'),
+            notif_type="absence_approved",
+            title="Demande approuvée ✅",
+            message=f"Votre demande de {updated_absence.get('motif_absence')} du {updated_absence.get('date_debut')} au {updated_absence.get('date_fin')} a été approuvée",
+            icon="✅",
+            link="/my-space",
+            related_id=absence_id
+        )
+        logger.info(f"🔔 Notification d'approbation envoyée à {updated_absence.get('employee_name')}")
+        
     # Cas 2: approved → rejected (ANNULATION)
     elif old_status == "approved" and new_status == "rejected":
         logger.info(f"🔄 Rejet absence {absence_id}: approved → rejected (réintégration)")
         sync_result = await sync_service.sync_absence_to_counters(updated_absence, operation="delete")
         sync_performed = sync_result
         
+        # 🔔 NOTIFICATION : Notifier l'employé du rejet
+        await create_auto_notification(
+            user_id=updated_absence.get('employee_id'),
+            notif_type="absence_rejected",
+            title="Demande annulée ❌",
+            message=f"Votre demande de {updated_absence.get('motif_absence')} du {updated_absence.get('date_debut')} au {updated_absence.get('date_fin')} a été annulée",
+            icon="❌",
+            link="/my-space",
+            related_id=absence_id
+        )
+        logger.info(f"🔔 Notification d'annulation envoyée à {updated_absence.get('employee_name')}")
+        
     # Cas 3: pending → rejected (PAS DE SYNC, jamais déduit)
     elif old_status == "pending" and new_status == "rejected":
         logger.info(f"✅ Rejet absence {absence_id}: pending → rejected (pas de déduction)")
         sync_performed = False
+        
+        # 🔔 NOTIFICATION : Notifier l'employé du rejet
+        await create_auto_notification(
+            user_id=updated_absence.get('employee_id'),
+            notif_type="absence_rejected",
+            title="Demande rejetée ❌",
+            message=f"Votre demande de {updated_absence.get('motif_absence')} du {updated_absence.get('date_debut')} au {updated_absence.get('date_fin')} a été rejetée",
+            icon="❌",
+            link="/my-space",
+            related_id=absence_id
+        )
+        logger.info(f"🔔 Notification de rejet envoyée à {updated_absence.get('employee_name')}")
         
     # Cas 4: Modification de durée sur absence approved
     elif old_status == "approved" and new_status == "approved" and old_jours != new_jours:
@@ -3624,6 +3660,18 @@ async def update_absence(
         # Déduire la nouvelle durée
         sync_result = await sync_service.sync_absence_to_counters(updated_absence, operation="create")
         sync_performed = sync_result
+        
+        # 🔔 NOTIFICATION : Notifier l'employé de la modification
+        await create_auto_notification(
+            user_id=updated_absence.get('employee_id'),
+            notif_type="absence_approved",
+            title="Absence modifiée 📝",
+            message=f"Votre absence de {updated_absence.get('motif_absence')} a été modifiée: {old_jours}j → {new_jours}j",
+            icon="📝",
+            link="/my-space",
+            related_id=absence_id
+        )
+        logger.info(f"🔔 Notification de modification envoyée à {updated_absence.get('employee_name')}")
     
     return {
         "success": True,
