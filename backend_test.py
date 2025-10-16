@@ -2984,6 +2984,351 @@ class BackendTester:
         
         self.results["overtime_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["overtime_validation"]["details"]) else "fail"
 
+    def test_notification_system(self, auth_token=None):
+        """Test complet du système de notifications automatiques MOZAIK RH"""
+        print("\n=== TEST COMPLET SYSTÈME DE NOTIFICATIONS AUTOMATIQUES MOZAIK RH ===")
+        print("Testing: Notifications en temps réel lors de création/approbation/rejet de demandes d'absence")
+        
+        if not auth_token:
+            self.log_result("notifications", False, "❌ No auth token for notification testing")
+            return
+            
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        
+        # Initialize results for notifications
+        self.results["notifications"] = {"status": "unknown", "details": []}
+        
+        # Comptes utilisateurs pour les tests
+        employee_credentials = {"email": "cgregoire@aaea-gpe.fr", "password": "YrQwGiEl"}
+        manager_credentials = {"email": "jedau@aaea-gpe.fr", "password": "gPGlceec"}
+        
+        # 1. Test GET /api/notifications (utilisateur connecté)
+        print("\n--- 1. Testing GET /api/notifications pour chaque type d'utilisateur ---")
+        
+        # Test avec admin
+        try:
+            response = requests.get(f"{API_URL}/notifications", headers=headers, timeout=10)
+            if response.status_code == 200:
+                admin_notifications = response.json()
+                self.log_result("notifications", True, f"✅ GET /api/notifications admin: {len(admin_notifications)} notifications")
+            else:
+                self.log_result("notifications", False, f"❌ GET /api/notifications admin returned {response.status_code}")
+        except Exception as e:
+            self.log_result("notifications", False, f"❌ Erreur GET /api/notifications admin: {str(e)}")
+        
+        # Test avec employé (Cindy GREGOIRE)
+        employee_token = None
+        try:
+            employee_auth = requests.post(
+                f"{API_URL}/auth/login",
+                json=employee_credentials,
+                timeout=10
+            )
+            if employee_auth.status_code == 200:
+                employee_data = employee_auth.json()
+                employee_token = employee_data.get('token')
+                employee_headers = {"Authorization": f"Bearer {employee_token}"}
+                
+                response = requests.get(f"{API_URL}/notifications", headers=employee_headers, timeout=10)
+                if response.status_code == 200:
+                    employee_notifications = response.json()
+                    self.log_result("notifications", True, f"✅ GET /api/notifications employé: {len(employee_notifications)} notifications")
+                else:
+                    self.log_result("notifications", False, f"❌ GET /api/notifications employé returned {response.status_code}")
+            else:
+                self.log_result("notifications", False, f"❌ Employee login failed: {employee_auth.status_code}")
+        except Exception as e:
+            self.log_result("notifications", False, f"❌ Erreur test employé notifications: {str(e)}")
+        
+        # Test avec manager (Jacques EDAU)
+        manager_token = None
+        try:
+            manager_auth = requests.post(
+                f"{API_URL}/auth/login",
+                json=manager_credentials,
+                timeout=10
+            )
+            if manager_auth.status_code == 200:
+                manager_data = manager_auth.json()
+                manager_token = manager_data.get('token')
+                manager_headers = {"Authorization": f"Bearer {manager_token}"}
+                
+                response = requests.get(f"{API_URL}/notifications", headers=manager_headers, timeout=10)
+                if response.status_code == 200:
+                    manager_notifications = response.json()
+                    self.log_result("notifications", True, f"✅ GET /api/notifications manager: {len(manager_notifications)} notifications")
+                else:
+                    self.log_result("notifications", False, f"❌ GET /api/notifications manager returned {response.status_code}")
+            else:
+                self.log_result("notifications", False, f"❌ Manager login failed: {manager_auth.status_code}")
+        except Exception as e:
+            self.log_result("notifications", False, f"❌ Erreur test manager notifications: {str(e)}")
+        
+        # 2. Test GET /api/notifications/unread-count
+        print("\n--- 2. Testing GET /api/notifications/unread-count ---")
+        
+        try:
+            response = requests.get(f"{API_URL}/notifications/unread-count", headers=headers, timeout=10)
+            if response.status_code == 200:
+                unread_data = response.json()
+                unread_count = unread_data.get('unread_count', 0)
+                self.log_result("notifications", True, f"✅ GET /api/notifications/unread-count: {unread_count} notifications non lues")
+            else:
+                self.log_result("notifications", False, f"❌ GET /api/notifications/unread-count returned {response.status_code}")
+        except Exception as e:
+            self.log_result("notifications", False, f"❌ Erreur GET /api/notifications/unread-count: {str(e)}")
+        
+        # 3. Scénario complet: Création demande d'absence
+        print("\n--- 3. Testing Scénario Création Demande d'Absence ---")
+        
+        if employee_token:
+            try:
+                # Créer une demande d'absence en tant qu'employé
+                absence_request = {
+                    "date_debut": "2025-02-15",
+                    "date_fin": "2025-02-17",
+                    "motif_absence": "CA",
+                    "notes": "Congés annuels test notification",
+                    "status": "pending"
+                }
+                
+                employee_headers = {"Authorization": f"Bearer {employee_token}"}
+                response = requests.post(
+                    f"{API_URL}/absences",
+                    json=absence_request,
+                    headers=employee_headers,
+                    timeout=10
+                )
+                
+                if response.status_code in [200, 201]:
+                    absence_data = response.json()
+                    absence_id = absence_data.get('id')
+                    self.log_result("notifications", True, f"✅ Demande d'absence créée: {absence_id}")
+                    
+                    # Vérifier que les managers/admins ont reçu une notification
+                    if manager_token:
+                        manager_headers = {"Authorization": f"Bearer {manager_token}"}
+                        notif_response = requests.get(f"{API_URL}/notifications", headers=manager_headers, timeout=10)
+                        if notif_response.status_code == 200:
+                            notifications = notif_response.json()
+                            absence_notifications = [n for n in notifications if n.get('type') == 'absence_request']
+                            if absence_notifications:
+                                self.log_result("notifications", True, f"✅ Manager reçoit notification absence_request")
+                            else:
+                                self.log_result("notifications", False, f"❌ Manager ne reçoit pas notification absence_request")
+                        else:
+                            self.log_result("notifications", False, f"❌ Impossible de vérifier notifications manager")
+                    
+                else:
+                    self.log_result("notifications", False, f"❌ Création demande d'absence failed: {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("notifications", False, f"❌ Erreur scénario création absence: {str(e)}")
+        
+        # 4. Scénario complet: Approbation demande
+        print("\n--- 4. Testing Scénario Approbation Demande ---")
+        
+        if manager_token:
+            try:
+                # D'abord, récupérer les demandes d'absence en attente
+                manager_headers = {"Authorization": f"Bearer {manager_token}"}
+                response = requests.get(f"{API_URL}/absences", headers=manager_headers, timeout=10)
+                
+                if response.status_code == 200:
+                    absences = response.json()
+                    pending_absences = [a for a in absences if a.get('status') == 'pending']
+                    
+                    if pending_absences:
+                        absence_to_approve = pending_absences[0]
+                        absence_id = absence_to_approve.get('id')
+                        
+                        # Approuver la demande
+                        approval_data = {"status": "approved"}
+                        response = requests.put(
+                            f"{API_URL}/absences/{absence_id}",
+                            json=approval_data,
+                            headers=manager_headers,
+                            timeout=10
+                        )
+                        
+                        if response.status_code == 200:
+                            self.log_result("notifications", True, f"✅ Demande d'absence approuvée: {absence_id}")
+                            
+                            # Vérifier que l'employé reçoit notification d'approbation
+                            if employee_token:
+                                employee_headers = {"Authorization": f"Bearer {employee_token}"}
+                                notif_response = requests.get(f"{API_URL}/notifications", headers=employee_headers, timeout=10)
+                                if notif_response.status_code == 200:
+                                    notifications = notif_response.json()
+                                    approval_notifications = [n for n in notifications if n.get('type') == 'absence_approved']
+                                    if approval_notifications:
+                                        self.log_result("notifications", True, f"✅ Employé reçoit notification absence_approved")
+                                    else:
+                                        self.log_result("notifications", False, f"❌ Employé ne reçoit pas notification absence_approved")
+                                else:
+                                    self.log_result("notifications", False, f"❌ Impossible de vérifier notifications employé")
+                        else:
+                            self.log_result("notifications", False, f"❌ Approbation demande failed: {response.status_code}")
+                    else:
+                        self.log_result("notifications", False, f"❌ Aucune demande en attente pour test approbation")
+                else:
+                    self.log_result("notifications", False, f"❌ Impossible de récupérer demandes d'absence")
+                    
+            except Exception as e:
+                self.log_result("notifications", False, f"❌ Erreur scénario approbation: {str(e)}")
+        
+        # 5. Scénario complet: Rejet demande
+        print("\n--- 5. Testing Scénario Rejet Demande ---")
+        
+        if manager_token and employee_token:
+            try:
+                # Créer une nouvelle demande pour la rejeter
+                absence_request = {
+                    "date_debut": "2025-02-20",
+                    "date_fin": "2025-02-21",
+                    "motif_absence": "REC",
+                    "notes": "Test rejet notification",
+                    "status": "pending"
+                }
+                
+                employee_headers = {"Authorization": f"Bearer {employee_token}"}
+                response = requests.post(
+                    f"{API_URL}/absences",
+                    json=absence_request,
+                    headers=employee_headers,
+                    timeout=10
+                )
+                
+                if response.status_code in [200, 201]:
+                    absence_data = response.json()
+                    absence_id = absence_data.get('id')
+                    
+                    # Rejeter la demande
+                    manager_headers = {"Authorization": f"Bearer {manager_token}"}
+                    rejection_data = {"status": "rejected", "rejection_reason": "Période non disponible"}
+                    response = requests.put(
+                        f"{API_URL}/absences/{absence_id}",
+                        json=rejection_data,
+                        headers=manager_headers,
+                        timeout=10
+                    )
+                    
+                    if response.status_code == 200:
+                        self.log_result("notifications", True, f"✅ Demande d'absence rejetée: {absence_id}")
+                        
+                        # Vérifier que l'employé reçoit notification de rejet
+                        notif_response = requests.get(f"{API_URL}/notifications", headers=employee_headers, timeout=10)
+                        if notif_response.status_code == 200:
+                            notifications = notif_response.json()
+                            rejection_notifications = [n for n in notifications if n.get('type') == 'absence_rejected']
+                            if rejection_notifications:
+                                self.log_result("notifications", True, f"✅ Employé reçoit notification absence_rejected")
+                            else:
+                                self.log_result("notifications", False, f"❌ Employé ne reçoit pas notification absence_rejected")
+                        else:
+                            self.log_result("notifications", False, f"❌ Impossible de vérifier notifications rejet")
+                    else:
+                        self.log_result("notifications", False, f"❌ Rejet demande failed: {response.status_code}")
+                else:
+                    self.log_result("notifications", False, f"❌ Création demande pour rejet failed")
+                    
+            except Exception as e:
+                self.log_result("notifications", False, f"❌ Erreur scénario rejet: {str(e)}")
+        
+        # 6. Test Actions sur notifications
+        print("\n--- 6. Testing Actions sur Notifications ---")
+        
+        # Test PUT /api/notifications/{id}/read
+        try:
+            # D'abord récupérer une notification
+            response = requests.get(f"{API_URL}/notifications", headers=headers, timeout=10)
+            if response.status_code == 200:
+                notifications = response.json()
+                if notifications:
+                    notification_id = notifications[0].get('id')
+                    
+                    # Marquer comme lue
+                    response = requests.put(
+                        f"{API_URL}/notifications/{notification_id}/read",
+                        headers=headers,
+                        timeout=10
+                    )
+                    if response.status_code == 200:
+                        self.log_result("notifications", True, f"✅ PUT /api/notifications/{{id}}/read fonctionne")
+                    else:
+                        self.log_result("notifications", False, f"❌ PUT /api/notifications/{{id}}/read returned {response.status_code}")
+                else:
+                    self.log_result("notifications", False, f"❌ Aucune notification pour test mark as read")
+            else:
+                self.log_result("notifications", False, f"❌ Impossible de récupérer notifications pour test")
+        except Exception as e:
+            self.log_result("notifications", False, f"❌ Erreur test mark as read: {str(e)}")
+        
+        # Test PUT /api/notifications/read-all
+        try:
+            response = requests.put(f"{API_URL}/notifications/read-all", headers=headers, timeout=10)
+            if response.status_code == 200:
+                self.log_result("notifications", True, f"✅ PUT /api/notifications/read-all fonctionne")
+            else:
+                self.log_result("notifications", False, f"❌ PUT /api/notifications/read-all returned {response.status_code}")
+        except Exception as e:
+            self.log_result("notifications", False, f"❌ Erreur test read-all: {str(e)}")
+        
+        # Test DELETE /api/notifications/{id}
+        try:
+            # Récupérer une notification à supprimer
+            response = requests.get(f"{API_URL}/notifications", headers=headers, timeout=10)
+            if response.status_code == 200:
+                notifications = response.json()
+                if notifications:
+                    notification_id = notifications[0].get('id')
+                    
+                    # Supprimer la notification
+                    response = requests.delete(
+                        f"{API_URL}/notifications/{notification_id}",
+                        headers=headers,
+                        timeout=10
+                    )
+                    if response.status_code in [200, 204]:
+                        self.log_result("notifications", True, f"✅ DELETE /api/notifications/{{id}} fonctionne")
+                    else:
+                        self.log_result("notifications", False, f"❌ DELETE /api/notifications/{{id}} returned {response.status_code}")
+                else:
+                    self.log_result("notifications", False, f"❌ Aucune notification pour test delete")
+            else:
+                self.log_result("notifications", False, f"❌ Impossible de récupérer notifications pour test delete")
+        except Exception as e:
+            self.log_result("notifications", False, f"❌ Erreur test delete notification: {str(e)}")
+        
+        # 7. Test Messages personnalisés avec détails
+        print("\n--- 7. Testing Messages Personnalisés ---")
+        
+        try:
+            response = requests.get(f"{API_URL}/notifications", headers=headers, timeout=10)
+            if response.status_code == 200:
+                notifications = response.json()
+                personalized_notifications = []
+                
+                for notif in notifications:
+                    message = notif.get('message', '')
+                    title = notif.get('title', '')
+                    
+                    # Vérifier si le message contient des détails personnalisés
+                    has_details = any(keyword in message.lower() for keyword in ['motif', 'date', 'nom', 'congés', 'absence'])
+                    if has_details:
+                        personalized_notifications.append(notif)
+                
+                if personalized_notifications:
+                    self.log_result("notifications", True, f"✅ Messages personnalisés détectés: {len(personalized_notifications)} notifications avec détails")
+                else:
+                    self.log_result("notifications", False, f"❌ Aucun message personnalisé avec détails trouvé")
+            else:
+                self.log_result("notifications", False, f"❌ Impossible de vérifier messages personnalisés")
+        except Exception as e:
+            self.log_result("notifications", False, f"❌ Erreur test messages personnalisés: {str(e)}")
+        
+        self.results["notifications"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["notifications"]["details"]) else "fail"
+
     def run_all_tests(self):
         """Run all backend tests including French review requirements"""
         print(f"🚀 Starting MOZAIK RH Backend Tests - FRENCH REVIEW COMPREHENSIVE TESTING")
