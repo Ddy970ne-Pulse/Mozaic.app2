@@ -2282,6 +2282,11 @@ def require_admin_access(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
+def require_admin_or_manager(current_user: User = Depends(get_current_user)):
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Admin or manager access required")
+    return current_user
+
 @api_router.post("/import/reset-demo")
 async def reset_demo_accounts(current_user: User = Depends(require_admin_access)):
     """Reset system: DÉSACTIVÉ EN PRODUCTION - Trop dangereux (causait perte de données)"""
