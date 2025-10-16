@@ -3343,6 +3343,7 @@ class BackendTester:
         self.results["absence_import"] = {"status": "unknown", "details": []}
         self.results["monthly_planning"] = {"status": "unknown", "details": []}
         self.results["overtime_validation"] = {"status": "unknown", "details": []}
+        self.results["notifications"] = {"status": "unknown", "details": []}
         
         # Run tests in order
         api_healthy = self.test_api_health()
@@ -3351,7 +3352,12 @@ class BackendTester:
             # Get auth token for tests
             auth_token = self.test_authentication()
             
-            # PRIORITY: Test overtime validation system as requested in French review
+            # PRIORITY: Test notification system as requested in review
+            print("\n🔔 TESTING NOTIFICATION SYSTEM - MAIN FOCUS")
+            print("=" * 80)
+            self.test_notification_system(auth_token)
+            
+            # SECONDARY: Test overtime validation system as requested in French review
             print("\n⏰ TESTING OVERTIME VALIDATION SYSTEM - FRENCH REVIEW")
             print("=" * 80)
             self.test_overtime_validation_system(auth_token)
