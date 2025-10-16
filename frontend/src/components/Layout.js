@@ -405,7 +405,15 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
       {/* Menu Flottant - Effets Dynamiques Page de Connexion */}
       {/* Menu Principal Glassmorphism - Responsive pour tous les écrans */}
       {showMenu && (
-        <div className="hamburger-menu fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden">
+        <div 
+          className="hamburger-menu fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden"
+          onClick={(e) => {
+            // Fermer si on clique sur l'overlay (pas sur le contenu du menu)
+            if (e.target.classList.contains('hamburger-menu')) {
+              setShowMenu(false);
+            }
+          }}
+        >
           {/* Nuages animés - Mouvement horizontal réaliste */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             {/* Nuage principal - Mouvement lent horizontal */}
