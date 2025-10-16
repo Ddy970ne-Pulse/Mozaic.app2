@@ -3214,55 +3214,87 @@ class BackendTester:
         
         if manager_token and employee_token:
             try:
-                # Créer une nouvelle demande pour la rejeter
-                absence_request = {
-                    "date_debut": "2025-02-20",
-                    "date_fin": "2025-02-21",
-                    "motif_absence": "REC",
-                    "notes": "Test rejet notification",
-                    "status": "pending"
-                }
-                
+                # D'abord récupérer les informations de l'employé
                 employee_headers = {"Authorization": f"Bearer {employee_token}"}
-                response = requests.post(
-                    f"{API_URL}/absences",
-                    json=absence_request,
-                    headers=employee_headers,
-                    timeout=10
-                )
+                user_response = requests.get(f"{API_URL}/auth/me", headers=employee_headers, timeout=10)
                 
-                if response.status_code in [200, 201]:
-                    absence_data = response.json()
-                    absence_id = absence_data.get('id')
+                if user_response.status_code == 200:
+                    user_data = user_response.json()
+                    employee_id = user_data.get('id')
+                    employee_name = user_data.get('name')
+                    employee_email = user_data.get('email')
                     
-                    # Rejeter la demande
-                    manager_headers = {"Authorization": f"Bearer {manager_token}"}
-                    rejection_data = {"status": "rejected", "rejection_reason": "Période non disponible"}
-                    response = requests.put(
-                        f"{API_URL}/absences/{absence_id}",
-                        json=rejection_data,
-                        headers=manager_headers,
+                    # Créer une nouvelle demande pour la rejeter
+                    absence_request = {
+                        "employee_id": employee_id,
+                        "employee_name": employee_name,
+                        "email": employee_email,
+                        "date_debut": "2025-02-20",
+                        "date_fin": "2025-02-21",
+                        "jours_absence": "2",
+                        "motif_absence": "REC",
+                        "notes": "Test rejet notification",
+                        "status": "pending"
+                    }
+                    
+                    response = requests.post(
+                        f"{API_URL}/absences",
+                        json=absence_request,
+                        headers=employee_headers,
                         timeout=10
                     )
                     
-                    if response.status_code == 200:
-                        self.log_result("notifications", True, f"✅ Demande d'absence rejetée: {absence_id}")
+                    if response.status_code in [200, 201]:
+                        absence_data = response.json()
+                        absence_id = absence_data.get('id')
                         
-                        # Vérifier que l'employé reçoit notification de rejet
-                        notif_response = requests.get(f"{API_URL}/notifications", headers=employee_headers, timeout=10)
-                        if notif_response.status_code == 200:
-                            notifications = notif_response.json()
-                            rejection_notifications = [n for n in notifications if n.get('type') == 'absence_rejected']
-                            if rejection_notifications:
-                                self.log_result("notifications", True, f"✅ Employé reçoit notification absence_rejected")
+                        # Rejeter la demande
+                        manager_headers = {"Authorization": f"Bearer {manager_token}"}
+                        rejection_data = {"status": "rejected", "rejection_reason": "Période non disponible"}
+                        response = requests.put(
+                            f"{API_URL}/absences/{absence_id}",
+                            json=rejection_data,
+                            headers=manager_headers,
+                            timeout=10
+                        )
+                        
+                        if response.status_code == 200:
+                            self.log_result("notifications", True, f"✅ Demande d'absence rejetée: {absence_id}")
+                            
+                            # Attendre un peu pour que les notifications soient créées
+                            import time
+                            time.sleep(2)
+                            
+                            # Vérifier que l'employé reçoit notification de rejet
+                            notif_response = requests.get(f"{API_URL}/notifications", headers=employee_headers, timeout=10)
+                            if notif_response.status_code == 200:
+                                notifications = notif_response.json()
+                                rejection_notifications = [n for n in notifications if n.get('type') == 'absence_rejected']
+                                if rejection_notifications:
+                                    self.log_result("notifications", True, f"✅ Employé reçoit notification absence_rejected")
+                                    # Vérifier le contenu du message
+                                    notif = rejection_notifications[0]
+                                    message = notif.get('message', '')
+                                    if 'rejetée' in message.lower() or 'refusée' in message.lower():
+                                        self.log_result("notifications", True, f"✅ Message de rejet personnalisé: {message}")
+                                    else:
+                                        self.log_result("notifications", False, f"❌ Message de rejet non personnalisé: {message}")
+                                else:
+                                    self.log_result("notifications", False, f"❌ Employé ne reçoit pas notification absence_rejected")
                             else:
-                                self.log_result("notifications", False, f"❌ Employé ne reçoit pas notification absence_rejected")
+                                self.log_result("notifications", False, f"❌ Impossible de vérifier notifications rejet")
                         else:
-                            self.log_result("notifications", False, f"❌ Impossible de vérifier notifications rejet")
+                            self.log_result("notifications", False, f"❌ Rejet demande failed: {response.status_code}")
                     else:
-                        self.log_result("notifications", False, f"❌ Rejet demande failed: {response.status_code}")
+                        error_detail = ""
+                        try:
+                            error_data = response.json()
+                            error_detail = error_data.get('detail', '')
+                        except:
+                            pass
+                        self.log_result("notifications", False, f"❌ Création demande pour rejet failed: {response.status_code} - {error_detail}")
                 else:
-                    self.log_result("notifications", False, f"❌ Création demande pour rejet failed")
+                    self.log_result("notifications", False, f"❌ Impossible de récupérer données employé pour rejet")
                     
             except Exception as e:
                 self.log_result("notifications", False, f"❌ Erreur scénario rejet: {str(e)}")
