@@ -3442,6 +3442,25 @@ async def create_absence(absence: Absence, current_user: User = Depends(get_curr
                 else:
                     logger.warning(f"⚠️ Échec synchronisation compteurs pour absence {absence.id}")
             
+            # 🔔 NOTIFICATION : Si demande pending, notifier les managers et admins
+            if absence.status == "pending":
+                managers_and_admins = await db.users.find({
+                    "role": {"$in": ["admin", "manager"]}
+                }).to_list(length=None)
+                
+                for user in managers_and_admins:
+                    await create_auto_notification(
+                        user_id=user.get('id'),
+                        notif_type="absence_request",
+                        title="Nouvelle demande d'absence",
+                        message=f"{absence.employee_name} a soumis une demande de {absence.motif_absence} ({absence.date_debut} → {absence.date_fin})",
+                        icon="📝",
+                        link="/absence-requests",
+                        related_id=absence.id
+                    )
+                
+                logger.info(f"🔔 Notifications envoyées à {len(managers_and_admins)} managers/admins")
+            
             return {
                 "message": "Absence request created successfully",
                 "id": absence.id,
