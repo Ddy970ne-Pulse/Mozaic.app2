@@ -3083,44 +3083,76 @@ class BackendTester:
         
         if employee_token:
             try:
-                # Créer une demande d'absence en tant qu'employé
-                absence_request = {
-                    "date_debut": "2025-02-15",
-                    "date_fin": "2025-02-17",
-                    "motif_absence": "CA",
-                    "notes": "Congés annuels test notification",
-                    "status": "pending"
-                }
-                
+                # D'abord récupérer les informations de l'employé
                 employee_headers = {"Authorization": f"Bearer {employee_token}"}
-                response = requests.post(
-                    f"{API_URL}/absences",
-                    json=absence_request,
-                    headers=employee_headers,
-                    timeout=10
-                )
+                user_response = requests.get(f"{API_URL}/auth/me", headers=employee_headers, timeout=10)
                 
-                if response.status_code in [200, 201]:
-                    absence_data = response.json()
-                    absence_id = absence_data.get('id')
-                    self.log_result("notifications", True, f"✅ Demande d'absence créée: {absence_id}")
+                if user_response.status_code == 200:
+                    user_data = user_response.json()
+                    employee_id = user_data.get('id')
+                    employee_name = user_data.get('name')
+                    employee_email = user_data.get('email')
                     
-                    # Vérifier que les managers/admins ont reçu une notification
-                    if manager_token:
-                        manager_headers = {"Authorization": f"Bearer {manager_token}"}
-                        notif_response = requests.get(f"{API_URL}/notifications", headers=manager_headers, timeout=10)
-                        if notif_response.status_code == 200:
-                            notifications = notif_response.json()
-                            absence_notifications = [n for n in notifications if n.get('type') == 'absence_request']
-                            if absence_notifications:
-                                self.log_result("notifications", True, f"✅ Manager reçoit notification absence_request")
+                    # Créer une demande d'absence en tant qu'employé avec toutes les données requises
+                    absence_request = {
+                        "employee_id": employee_id,
+                        "employee_name": employee_name,
+                        "email": employee_email,
+                        "date_debut": "2025-02-15",
+                        "date_fin": "2025-02-17",
+                        "jours_absence": "3",
+                        "motif_absence": "CA",
+                        "notes": "Congés annuels test notification",
+                        "status": "pending"
+                    }
+                    
+                    response = requests.post(
+                        f"{API_URL}/absences",
+                        json=absence_request,
+                        headers=employee_headers,
+                        timeout=10
+                    )
+                    
+                    if response.status_code in [200, 201]:
+                        absence_data = response.json()
+                        absence_id = absence_data.get('id')
+                        self.log_result("notifications", True, f"✅ Demande d'absence créée: {absence_id}")
+                        
+                        # Attendre un peu pour que les notifications soient créées
+                        import time
+                        time.sleep(2)
+                        
+                        # Vérifier que les managers/admins ont reçu une notification
+                        if manager_token:
+                            manager_headers = {"Authorization": f"Bearer {manager_token}"}
+                            notif_response = requests.get(f"{API_URL}/notifications", headers=manager_headers, timeout=10)
+                            if notif_response.status_code == 200:
+                                notifications = notif_response.json()
+                                absence_notifications = [n for n in notifications if n.get('type') == 'absence_request']
+                                if absence_notifications:
+                                    self.log_result("notifications", True, f"✅ Manager reçoit notification absence_request")
+                                    # Vérifier le contenu du message
+                                    notif = absence_notifications[0]
+                                    message = notif.get('message', '')
+                                    if 'CA' in message and '2025-02-15' in message:
+                                        self.log_result("notifications", True, f"✅ Message personnalisé avec détails: {message}")
+                                    else:
+                                        self.log_result("notifications", False, f"❌ Message sans détails personnalisés: {message}")
+                                else:
+                                    self.log_result("notifications", False, f"❌ Manager ne reçoit pas notification absence_request")
                             else:
-                                self.log_result("notifications", False, f"❌ Manager ne reçoit pas notification absence_request")
-                        else:
-                            self.log_result("notifications", False, f"❌ Impossible de vérifier notifications manager")
-                    
+                                self.log_result("notifications", False, f"❌ Impossible de vérifier notifications manager")
+                        
+                    else:
+                        error_detail = ""
+                        try:
+                            error_data = response.json()
+                            error_detail = error_data.get('detail', '')
+                        except:
+                            pass
+                        self.log_result("notifications", False, f"❌ Création demande d'absence failed: {response.status_code} - {error_detail}")
                 else:
-                    self.log_result("notifications", False, f"❌ Création demande d'absence failed: {response.status_code}")
+                    self.log_result("notifications", False, f"❌ Impossible de récupérer données employé: {user_response.status_code}")
                     
             except Exception as e:
                 self.log_result("notifications", False, f"❌ Erreur scénario création absence: {str(e)}")
