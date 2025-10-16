@@ -551,7 +551,7 @@ class Absence(BaseModel):
     hours_amount: Optional[float] = None  # Nombre d'heures si unit='heures'
     status: str = "approved"  # Les absences importées sont automatiquement validées
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    created_by: str
+    created_by: Optional[str] = None
 
 class ImportWorkHours(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
