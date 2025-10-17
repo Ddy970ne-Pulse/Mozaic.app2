@@ -3707,6 +3707,7 @@ class BackendTester:
         self.results["monthly_planning"] = {"status": "unknown", "details": []}
         self.results["overtime_validation"] = {"status": "unknown", "details": []}
         self.results["notifications"] = {"status": "unknown", "details": []}
+        self.results["cindy_absence_issue"] = {"status": "unknown", "details": []}
         
         # Run tests in order
         api_healthy = self.test_api_health()
@@ -3714,6 +3715,11 @@ class BackendTester:
         if api_healthy:
             # Get auth token for tests
             auth_token = self.test_authentication()
+            
+            # URGENT PRIORITY: Test Cindy GREGOIRE absence creation issue
+            print("\n🚨 URGENT TEST: CINDY GREGOIRE ABSENCE CREATION ISSUE")
+            print("=" * 80)
+            self.test_cindy_absence_creation_issue()
             
             # PRIORITY: Test notification system as requested in review
             print("\n🔔 TESTING NOTIFICATION SYSTEM - MAIN FOCUS")
