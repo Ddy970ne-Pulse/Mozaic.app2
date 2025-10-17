@@ -1226,6 +1226,16 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
       if (response.ok) {
         const result = await response.json();
         
+        console.log('✅ Résultat création:', result);
+        
+        // Réinitialiser AVANT l'alert
+        setShowConfirmModal(false);
+        setSelectedEmployee(null);
+        setSelectionStart(null);
+        setSelectionEnd(null);
+        setAbsenceNotes('');
+        setAddAbsenceMode(false);
+        
         // Message de succès avec info sur la synchronisation
         let successMessage = `✅ Absence créée avec succès pour ${selectedEmployee.name}`;
         
@@ -1235,21 +1245,14 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
         
         alert(successMessage);
         
-        console.log('✅ Résultat création:', result);
-        
-        // Réinitialiser
-        setShowConfirmModal(false);
-        setSelectedEmployee(null);
-        setSelectionStart(null);
-        setSelectionEnd(null);
-        setAbsenceNotes('');
-        setAddAbsenceMode(false);
-        
         // Recharger les données
         loadAbsences();
       } else {
         const errorData = await response.json();
         console.error('❌ Erreur backend:', errorData);
+        
+        // Fermer le modal AVANT l'alert d'erreur
+        setShowConfirmModal(false);
         
         // Formater le message d'erreur
         let errorMessage = 'Erreur lors de la création';
@@ -1265,6 +1268,10 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
       }
     } catch (error) {
       console.error('Erreur création absence:', error);
+      
+      // Fermer le modal AVANT l'alert d'erreur
+      setShowConfirmModal(false);
+      
       alert(`❌ Erreur: ${error.message || 'Impossible de créer l\'absence'}`);
     } finally {
       setCreatingAbsence(false);
