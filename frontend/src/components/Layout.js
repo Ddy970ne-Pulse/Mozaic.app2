@@ -26,6 +26,25 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // 📡 WebSocket temps réel
+  const { isConnected, lastMessage } = useWebSocket(user?.id, (message) => {
+    // Gérer les messages WebSocket
+    console.log('🔔 WebSocket event:', message.type);
+    
+    switch (message.type) {
+      case 'absence_created':
+      case 'absence_updated':
+      case 'absence_deleted':
+        // Déclencher un événement pour que les composants rechargent leurs données
+        window.dispatchEvent(new CustomEvent('websocket-absence-change', { 
+          detail: message 
+        }));
+        break;
+      default:
+        break;
+    }
+  });
+
   // Charger les notifications depuis l'API
   useEffect(() => {
     fetchNotifications();
