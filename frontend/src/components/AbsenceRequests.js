@@ -611,9 +611,11 @@ const AbsenceRequests = ({ user }) => {
                       {request.rejected_at && (
                         <span> le {new Date(request.rejected_at).toLocaleDateString('fr-FR')}</span>
                       )}
-                    </div>
-                      <strong>Refusé par:</strong> {request.rejectedBy} le {formatDate(request.rejectedDate)}<br />
-                      <strong>Motif du refus:</strong> {request.rejectionReason}
+                      {request.rejectionReason && (
+                        <div className="mt-2 text-xs">
+                          <strong>Motif:</strong> {request.rejectionReason}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
