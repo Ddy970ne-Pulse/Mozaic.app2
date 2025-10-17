@@ -3998,6 +3998,7 @@ class BackendTester:
         self.results["overtime_validation"] = {"status": "unknown", "details": []}
         self.results["notifications"] = {"status": "unknown", "details": []}
         self.results["cindy_absence_issue"] = {"status": "unknown", "details": []}
+        self.results["absence_validation"] = {"status": "unknown", "details": []}
         
         # Run tests in order
         api_healthy = self.test_api_health()
