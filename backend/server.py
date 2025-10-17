@@ -3467,6 +3467,9 @@ async def create_absence(absence: Absence, current_user: User = Depends(get_curr
                 
                 logger.info(f"🔔 Notifications envoyées à {len(managers_and_admins)} managers/admins")
             
+            # 📡 WEBSOCKET : Broadcast à tous les utilisateurs connectés
+            await ws_manager.broadcast_absence_created(absence_dict, current_user.id)
+            
             return {
                 "message": "Absence request created successfully",
                 "id": absence.id,
