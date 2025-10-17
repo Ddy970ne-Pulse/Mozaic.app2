@@ -3871,6 +3871,8 @@ class BackendTester:
         
         manager_request_data = {
             "employee_id": manager_account["id"],
+            "employee_name": manager_account["name"],
+            "email": manager_account["email"],
             "motif_absence": "Congés Payés",
             "date_debut": "2025-12-28",
             "date_fin": "2025-12-30",
