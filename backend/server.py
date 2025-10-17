@@ -3742,6 +3742,9 @@ async def delete_absence(
     else:
         logger.info(f"✅ Suppression absence {absence_id} (status={absence_to_delete.get('status')}) - pas de réintégration")
     
+    # 📡 WEBSOCKET : Broadcast suppression à tous les utilisateurs
+    await ws_manager.broadcast_absence_deleted(absence_id, current_user.id)
+    
     return {
         "success": True,
         "message": "Absence deleted successfully",
