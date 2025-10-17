@@ -3764,6 +3764,8 @@ class BackendTester:
         employee_headers = {"Authorization": f"Bearer {employee_token}"}
         absence_request_data = {
             "employee_id": employee_account["id"],
+            "employee_name": employee_account["name"],
+            "email": employee_account["email"],
             "motif_absence": "Congés Payés",
             "date_debut": "2025-12-25",
             "date_fin": "2025-12-27",
