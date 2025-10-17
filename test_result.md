@@ -131,6 +131,27 @@
 #====================================================================================================
 
 user_problem_statement: |
+  URGENT TEST REQUEST: Création de demande d'absence pour Cindy GREGOIRE ne fonctionne PAS
+  
+  PROBLÈME RAPPORTÉ:
+  Cindy GREGOIRE vient de déposer 2 demandes d'absence qui n'apparaissent nulle part dans son espace.
+  
+  VÉRIFICATION EFFECTUÉE:
+  - Cindy a 10 anciennes absences importées dans la base
+  - Les 2 nouvelles demandes NE SONT PAS dans db.absences
+  - Les logs montrent des créations de test mais pas les vraies demandes de Cindy
+  
+  TEST À EFFECTUER:
+  1. Login Cindy : cgregoire@aaea-gpe.fr / YrQwGiEl
+  2. POST /api/absences avec données réalistes
+  3. Vérifier si l'absence est créée dans db.absences
+  4. GET /api/absences pour Cindy
+  5. Logs backend : Chercher erreurs/warnings
+  
+  OBJECTIF: Identifier pourquoi les demandes ne s'enregistrent pas et corriger le problème immédiatement.
+  
+  PREVIOUS PHASES COMPLETED:
+  
   PHASE 5 NEW: Data Integration & UI Enhancements
   
   CRITICAL ISSUES ADDRESSED:
