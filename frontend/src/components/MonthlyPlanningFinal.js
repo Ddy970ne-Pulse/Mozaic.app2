@@ -196,7 +196,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   useEffect(() => {
     // Only load if employees are already loaded
     if (employees.length === 0) {
-      console.log('⏳ Waiting for employees to load before loading absences');
       return;
     }
     
@@ -204,13 +203,11 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          console.warn('⚠️ No token found, skipping absence import');
           return;
         }
 
         const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/absences/by-period/${selectedYear}/${selectedMonth + 1}`;
-        console.log(`📥 Loading imported absences for ${selectedYear}-${selectedMonth + 1}`);
-        console.log(`📞 API URL: ${apiUrl}`);
+        
         const response = await fetch(
           apiUrl,
           {
@@ -224,30 +221,11 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         let importedAbsences = [];
         if (response.ok) {
           importedAbsences = await response.json();
-          console.log(`✅ Loaded ${importedAbsences.length} imported absences for ${selectedMonth + 1}/${selectedYear}`);
-          if (importedAbsences.length > 0) {
-            console.log('📋 Sample absences:', importedAbsences.slice(0, 3).map(a => ({
-              name: a.employee_name,
-              date_debut: a.date_debut,
-              motif: a.motif_absence
-            })));
-          }
-        } else {
-          console.error('❌ Failed to load imported absences:', response.status);
         }
         
         // Charger aussi les demandes d'absence approuvées
         const requestsData = getRequests();
         const approvedRequests = Array.isArray(requestsData) ? requestsData.filter(r => r.status === 'approved') : [];
-        console.log(`✅ Loaded ${approvedRequests.length} approved requests`);
-        if (approvedRequests.length > 0) {
-          console.log('📋 Sample requests:', approvedRequests.slice(0, 3).map(r => ({
-            employee: r.employee,
-            startDate: r.startDate,
-            endDate: r.endDate,
-            type: r.type
-          })));
-        }
         
         // FUSION: Appliquer toutes les absences en une seule fois
         applyAllAbsencesToPlanning(importedAbsences, approvedRequests);
