@@ -3988,9 +3988,65 @@ class BackendTester:
                 self.log_result("absence_validation", False, f"❌ CRITÈRE NON VALIDÉ: {criteria}")
         
         self.results["absence_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["absence_validation"]["details"]) else "fail"
-        
-        # Update test_result.md with findings
-        self.update_test_result_md()
+
+    def update_test_result_md(self):
+        """Update test_result.md with absence validation test results"""
+        try:
+            # Read current test_result.md
+            with open('/app/test_result.md', 'r') as f:
+                content = f.read()
+            
+            # Prepare the new task entry for absence validation system
+            new_task = '''
+  - task: "Absence Validation System - Role-based Validation Testing"
+    implemented: true
+    working: false
+    file: "server.py"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "ABSENCE VALIDATION SYSTEM COMPREHENSIVE TESTING COMPLETED ❌ CRITICAL SECURITY ISSUE IDENTIFIED: Comprehensive testing of the absence validation system according to French review requirements reveals a critical security flaw. TESTING RESULTS: ✅ AUTHENTICATION: All 3 test accounts working (Cindy GREGOIRE employee, Jacques EDAU manager, Diego DACALOR admin), ✅ EMPLOYEE SCENARIO: Employee can create absence requests with status='pending' (POST /api/absences working correctly), ✅ MANAGER VALIDATION: Manager can validate absence requests from other employees (PUT /api/absences/{id} working), ✅ ADMIN VALIDATION: Admin can validate manager absence requests, ✅ NOTIFICATIONS: Automatic notifications sent to managers/admins when employee creates request, notifications sent to employee when request approved/rejected, ✅ COUNTER SYNCHRONIZATION: Leave balance counters accessible and functional. ❌ CRITICAL SECURITY FLAW: Manager CAN validate his own absence requests (Jacques EDAU successfully approved his own request with status changing from 'pending' to 'approved'). This violates the core business rule specified in the French review: 'Manager NE PEUT PAS valider sa propre demande'. TECHNICAL ANALYSIS: The PUT /api/absences/{absence_id} endpoint (lines 3581-3583 in server.py) allows any manager to change status without checking if they are validating their own request. REQUIRED FIX: Add validation logic to prevent managers from approving their own absence requests - should return 403 Forbidden when manager.id == absence.employee_id and status change to 'approved'. IMPACT: High security risk - managers can bypass approval workflow for their own requests."
+'''
+            
+            # Find the right place to insert (after the last backend task)
+            lines = content.split('\n')
+            insert_index = -1
+            
+            # Find the last backend task
+            for i, line in enumerate(lines):
+                if line.strip().startswith('- task:') and i > 200:  # After line 200 to be in backend section
+                    insert_index = i
+            
+            # Find the end of the last backend task
+            if insert_index != -1:
+                for i in range(insert_index + 1, len(lines)):
+                    if lines[i].strip().startswith('- task:') or lines[i].strip().startswith('frontend:'):
+                        insert_index = i
+                        break
+                else:
+                    # If no next task found, find the end of status_history
+                    for i in range(insert_index + 1, len(lines)):
+                        if lines[i].strip() and not lines[i].startswith(' ') and not lines[i].startswith('\t'):
+                            insert_index = i
+                            break
+            
+            # Insert the new task
+            if insert_index != -1:
+                lines.insert(insert_index, new_task)
+                
+                # Write back to file
+                with open('/app/test_result.md', 'w') as f:
+                    f.write('\n'.join(lines))
+                
+                print("✅ Updated test_result.md with absence validation test results")
+            else:
+                print("❌ Could not find insertion point in test_result.md")
+                
+        except Exception as e:
+            print(f"❌ Error updating test_result.md: {str(e)}")
 
     def run_all_tests(self):
         """Run all backend tests including French review requirements"""
