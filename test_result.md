@@ -221,6 +221,18 @@ backend:
         agent: "testing"
         comment: "WORKFLOW COMPLET CINDY GREGOIRE TESTÉ ✅ SYSTÈME ENTIÈREMENT FONCTIONNEL: Test exhaustif du workflow complet de création et visualisation d'absence pour Cindy GREGOIRE comme demandé dans la review française. RÉSULTATS CRITIQUES VÉRIFIÉS: ✅ Login Cindy (cgregoire@aaea-gpe.fr / YrQwGiEl) réussi, ✅ Navigation Mon Espace fonctionnelle, ✅ Onglet Absences affiche 9 absences existantes (23.0j total), ✅ Création nouvelle demande via onglet Demandes réussie (CA, 3j, 2025-12-20 à 2025-12-22), ✅ Message de confirmation 'Demande soumise avec succès' affiché, ✅ Nouvelle absence VISIBLE dans onglet Absences avec augmentation total de 23.0j → 26.0j (+3j), ✅ Nouvelle entrée CA 'Du 2025-12-20 au 2025-12-22 - 3j' présente, ✅ Backend logs confirment création absence ID 2e409ee5-d711-40df-aeb9-044809ccc13c, ✅ Notifications automatiques envoyées aux managers, ✅ Aucune erreur JavaScript détectée, ✅ API calls fonctionnels (/api/absences, /api/auth/me, /api/notifications). CONCLUSION DÉFINITIVE: Le système fonctionne parfaitement. Les demandes d'absence de Cindy SONT créées, persistées en base, et affichées correctement dans son espace. Le problème rapporté par l'utilisateur pourrait être lié à un malentendu sur l'affichage (les absences sont regroupées par type) ou à un problème temporaire résolu. Le workflow complet de création et visualisation d'absence est pleinement opérationnel."
 
+  - task: "Absence Validation System - Role-based Validation Testing"
+    implemented: true
+    working: false
+    file: "server.py"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "ABSENCE VALIDATION SYSTEM COMPREHENSIVE TESTING COMPLETED ❌ CRITICAL SECURITY ISSUE IDENTIFIED: Comprehensive testing of the absence validation system according to French review requirements reveals a critical security flaw. TESTING RESULTS: ✅ AUTHENTICATION: All 3 test accounts working (Cindy GREGOIRE employee cgregoire@aaea-gpe.fr/YrQwGiEl, Jacques EDAU manager jedau@aaea-gpe.fr/gPGlceec, Diego DACALOR admin ddacalor@aaea-gpe.fr/admin123), ✅ EMPLOYEE SCENARIO: Employee can create absence requests with status='pending' (POST /api/absences working correctly), ✅ MANAGER VALIDATION: Manager can validate absence requests from other employees (PUT /api/absences/{id} working), ✅ ADMIN VALIDATION: Admin can validate manager absence requests, ✅ NOTIFICATIONS: Automatic notifications sent to managers/admins when employee creates request, notifications sent to employee when request approved/rejected, ✅ COUNTER SYNCHRONIZATION: Leave balance counters accessible and functional. ❌ CRITICAL SECURITY FLAW: Manager CAN validate his own absence requests (Jacques EDAU successfully approved his own request with status changing from 'pending' to 'approved'). This violates the core business rule specified in the French review: 'Manager NE PEUT PAS valider sa propre demande'. TECHNICAL ANALYSIS: The PUT /api/absences/{absence_id} endpoint (lines 3581-3583 in server.py) allows any manager to change status without checking if they are validating their own request. REQUIRED FIX: Add validation logic to prevent managers from approving their own absence requests - should return 403 Forbidden when manager.id == absence.employee_id and status change to 'approved'. IMPACT: High security risk - managers can bypass approval workflow for their own requests."
+
   - task: "Notification System - Real-time Notifications for Absence Management"
     implemented: true
     working: true
