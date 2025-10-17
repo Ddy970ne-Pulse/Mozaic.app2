@@ -135,24 +135,35 @@
 #====================================================================================================
 
 user_problem_statement: |
-  URGENT TEST REQUEST: Création de demande d'absence pour Cindy GREGOIRE ne fonctionne PAS
+  WEBSOCKET REAL-TIME SYNCHRONIZATION & BUTTON ACTION BUG TESTING
   
-  PROBLÈME RAPPORTÉ:
-  Cindy GREGOIRE vient de déposer 2 demandes d'absence qui n'apparaissent nulle part dans son espace.
+  USER PRIORITIES:
+  1. Test WebSocket real-time synchronization implementation (IMMEDIATE)
+  2. Fix critical button action bug: Approve/Validate buttons remain visible after click
+  3. Priority features to implement:
+     h. Simplify "Mes demandes" (Unified view)
+     a. CSE Management Unification  
+     b. Absence Hours Display
+     e. Checkbox Bug Fix
   
-  VÉRIFICATION EFFECTUÉE:
-  - Cindy a 10 anciennes absences importées dans la base
-  - Les 2 nouvelles demandes NE SONT PAS dans db.absences
-  - Les logs montrent des créations de test mais pas les vraies demandes de Cindy
+  CRITICAL BUG REPORTED BY USER:
+  - Action buttons (approuver/valider) remain visible after being pressed
+  - UI does not reflect that action was performed
+  - Buttons should disappear or change state after approval/rejection
   
-  TEST À EFFECTUER:
-  1. Login Cindy : cgregoire@aaea-gpe.fr / YrQwGiEl
-  2. POST /api/absences avec données réalistes
-  3. Vérifier si l'absence est créée dans db.absences
-  4. GET /api/absences pour Cindy
-  5. Logs backend : Chercher erreurs/warnings
+  WEBSOCKET IMPLEMENTATION JUST COMPLETED:
+  - Backend: websocket_manager.py with ConnectionManager
+  - Backend: /ws/{user_id} endpoint in server.py
+  - Backend: ws_manager.broadcast calls in POST/PUT/DELETE /api/absences
+  - Frontend: useWebSocket.js custom hook
+  - Frontend: Integration in Layout.js, MonthlyPlanningFinal.js, AbsenceRequests.js
   
-  OBJECTIF: Identifier pourquoi les demandes ne s'enregistrent pas et corriger le problème immédiatement.
+  TESTS TO PERFORM:
+  1. WebSocket connection establishment and status indicator
+  2. Real-time updates when absence created/modified/deleted
+  3. Multi-user synchronization testing
+  4. Button state management after approve/reject actions
+  5. UI refresh after successful API operations
   
   PREVIOUS PHASES COMPLETED:
   
