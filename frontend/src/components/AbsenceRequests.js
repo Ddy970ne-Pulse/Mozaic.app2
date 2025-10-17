@@ -604,6 +604,14 @@ const AbsenceRequests = ({ user }) => {
                 {request.status === 'rejected' && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                     <div className="text-sm text-red-800">
+                      ❌ <strong>Demande rejetée</strong>
+                      {request.rejected_by && (
+                        <span> par {request.rejected_by_name || request.rejected_by}</span>
+                      )}
+                      {request.rejected_at && (
+                        <span> le {new Date(request.rejected_at).toLocaleDateString('fr-FR')}</span>
+                      )}
+                    </div>
                       <strong>Refusé par:</strong> {request.rejectedBy} le {formatDate(request.rejectedDate)}<br />
                       <strong>Motif du refus:</strong> {request.rejectionReason}
                     </div>
