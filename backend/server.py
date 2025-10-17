@@ -3693,6 +3693,9 @@ async def update_absence(
         )
         logger.info(f"🔔 Notification de modification envoyée à {updated_absence.get('employee_name')}")
     
+    # 📡 WEBSOCKET : Broadcast modification à tous les utilisateurs
+    await ws_manager.broadcast_absence_updated(updated_absence, current_user.id)
+    
     return {
         "success": True,
         "message": "Absence updated successfully",
