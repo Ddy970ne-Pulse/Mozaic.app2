@@ -214,7 +214,20 @@ const AbsenceRequests = ({ user }) => {
       
       if (response.ok) {
         console.log('✅ Demande approuvée');
-        // Recharger les absences
+        // Mise à jour optimiste immédiate
+        setRequests(prev => {
+          const updatedPending = prev.pending.filter(r => r.id !== requestId);
+          const approvedRequest = prev.pending.find(r => r.id === requestId);
+          const updatedApproved = approvedRequest 
+            ? [...prev.approved, { ...approvedRequest, status: 'approved' }]
+            : prev.approved;
+          return {
+            pending: updatedPending,
+            approved: updatedApproved,
+            rejected: prev.rejected
+          };
+        });
+        // Recharger les absences pour synchroniser avec le serveur
         loadAbsencesFromAPI();
       } else {
         alert('❌ Erreur lors de l\'approbation de la demande');
@@ -249,7 +262,20 @@ const AbsenceRequests = ({ user }) => {
         
         if (response.ok) {
           console.log('✅ Demande rejetée');
-          // Recharger les absences
+          // Mise à jour optimiste immédiate
+          setRequests(prev => {
+            const updatedPending = prev.pending.filter(r => r.id !== requestId);
+            const rejectedRequest = prev.pending.find(r => r.id === requestId);
+            const updatedRejected = rejectedRequest 
+              ? [...prev.rejected, { ...rejectedRequest, status: 'rejected' }]
+              : prev.rejected;
+            return {
+              pending: updatedPending,
+              approved: prev.approved,
+              rejected: updatedRejected
+            };
+          });
+          // Recharger les absences pour synchroniser avec le serveur
           loadAbsencesFromAPI();
         } else {
           alert('❌ Erreur lors du rejet de la demande');
