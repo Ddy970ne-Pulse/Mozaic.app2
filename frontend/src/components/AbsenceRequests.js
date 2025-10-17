@@ -95,6 +95,20 @@ const AbsenceRequests = ({ user }) => {
     return unsubscribe;
   }, []);
 
+  // 📡 Écouter les événements WebSocket pour reload automatique
+  useEffect(() => {
+    const handleWebSocketChange = (event) => {
+      console.log('🔄 WebSocket event in AbsenceRequests, reloading...', event.detail.type);
+      loadAbsencesFromAPI();
+    };
+
+    window.addEventListener('websocket-absence-change', handleWebSocketChange);
+    
+    return () => {
+      window.removeEventListener('websocket-absence-change', handleWebSocketChange);
+    };
+  }, []);
+
   const [newRequest, setNewRequest] = useState({
     type: 'CP',
     startDate: '',
