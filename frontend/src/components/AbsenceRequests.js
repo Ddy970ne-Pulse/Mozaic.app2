@@ -590,7 +590,13 @@ const AbsenceRequests = ({ user }) => {
                 {request.status === 'approved' && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                     <div className="text-sm text-green-800">
-                      <strong>Approuvé par:</strong> {request.approver} le {formatDate(request.approvedDate)}
+                      ✅ <strong>Demande approuvée</strong>
+                      {request.approved_by && (
+                        <span> par {request.approved_by_name || request.approved_by}</span>
+                      )}
+                      {request.approved_at && (
+                        <span> le {new Date(request.approved_at).toLocaleDateString('fr-FR')}</span>
+                      )}
                     </div>
                   </div>
                 )}
