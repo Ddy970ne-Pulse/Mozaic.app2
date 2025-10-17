@@ -4007,6 +4007,11 @@ class BackendTester:
             # Get auth token for tests
             auth_token = self.test_authentication()
             
+            # PRIORITY 1: Test absence validation system as requested in French review
+            print("\n🎯 PRIORITY 1: ABSENCE VALIDATION SYSTEM - FRENCH REVIEW")
+            print("=" * 80)
+            self.test_absence_validation_system()
+            
             # URGENT PRIORITY: Test Cindy GREGOIRE absence creation issue
             print("\n🚨 URGENT TEST: CINDY GREGOIRE ABSENCE CREATION ISSUE")
             print("=" * 80)
