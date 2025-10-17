@@ -3909,7 +3909,8 @@ class BackendTester:
                 elif response.status_code == 200:
                     # Vérifier si le status a vraiment changé
                     data = response.json()
-                    new_status = data.get('status', 'unknown')
+                    absence_data = data.get('absence', {})
+                    new_status = absence_data.get('status', 'unknown')
                     if new_status == "pending":
                         self.log_result("absence_validation", True, f"✅ Auto-validation bloquée - status reste 'pending'")
                     else:
