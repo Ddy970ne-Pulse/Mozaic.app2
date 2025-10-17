@@ -3988,6 +3988,9 @@ class BackendTester:
                 self.log_result("absence_validation", False, f"❌ CRITÈRE NON VALIDÉ: {criteria}")
         
         self.results["absence_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["absence_validation"]["details"]) else "fail"
+        
+        # Update test_result.md with findings
+        self.update_test_result_md()
 
     def run_all_tests(self):
         """Run all backend tests including French review requirements"""
