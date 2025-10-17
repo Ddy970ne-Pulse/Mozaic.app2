@@ -425,10 +425,10 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           }}
         >
           {/* Nuages animés - Mouvement horizontal réaliste */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
             {/* Nuage principal - Mouvement lent horizontal */}
             <div 
-              className="cloud cloud-1 absolute w-96 h-96 bg-white/5 rounded-full blur-3xl -top-48"
+              className="cloud cloud-1 absolute w-96 h-96 bg-white/10 rounded-full blur-3xl -top-48"
               style={{
                 animation: 'cloudDrift 60s linear infinite',
                 animationDelay: '0s',
@@ -438,7 +438,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
             
             {/* Nuage secondaire - Mouvement moyen */}
             <div 
-              className="cloud cloud-2 absolute w-64 h-64 bg-white/3 rounded-full blur-2xl top-1/4"
+              className="cloud cloud-2 absolute w-64 h-64 bg-white/8 rounded-full blur-2xl top-1/4"
               style={{
                 animation: 'cloudDrift 45s linear infinite',
                 animationDelay: '15s',
@@ -448,7 +448,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
             
             {/* Nuage tertiaire - Mouvement rapide */}
             <div 
-              className="cloud cloud-3 absolute w-80 h-80 bg-white/4 rounded-full blur-3xl bottom-0"
+              className="cloud cloud-3 absolute w-80 h-80 bg-white/9 rounded-full blur-3xl bottom-0"
               style={{
                 animation: 'cloudDrift 50s linear infinite',
                 animationDelay: '25s',
