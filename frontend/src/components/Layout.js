@@ -17,6 +17,7 @@ import OnCallSchedule from './OnCallSchedule';
 import ExcelImport from './ExcelImport';
 import CSEManagementNew from './CSEManagementNew';
 import HelpPage from './HelpPage';
+import useWebSocket from '../hooks/useWebSocket';
 
 const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
   const [showMenu, setShowMenu] = useState(false);
