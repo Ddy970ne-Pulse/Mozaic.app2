@@ -4354,8 +4354,13 @@ class BackendTester:
             # Get auth token for tests
             auth_token = self.test_authentication()
             
-            # PRIORITY 1: Test absence validation system as requested in French review
-            print("\n🎯 PRIORITY 1: ABSENCE VALIDATION SYSTEM - FRENCH REVIEW")
+            # PRIORITY 1: Test WebSocket real-time synchronization as requested in review
+            print("\n🎯 PRIORITY 1: WEBSOCKET REAL-TIME SYNCHRONIZATION - IMMEDIATE")
+            print("=" * 80)
+            self.test_websocket_real_time_synchronization(auth_token)
+            
+            # PRIORITY 2: Test absence validation system as requested in French review
+            print("\n🎯 PRIORITY 2: ABSENCE VALIDATION SYSTEM - FRENCH REVIEW")
             print("=" * 80)
             self.test_absence_validation_system()
             
