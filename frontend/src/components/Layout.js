@@ -155,6 +155,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
     { id: 'employee-dashboard', name: 'Mon Tableau de Bord', icon: '🏠', color: 'from-blue-500 to-blue-600' },
     { id: 'my-space', name: 'Mon Espace', icon: '👤', color: 'from-green-500 to-green-600' },
     { id: 'my-requests', name: 'Mes Demandes', icon: '📝', color: 'from-orange-500 to-orange-600' },
+    { id: 'monthly-planning', name: 'Planning Mensuel', icon: '📅', color: 'from-purple-500 to-purple-600' },
     { id: 'on-call-schedule', name: 'Planning Astreintes', icon: '📅', color: 'from-cyan-500 to-blue-600' }
   ] : user.role === 'manager' ? [
     // Menu spécifique Manager/RH
