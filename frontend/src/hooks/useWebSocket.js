@@ -25,22 +25,12 @@ const useWebSocket = (userId, onMessage) => {
     }
 
     try {
-      // Construire l'URL WebSocket (ws ou wss selon le protocole)
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+      // Construire l'URL WebSocket basée sur REACT_APP_BACKEND_URL
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || window.location.origin;
       
-      // Extraire le host du backend URL
-      let wsHost = 'localhost:8001';
-      if (backendUrl) {
-        try {
-          const url = new URL(backendUrl);
-          wsHost = url.host;
-        } catch (e) {
-          console.warn('Could not parse backend URL, using default');
-        }
-      }
+      // Remplacer http/https par ws/wss
+      const wsUrl = backendUrl.replace(/^http/, 'ws') + `/ws/${userId}`;
       
-      const wsUrl = `${protocol}//${wsHost}/ws/${userId}`;
       console.log('🔌 Connecting to WebSocket:', wsUrl);
 
       const ws = new WebSocket(wsUrl);
