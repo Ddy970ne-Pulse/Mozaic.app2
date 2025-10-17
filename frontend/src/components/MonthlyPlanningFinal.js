@@ -560,8 +560,6 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
   // 🔄 FONCTION UNIFIÉE: Applique TOUTES les absences (importées + demandes)
   // avec réinitialisation complète pour éviter pollution entre périodes
   const applyAllAbsencesToPlanning = (importedAbsences = [], approvedRequests = []) => {
-    console.log(`🔄 Applying ALL absences for ${selectedMonth + 1}/${selectedYear}:`, 
-                `${importedAbsences.length} imported + ${approvedRequests.length} requests`);
     
     setEmployees(prevEmployees => {
       if (!prevEmployees || prevEmployees.length === 0) {
