@@ -8,6 +8,13 @@ const EmployeeDashboard = ({ user }) => {
     requests: { pending: 0, approved: 0 }
   });
 
+  const navigateTo = (view) => {
+    // Déclencher un événement custom pour la navigation
+    window.dispatchEvent(new CustomEvent('navigate-to-view', { 
+      detail: { view } 
+    }));
+  };
+
   return (
     <div className="space-y-6 p-6">
       <ModuleHeader
@@ -47,11 +54,17 @@ const EmployeeDashboard = ({ user }) => {
         <div className="p-6">
           <h3 className="text-xl font-bold text-gray-800 mb-4">🚀 Actions Rapides</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button variant="primary" onClick={() => console.log('Nouvelle demande')}>
+            <Button variant="primary" onClick={() => navigateTo('my-requests')}>
               📝 Nouvelle Demande d'Absence
             </Button>
-            <Button variant="secondary" onClick={() => console.log('Mes absences')}>
+            <Button variant="secondary" onClick={() => navigateTo('my-space')}>
               📊 Voir Mes Absences
+            </Button>
+            <Button variant="secondary" onClick={() => navigateTo('monthly-planning')}>
+              📅 Consulter le Planning
+            </Button>
+            <Button variant="secondary" onClick={() => navigateTo('on-call-schedule')}>
+              🔔 Planning Astreintes
             </Button>
           </div>
         </div>
