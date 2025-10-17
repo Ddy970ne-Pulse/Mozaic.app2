@@ -3929,7 +3929,8 @@ class BackendTester:
                 response = requests.put(f"{API_URL}/absences/{manager_absence_id}", json=update_data, headers=admin_headers, timeout=10)
                 if response.status_code == 200:
                     data = response.json()
-                    new_status = data.get('status', 'unknown')
+                    absence_data = data.get('absence', {})
+                    new_status = absence_data.get('status', 'unknown')
                     if new_status == "approved":
                         self.log_result("absence_validation", True, f"✅ Admin peut valider demandes de managers")
                     else:
