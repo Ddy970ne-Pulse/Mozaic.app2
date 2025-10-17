@@ -323,7 +323,14 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                           notifications.map((notif) => (
                             <div 
                               key={notif.id}
-                              onClick={() => !notif.read && markAsRead(notif.id)}
+                              onClick={() => {
+                                if (!notif.read) markAsRead(notif.id);
+                                // Navigation si lien présent
+                                if (notif.link) {
+                                  setShowNotifications(false);
+                                  setCurrentView(notif.link.replace('/', ''));
+                                }
+                              }}
                               className={`px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer transition-colors ${!notif.read ? 'bg-blue-50' : ''}`}
                             >
                               <div className="flex items-start space-x-3">
