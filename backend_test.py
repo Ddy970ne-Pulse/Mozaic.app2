@@ -3393,6 +3393,305 @@ class BackendTester:
         
         self.results["notifications"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["notifications"]["details"]) else "fail"
 
+    def test_cindy_absence_creation_issue(self):
+        """Test urgent: Création de demande d'absence pour Cindy GREGOIRE ne fonctionne PAS"""
+        print("\n=== TEST URGENT: CINDY GREGOIRE ABSENCE CREATION ISSUE ===")
+        print("Testing: Problème rapporté - Les demandes d'absence de Cindy ne s'enregistrent pas")
+        
+        # Initialize results for this specific test
+        self.results["cindy_absence_issue"] = {"status": "unknown", "details": []}
+        
+        # 1. Test Login Cindy GREGOIRE
+        print("\n--- 1. Testing Login Cindy GREGOIRE ---")
+        
+        cindy_credentials = {
+            "email": "cgregoire@aaea-gpe.fr",
+            "password": "YrQwGiEl"
+        }
+        
+        cindy_token = None
+        cindy_user_data = None
+        
+        try:
+            auth_response = requests.post(
+                f"{API_URL}/auth/login",
+                json=cindy_credentials,
+                timeout=10
+            )
+            
+            if auth_response.status_code == 200:
+                auth_data = auth_response.json()
+                cindy_token = auth_data.get('token')
+                cindy_user_data = auth_data.get('user', {})
+                
+                self.log_result("cindy_absence_issue", True, f"✅ Cindy GREGOIRE login successful - ID: {cindy_user_data.get('id')}")
+                self.log_result("cindy_absence_issue", True, f"✅ Cindy user data: {cindy_user_data.get('name')} - {cindy_user_data.get('email')}")
+            else:
+                self.log_result("cindy_absence_issue", False, f"❌ Cindy login failed: {auth_response.status_code} - {auth_response.text}")
+                return
+                
+        except Exception as e:
+            self.log_result("cindy_absence_issue", False, f"❌ Error during Cindy login: {str(e)}")
+            return
+        
+        if not cindy_token or not cindy_user_data:
+            self.log_result("cindy_absence_issue", False, f"❌ No token or user data received for Cindy")
+            return
+        
+        cindy_headers = {"Authorization": f"Bearer {cindy_token}"}
+        cindy_employee_id = cindy_user_data.get('id')
+        
+        # 2. Test POST /api/absences avec données réalistes
+        print("\n--- 2. Testing POST /api/absences with realistic data ---")
+        
+        # Données exactes du test demandé
+        test_absence_data = {
+            "employee_id": cindy_employee_id,
+            "employee_name": "Cindy GREGOIRE",
+            "email": "cgregoire@aaea-gpe.fr",
+            "motif_absence": "Congés Payés",
+            "jours_absence": "5",
+            "date_debut": "2025-12-15",
+            "date_fin": "2025-12-19",
+            "notes": "Test demande depuis interface",
+            "status": "pending",
+            "created_by": cindy_employee_id
+        }
+        
+        try:
+            # Test POST /api/absences
+            absence_response = requests.post(
+                f"{API_URL}/absences",
+                json=test_absence_data,
+                headers=cindy_headers,
+                timeout=15
+            )
+            
+            self.log_result("cindy_absence_issue", True, f"✅ POST /api/absences response status: {absence_response.status_code}")
+            
+            if absence_response.status_code == 200:
+                response_data = absence_response.json()
+                self.log_result("cindy_absence_issue", True, f"✅ POST /api/absences successful - Response: {response_data}")
+                
+                # Vérifier si la réponse contient un ID d'absence créée
+                absence_id = response_data.get('id') or response_data.get('absence_id')
+                if absence_id:
+                    self.log_result("cindy_absence_issue", True, f"✅ Absence created with ID: {absence_id}")
+                else:
+                    self.log_result("cindy_absence_issue", False, f"❌ No absence ID in response: {response_data}")
+                    
+            elif absence_response.status_code == 201:
+                response_data = absence_response.json()
+                self.log_result("cindy_absence_issue", True, f"✅ POST /api/absences created (201) - Response: {response_data}")
+                
+            elif absence_response.status_code == 422:
+                # Erreurs de validation Pydantic
+                error_data = absence_response.json()
+                self.log_result("cindy_absence_issue", False, f"❌ Pydantic validation errors (422): {error_data}")
+                
+            elif absence_response.status_code == 404:
+                self.log_result("cindy_absence_issue", False, f"❌ POST /api/absences endpoint not found (404)")
+                
+            elif absence_response.status_code == 401:
+                self.log_result("cindy_absence_issue", False, f"❌ Authentication failed (401) - Token issue")
+                
+            elif absence_response.status_code == 403:
+                self.log_result("cindy_absence_issue", False, f"❌ Access forbidden (403) - Permission issue")
+                
+            else:
+                self.log_result("cindy_absence_issue", False, f"❌ POST /api/absences failed: {absence_response.status_code} - {absence_response.text}")
+                
+        except Exception as e:
+            self.log_result("cindy_absence_issue", False, f"❌ Error during POST /api/absences: {str(e)}")
+        
+        # 3. Vérifier si l'absence est créée dans db.absences
+        print("\n--- 3. Testing GET /api/absences to verify creation ---")
+        
+        try:
+            # Test GET /api/absences pour Cindy (ses propres absences)
+            get_response = requests.get(
+                f"{API_URL}/absences",
+                headers=cindy_headers,
+                timeout=10
+            )
+            
+            if get_response.status_code == 200:
+                absences_data = get_response.json()
+                self.log_result("cindy_absence_issue", True, f"✅ GET /api/absences successful - Found {len(absences_data)} absences for Cindy")
+                
+                # Chercher la nouvelle demande
+                new_absence_found = False
+                for absence in absences_data:
+                    if (absence.get('motif_absence') == 'Congés Payés' and 
+                        absence.get('date_debut') == '2025-12-15' and
+                        absence.get('jours_absence') == '5'):
+                        new_absence_found = True
+                        self.log_result("cindy_absence_issue", True, f"✅ New absence request found in database: {absence}")
+                        break
+                
+                if not new_absence_found:
+                    self.log_result("cindy_absence_issue", False, f"❌ New absence request NOT found in database")
+                    self.log_result("cindy_absence_issue", False, f"❌ Existing absences: {absences_data}")
+                    
+            elif get_response.status_code == 404:
+                self.log_result("cindy_absence_issue", False, f"❌ GET /api/absences endpoint not found (404)")
+                
+            else:
+                self.log_result("cindy_absence_issue", False, f"❌ GET /api/absences failed: {get_response.status_code} - {get_response.text}")
+                
+        except Exception as e:
+            self.log_result("cindy_absence_issue", False, f"❌ Error during GET /api/absences: {str(e)}")
+        
+        # 4. Test GET /api/absences avec filtre par employee_id
+        print("\n--- 4. Testing GET /api/absences/{employee_id} ---")
+        
+        try:
+            get_by_id_response = requests.get(
+                f"{API_URL}/absences/{cindy_employee_id}",
+                headers=cindy_headers,
+                timeout=10
+            )
+            
+            if get_by_id_response.status_code == 200:
+                absences_by_id = get_by_id_response.json()
+                self.log_result("cindy_absence_issue", True, f"✅ GET /api/absences/{cindy_employee_id} successful - Found {len(absences_by_id)} absences")
+                
+                # Chercher la nouvelle demande
+                new_absence_found = False
+                for absence in absences_by_id:
+                    if (absence.get('motif_absence') == 'Congés Payés' and 
+                        absence.get('date_debut') == '2025-12-15'):
+                        new_absence_found = True
+                        self.log_result("cindy_absence_issue", True, f"✅ New absence found via employee_id filter: {absence}")
+                        break
+                
+                if not new_absence_found:
+                    self.log_result("cindy_absence_issue", False, f"❌ New absence NOT found via employee_id filter")
+                    
+            elif get_by_id_response.status_code == 404:
+                self.log_result("cindy_absence_issue", False, f"❌ GET /api/absences/{cindy_employee_id} endpoint not found (404)")
+                
+            else:
+                self.log_result("cindy_absence_issue", False, f"❌ GET /api/absences/{cindy_employee_id} failed: {get_by_id_response.status_code}")
+                
+        except Exception as e:
+            self.log_result("cindy_absence_issue", False, f"❌ Error during GET /api/absences/{cindy_employee_id}: {str(e)}")
+        
+        # 5. Vérifier les logs backend
+        print("\n--- 5. Checking Backend Logs ---")
+        
+        try:
+            # Essayer de lire les logs supervisor backend
+            import subprocess
+            
+            # Chercher les logs backend récents
+            log_commands = [
+                "tail -n 50 /var/log/supervisor/backend.*.log",
+                "tail -n 50 /var/log/supervisor/backend.err.log",
+                "tail -n 50 /var/log/supervisor/backend.out.log"
+            ]
+            
+            for cmd in log_commands:
+                try:
+                    result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=5)
+                    if result.returncode == 0 and result.stdout.strip():
+                        log_content = result.stdout.strip()
+                        
+                        # Chercher des erreurs liées aux absences
+                        if 'absence' in log_content.lower() or 'error' in log_content.lower():
+                            self.log_result("cindy_absence_issue", True, f"✅ Backend logs found - checking for absence-related errors")
+                            
+                            # Extraire les lignes pertinentes
+                            lines = log_content.split('\n')
+                            relevant_lines = []
+                            for line in lines[-20:]:  # Dernières 20 lignes
+                                if any(keyword in line.lower() for keyword in ['absence', 'error', 'exception', 'cindy', 'gregoire']):
+                                    relevant_lines.append(line)
+                            
+                            if relevant_lines:
+                                self.log_result("cindy_absence_issue", False, f"❌ Potential errors in backend logs: {relevant_lines}")
+                            else:
+                                self.log_result("cindy_absence_issue", True, f"✅ No obvious errors in recent backend logs")
+                        else:
+                            self.log_result("cindy_absence_issue", True, f"✅ Backend logs accessible - no obvious absence errors")
+                        break
+                        
+                except subprocess.TimeoutExpired:
+                    continue
+                except Exception:
+                    continue
+            else:
+                self.log_result("cindy_absence_issue", False, f"❌ Could not access backend logs")
+                
+        except Exception as e:
+            self.log_result("cindy_absence_issue", False, f"❌ Error checking backend logs: {str(e)}")
+        
+        # 6. Test avec admin pour vérifier si l'absence apparaît côté admin
+        print("\n--- 6. Testing with Admin Access ---")
+        
+        # Se connecter en tant qu'admin
+        admin_token = None
+        try:
+            admin_auth = requests.post(
+                f"{API_URL}/auth/login",
+                json={"email": "ddacalor@aaea-gpe.fr", "password": "admin123"},
+                timeout=10
+            )
+            
+            if admin_auth.status_code == 200:
+                admin_data = admin_auth.json()
+                admin_token = admin_data.get('token')
+                self.log_result("cindy_absence_issue", True, f"✅ Admin login successful")
+            else:
+                self.log_result("cindy_absence_issue", False, f"❌ Admin login failed: {admin_auth.status_code}")
+                
+        except Exception as e:
+            self.log_result("cindy_absence_issue", False, f"❌ Error during admin login: {str(e)}")
+        
+        if admin_token:
+            admin_headers = {"Authorization": f"Bearer {admin_token}"}
+            
+            try:
+                # Vérifier toutes les absences côté admin
+                admin_absences_response = requests.get(
+                    f"{API_URL}/absences",
+                    headers=admin_headers,
+                    timeout=10
+                )
+                
+                if admin_absences_response.status_code == 200:
+                    all_absences = admin_absences_response.json()
+                    self.log_result("cindy_absence_issue", True, f"✅ Admin can see {len(all_absences)} total absences in system")
+                    
+                    # Chercher les absences de Cindy
+                    cindy_absences = [abs for abs in all_absences if abs.get('employee_id') == cindy_employee_id or 'Cindy' in abs.get('employee_name', '')]
+                    
+                    if cindy_absences:
+                        self.log_result("cindy_absence_issue", True, f"✅ Admin found {len(cindy_absences)} absences for Cindy: {cindy_absences}")
+                        
+                        # Chercher la nouvelle demande
+                        new_absence_found = False
+                        for absence in cindy_absences:
+                            if (absence.get('motif_absence') == 'Congés Payés' and 
+                                absence.get('date_debut') == '2025-12-15'):
+                                new_absence_found = True
+                                self.log_result("cindy_absence_issue", True, f"✅ Admin found the new absence request: {absence}")
+                                break
+                        
+                        if not new_absence_found:
+                            self.log_result("cindy_absence_issue", False, f"❌ Admin did NOT find the new absence request")
+                    else:
+                        self.log_result("cindy_absence_issue", False, f"❌ Admin found NO absences for Cindy GREGOIRE")
+                        
+                else:
+                    self.log_result("cindy_absence_issue", False, f"❌ Admin GET /api/absences failed: {admin_absences_response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("cindy_absence_issue", False, f"❌ Error during admin absence check: {str(e)}")
+        
+        # Set final status
+        self.results["cindy_absence_issue"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["cindy_absence_issue"]["details"]) else "fail"
+
     def run_all_tests(self):
         """Run all backend tests including French review requirements"""
         print(f"🚀 Starting MOZAIK RH Backend Tests - FRENCH REVIEW COMPREHENSIVE TESTING")
