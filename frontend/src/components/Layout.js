@@ -289,9 +289,26 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                 </div>
               </button>
               
-              {/* Logo MOZAIK seul */}
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-xl flex items-center justify-center transform rotate-12 shadow-lg hover:scale-110 transition-transform duration-200">
-                <span className="text-white font-bold text-xl transform -rotate-12">M</span>
+              {/* Logo et Titre */}
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-400 via-rose-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-xl">M</span>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-400 via-rose-400 to-purple-500 bg-clip-text text-transparent">
+                    MOZAIK RH
+                  </h1>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-xs text-gray-600">Gestion des Ressources Humaines</p>
+                    {/* Indicateur de connexion temps réel */}
+                    <div className="flex items-center space-x-1">
+                      <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                      <span className="text-xs text-gray-500">
+                        {isConnected ? 'En ligne' : 'Hors ligne'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
