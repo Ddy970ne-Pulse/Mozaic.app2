@@ -54,6 +54,23 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const [newTemplateName, setNewTemplateName] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState(null);
 
+  // 📡 Écouter les événements WebSocket pour reload automatique
+  useEffect(() => {
+    const handleWebSocketChange = (event) => {
+      console.log('🔄 WebSocket event received in Planning, reloading absences...', event.detail.type);
+      // Recharger les absences quand un changement est détecté
+      if (employees.length > 0) {
+        loadAbsences();
+      }
+    };
+
+    window.addEventListener('websocket-absence-change', handleWebSocketChange);
+    
+    return () => {
+      window.removeEventListener('websocket-absence-change', handleWebSocketChange);
+    };
+  }, [employees]);
+
   // Liste complète des 21 motifs d'absence selon l'image
   const absenceColorMap = {
     // Niveau 1 : PRIORITÉ ABSOLUE - Absences médicales (interrompent tout)
