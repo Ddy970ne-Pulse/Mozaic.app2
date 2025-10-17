@@ -761,12 +761,9 @@ Vous pouvez maintenant tester toutes les fonctionnalités !`);
 
   // Update planning from imported absences (Excel imports)
   const updatePlanningFromImportedAbsences = (absencesList) => {
-    if (!Array.isArray(absencesList) || absencesList.length === 0) {
-      console.log('📭 Aucune absence importée à traiter');
+    if (!absencesList || absencesList.length === 0) {
       return;
     }
-    
-    console.log(`🔄 Processing ${absencesList.length} imported absences for month ${selectedMonth + 1}/${selectedYear}`);
     
     setEmployees(prevEmployees => {
       if (!prevEmployees || prevEmployees.length === 0) {
