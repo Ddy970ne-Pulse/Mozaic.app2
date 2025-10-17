@@ -11,20 +11,6 @@ const AbsenceRequests = ({ user }) => {
   const [requests, setRequests] = useState({ pending: [], approved: [], rejected: [] });
   const [loading, setLoading] = useState(true);
 
-  // 📡 Écouter les événements WebSocket pour reload automatique
-  useEffect(() => {
-    const handleWebSocketChange = (event) => {
-      console.log('🔄 WebSocket event in AbsenceRequests, reloading...', event.detail.type);
-      loadAbsencesFromAPI();
-    };
-
-    window.addEventListener('websocket-absence-change', handleWebSocketChange);
-    
-    return () => {
-      window.removeEventListener('websocket-absence-change', handleWebSocketChange);
-    };
-  }, []);
-
   // Charger les absences depuis l'API
   const loadAbsencesFromAPI = async () => {
     setLoading(true);
