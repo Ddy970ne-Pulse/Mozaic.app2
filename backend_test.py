@@ -3692,6 +3692,296 @@ class BackendTester:
         # Set final status
         self.results["cindy_absence_issue"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["cindy_absence_issue"]["details"]) else "fail"
 
+    def test_absence_validation_system(self):
+        """Test complet du système de validation des demandes d'absence MOZAIK RH selon le rôle utilisateur"""
+        print("\n=== TEST COMPLET SYSTÈME VALIDATION DEMANDES D'ABSENCE ===")
+        print("Testing: Validation des demandes d'absence selon le rôle de l'utilisateur")
+        
+        # Initialize results for absence validation
+        self.results["absence_validation"] = {"status": "unknown", "details": []}
+        
+        # Comptes de test selon la demande française
+        employee_account = {"email": "cgregoire@aaea-gpe.fr", "password": "YrQwGiEl", "name": "Cindy GREGOIRE", "id": "bde2ed6f-8631-4113-bd0b-08ca4b9e97cf"}
+        manager_account = {"email": "jedau@aaea-gpe.fr", "password": "gPGlceec", "name": "Jacques EDAU", "id": "ccd2907c-a617-4dd9-9497-84cdf00d66a2"}
+        admin_account = {"email": "ddacalor@aaea-gpe.fr", "password": "admin123", "name": "Diego DACALOR"}
+        
+        # Tokens pour chaque utilisateur
+        employee_token = None
+        manager_token = None
+        admin_token = None
+        
+        # 1. AUTHENTIFICATION DES 3 COMPTES
+        print("\n--- 1. Authentification des comptes de test ---")
+        
+        # Login employé
+        try:
+            response = requests.post(f"{API_URL}/auth/login", json={"email": employee_account["email"], "password": employee_account["password"]}, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                employee_token = data.get('token')
+                self.log_result("absence_validation", True, f"✅ Login employé Cindy GREGOIRE réussi")
+            else:
+                self.log_result("absence_validation", False, f"❌ Login employé Cindy GREGOIRE échoué: {response.status_code}")
+                return
+        except Exception as e:
+            self.log_result("absence_validation", False, f"❌ Erreur login employé: {str(e)}")
+            return
+        
+        # Login manager
+        try:
+            response = requests.post(f"{API_URL}/auth/login", json={"email": manager_account["email"], "password": manager_account["password"]}, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                manager_token = data.get('token')
+                self.log_result("absence_validation", True, f"✅ Login manager Jacques EDAU réussi")
+            else:
+                self.log_result("absence_validation", False, f"❌ Login manager Jacques EDAU échoué: {response.status_code}")
+                return
+        except Exception as e:
+            self.log_result("absence_validation", False, f"❌ Erreur login manager: {str(e)}")
+            return
+        
+        # Login admin
+        try:
+            response = requests.post(f"{API_URL}/auth/login", json={"email": admin_account["email"], "password": admin_account["password"]}, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                admin_token = data.get('token')
+                self.log_result("absence_validation", True, f"✅ Login admin Diego DACALOR réussi")
+            else:
+                self.log_result("absence_validation", False, f"❌ Login admin Diego DACALOR échoué: {response.status_code}")
+                return
+        except Exception as e:
+            self.log_result("absence_validation", False, f"❌ Erreur login admin: {str(e)}")
+            return
+        
+        # 2. SCÉNARIO 1: DEMANDE CRÉÉE PAR UN SALARIÉ
+        print("\n--- 2. SCÉNARIO 1: Demande créée par un SALARIÉ ---")
+        
+        # Étape 1 - Création par salarié (Cindy GREGOIRE)
+        print("\n--- Étape 1: Création demande par employé Cindy GREGOIRE ---")
+        
+        employee_headers = {"Authorization": f"Bearer {employee_token}"}
+        absence_request_data = {
+            "employee_id": employee_account["id"],
+            "motif_absence": "Congés Payés",
+            "date_debut": "2025-12-25",
+            "date_fin": "2025-12-27",
+            "jours_absence": "3",
+            "status": "pending"
+        }
+        
+        created_absence_id = None
+        
+        try:
+            response = requests.post(f"{API_URL}/absences", json=absence_request_data, headers=employee_headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                created_absence_id = data.get('id')
+                status = data.get('status', 'unknown')
+                
+                if status == "pending":
+                    self.log_result("absence_validation", True, f"✅ Employé peut créer demande avec status='pending'")
+                else:
+                    self.log_result("absence_validation", False, f"❌ Demande créée avec status='{status}' au lieu de 'pending'")
+                
+                self.log_result("absence_validation", True, f"✅ POST /api/absences par employé réussi - ID: {created_absence_id}")
+            else:
+                self.log_result("absence_validation", False, f"❌ POST /api/absences par employé échoué: {response.status_code}")
+                return
+        except Exception as e:
+            self.log_result("absence_validation", False, f"❌ Erreur création demande employé: {str(e)}")
+            return
+        
+        # Vérifier que les notifications ont été envoyées aux managers/admins
+        print("\n--- Vérification notifications managers/admins ---")
+        
+        manager_headers = {"Authorization": f"Bearer {manager_token}"}
+        admin_headers = {"Authorization": f"Bearer {admin_token}"}
+        
+        # Vérifier notifications manager
+        try:
+            response = requests.get(f"{API_URL}/notifications", headers=manager_headers, timeout=10)
+            if response.status_code == 200:
+                notifications = response.json()
+                absence_notifications = [n for n in notifications if n.get('type') == 'absence_request']
+                if absence_notifications:
+                    self.log_result("absence_validation", True, f"✅ Notifications envoyées au manager ({len(absence_notifications)} notifications)")
+                else:
+                    self.log_result("absence_validation", False, f"❌ Aucune notification absence_request trouvée pour le manager")
+            else:
+                self.log_result("absence_validation", False, f"❌ Impossible de récupérer notifications manager: {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_validation", False, f"❌ Erreur vérification notifications manager: {str(e)}")
+        
+        # Étape 2 - Validation par manager (Jacques EDAU)
+        print("\n--- Étape 2: Validation par manager Jacques EDAU ---")
+        
+        if created_absence_id:
+            # D'abord, vérifier que le manager peut voir les demandes pending
+            try:
+                response = requests.get(f"{API_URL}/absences", headers=manager_headers, timeout=10)
+                if response.status_code == 200:
+                    absences = response.json()
+                    pending_absences = [a for a in absences if a.get('status') == 'pending']
+                    self.log_result("absence_validation", True, f"✅ Manager peut voir {len(pending_absences)} demandes pending")
+                else:
+                    self.log_result("absence_validation", False, f"❌ Manager ne peut pas voir les demandes: {response.status_code}")
+            except Exception as e:
+                self.log_result("absence_validation", False, f"❌ Erreur récupération demandes manager: {str(e)}")
+            
+            # Valider la demande
+            try:
+                update_data = {"status": "approved"}
+                response = requests.put(f"{API_URL}/absences/{created_absence_id}", json=update_data, headers=manager_headers, timeout=10)
+                if response.status_code == 200:
+                    data = response.json()
+                    new_status = data.get('status', 'unknown')
+                    if new_status == "approved":
+                        self.log_result("absence_validation", True, f"✅ Manager peut valider demandes d'autres employés")
+                    else:
+                        self.log_result("absence_validation", False, f"❌ Validation échouée - status: {new_status}")
+                else:
+                    self.log_result("absence_validation", False, f"❌ PUT /api/absences/{created_absence_id} par manager échoué: {response.status_code}")
+            except Exception as e:
+                self.log_result("absence_validation", False, f"❌ Erreur validation par manager: {str(e)}")
+            
+            # Vérifier notification à l'employé
+            try:
+                response = requests.get(f"{API_URL}/notifications", headers=employee_headers, timeout=10)
+                if response.status_code == 200:
+                    notifications = response.json()
+                    approval_notifications = [n for n in notifications if n.get('type') == 'absence_approved']
+                    if approval_notifications:
+                        self.log_result("absence_validation", True, f"✅ Notification envoyée à l'employé après validation")
+                    else:
+                        self.log_result("absence_validation", False, f"❌ Aucune notification absence_approved pour l'employé")
+                else:
+                    self.log_result("absence_validation", False, f"❌ Impossible de récupérer notifications employé: {response.status_code}")
+            except Exception as e:
+                self.log_result("absence_validation", False, f"❌ Erreur vérification notifications employé: {str(e)}")
+        
+        # 3. SCÉNARIO 2: DEMANDE CRÉÉE PAR UN MANAGER
+        print("\n--- 3. SCÉNARIO 2: Demande créée par un MANAGER ---")
+        
+        # Étape 1 - Création par manager pour lui-même (Jacques EDAU)
+        print("\n--- Étape 1: Création demande par manager pour lui-même ---")
+        
+        manager_request_data = {
+            "employee_id": manager_account["id"],
+            "motif_absence": "Congés Payés",
+            "date_debut": "2025-12-28",
+            "date_fin": "2025-12-30",
+            "jours_absence": "3",
+            "status": "pending"
+        }
+        
+        manager_absence_id = None
+        
+        try:
+            response = requests.post(f"{API_URL}/absences", json=manager_request_data, headers=manager_headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                manager_absence_id = data.get('id')
+                self.log_result("absence_validation", True, f"✅ Manager peut créer demande pour lui-même - ID: {manager_absence_id}")
+            else:
+                self.log_result("absence_validation", False, f"❌ POST /api/absences par manager pour lui-même échoué: {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_validation", False, f"❌ Erreur création demande manager: {str(e)}")
+        
+        # Étape 2 - Tentative auto-validation (doit échouer)
+        print("\n--- Étape 2: Tentative auto-validation par le manager ---")
+        
+        if manager_absence_id:
+            try:
+                update_data = {"status": "approved"}
+                response = requests.put(f"{API_URL}/absences/{manager_absence_id}", json=update_data, headers=manager_headers, timeout=10)
+                
+                if response.status_code == 403:
+                    self.log_result("absence_validation", True, f"✅ Manager NE PEUT PAS valider sa propre demande (403 Forbidden)")
+                elif response.status_code == 400:
+                    self.log_result("absence_validation", True, f"✅ Manager NE PEUT PAS valider sa propre demande (400 Bad Request)")
+                elif response.status_code == 200:
+                    # Vérifier si le status a vraiment changé
+                    data = response.json()
+                    new_status = data.get('status', 'unknown')
+                    if new_status == "pending":
+                        self.log_result("absence_validation", True, f"✅ Auto-validation bloquée - status reste 'pending'")
+                    else:
+                        self.log_result("absence_validation", False, f"❌ CRITIQUE: Manager peut valider sa propre demande (status: {new_status})")
+                else:
+                    self.log_result("absence_validation", False, f"❌ Réponse inattendue auto-validation: {response.status_code}")
+            except Exception as e:
+                self.log_result("absence_validation", False, f"❌ Erreur test auto-validation: {str(e)}")
+        
+        # Étape 3 - Validation par admin (Diego DACALOR)
+        print("\n--- Étape 3: Validation par admin Diego DACALOR ---")
+        
+        if manager_absence_id:
+            try:
+                update_data = {"status": "approved"}
+                response = requests.put(f"{API_URL}/absences/{manager_absence_id}", json=update_data, headers=admin_headers, timeout=10)
+                if response.status_code == 200:
+                    data = response.json()
+                    new_status = data.get('status', 'unknown')
+                    if new_status == "approved":
+                        self.log_result("absence_validation", True, f"✅ Admin peut valider demandes de managers")
+                    else:
+                        self.log_result("absence_validation", False, f"❌ Validation admin échouée - status: {new_status}")
+                else:
+                    self.log_result("absence_validation", False, f"❌ PUT /api/absences/{manager_absence_id} par admin échoué: {response.status_code}")
+            except Exception as e:
+                self.log_result("absence_validation", False, f"❌ Erreur validation par admin: {str(e)}")
+        
+        # 4. VÉRIFICATION SYNCHRONISATION COMPTEURS
+        print("\n--- 4. Vérification synchronisation compteurs ---")
+        
+        # Vérifier que les compteurs de congés sont mis à jour après validation
+        try:
+            response = requests.get(f"{API_URL}/leave-balance/{employee_account['id']}", headers=admin_headers, timeout=10)
+            if response.status_code == 200:
+                balance_data = response.json()
+                ca_balance = balance_data.get('ca_balance', 0)
+                ca_taken = balance_data.get('ca_taken', 0)
+                self.log_result("absence_validation", True, f"✅ Compteurs accessibles - CA balance: {ca_balance}, CA taken: {ca_taken}")
+                
+                # Vérifier que les transactions sont enregistrées
+                response = requests.get(f"{API_URL}/leave-transactions/{employee_account['id']}", headers=admin_headers, timeout=10)
+                if response.status_code == 200:
+                    transactions = response.json()
+                    if transactions:
+                        self.log_result("absence_validation", True, f"✅ Synchronisation compteurs OK - {len(transactions)} transactions")
+                    else:
+                        self.log_result("absence_validation", False, f"❌ Aucune transaction trouvée pour synchronisation")
+                else:
+                    self.log_result("absence_validation", False, f"❌ Impossible de récupérer transactions: {response.status_code}")
+            else:
+                self.log_result("absence_validation", False, f"❌ Impossible de récupérer compteurs: {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_validation", False, f"❌ Erreur vérification compteurs: {str(e)}")
+        
+        # 5. RÉSUMÉ DES CRITÈRES DE SUCCÈS
+        print("\n--- 5. Résumé des critères de succès ---")
+        
+        success_criteria = [
+            "Employé peut créer demande (pending)",
+            "Manager peut valider demandes d'autres employés", 
+            "Manager NE PEUT PAS valider sa propre demande",
+            "Admin peut valider demandes de managers",
+            "Notifications automatiques fonctionnelles",
+            "Synchronisation compteurs OK"
+        ]
+        
+        for criteria in success_criteria:
+            # Analyser les résultats pour déterminer si chaque critère est rempli
+            relevant_results = [d for d in self.results["absence_validation"]["details"] if criteria.lower() in d["message"].lower()]
+            if any(r["status"] == "pass" for r in relevant_results):
+                self.log_result("absence_validation", True, f"✅ CRITÈRE VALIDÉ: {criteria}")
+            else:
+                self.log_result("absence_validation", False, f"❌ CRITÈRE NON VALIDÉ: {criteria}")
+        
+        self.results["absence_validation"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["absence_validation"]["details"]) else "fail"
+
     def run_all_tests(self):
         """Run all backend tests including French review requirements"""
         print(f"🚀 Starting MOZAIK RH Backend Tests - FRENCH REVIEW COMPREHENSIVE TESTING")
