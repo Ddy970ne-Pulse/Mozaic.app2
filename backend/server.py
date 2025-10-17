@@ -3579,8 +3579,19 @@ async def update_absence(
     update_fields['updated_by'] = current_user.id
     
     # Si admin/manager, permettre de changer le statut
+    # MAIS un manager ne peut PAS valider sa propre demande
     if current_user.role in ["admin", "manager"] and 'status' in absence_data:
-        update_fields['status'] = absence_data['status']
+        new_status_requested = absence_data['status']
+        
+        # Vérification: Manager ne peut pas approuver/rejeter sa propre demande
+        if current_user.role == "manager" and current_user.id == existing_absence.get('employee_id'):
+            if new_status_requested in ["approved", "rejected"] and old_status == "pending":
+                raise HTTPException(
+                    status_code=403,
+                    detail="Un manager ne peut pas valider ou rejeter sa propre demande d'absence. Seul un administrateur ou un autre manager peut le faire."
+                )
+        
+        update_fields['status'] = new_status_requested
     
     new_status = update_fields.get('status', old_status)
     new_jours = float(update_fields.get('jours_absence', old_jours))
