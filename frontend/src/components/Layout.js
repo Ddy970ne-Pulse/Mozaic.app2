@@ -197,6 +197,8 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <EmployeeSpaceV2 user={user} />;
         case 'my-requests':
           return <AbsenceRequests user={user} />;
+        case 'monthly-planning':
+          return <MonthlyPlanningFinal user={user} />;
         case 'settings':
           return <SettingsPage user={user} />;
         case 'help':
