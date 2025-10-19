@@ -1155,7 +1155,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       };
 
       console.log('📤 Envoi absence:', absenceData);
-      console.log('🔍 User actuel:', user);
 
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
