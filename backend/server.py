@@ -3664,6 +3664,19 @@ async def update_absence(
                 raise HTTPException(status_code=400, detail=error_message)
         
         update_fields['status'] = new_status_requested
+        
+        # Ajouter les champs de traçabilité selon le statut
+        if new_status_requested == "approved":
+            update_fields['approved_by'] = current_user.id
+            update_fields['approved_at'] = datetime.utcnow().isoformat()
+            update_fields['approver_name'] = current_user.name  # Compatibilité frontend
+            update_fields['approved_date'] = datetime.utcnow().date().isoformat()  # Compatibilité frontend
+        elif new_status_requested == "rejected":
+            update_fields['rejected_by'] = current_user.id
+            update_fields['rejected_at'] = datetime.utcnow().isoformat()
+            update_fields['rejected_date'] = datetime.utcnow().date().isoformat()  # Compatibilité frontend
+            if 'rejectionReason' in absence_data:
+                update_fields['rejection_reason'] = absence_data['rejectionReason']
     
     new_status = update_fields.get('status', old_status)
     new_jours = float(update_fields.get('jours_absence', old_jours))
