@@ -13,9 +13,12 @@ async def migrate_absence_status():
     # Connexion à MongoDB
     mongo_url = os.getenv('MONGO_URL', 'mongodb://localhost:27017/mozaikrh')
     client = AsyncIOMotorClient(mongo_url)
-    db = client.get_database()
     
-    print("🔄 Migration des statuts d'absence...")
+    # Extraire le nom de la base de données de l'URL
+    db_name = mongo_url.split('/')[-1] if '/' in mongo_url else 'mozaikrh'
+    db = client[db_name]
+    
+    print(f"🔄 Migration des statuts d'absence dans {db_name}...")
     
     # Compter les absences sans statut
     count_no_status = await db.absences.count_documents({"status": {"$exists": False}})
