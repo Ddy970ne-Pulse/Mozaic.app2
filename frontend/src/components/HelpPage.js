@@ -43,7 +43,7 @@ const HelpPage = ({ user }) => {
       title: 'Gestion des Absences',
       icon: '📅',
       items: [
-        { question: 'Types d\'absences disponibles ?', answer: 'CP, RTT, Maladie, Congé Maternité/Paternité, Accident de travail, etc. (21 types au total).' },
+        { question: 'Types d\'absences disponibles ?', answer: 'CA (Congés Annuels), RTT, Maladie, Congé Maternité/Paternité, Accident de travail, etc. (21 types au total).' },
         { question: 'Comment calculer les jours d\'absence ?', answer: 'Le système utilise la méthode CCN66 avec jours ouvrés et calendaires selon le type d\'absence.' },
         { question: 'Peut-on demander une demi-journée ?', answer: 'Oui, cochez l\'option "Demi-journée" lors de la création de la demande.' }
       ]
