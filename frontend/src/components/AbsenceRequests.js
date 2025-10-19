@@ -53,7 +53,8 @@ const AbsenceRequests = ({ user }) => {
             approved_date: absence.approved_date,
             rejection_reason: absence.rejection_reason,
             rejected_by: absence.rejected_by || absence.rejectedBy,
-            rejected_date: absence.rejected_date || absence.rejectedDate
+            rejected_date: absence.rejected_date || absence.rejectedDate,
+            updated_at: absence.updated_at || absence.created_at
           };
           
           // Catégoriser par statut
@@ -70,15 +71,37 @@ const AbsenceRequests = ({ user }) => {
           }
         });
         
+        // ⏰ TRI PAR DATE : Du plus récent au plus ancien
+        // Pending : par date de soumission (les plus récentes en premier)
+        pending.sort((a, b) => {
+          const dateA = new Date(a.submittedDate || a.updated_at || 0);
+          const dateB = new Date(b.submittedDate || b.updated_at || 0);
+          return dateB - dateA; // Décroissant (plus récent en premier)
+        });
+        
+        // Approved : par date d'approbation (les plus récentes en premier)
+        approved.sort((a, b) => {
+          const dateA = new Date(a.approved_date || a.updated_at || a.submittedDate || 0);
+          const dateB = new Date(b.approved_date || b.updated_at || b.submittedDate || 0);
+          return dateB - dateA; // Décroissant (plus récent en premier)
+        });
+        
+        // Rejected : par date de rejet (les plus récentes en premier)
+        rejected.sort((a, b) => {
+          const dateA = new Date(a.rejected_date || a.updated_at || a.submittedDate || 0);
+          const dateB = new Date(b.rejected_date || b.updated_at || b.submittedDate || 0);
+          return dateB - dateA; // Décroissant (plus récent en premier)
+        });
+        
         const newRequests = { pending, approved, rejected };
         setRequests(newRequests);
         
         // Mettre à jour aussi le state partagé
         updateRequests(newRequests);
         
-        console.log(`✅ Absences chargées: ${pending.length} en attente, ${approved.length} approuvées, ${rejected.length} rejetées`);
+        console.log(`✅ Absences chargées et triées: ${pending.length} en attente, ${approved.length} approuvées, ${rejected.length} rejetées`);
         console.log(`📊 Détail - Pending IDs:`, pending.map(p => p.id));
-        console.log(`📊 Détail - Approved IDs:`, approved.map(p => p.id).slice(0, 5), `... (${approved.length} total)`);
+        console.log(`📊 Détail - Approved IDs (5 plus récentes):`, approved.slice(0, 5).map(p => ({id: p.id, date: p.approved_date || p.updated_at})));
         console.log(`📊 Détail - Rejected IDs:`, rejected.map(p => p.id));
       } else {
         console.error('Erreur chargement absences:', response.status);
