@@ -2248,6 +2248,17 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                         const dayKey = `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
                         
                         const absence = employee.absences[dayKey] || employee.absences[dateObj.day.toString()];
+                        
+                        // 🔍 DEBUG: Log pour première cellule de Cindy
+                        if (employee.name === 'Cindy GREGOIRE' && dateObj.day === 19 && dateObj.month === 9) {
+                          console.log(`🔍 DEBUG Cindy 19/10:`, {
+                            dayKey,
+                            absence,
+                            allAbsences: employee.absences,
+                            keys: Object.keys(employee.absences)
+                          });
+                        }
+                        
                         const isWknd = isWeekend(dateObj.day, dateObj.month, dateObj.year);
                         const isHol = isHoliday(dateObj.day, dateObj.month, dateObj.year);
                         
