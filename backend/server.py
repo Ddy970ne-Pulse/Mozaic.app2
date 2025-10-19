@@ -1877,19 +1877,48 @@ async def create_absence_request(request_data: dict, current_user: User = Depend
 
 @api_router.put("/absence-requests/{request_id}/approve", response_model=dict)
 async def approve_absence_request(request_id: str, current_user: User = Depends(get_current_user)):
-    """Approve absence request and handle automatic overtime deduction for recuperation"""
+    """
+    🎯 WORKFLOW COMPLET D'APPROBATION
+    
+    1. Mettre à jour absence_requests (status = "approved")
+    2. CRÉER l'absence dans la collection absences (pour le planning)
+    3. Synchroniser les compteurs (déduction CA/RTT/CT)
+    4. Créer overtime si REC
+    5. Broadcaster via websocket
+    6. Notifier l'employé
+    """
     if current_user.role not in ["admin", "manager"]:
         raise HTTPException(status_code=403, detail="Access denied")
     
     try:
-        # Get the absence request from database
+        # 📥 1. Récupérer la demande
         absence_request = await db.absence_requests.find_one({"id": request_id})
         
         if not absence_request:
             raise HTTPException(status_code=404, detail="Demande d'absence non trouvée")
         
-        # Update status to approved
-        approved_date = datetime.utcnow().isoformat()
+        # 🔒 Validation : Manager ne peut pas approuver sa propre demande
+        employee_name = absence_request.get("employee", "")
+        # Extract email if format is "Name - email"
+        if " - " in employee_name:
+            employee_email = employee_name.split(" - ")[1].strip()
+            employee_name = employee_name.split(" - ")[0].strip()
+        else:
+            employee_email = None
+        
+        employee = await db.users.find_one({"name": employee_name}) if employee_name else None
+        if not employee and employee_email:
+            employee = await db.users.find_one({"email": employee_email})
+        
+        if current_user.role == "manager" and employee and employee.get("id") == current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="❌ Un manager ne peut pas approuver sa propre demande d'absence"
+            )
+        
+        approved_date = datetime.now(timezone.utc).isoformat()
+        
+        # 📝 2. Mettre à jour absence_requests
         await db.absence_requests.update_one(
             {"id": request_id},
             {"$set": {
@@ -1899,28 +1928,91 @@ async def approve_absence_request(request_id: str, current_user: User = Depends(
             }}
         )
         
-        # If this is a recuperation request (REC), create overtime "recovered" entry
+        logger.info(f"✅ Demande {request_id} approuvée par {current_user.name}")
+        
+        # 🎯 3. CRÉER L'ABSENCE DANS LA COLLECTION 'absences' (pour le planning)
+        # Calculer date_fin si pas fournie
+        date_fin = absence_request.get("endDate")
+        if not date_fin and absence_request.get("duration"):
+            try:
+                days_count = int(float(absence_request.get("duration", "0").split()[0]))
+                if days_count > 0:
+                    # Simple calculation: add days to start date
+                    start_date = datetime.fromisoformat(absence_request.get("startDate").replace("Z", "+00:00"))
+                    end_date = start_date + timedelta(days=days_count - 1)
+                    date_fin = end_date.strftime("%d/%m/%Y")
+                else:
+                    date_fin = absence_request.get("startDate")
+            except Exception as e:
+                logger.warning(f"Error calculating end date: {e}")
+                date_fin = absence_request.get("startDate")
+        
+        # Convert start date to DD/MM/YYYY format if needed
+        start_date_str = absence_request.get("startDate", "")
+        if start_date_str and "-" in start_date_str:
+            try:
+                dt = datetime.fromisoformat(start_date_str.replace("Z", "+00:00"))
+                start_date_str = dt.strftime("%d/%m/%Y")
+            except:
+                pass
+        
+        # Créer l'objet Absence pour la collection 'absences'
+        new_absence = Absence(
+            employee_id=employee.get("id") if employee else "unknown",
+            employee_name=employee.get("name") if employee else absence_request.get("employee", "Unknown"),
+            email=employee.get("email") if employee else "unknown@example.com",
+            date_debut=start_date_str,
+            date_fin=date_fin or start_date_str,
+            jours_absence=absence_request.get("duration", "0"),
+            motif_absence=absence_request.get("type", "AUT"),
+            notes=absence_request.get("reason", ""),
+            absence_unit=absence_request.get("absence_unit", "jours"),
+            hours_amount=absence_request.get("hours_amount"),
+            status="approved",  # Déjà approuvée
+            approved_by=current_user.name,
+            approved_at=approved_date,
+            created_by=current_user.id
+        )
+        
+        # Préparer pour MongoDB
+        absence_dict = new_absence.dict()
+        if isinstance(absence_dict.get('created_at'), datetime):
+            absence_dict['created_at'] = absence_dict['created_at'].isoformat()
+        if "_id" in absence_dict:
+            del absence_dict["_id"]
+        
+        # 💾 Insérer dans la collection 'absences'
+        await db.absences.insert_one(absence_dict)
+        
+        logger.info(f"📅 Absence créée dans 'absences' pour planning: {new_absence.id}")
+        
+        # 🔄 4. SYNCHRONISER LES COMPTEURS (déduction CA/RTT/CT)
+        sync_performed = False
+        try:
+            sync_result = await sync_service.sync_absence_to_counters(absence_dict, operation="approve")
+            sync_performed = bool(sync_result)
+            if sync_result:
+                logger.info(f"🔄 Compteurs synchronisés pour absence {new_absence.id}")
+            else:
+                logger.warning(f"⚠️ Échec synchronisation compteurs pour {new_absence.id}")
+        except Exception as e:
+            logger.error(f"❌ Erreur synchronisation compteurs: {str(e)}")
+        
+        # ⏰ 5. Si REC, créer overtime "recovered"
+        overtime_created = False
         if absence_request.get("type") == "REC" or (absence_request.get("type") and "récup" in absence_request.get("type", "").lower()):
-            # Get employee info
-            employee_name = absence_request.get("employee")
-            employee = await db.users.find_one({"name": employee_name})
-            
-            if employee:
-                # Calculate hours from duration (assuming 7h per day)
+            try:
+                # Calculer les heures
                 duration_str = absence_request.get("duration", "0")
-                try:
-                    # Parse duration like "1 jour" or "0.5 jour"
-                    duration_days = float(duration_str.split()[0]) if duration_str else 0
-                    hours_recovered = duration_days * 7  # 7 heures par jour standard
-                except:
-                    hours_recovered = 0
+                duration_days = float(duration_str.split()[0]) if duration_str else 0
+                hours_recovered = duration_days * 7  # 7h par jour standard
                 
-                # Create overtime "recovered" entry
+                # Créer overtime "recovered"
                 overtime_entry = {
                     "id": str(uuid.uuid4()),
-                    "employee_id": employee.get("id"),
-                    "employee_name": employee_name,
-                    "department": absence_request.get("department", employee.get("department", "N/A")),
+                    "employee_id": employee.get("id") if employee else "unknown",
+                    "employee_name": absence_request.get("employee", "Unknown"),
+                    "department": employee.get("department", "N/A") if employee else "N/A",
                     "date": absence_request.get("startDate"),
                     "hours": hours_recovered,
                     "type": "recovered",
@@ -1932,20 +2024,61 @@ async def approve_absence_request(request_id: str, current_user: User = Depends(
                 }
                 
                 await db.overtime.insert_one(overtime_entry)
-                logger.info(f"✅ Récupération créée: {hours_recovered}h déduits du solde de {employee_name}")
+                overtime_created = True
+                logger.info(f"⏰ Overtime 'recovered' créé: {hours_recovered}h pour {absence_request.get('employee')}")
+            except Exception as e:
+                logger.error(f"❌ Erreur création overtime: {str(e)}")
         
+        # 📡 6. BROADCASTER VIA WEBSOCKET
+        try:
+            await ws_manager.broadcast_absence_created(absence_dict, current_user.id)
+            logger.info(f"📡 Absence broadcastée via websocket")
+        except Exception as e:
+            logger.error(f"❌ Erreur broadcast websocket: {str(e)}")
+        
+        # 📧 7. NOTIFIER L'EMPLOYÉ
+        if employee:
+            try:
+                await create_auto_notification(
+                    user_id=employee.get('id'),
+                    notif_type="absence_approved",
+                    title="Demande approuvée ✅",
+                    message=f"Votre demande de {absence_request.get('type')} du {start_date_str} au {date_fin or start_date_str} a été approuvée",
+                    icon="✅",
+                    link="/my-space",
+                    related_id=request_id
+                )
+                logger.info(f"📧 Notification envoyée à {employee.get('name')}")
+            except Exception as e:
+                logger.error(f"❌ Erreur notification: {str(e)}")
+        
+        # ✅ RETOUR
         return {
+            "success": True,
             "message": "Demande approuvée avec succès",
             "request_id": request_id,
+            "absence_id": new_absence.id,
             "approved_by": current_user.name,
             "approved_date": approved_date,
-            "overtime_deducted": absence_request.get("type") == "REC"
+            "counters_synced": sync_performed,
+            "overtime_deducted": overtime_created,
+            "planning_updated": True,  # 🎯 NOUVEAU : Confirme que le planning est alimenté
+            "steps_completed": {
+                "absence_request_updated": True,
+                "absence_created_in_db": True,
+                "counters_synchronized": sync_performed,
+                "overtime_created": overtime_created,
+                "websocket_broadcast": True,
+                "employee_notified": employee is not None
+            }
         }
     
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Erreur lors de l'approbation: {str(e)}")
+        logger.error(f"❌ Erreur lors de l'approbation: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
 @api_router.put("/absence-requests/{request_id}/reject", response_model=dict)
