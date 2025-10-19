@@ -3624,6 +3624,36 @@ async def update_absence(
                     detail="Un manager ne peut pas valider ou rejeter sa propre demande d'absence. Seul un administrateur ou un autre manager peut le faire."
                 )
         
+        # 🔍 VALIDATION : Si approbation (pending → approved), vérifier les chevauchements
+        if new_status_requested == "approved" and old_status == "pending":
+            overlapping = await db.absences.find({
+                "employee_id": existing_absence.get('employee_id'),
+                "status": "approved",
+                "id": {"$ne": absence_id},  # Exclure l'absence actuelle
+                "$or": [
+                    {
+                        "date_debut": {"$lte": existing_absence.get('date_fin')},
+                        "date_fin": {"$gte": existing_absence.get('date_debut')}
+                    }
+                ]
+            }).to_list(length=None)
+            
+            if overlapping:
+                overlap_details = []
+                for existing in overlapping:
+                    overlap_details.append(
+                        f"- {existing.get('motif_absence')} du {existing.get('date_debut')} au {existing.get('date_fin')}"
+                    )
+                
+                error_message = (
+                    f"❌ Impossible d'approuver: Chevauchement de dates détecté pour {existing_absence.get('employee_name')}:\n" +
+                    "\n".join(overlap_details) +
+                    f"\n\nDemande à approuver: {existing_absence.get('motif_absence')} du {existing_absence.get('date_debut')} au {existing_absence.get('date_fin')}"
+                )
+                
+                logger.warning(f"⚠️ Tentative d'approbation avec chevauchement: {existing_absence.get('employee_name')}")
+                raise HTTPException(status_code=400, detail=error_message)
+        
         update_fields['status'] = new_status_requested
     
     new_status = update_fields.get('status', old_status)
