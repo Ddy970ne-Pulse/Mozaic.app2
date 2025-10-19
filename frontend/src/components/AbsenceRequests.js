@@ -805,6 +805,38 @@ const AbsenceRequests = ({ user }) => {
             
             <form onSubmit={handleSubmitRequest} className="p-6">
               <div className="space-y-4">
+                {/* Sélecteur d'employé - Visible uniquement pour admin/manager */}
+                {(user.role === 'admin' || user.role === 'manager') && (
+                  <div className="bg-purple-50 border-2 border-purple-200 rounded-lg p-4">
+                    <label className="block text-sm font-semibold text-purple-900 mb-2">
+                      👤 Sélectionner l'employé concerné
+                    </label>
+                    <select
+                      value={newRequest.employee_id}
+                      onChange={(e) => {
+                        const selectedEmployee = employees.find(emp => emp.id === e.target.value);
+                        setNewRequest({
+                          ...newRequest,
+                          employee_id: e.target.value,
+                          employee_name: selectedEmployee ? selectedEmployee.name : ''
+                        });
+                      }}
+                      className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                      required
+                    >
+                      <option value="">Choisir un employé...</option>
+                      {employees.map(employee => (
+                        <option key={employee.id} value={employee.id}>
+                          {employee.name} ({employee.email})
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-purple-600 mt-2">
+                      💡 En tant qu'{user.role === 'admin' ? 'administrateur' : 'manager'}, vous pouvez créer une demande au nom d'un employé
+                    </p>
+                  </div>
+                )}
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Type d'absence</label>
                   <select
