@@ -272,41 +272,59 @@ class MigrationTester:
             response = self.session.post(f"{BACKEND_URL}/absences", json=test_absence_data)
             
             if response.status_code == 200:
-                created_absence = response.json()
+                creation_response = response.json()
+                absence_id = creation_response.get("id")
                 print(f"✅ Absence créée avec succès (200)")
                 
-                # Test 2: Vérifier counting_method récupéré depuis BDD (via get_absence_type_config)
-                counting_method = created_absence.get("counting_method")
-                expected_counting = "Jours Ouvrables"
-                has_correct_counting = counting_method == expected_counting
-                self.log_result("phase4", "counting_method récupéré depuis BDD", 
-                               has_correct_counting,
-                               f"Counting method: '{counting_method}'" if has_correct_counting else f"Counting method incorrect: '{counting_method}'",
-                               expected_counting, counting_method)
-                
-                # Test 3: Vérifier date fin calculée correctement
-                date_fin = created_absence.get("date_fin")
-                has_date_fin = date_fin is not None and date_fin != ""
-                self.log_result("phase4", "Date fin calculée correctement", 
-                               has_date_fin,
-                               f"Date fin calculée: {date_fin}" if has_date_fin else "Date fin manquante")
-                
-                # Test 4: Vérifier absence créée avec succès
-                absence_id = created_absence.get("id")
-                has_absence_id = absence_id is not None and absence_id != ""
-                self.log_result("phase4", "Absence créée avec succès", 
-                               has_absence_id,
-                               f"Absence ID: {absence_id}" if has_absence_id else "ID absence manquant")
-                
-                print(f"\n📋 DÉTAILS ABSENCE CRÉÉE:")
-                print(f"   ID: {created_absence.get('id')}")
-                print(f"   Employee: {created_absence.get('employee_name')}")
-                print(f"   Type: {created_absence.get('motif_absence')}")
-                print(f"   Date début: {created_absence.get('date_debut')}")
-                print(f"   Date fin: {created_absence.get('date_fin')}")
-                print(f"   Jours: {created_absence.get('jours_absence')}")
-                print(f"   Counting method: {created_absence.get('counting_method')}")
-                print(f"   Status: {created_absence.get('status')}")
+                # Récupérer l'absence créée depuis la base pour vérifier les champs enrichis
+                get_response = self.session.get(f"{BACKEND_URL}/absences/{test_absence_data['employee_id']}")
+                if get_response.status_code == 200:
+                    absences_list = get_response.json()
+                    # Trouver l'absence que nous venons de créer
+                    created_absence = None
+                    for abs_item in absences_list:
+                        if abs_item.get("id") == absence_id:
+                            created_absence = abs_item
+                            break
+                    
+                    if created_absence:
+                        # Test 2: Vérifier counting_method récupéré depuis BDD (via get_absence_type_config)
+                        counting_method = created_absence.get("counting_method")
+                        expected_counting = "Jours Ouvrables"
+                        has_correct_counting = counting_method == expected_counting
+                        self.log_result("phase4", "counting_method récupéré depuis BDD", 
+                                       has_correct_counting,
+                                       f"Counting method: '{counting_method}'" if has_correct_counting else f"Counting method incorrect: '{counting_method}'",
+                                       expected_counting, counting_method)
+                        
+                        # Test 3: Vérifier date fin calculée correctement
+                        date_fin = created_absence.get("date_fin")
+                        has_date_fin = date_fin is not None and date_fin != "" and date_fin != "None"
+                        self.log_result("phase4", "Date fin calculée correctement", 
+                                       has_date_fin,
+                                       f"Date fin calculée: {date_fin}" if has_date_fin else "Date fin manquante")
+                        
+                        # Test 4: Vérifier absence créée avec succès
+                        has_absence_id = absence_id is not None and absence_id != ""
+                        self.log_result("phase4", "Absence créée avec succès", 
+                                       has_absence_id,
+                                       f"Absence ID: {absence_id}" if has_absence_id else "ID absence manquant")
+                        
+                        print(f"\n📋 DÉTAILS ABSENCE CRÉÉE:")
+                        print(f"   ID: {created_absence.get('id')}")
+                        print(f"   Employee: {created_absence.get('employee_name')}")
+                        print(f"   Type: {created_absence.get('motif_absence')}")
+                        print(f"   Date début: {created_absence.get('date_debut')}")
+                        print(f"   Date fin: {created_absence.get('date_fin')}")
+                        print(f"   Jours: {created_absence.get('jours_absence')}")
+                        print(f"   Counting method: {created_absence.get('counting_method')}")
+                        print(f"   Status: {created_absence.get('status')}")
+                    else:
+                        self.log_result("phase4", "Récupération absence créée", 
+                                       False, f"Absence {absence_id} non trouvée dans la liste")
+                else:
+                    self.log_result("phase4", "Récupération absence créée", 
+                                   False, f"Erreur récupération absences: {get_response.status_code}")
                 
                 # Nettoyer - supprimer l'absence de test
                 if absence_id:
