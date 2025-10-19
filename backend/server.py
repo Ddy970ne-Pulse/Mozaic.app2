@@ -3830,38 +3830,59 @@ async def get_absences_by_period(
             # Employees see only their own absences
             absences = await db.absences.find({"employee_id": current_user.id}).to_list(100)
         
-        # Filter by month and year
+        # Filter by month and year - INCLUDES absences that OVERLAP the month
         filtered_absences = []
         for absence in absences:
             date_debut = absence.get("date_debut", "")
+            date_fin = absence.get("date_fin", date_debut)  # If no end date, use start date
+            
             if not date_debut:
                 continue
                 
             try:
-                # Parse date in both formats
+                # Parse dates in both formats
                 if '/' in date_debut:
                     # Format DD/MM/YYYY
-                    date_parts = date_debut.split('/')
-                    if len(date_parts) == 3:
-                        absence_month = int(date_parts[1])
-                        absence_year = int(date_parts[2])
+                    parts_debut = date_debut.split('/')
+                    if len(parts_debut) == 3:
+                        debut_day, debut_month, debut_year = int(parts_debut[0]), int(parts_debut[1]), int(parts_debut[2])
                 else:
                     # Format YYYY-MM-DD
-                    date_parts = date_debut.split('-')
-                    if len(date_parts) == 3:
-                        absence_year = int(date_parts[0])
-                        absence_month = int(date_parts[1])
+                    parts_debut = date_debut.split('-')
+                    if len(parts_debut) == 3:
+                        debut_year, debut_month, debut_day = int(parts_debut[0]), int(parts_debut[1]), int(parts_debut[2])
                 
-                # Check if matches the requested period
-                if absence_month == month and absence_year == year:
+                # Parse end date
+                if '/' in date_fin:
+                    parts_fin = date_fin.split('/')
+                    if len(parts_fin) == 3:
+                        fin_day, fin_month, fin_year = int(parts_fin[0]), int(parts_fin[1]), int(parts_fin[2])
+                else:
+                    parts_fin = date_fin.split('-')
+                    if len(parts_fin) == 3:
+                        fin_year, fin_month, fin_day = int(parts_fin[0]), int(parts_fin[1]), int(parts_fin[2])
+                
+                # Check if absence overlaps with the requested month
+                # Absence overlaps if:
+                # - Starts before or during the month AND ends during or after the month
+                # Simple check: (debut_year, debut_month) <= (year, month) <= (fin_year, fin_month)
+                
+                debut_date_num = debut_year * 12 + debut_month
+                fin_date_num = fin_year * 12 + fin_month
+                target_date_num = year * 12 + month
+                
+                if debut_date_num <= target_date_num <= fin_date_num:
                     # Clean ObjectIds
                     if "_id" in absence:
                         del absence["_id"]
                     filtered_absences.append(absence)
-            except (ValueError, IndexError):
+                    
+            except (ValueError, IndexError, NameError) as e:
                 # Skip malformed dates
+                logger.warning(f"Skipping absence with malformed date: {date_debut} -> {date_fin}, error: {e}")
                 continue
         
+        logger.info(f"📊 Get absences for {month}/{year}: {len(filtered_absences)} found")
         return filtered_absences
         
     except Exception as e:
