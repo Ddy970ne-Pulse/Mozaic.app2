@@ -1755,14 +1755,39 @@ async def create_cse_cession(cession: CSECession, current_user: User = Depends(g
 # Absence Types endpoints  
 @api_router.get("/absence-types", response_model=List[AbsenceType])
 async def get_absence_types(current_user: User = Depends(get_current_user)):
-    return [AbsenceType(**absence_type) for absence_type in demo_absence_types]
+    """
+    📋 Récupérer tous les types d'absence depuis MongoDB
+    (Remplace l'ancienne liste hardcodée demo_absence_types)
+    """
+    try:
+        absence_types = await db.absence_types_config.find({}).to_list(100)
+        # Retirer _id de MongoDB
+        for at in absence_types:
+            if "_id" in at:
+                del at["_id"]
+        return [AbsenceType(**absence_type) for absence_type in absence_types]
+    except Exception as e:
+        logger.error(f"❌ Erreur récupération absence_types: {str(e)}")
+        # Fallback: retourner liste vide
+        return []
 
 @api_router.get("/absence-types/{code}", response_model=AbsenceType)
 async def get_absence_type(code: str, current_user: User = Depends(get_current_user)):
-    absence_type = next((a for a in demo_absence_types if a["code"] == code), None)
-    if not absence_type:
-        raise HTTPException(status_code=404, detail="Absence type not found")
-    return AbsenceType(**absence_type)
+    """
+    📋 Récupérer un type d'absence par code depuis MongoDB
+    """
+    try:
+        absence_type = await db.absence_types_config.find_one({"code": code})
+        if not absence_type:
+            raise HTTPException(status_code=404, detail="Absence type not found")
+        if "_id" in absence_type:
+            del absence_type["_id"]
+        return AbsenceType(**absence_type)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Erreur récupération absence_type {code}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Absence Request Models
 class AbsenceRequest(BaseModel):
