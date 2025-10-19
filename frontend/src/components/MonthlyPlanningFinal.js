@@ -113,29 +113,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     
     // Niveau 9 : CAS SPÉCIAUX
     'RMED': { name: 'Rendez-vous médical', color: 'bg-emerald-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true, priority: 23 },
-    'AST': { name: 'Astreinte', color: 'bg-orange-600', textColor: 'text-white', type: 'Astreinte cadres', decompte: 'Temps travaillé', skipWeekends: false, skipHolidays: false, priority: 24 },
-    'NAUT': { name: 'Absence non autorisée', color: 'bg-gray-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
-    'AUT': { name: 'Absence autorisée', color: 'bg-gray-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
-    'FAM': { name: 'Evènement familiale', color: 'bg-purple-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
-    'MAT': { name: 'Congé maternité', color: 'bg-pink-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
-    'PAT': { name: 'Congé paternité', color: 'bg-blue-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
-    'CA': { name: 'Congés annuels', color: 'bg-blue-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true },
-    'FO': { name: 'Congé formation', color: 'bg-indigo-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true },
-    'CSS': { name: 'Congés Sans Solde', color: 'bg-gray-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true },
-    'CT': { name: 'Congés Trimestriels', color: 'bg-green-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true },
-    'REC': { name: 'Récupération', color: 'bg-yellow-400', textColor: 'text-black', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true },
-    'RH': { name: 'Repos Hebdomadaire', color: 'bg-cyan-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: false },
-    'RHD': { name: 'Repos Dominical', color: 'bg-cyan-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
-    'TEL': { name: 'Télétravail', color: 'bg-yellow-300', textColor: 'text-black', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true },
-    'DEL': { name: 'Délégation', color: 'bg-orange-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true },
-    'STG': { name: 'Stage', color: 'bg-teal-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
-    'CEX': { name: 'Congé exceptionnel', color: 'bg-violet-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true },
-    'MPRO': { name: 'Maladie Professionnelle', color: 'bg-red-600', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
-    'EMAL': { name: 'Enfants malades', color: 'bg-pink-400', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false },
-    'RMED': { name: 'Rendez-vous médical', color: 'bg-emerald-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true },
-    'AST': { name: 'Astreinte', color: 'bg-orange-600', textColor: 'text-white', type: 'Astreinte cadres', decompte: 'Temps travaillé', skipWeekends: false, skipHolidays: false },
-    'CP': { name: 'Congés Payés', color: 'bg-blue-300', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: true, skipHolidays: true },
-    'RTT': { name: 'RTT', color: 'bg-green-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true }
+    'AST': { name: 'Astreinte', color: 'bg-orange-600', textColor: 'text-white', type: 'Astreinte cadres', decompte: 'Temps travaillé', skipWeekends: false, skipHolidays: false, priority: 24 }
   };
 
   // 🎉 SYSTÈME DYNAMIQUE: Jours fériés calculés automatiquement pour l'année sélectionnée
