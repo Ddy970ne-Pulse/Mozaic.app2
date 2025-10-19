@@ -887,8 +887,7 @@ const AbsenceRequests = ({ user }) => {
                     </optgroup>
                     
                     <optgroup label="📅 Congés et repos">
-                      <option value="CP">CP - Congés payés</option>
-                      <option value="CA">CA - Congés annuels</option>
+                      <option value="CA">CA - Congés Annuels</option>
                       <option value="CT">CT - Congés trimestriels</option>
                       <option value="RTT">RTT - Récupération</option>
                       <option value="REC">REC - Récupération</option>
