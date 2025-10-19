@@ -538,19 +538,28 @@ class ImportAbsence(BaseModel):
 class Absence(BaseModel):
     """Modèle pour les absences stockées en base"""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    employee_id: str  # UUID de l'utilisateur
-    employee_name: str  # Nom complet pour affichage
+    employee_id: str
+    employee_name: str
     email: str
     date_debut: str
-    date_fin: Optional[str] = None  # Calculée automatiquement
+    date_fin: Optional[str] = None
     jours_absence: str
     motif_absence: str
-    counting_method: Optional[str] = None  # Méthode de décompte
+    counting_method: Optional[str] = None
     notes: Optional[str] = None
-    # Nouveaux champs pour gestion des heures
-    absence_unit: str = "jours"  # "jours" ou "heures"
-    hours_amount: Optional[float] = None  # Nombre d'heures si unit='heures'
-    status: str = "approved"  # Les absences importées sont automatiquement validées
+    absence_unit: str = "jours"
+    hours_amount: Optional[float] = None
+    
+    # ⭐ NOUVEAUX CHAMPS POUR DOUBLE WORKFLOW
+    status: str = "pending"  # pending, validated_by_manager, approved, rejected
+    validated_by_manager: Optional[str] = None  # ID du manager
+    manager_validation_date: Optional[str] = None
+    approved_by: Optional[str] = None  # ID de l'admin
+    approved_at: Optional[str] = None
+    rejected_by: Optional[str] = None
+    rejected_at: Optional[str] = None
+    rejection_reason: Optional[str] = None
+    
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: Optional[str] = None
 
