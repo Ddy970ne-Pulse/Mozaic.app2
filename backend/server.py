@@ -3412,6 +3412,7 @@ async def create_absence(absence: Absence, current_user: User = Depends(get_curr
     """
     Create a new absence request
     🔄 SYNCHRONISATION AUTOMATIQUE : Si approved, déduit automatiquement des compteurs
+    ✅ VALIDATION : Vérifie les chevauchements de dates
     - Employees can create their own absence requests with status='pending'
     - Admins can create absences with any status
     """
@@ -3422,6 +3423,34 @@ async def create_absence(absence: Absence, current_user: User = Depends(get_curr
                 raise HTTPException(status_code=403, detail="You can only create your own absence requests")
             # Forcer le statut à "pending" pour les employés
             absence.status = "pending"
+        
+        # 🔍 VALIDATION : Vérifier les chevauchements de dates
+        overlapping = await db.absences.find({
+            "employee_id": absence.employee_id,
+            "status": {"$in": ["approved", "pending"]},  # Vérifier les absences approuvées et en attente
+            "$or": [
+                {
+                    "date_debut": {"$lte": absence.date_fin},
+                    "date_fin": {"$gte": absence.date_debut}
+                }
+            ]
+        }).to_list(length=None)
+        
+        if overlapping:
+            overlap_details = []
+            for existing in overlapping:
+                overlap_details.append(
+                    f"- {existing.get('motif_absence')} du {existing.get('date_debut')} au {existing.get('date_fin')} (statut: {existing.get('status')})"
+                )
+            
+            error_message = (
+                f"❌ Chevauchement de dates détecté pour {absence.employee_name}:\n" +
+                "\n".join(overlap_details) +
+                f"\n\nNouvelle demande: {absence.motif_absence} du {absence.date_debut} au {absence.date_fin}"
+            )
+            
+            logger.warning(f"⚠️ Tentative de création d'absence avec chevauchement: {absence.employee_name}")
+            raise HTTPException(status_code=400, detail=error_message)
         
         # Préparer les données pour MongoDB
         absence_dict = absence.dict()
