@@ -3835,6 +3835,26 @@ async def create_absence(absence: Absence, current_user: User = Depends(get_curr
             logger.warning(f"⚠️ Tentative de création d'absence avec chevauchement: {absence.employee_name}")
             raise HTTPException(status_code=400, detail=error_message)
         
+        # 🔄 ENRICHISSEMENT : Récupérer la configuration du type d'absence depuis BDD
+        absence_type_config = await get_absence_type_config(absence.motif_absence)
+        if absence_type_config:
+            # Enrichir avec counting_method depuis la BDD
+            absence.counting_method = absence_type_config.get("counting_method", "Jours Calendaires")
+            logger.info(f"📋 Type d'absence {absence.motif_absence}: counting_method = {absence.counting_method}")
+            
+            # 📅 CALCUL AUTOMATIQUE : Date de fin basée sur counting_method
+            if absence.jours_absence and absence.date_debut:
+                try:
+                    days_count = int(float(absence.jours_absence))
+                    if days_count > 0:
+                        calculated_date_fin = calculate_end_date(absence.date_debut, days_count, absence.counting_method)
+                        absence.date_fin = calculated_date_fin
+                        logger.info(f"📅 Date fin calculée: {absence.date_debut} + {days_count}j ({absence.counting_method}) = {absence.date_fin}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Erreur calcul date fin: {str(e)}")
+        else:
+            logger.warning(f"⚠️ Type d'absence {absence.motif_absence} non trouvé en BDD, utilisation des valeurs par défaut")
+        
         # Préparer les données pour MongoDB
         absence_dict = absence.dict()
         absence_dict['created_at'] = datetime.utcnow().isoformat()
