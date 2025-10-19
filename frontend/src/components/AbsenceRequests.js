@@ -213,8 +213,7 @@ const AbsenceRequests = ({ user }) => {
     'FAM': { name: 'Évènement familial', color: 'bg-purple-300', category: 'family' },
     
     // Congés et repos
-    'CP': { name: 'Congés Payés', color: 'bg-blue-500', category: 'vacation' },
-    'CA': { name: 'Congés annuels', color: 'bg-blue-400', category: 'vacation' },
+    'CA': { name: 'CA - Congés Annuels', color: 'bg-blue-400', category: 'vacation' },
     'CT': { name: 'Congés Trimestriels', color: 'bg-blue-300', category: 'vacation' },
     'RTT': { name: 'RTT / Récupération', color: 'bg-green-500', category: 'vacation' },
     'REC': { name: 'Récupération', color: 'bg-green-400', category: 'vacation' },
