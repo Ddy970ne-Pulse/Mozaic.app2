@@ -617,8 +617,8 @@ const AbsenceRequests = ({ user }) => {
 
   const isEmployee = user.role === 'employee';
 
-  // Vue simplifiée pour les employés : toutes les demandes dans une seule liste
-  const allRequestsForEmployee = isEmployee ? [
+  // Vue simplifiée unifiée pour TOUS les utilisateurs : toutes les demandes dans une seule liste
+  const allRequestsUnified = [
     ...requests.pending.map(r => ({...r, statusType: 'pending'})),
     ...requests.approved.map(r => ({...r, statusType: 'approved'})),
     ...requests.rejected.map(r => ({...r, statusType: 'rejected'}))
@@ -627,7 +627,7 @@ const AbsenceRequests = ({ user }) => {
     const dateA = new Date(a.submittedDate || a.updated_at || 0);
     const dateB = new Date(b.submittedDate || b.updated_at || 0);
     return dateB - dateA;
-  }) : [];
+  });
 
   // Afficher le loading
   if (loading) {
