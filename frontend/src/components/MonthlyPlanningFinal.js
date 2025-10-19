@@ -603,13 +603,18 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         
         console.log(`   👤 ${employee.name}: Found ${employeeImportedAbsences.length} imported absences`);
         
-        employeeImportedAbsences.forEach(absence => {
+        employeeImportedAbsences.forEach((absence, idx) => {
           try {
             const dateDebut = absence.date_debut;
             const dateFin = absence.date_fin;
             const motifAbsence = absence.motif_absence || 'AUT';
             
-            if (!dateDebut) return;
+            console.log(`      📅 Absence ${idx + 1}: ${motifAbsence}, ${dateDebut} → ${dateFin || 'N/A'}`);
+            
+            if (!dateDebut) {
+              console.warn(`      ⚠️ Skipping absence ${idx + 1}: no date_debut`);
+              return;
+            }
             
             // Parse dates
             let startDate, endDate;
