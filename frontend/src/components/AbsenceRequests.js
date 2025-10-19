@@ -659,16 +659,138 @@ const AbsenceRequests = ({ user }) => {
         }
       />
 
-      {/* Tabs - Style Harmonisé */}
-      <TabBar
-        tabs={[
-          { id: 'pending', label: `⏳ En Attente (${requests.pending.length})`, icon: '⏳' },
-          { id: 'approved', label: `✅ Approuvées (${requests.approved.length})`, icon: '✅' },
-          { id: 'rejected', label: `❌ Refusées (${requests.rejected.length})`, icon: '❌' }
-        ]}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
+      {/* Vue simplifiée pour employés - Liste unifiée */}
+      {isEmployee ? (
+        <div className="space-y-4">
+          {/* Statistiques rapides */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-orange-600 font-medium">En Attente</p>
+                  <p className="text-3xl font-bold text-orange-700">{requests.pending.length}</p>
+                </div>
+                <div className="text-4xl">⏳</div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-green-600 font-medium">Approuvées</p>
+                  <p className="text-3xl font-bold text-green-700">{requests.approved.length}</p>
+                </div>
+                <div className="text-4xl">✅</div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-red-50 to-pink-50 border-2 border-red-200 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-red-600 font-medium">Refusées</p>
+                  <p className="text-3xl font-bold text-red-700">{requests.rejected.length}</p>
+                </div>
+                <div className="text-4xl">❌</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Liste unifiée de toutes les demandes */}
+          <div className="bg-white/70 backdrop-blur-sm border-2 border-purple-200 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              📋 Toutes mes demandes ({allRequestsForEmployee.length})
+            </h3>
+            
+            {allRequestsForEmployee.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <div className="text-6xl mb-4">📭</div>
+                <p className="text-lg font-medium">Aucune demande d'absence</p>
+                <p className="text-sm mt-2">Cliquez sur "Nouvelle Demande" pour commencer</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {allRequestsForEmployee.map(request => {
+                  const statusConfig = {
+                    pending: { bg: 'bg-orange-100', border: 'border-orange-300', text: 'text-orange-800', badge: '⏳ En attente', badgeBg: 'bg-orange-200' },
+                    approved: { bg: 'bg-green-100', border: 'border-green-300', text: 'text-green-800', badge: '✅ Approuvée', badgeBg: 'bg-green-200' },
+                    rejected: { bg: 'bg-red-100', border: 'border-red-300', text: 'text-red-800', badge: '❌ Refusée', badgeBg: 'bg-red-200' }
+                  };
+                  
+                  const config = statusConfig[request.statusType] || statusConfig.pending;
+                  
+                  return (
+                    <div key={request.id} className={`${config.bg} border-2 ${config.border} rounded-lg p-4 transition-all hover:shadow-md`}>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${config.badgeBg} ${config.text}`}>
+                              {config.badge}
+                            </span>
+                            <span className="font-semibold text-gray-900 text-lg">{request.type}</span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3 text-sm mt-3">
+                            <div>
+                              <span className="text-gray-600">📅 Période:</span>
+                              <span className="ml-2 font-medium text-gray-900">
+                                {formatDate(request.startDate)} → {formatDate(request.endDate)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">⏱️ Durée:</span>
+                              <span className="ml-2 font-medium text-gray-900">
+                                {request.absence_unit === 'heures' 
+                                  ? `${request.hours_amount || request.days} heures`
+                                  : `${request.days} jour(s)`
+                                }
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {request.reason && (
+                            <div className="mt-2 text-sm">
+                              <span className="text-gray-600">💬 Motif:</span>
+                              <span className="ml-2 text-gray-800">{request.reason}</span>
+                            </div>
+                          )}
+                          
+                          {request.statusType === 'approved' && request.approver_name && (
+                            <div className="mt-2 text-xs text-green-700">
+                              ✅ Approuvée par {request.approver_name}
+                              {request.approved_date && ` le ${new Date(request.approved_date).toLocaleDateString('fr-FR')}`}
+                            </div>
+                          )}
+                          
+                          {request.statusType === 'rejected' && (
+                            <div className="mt-2 text-xs text-red-700">
+                              ❌ Rejetée par {request.rejected_by}
+                              {request.rejected_date && ` le ${new Date(request.rejected_date).toLocaleDateString('fr-FR')}`}
+                              {request.rejection_reason && (
+                                <div className="mt-1 italic">Motif: {request.rejection_reason}</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Vue admin/manager - Tabs classiques */}
+          <TabBar
+            tabs={[
+              { id: 'pending', label: `⏳ En Attente (${requests.pending.length})`, icon: '⏳' },
+              { id: 'approved', label: `✅ Approuvées (${requests.approved.length})`, icon: '✅' },
+              { id: 'rejected', label: `❌ Refusées (${requests.rejected.length})`, icon: '❌' }
+            ]}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
 
       {/* Requests List */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
