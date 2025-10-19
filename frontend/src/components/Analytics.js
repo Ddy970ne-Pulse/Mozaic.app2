@@ -71,13 +71,13 @@ const Analytics = ({ user }) => {
   ];
 
   const monthlyData = [
-    { month: 'Jan', cp: 45, rtt: 12, am: 8, formation: 5, autres: 3 },
-    { month: 'Fév', cp: 38, rtt: 15, am: 12, formation: 7, autres: 2 },
-    { month: 'Mar', cp: 52, rtt: 18, am: 6, formation: 9, autres: 4 },
-    { month: 'Avr', cp: 48, rtt: 20, am: 10, formation: 6, autres: 3 },
-    { month: 'Mai', cp: 65, rtt: 25, am: 7, formation: 12, autres: 5 },
-    { month: 'Juin', cp: 78, rtt: 30, am: 9, formation: 8, autres: 6 },
-    { month: 'Juil', cp: 95, rtt: 22, am: 5, formation: 3, autres: 4 },
+    { month: 'Jan', ca: 45, rtt: 12, am: 8, formation: 5, autres: 3 },
+    { month: 'Fév', ca: 38, rtt: 15, am: 12, formation: 7, autres: 2 },
+    { month: 'Mar', ca: 52, rtt: 18, am: 6, formation: 9, autres: 4 },
+    { month: 'Avr', ca: 48, rtt: 20, am: 10, formation: 6, autres: 3 },
+    { month: 'Mai', ca: 65, rtt: 25, am: 7, formation: 12, autres: 5 },
+    { month: 'Juin', ca: 78, rtt: 30, am: 9, formation: 8, autres: 6 },
+    { month: 'Juil', ca: 95, rtt: 22, am: 5, formation: 3, autres: 4 },
     { month: 'Août', cp: 120, rtt: 35, am: 4, formation: 2, autres: 7 },
     { month: 'Sep', cp: 42, rtt: 28, am: 11, formation: 15, autres: 3 },
     { month: 'Oct', cp: 55, rtt: 24, am: 13, formation: 11, autres: 5 },
