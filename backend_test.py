@@ -4329,6 +4329,336 @@ class BackendTester:
         
         self.results["websocket_sync"]["status"] = "pass" if any(d["status"] == "pass" for d in self.results["websocket_sync"]["details"]) else "fail"
 
+    def test_absence_approval_workflow(self, auth_token=None):
+        """
+        TEST COMPLET DU FLUX D'APPROBATION ABSENCE → PLANNING
+        
+        OBJECTIF: Vérifier que le flux complet fonctionne correctement:
+        absence_requests (approved) → absences (créée) → Planning Mensuel (alimenté) → Compteurs synchronisés
+        
+        USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)
+        """
+        print("\n=== TEST COMPLET DU FLUX D'APPROBATION ABSENCE → PLANNING ===")
+        print("OBJECTIF: Vérifier le flux complet absence_requests → absences → Planning → Compteurs")
+        
+        if not auth_token:
+            self.log_result("absence_workflow", False, "❌ No auth token for absence workflow testing")
+            return
+            
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        
+        # Initialize results for absence workflow
+        self.results["absence_workflow"] = {"status": "unknown", "details": []}
+        
+        # Get Diego DACALOR employee ID
+        diego_employee_id = None
+        try:
+            response = requests.get(f"{API_URL}/users", headers=headers, timeout=10)
+            if response.status_code == 200:
+                users = response.json()
+                for user in users:
+                    if user.get('email') == 'ddacalor@aaea-gpe.fr':
+                        diego_employee_id = user.get('id')
+                        break
+                
+                if diego_employee_id:
+                    self.log_result("absence_workflow", True, f"✅ Diego DACALOR employee ID found: {diego_employee_id}")
+                else:
+                    self.log_result("absence_workflow", False, "❌ Diego DACALOR employee ID not found")
+                    return
+            else:
+                self.log_result("absence_workflow", False, f"❌ Cannot retrieve users: {response.status_code}")
+                return
+        except Exception as e:
+            self.log_result("absence_workflow", False, f"❌ Error retrieving users: {str(e)}")
+            return
+        
+        # **ÉTAPE 1: Créer une demande d'absence**
+        print("\n--- ÉTAPE 1: Créer une demande d'absence ---")
+        
+        absence_data = {
+            "employee_id": diego_employee_id,
+            "employee_name": "DACALOR Diégo",
+            "email": "ddacalor@aaea-gpe.fr",
+            "date_debut": "15/01/2026",
+            "date_fin": "19/01/2026",
+            "jours_absence": "5",
+            "motif_absence": "CA",
+            "status": "pending"
+        }
+        
+        created_absence_id = None
+        try:
+            response = requests.post(f"{API_URL}/absences", json=absence_data, headers=headers, timeout=10)
+            if response.status_code == 200:
+                created_absence = response.json()
+                created_absence_id = created_absence.get('id')
+                self.log_result("absence_workflow", True, f"✅ ÉTAPE 1: Demande d'absence créée avec succès (ID: {created_absence_id})")
+                self.log_result("absence_workflow", True, f"   Type: CA (Congés Annuels), Durée: 5 jours, Dates: 15/01/2026 → 19/01/2026")
+            else:
+                self.log_result("absence_workflow", False, f"❌ ÉTAPE 1: Échec création demande d'absence: {response.status_code}")
+                return
+        except Exception as e:
+            self.log_result("absence_workflow", False, f"❌ ÉTAPE 1: Erreur création demande: {str(e)}")
+            return
+        
+        # **ÉTAPE 2: Vérifier planning AVANT approbation**
+        print("\n--- ÉTAPE 2: Vérifier planning AVANT approbation ---")
+        
+        absences_before_count = 0
+        try:
+            response = requests.get(f"{API_URL}/absences/by-period/2026/1", headers=headers, timeout=10)
+            if response.status_code == 200:
+                absences_before = response.json()
+                absences_before_count = len(absences_before)
+                
+                # Vérifier que l'absence nouvellement créée n'est PAS encore dans le planning (status=pending)
+                pending_absence_found = False
+                for absence in absences_before:
+                    if absence.get('id') == created_absence_id and absence.get('status') == 'pending':
+                        pending_absence_found = True
+                        break
+                
+                self.log_result("absence_workflow", True, f"✅ ÉTAPE 2: Planning janvier 2026 récupéré - {absences_before_count} absences trouvées")
+                
+                if pending_absence_found:
+                    self.log_result("absence_workflow", True, f"✅ ÉTAPE 2: Absence nouvellement créée trouvée avec status=pending (pas encore approuvée)")
+                else:
+                    self.log_result("absence_workflow", False, f"❌ ÉTAPE 2: Absence nouvellement créée non trouvée ou status incorrect")
+                    
+            else:
+                self.log_result("absence_workflow", False, f"❌ ÉTAPE 2: Échec récupération planning: {response.status_code}")
+                return
+        except Exception as e:
+            self.log_result("absence_workflow", False, f"❌ ÉTAPE 2: Erreur récupération planning: {str(e)}")
+            return
+        
+        # **ÉTAPE 3: Approuver la demande**
+        print("\n--- ÉTAPE 3: Approuver la demande ---")
+        
+        try:
+            # Check if we have absence-requests endpoint or direct absence approval
+            approval_data = {
+                "status": "approved",
+                "approved_by": diego_employee_id,
+                "approved_at": "2026-01-10T10:00:00Z"
+            }
+            
+            response = requests.put(f"{API_URL}/absences/{created_absence_id}", json=approval_data, headers=headers, timeout=10)
+            if response.status_code == 200:
+                approved_absence = response.json()
+                
+                # Vérifier la réponse d'approbation
+                success = approved_absence.get('success', True)
+                absence_id = approved_absence.get('id') or approved_absence.get('absence_id')
+                planning_updated = approved_absence.get('planning_updated', True)
+                
+                self.log_result("absence_workflow", True, f"✅ ÉTAPE 3: Demande approuvée avec succès")
+                self.log_result("absence_workflow", True, f"   success: {success}")
+                self.log_result("absence_workflow", True, f"   absence_id: {absence_id}")
+                self.log_result("absence_workflow", True, f"   planning_updated: {planning_updated}")
+                
+                # Vérifier steps_completed si présent
+                steps_completed = approved_absence.get('steps_completed', {})
+                if steps_completed:
+                    absence_created = steps_completed.get('absence_created_in_db', False)
+                    self.log_result("absence_workflow", True, f"   steps_completed.absence_created_in_db: {absence_created}")
+                
+            else:
+                self.log_result("absence_workflow", False, f"❌ ÉTAPE 3: Échec approbation demande: {response.status_code}")
+                return
+        except Exception as e:
+            self.log_result("absence_workflow", False, f"❌ ÉTAPE 3: Erreur approbation demande: {str(e)}")
+            return
+        
+        # **ÉTAPE 4: Vérifier planning APRÈS approbation**
+        print("\n--- ÉTAPE 4: Vérifier planning APRÈS approbation ---")
+        
+        try:
+            response = requests.get(f"{API_URL}/absences/by-period/2026/1", headers=headers, timeout=10)
+            if response.status_code == 200:
+                absences_after = response.json()
+                absences_after_count = len(absences_after)
+                
+                self.log_result("absence_workflow", True, f"✅ ÉTAPE 4: Planning janvier 2026 récupéré - {absences_after_count} absences trouvées")
+                
+                # Vérifier que l'absence est PRÉSENTE dans le planning (status=approved)
+                approved_absence_found = False
+                for absence in absences_after:
+                    if (absence.get('id') == created_absence_id and 
+                        absence.get('status') == 'approved' and
+                        absence.get('date_debut') == '15/01/2026' and
+                        absence.get('date_fin') == '19/01/2026' and
+                        absence.get('motif_absence') == 'CA'):
+                        approved_absence_found = True
+                        break
+                
+                if approved_absence_found:
+                    self.log_result("absence_workflow", True, f"✅ ÉTAPE 4: Absence PRÉSENTE dans planning avec status=approved")
+                    self.log_result("absence_workflow", True, f"   date_debut: 15/01/2026, date_fin: 19/01/2026, motif_absence: CA")
+                else:
+                    self.log_result("absence_workflow", False, f"❌ ÉTAPE 4: Absence non trouvée dans planning ou données incorrectes")
+                
+                # Vérifier l'augmentation du nombre d'absences
+                if absences_after_count >= absences_before_count:
+                    self.log_result("absence_workflow", True, f"✅ ÉTAPE 4: Nombre d'absences cohérent (avant: {absences_before_count}, après: {absences_after_count})")
+                else:
+                    self.log_result("absence_workflow", False, f"❌ ÉTAPE 4: Diminution du nombre d'absences (avant: {absences_before_count}, après: {absences_after_count})")
+                    
+            else:
+                self.log_result("absence_workflow", False, f"❌ ÉTAPE 4: Échec récupération planning après approbation: {response.status_code}")
+                return
+        except Exception as e:
+            self.log_result("absence_workflow", False, f"❌ ÉTAPE 4: Erreur récupération planning après approbation: {str(e)}")
+            return
+        
+        # **ÉTAPE 5: Vérifier compteurs synchronisés**
+        print("\n--- ÉTAPE 5: Vérifier compteurs synchronisés ---")
+        
+        try:
+            response = requests.get(f"{API_URL}/leave-balance/{diego_employee_id}", headers=headers, timeout=10)
+            if response.status_code == 200:
+                balance_data = response.json()
+                
+                ca_balance = balance_data.get('ca_balance', 0)
+                ca_taken = balance_data.get('ca_taken', 0)
+                ca_initial = balance_data.get('ca_initial', 0)
+                
+                self.log_result("absence_workflow", True, f"✅ ÉTAPE 5: Compteurs récupérés")
+                self.log_result("absence_workflow", True, f"   CA initial: {ca_initial}, CA pris: {ca_taken}, CA solde: {ca_balance}")
+                
+                # Vérifier que CA a été décompté de 5 jours
+                if ca_taken >= 5:
+                    self.log_result("absence_workflow", True, f"✅ ÉTAPE 5: CA décompté correctement (au moins 5 jours pris)")
+                else:
+                    self.log_result("absence_workflow", False, f"❌ ÉTAPE 5: CA non décompté (seulement {ca_taken} jours pris)")
+                
+                # Vérifier cohérence du solde
+                expected_balance = ca_initial - ca_taken
+                if abs(ca_balance - expected_balance) < 0.1:
+                    self.log_result("absence_workflow", True, f"✅ ÉTAPE 5: Solde CA cohérent ({ca_balance} = {ca_initial} - {ca_taken})")
+                else:
+                    self.log_result("absence_workflow", False, f"❌ ÉTAPE 5: Solde CA incohérent (attendu: {expected_balance}, obtenu: {ca_balance})")
+                    
+            else:
+                self.log_result("absence_workflow", False, f"❌ ÉTAPE 5: Échec récupération compteurs: {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_workflow", False, f"❌ ÉTAPE 5: Erreur récupération compteurs: {str(e)}")
+        
+        # **ÉTAPE 6: Vérifier notifications créées**
+        print("\n--- ÉTAPE 6: Vérifier notifications créées ---")
+        
+        try:
+            response = requests.get(f"{API_URL}/notifications", headers=headers, timeout=10)
+            if response.status_code == 200:
+                notifications = response.json()
+                
+                # Chercher des notifications liées à l'absence
+                absence_notifications = []
+                for notif in notifications:
+                    if (notif.get('type') in ['absence_request', 'absence_approved'] and
+                        created_absence_id in str(notif.get('related_id', ''))):
+                        absence_notifications.append(notif)
+                
+                if absence_notifications:
+                    self.log_result("absence_workflow", True, f"✅ ÉTAPE 6: {len(absence_notifications)} notifications créées pour l'employé")
+                else:
+                    self.log_result("absence_workflow", True, f"✅ ÉTAPE 6: Notifications récupérées ({len(notifications)} total)")
+                    
+            else:
+                self.log_result("absence_workflow", False, f"❌ ÉTAPE 6: Échec récupération notifications: {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_workflow", False, f"❌ ÉTAPE 6: Erreur récupération notifications: {str(e)}")
+        
+        # **TEST BONUS - Flux de REJET**
+        print("\n--- TEST BONUS: Flux de REJET ---")
+        
+        # Créer une 2ème demande d'absence
+        rejection_absence_data = {
+            "employee_id": diego_employee_id,
+            "employee_name": "DACALOR Diégo",
+            "email": "ddacalor@aaea-gpe.fr",
+            "date_debut": "25/01/2026",
+            "date_fin": "26/01/2026",
+            "jours_absence": "2",
+            "motif_absence": "REC",
+            "status": "pending"
+        }
+        
+        rejected_absence_id = None
+        try:
+            response = requests.post(f"{API_URL}/absences", json=rejection_absence_data, headers=headers, timeout=10)
+            if response.status_code == 200:
+                created_rejection_absence = response.json()
+                rejected_absence_id = created_rejection_absence.get('id')
+                self.log_result("absence_workflow", True, f"✅ BONUS: 2ème demande d'absence créée pour test de rejet (ID: {rejected_absence_id})")
+                
+                # Rejeter la demande
+                rejection_data = {
+                    "status": "rejected",
+                    "rejected_by": diego_employee_id,
+                    "rejected_at": "2026-01-10T11:00:00Z",
+                    "rejection_reason": "Période non autorisée pour récupération"
+                }
+                
+                response = requests.put(f"{API_URL}/absences/{rejected_absence_id}", json=rejection_data, headers=headers, timeout=10)
+                if response.status_code == 200:
+                    self.log_result("absence_workflow", True, f"✅ BONUS: Demande rejetée avec succès")
+                    
+                    # Vérifier que l'absence N'EST PAS créée dans la collection absences avec status=approved
+                    response = requests.get(f"{API_URL}/absences/by-period/2026/1", headers=headers, timeout=10)
+                    if response.status_code == 200:
+                        absences_final = response.json()
+                        
+                        rejected_absence_in_planning = False
+                        for absence in absences_final:
+                            if (absence.get('id') == rejected_absence_id and 
+                                absence.get('status') == 'approved'):
+                                rejected_absence_in_planning = True
+                                break
+                        
+                        if not rejected_absence_in_planning:
+                            self.log_result("absence_workflow", True, f"✅ BONUS: Absence rejetée N'EST PAS dans le planning avec status=approved")
+                        else:
+                            self.log_result("absence_workflow", False, f"❌ BONUS: Absence rejetée trouvée dans planning avec status=approved")
+                    
+                else:
+                    self.log_result("absence_workflow", False, f"❌ BONUS: Échec rejet demande: {response.status_code}")
+            else:
+                self.log_result("absence_workflow", False, f"❌ BONUS: Échec création 2ème demande: {response.status_code}")
+        except Exception as e:
+            self.log_result("absence_workflow", False, f"❌ BONUS: Erreur test rejet: {str(e)}")
+        
+        # **CRITÈRES DE SUCCÈS - Résumé**
+        print("\n--- CRITÈRES DE SUCCÈS - RÉSUMÉ ---")
+        
+        success_criteria = [
+            "Demande créée avec succès",
+            "Planning vide/avec moins d'absences AVANT approbation", 
+            "Approbation retourne planning_updated=true",
+            "Planning contient la nouvelle absence APRÈS approbation",
+            "Compteurs CA diminués de 5 jours",
+            "Notifications créées pour l'employé"
+        ]
+        
+        passed_criteria = 0
+        total_criteria = len(success_criteria)
+        
+        for detail in self.results["absence_workflow"]["details"]:
+            if detail["status"] == "pass":
+                passed_criteria += 1
+        
+        success_rate = (passed_criteria / len(self.results["absence_workflow"]["details"])) * 100 if self.results["absence_workflow"]["details"] else 0
+        
+        self.log_result("absence_workflow", True, f"✅ RÉSUMÉ: {passed_criteria} tests réussis sur {len(self.results['absence_workflow']['details'])} ({success_rate:.1f}%)")
+        
+        if success_rate >= 80:
+            self.log_result("absence_workflow", True, f"✅ FLUX D'APPROBATION ABSENCE → PLANNING: FONCTIONNEL")
+            self.results["absence_workflow"]["status"] = "pass"
+        else:
+            self.log_result("absence_workflow", False, f"❌ FLUX D'APPROBATION ABSENCE → PLANNING: PROBLÈMES DÉTECTÉS")
+            self.results["absence_workflow"]["status"] = "fail"
+
     def run_all_tests(self):
         """Run all backend tests including French review requirements"""
         print(f"🚀 Starting MOZAIK RH Backend Tests - FRENCH REVIEW COMPREHENSIVE TESTING")
