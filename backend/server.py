@@ -2243,54 +2243,162 @@ async def get_employee_categories(current_user: User = Depends(get_current_user)
 # KPI and Analytics endpoints  
 @api_router.get("/analytics/absence-kpi")
 async def get_absence_kpi(current_user: User = Depends(get_current_user)):
+    """
+    📊 ANALYTICS KPI - DONNÉES RÉELLES DEPUIS MONGODB
+    Remplace les anciennes données mockées par des vraies requêtes
+    """
     if current_user.role not in ["admin", "manager"]:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    return {
-        "summary": {
-            "totalAbsences": 1542,
-            "delegationHours": 87,  # DEL coded absences
-            "personalAbsences": 1455,  # Non-DEL absences
-            "averagePerEmployee": 8.5,
-            "delegationRate": 5.6,  # % of absences that are DEL
-            "comparisonLastYear": "+3.2%"
-        },
-        "byCategory": [
-            {"code": "DEL", "name": "Délégation CSE", "count": 87, "percentage": 5.6, "color": "bg-indigo-600", "justified": True},
-            {"code": "CA", "name": "CA - Congés Annuels", "count": 654, "percentage": 42.4, "color": "bg-blue-500", "justified": True},
-            {"code": "AM", "name": "Arrêt maladie", "count": 245, "percentage": 15.9, "color": "bg-red-500", "justified": False},
-            {"code": "RTT", "name": "RTT/Récupération", "count": 198, "percentage": 12.8, "color": "bg-green-500", "justified": True},
-            {"code": "FO", "name": "Formation", "count": 156, "percentage": 10.1, "color": "bg-purple-500", "justified": True},
-            {"code": "AT", "name": "Accident travail", "count": 89, "percentage": 5.8, "color": "bg-red-600", "justified": False},
-            {"code": "MAT", "name": "Congé maternité", "count": 45, "percentage": 2.9, "color": "bg-pink-500", "justified": True},
-            {"code": "FAM", "name": "Événement familial", "count": 34, "percentage": 2.2, "color": "bg-purple-300", "justified": True},
-            {"code": "NAUT", "name": "Absence non autorisée", "count": 23, "percentage": 1.5, "color": "bg-red-700", "justified": False},
-            {"code": "Autres", "name": "Autres motifs", "count": 11, "percentage": 0.7, "color": "bg-gray-500", "justified": False}
-        ],
-        "monthlyTrend": [
-            {"month": "Jan", "del": 8, "personal": 125, "total": 133},
-            {"month": "Fév", "del": 6, "personal": 118, "total": 124},
-            {"month": "Mar", "del": 9, "personal": 142, "total": 151},
-            {"month": "Avr", "del": 7, "personal": 139, "total": 146},
-            {"month": "Mai", "del": 5, "personal": 156, "total": 161},
-            {"month": "Juin", "del": 8, "personal": 178, "total": 186},
-            {"month": "Juil", "del": 4, "personal": 195, "total": 199},
-            {"month": "Août", "del": 3, "personal": 218, "total": 221},
-            {"month": "Sep", "del": 9, "personal": 128, "total": 137},
-            {"month": "Oct", "del": 8, "personal": 145, "total": 153},
-            {"month": "Nov", "del": 10, "personal": 134, "total": 144},
-            {"month": "Déc", "del": 10, "personal": 117, "total": 127}
-        ],
-        "departmentBreakdown": [
-            {"department": "Direction", "del": 15, "personal": 45, "total": 60, "delRate": 25.0},
-            {"department": "Éducatif", "del": 25, "personal": 198, "total": 223, "delRate": 11.2},
-            {"department": "Administratif", "del": 12, "personal": 156, "total": 168, "delRate": 7.1},
-            {"department": "Commercial", "del": 18, "personal": 234, "total": 252, "delRate": 7.1},
-            {"department": "Production", "del": 8, "personal": 298, "total": 306, "delRate": 2.6},
-            {"department": "ASI", "del": 5, "personal": 89, "total": 94, "delRate": 5.3},
-            {"department": "Technique", "del": 4, "personal": 165, "total": 169, "delRate": 2.4}
+    try:
+        # 📊 1. RÉSUMÉ GLOBAL
+        all_absences = await db.absences.find({}).to_list(10000)
+        total_absences = len(all_absences)
+        
+        # Compter les absences DEL vs Personal
+        del_absences = [a for a in all_absences if a.get("motif_absence") == "DEL"]
+        del_count = len(del_absences)
+        personal_count = total_absences - del_count
+        
+        # Moyenne par employé
+        total_employees = await db.users.count_documents({})
+        avg_per_employee = round(total_absences / total_employees, 1) if total_employees > 0 else 0
+        
+        # Taux de délégation
+        delegation_rate = round((del_count / total_absences * 100), 1) if total_absences > 0 else 0
+        
+        # 📈 2. PAR CATÉGORIE
+        # Agréger par motif_absence
+        by_category_pipeline = [
+            {"$group": {
+                "_id": "$motif_absence",
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"count": -1}}
         ]
-    }
+        by_category_data = await db.absences.aggregate(by_category_pipeline).to_list(100)
+        
+        # Mapper aux couleurs et noms
+        motif_colors = {
+            "DEL": {"name": "Délégation CSE", "color": "bg-indigo-600", "justified": True},
+            "CA": {"name": "CA - Congés Annuels", "color": "bg-blue-500", "justified": True},
+            "AM": {"name": "Arrêt maladie", "color": "bg-red-500", "justified": False},
+            "RTT": {"name": "RTT/Récupération", "color": "bg-green-500", "justified": True},
+            "REC": {"name": "Récupération", "color": "bg-green-400", "justified": True},
+            "FO": {"name": "Formation", "color": "bg-purple-500", "justified": True},
+            "AT": {"name": "Accident travail", "color": "bg-red-600", "justified": False},
+            "MAT": {"name": "Congé maternité", "color": "bg-pink-500", "justified": True},
+            "PAT": {"name": "Congé paternité", "color": "bg-pink-400", "justified": True},
+            "FAM": {"name": "Événement familial", "color": "bg-purple-300", "justified": True},
+            "CT": {"name": "Congés Trimestriels", "color": "bg-blue-300", "justified": True},
+            "NAUT": {"name": "Absence non autorisée", "color": "bg-red-700", "justified": False},
+            "AUT": {"name": "Absence autorisée", "color": "bg-gray-500", "justified": True},
+            "TEL": {"name": "Télétravail", "color": "bg-cyan-500", "justified": True},
+            "STG": {"name": "Stage", "color": "bg-cyan-400", "justified": True},
+            "CEX": {"name": "Congé exceptionnel", "color": "bg-indigo-400", "justified": True}
+        }
+        
+        by_category = []
+        for item in by_category_data:
+            code = item["_id"]
+            count = item["count"]
+            percentage = round((count / total_absences * 100), 1) if total_absences > 0 else 0
+            
+            config = motif_colors.get(code, {"name": code, "color": "bg-gray-500", "justified": False})
+            
+            by_category.append({
+                "code": code,
+                "name": config["name"],
+                "count": count,
+                "percentage": percentage,
+                "color": config["color"],
+                "justified": config["justified"]
+            })
+        
+        # 📅 3. TENDANCE MENSUELLE (12 derniers mois)
+        from datetime import datetime, timedelta
+        current_date = datetime.now()
+        
+        monthly_trend = []
+        months_fr = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"]
+        
+        for i in range(12):
+            month_date = datetime(current_date.year, i + 1, 1)
+            month_name = months_fr[i]
+            
+            # Compter absences du mois
+            month_absences = [a for a in all_absences if a.get("date_debut", "").startswith(f"{i+1:02d}/") or 
+                             a.get("date_debut", "").endswith(f"/{i+1:02d}/") or
+                             (f"-{i+1:02d}-" in a.get("date_debut", ""))]
+            
+            del_month = len([a for a in month_absences if a.get("motif_absence") == "DEL"])
+            total_month = len(month_absences)
+            personal_month = total_month - del_month
+            
+            monthly_trend.append({
+                "month": month_name,
+                "del": del_month,
+                "personal": personal_month,
+                "total": total_month
+            })
+        
+        # 🏢 4. RÉPARTITION PAR DÉPARTEMENT
+        users = await db.users.find({}).to_list(1000)
+        department_breakdown = []
+        
+        departments = list(set([u.get("department", "Non spécifié") for u in users]))
+        
+        for dept in departments:
+            dept_employees = [u["id"] for u in users if u.get("department") == dept]
+            dept_absences = [a for a in all_absences if a.get("employee_id") in dept_employees]
+            
+            dept_del = len([a for a in dept_absences if a.get("motif_absence") == "DEL"])
+            dept_total = len(dept_absences)
+            dept_personal = dept_total - dept_del
+            dept_del_rate = round((dept_del / dept_total * 100), 1) if dept_total > 0 else 0
+            
+            department_breakdown.append({
+                "department": dept,
+                "del": dept_del,
+                "personal": dept_personal,
+                "total": dept_total,
+                "delRate": dept_del_rate
+            })
+        
+        # Trier par total décroissant
+        department_breakdown.sort(key=lambda x: x["total"], reverse=True)
+        
+        # ✅ RETOUR DES DONNÉES RÉELLES
+        return {
+            "summary": {
+                "totalAbsences": total_absences,
+                "delegationHours": del_count,
+                "personalAbsences": personal_count,
+                "averagePerEmployee": avg_per_employee,
+                "delegationRate": delegation_rate,
+                "comparisonLastYear": "N/A"  # Nécessite historique année précédente
+            },
+            "byCategory": by_category[:10],  # Top 10
+            "monthlyTrend": monthly_trend,
+            "departmentBreakdown": department_breakdown
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur calcul analytics: {str(e)}")
+        # Fallback: retourner structure vide
+        return {
+            "summary": {
+                "totalAbsences": 0,
+                "delegationHours": 0,
+                "personalAbsences": 0,
+                "averagePerEmployee": 0,
+                "delegationRate": 0,
+                "comparisonLastYear": "N/A"
+            },
+            "byCategory": [],
+            "monthlyTrend": [],
+            "departmentBreakdown": []
+        }
 
 # On-Call Management endpoints
 @api_router.get("/on-call/employees", response_model=List[OnCallEmployee])
