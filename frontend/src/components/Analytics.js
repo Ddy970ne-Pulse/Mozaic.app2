@@ -78,11 +78,11 @@ const Analytics = ({ user }) => {
     { month: 'Mai', ca: 65, rtt: 25, am: 7, formation: 12, autres: 5 },
     { month: 'Juin', ca: 78, rtt: 30, am: 9, formation: 8, autres: 6 },
     { month: 'Juil', ca: 95, rtt: 22, am: 5, formation: 3, autres: 4 },
-    { month: 'Août', cp: 120, rtt: 35, am: 4, formation: 2, autres: 7 },
-    { month: 'Sep', cp: 42, rtt: 28, am: 11, formation: 15, autres: 3 },
-    { month: 'Oct', cp: 55, rtt: 24, am: 13, formation: 11, autres: 5 },
-    { month: 'Nov', cp: 48, rtt: 19, am: 15, formation: 9, autres: 4 },
-    { month: 'Déc', cp: 38, rtt: 16, am: 8, formation: 4, autres: 6 }
+    { month: 'Août', ca: 120, rtt: 35, am: 4, formation: 2, autres: 7 },
+    { month: 'Sep', ca: 42, rtt: 28, am: 11, formation: 15, autres: 3 },
+    { month: 'Oct', ca: 55, rtt: 24, am: 13, formation: 11, autres: 5 },
+    { month: 'Nov', ca: 48, rtt: 19, am: 15, formation: 9, autres: 4 },
+    { month: 'Déc', ca: 38, rtt: 16, am: 8, formation: 4, autres: 6 }
   ];
 
   // Données de rotation par département
