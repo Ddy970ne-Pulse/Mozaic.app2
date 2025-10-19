@@ -211,8 +211,11 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
 
   // Load imported absences when employees are ready AND month/year changes
   useEffect(() => {
+    console.log(`🔄 useEffect triggered: employees.length=${employees.length}, selectedMonth=${selectedMonth}, selectedYear=${selectedYear}`);
+    
     // Only load if employees are already loaded
     if (employees.length === 0) {
+      console.warn('⚠️ Skipping absence load - no employees loaded yet');
       return;
     }
     
@@ -220,10 +223,12 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
+          console.warn('⚠️ No token found');
           return;
         }
 
         const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/absences/by-period/${selectedYear}/${selectedMonth + 1}`;
+        console.log(`📡 Fetching absences from: ${apiUrl}`);
         
         const response = await fetch(
           apiUrl,
@@ -238,11 +243,16 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         let importedAbsences = [];
         if (response.ok) {
           importedAbsences = await response.json();
+          console.log(`✅ Loaded ${importedAbsences.length} absences from API`);
+        } else {
+          console.error(`❌ API returned ${response.status}`);
         }
         
         // Charger aussi les demandes d'absence approuvées
         const requestsData = getRequests();
         const approvedRequests = Array.isArray(requestsData) ? requestsData.filter(r => r.status === 'approved') : [];
+        
+        console.log(`📊 Calling applyAllAbsencesToPlanning with ${importedAbsences.length} imported + ${approvedRequests.length} approved`);
         
         // FUSION: Appliquer toutes les absences en une seule fois
         applyAllAbsencesToPlanning(importedAbsences, approvedRequests);
