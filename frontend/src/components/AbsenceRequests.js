@@ -397,33 +397,84 @@ const AbsenceRequests = ({ user }) => {
     }
   };
 
-  const handleSubmitRequest = (e) => {
+  const handleSubmitRequest = async (e) => {
     e.preventDefault();
     
-    // Create request data with proper handling
-    const requestData = {
-      ...newRequest,
-      status: newRequest.requiresAcknowledgment ? 'acknowledged' : 'pending',
-      acknowledgedBy: newRequest.requiresAcknowledgment ? user.name : null,
-      acknowledgedDate: newRequest.requiresAcknowledgment ? new Date().toISOString() : null,
-      submittedDate: new Date().toISOString(),
-      employee: user.name,
-      department: user.department || 'Non spécifié'
-    };
-    
-    console.log('Submitting new absence request:', requestData);
-    setShowNewRequest(false);
-    setNewRequest({ 
-      type: '', 
-      startDate: '', 
-      endDate: '', 
-      reason: '', 
-      halfDay: false, 
-      documents: [], 
-      requiresAcknowledgment: false,
-      absence_unit: 'jours',
-      hours_amount: null
-    });
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Calculer la durée en jours (approximation simple)
+      const start = new Date(newRequest.startDate);
+      const end = new Date(newRequest.endDate);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      
+      // Préparer les données pour l'API
+      const absenceData = {
+        employee_id: newRequest.employee_id || user.id,
+        employee_name: newRequest.employee_name || user.name,
+        email: user.email,
+        motif_absence: newRequest.type,
+        date_debut: newRequest.startDate,
+        date_fin: newRequest.endDate,
+        jours_absence: newRequest.absence_unit === 'heures' ? 
+          (parseFloat(newRequest.hours_amount) / 7).toFixed(2) : 
+          diffDays.toString(),
+        notes: newRequest.reason,
+        status: 'pending',
+        absence_unit: newRequest.absence_unit,
+        hours_amount: newRequest.absence_unit === 'heures' ? parseFloat(newRequest.hours_amount) : null,
+        created_by: user.id
+      };
+      
+      console.log('📤 Envoi nouvelle demande d\'absence:', absenceData);
+      
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(absenceData)
+        }
+      );
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Demande créée avec succès:', result);
+        alert('✅ Demande d\'absence créée avec succès');
+        
+        // Recharger les données
+        loadAbsencesFromAPI();
+        
+        // Fermer le modal
+        setShowNewRequest(false);
+        
+        // Réinitialiser le formulaire
+        setNewRequest({ 
+          type: 'CP', 
+          startDate: '', 
+          endDate: '', 
+          reason: '', 
+          halfDay: false, 
+          documents: [], 
+          requiresAcknowledgment: false,
+          absence_unit: 'jours',
+          hours_amount: null,
+          employee_id: user?.id || '',
+          employee_name: user?.name || ''
+        });
+      } else {
+        const error = await response.json();
+        console.error('❌ Erreur création demande:', error);
+        alert(`❌ Erreur: ${error.detail || 'Impossible de créer la demande'}`);
+      }
+    } catch (error) {
+      console.error('❌ Erreur création demande:', error);
+      alert('❌ Erreur lors de la création de la demande');
+    }
   };
 
   const formatDate = (dateStr) => {
