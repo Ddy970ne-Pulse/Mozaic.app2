@@ -257,10 +257,47 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
 
   // Charger les astreintes
   useEffect(() => {
-    const loadOnCallData = () => {
+    const loadOnCallData = async () => {
       try {
-        const onCallDataForMonth = getOnCallDataForMonthlyPlanning(selectedMonth, selectedYear);
-        setOnCallData(onCallDataForMonth);
+        // Charger les astreintes depuis l'API backend
+        const token = localStorage.getItem('token');
+        const startDate = new Date(selectedYear, selectedMonth, 1).toISOString().split('T')[0];
+        const endDate = new Date(selectedYear, selectedMonth + 1, 0).toISOString().split('T')[0];
+        
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/on-call/assignments?startDate=${startDate}&endDate=${endDate}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        if (response.ok) {
+          const assignments = await response.json();
+          
+          // Transformer les assignations en format utilisable par le planning
+          // { employeeId: [{ startDate, endDate, employeeName, ... }] }
+          const onCallMap = {};
+          
+          for (const assignment of assignments) {
+            if (!onCallMap[assignment.employeeId]) {
+              onCallMap[assignment.employeeId] = [];
+            }
+            onCallMap[assignment.employeeId].push({
+              startDate: assignment.startDate,
+              endDate: assignment.endDate,
+              employeeName: assignment.employeeName,
+              weekNumber: assignment.weekNumber || null
+            });
+          }
+          
+          console.log('🔔 Astreintes chargées:', Object.keys(onCallMap).length, 'employés');
+          setOnCallData(onCallMap);
+        } else {
+          console.warn('Aucune astreinte trouvée pour cette période');
+          setOnCallData({});
+        }
       } catch (error) {
         console.error('Erreur chargement astreintes:', error);
         setOnCallData({});
