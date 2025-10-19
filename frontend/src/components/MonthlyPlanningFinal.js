@@ -1942,9 +1942,8 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           content += `<td class="absence-days">${item.totalAbsenceDays}</td>`;
           
           dateRange.forEach(dateObj => {
-            const dayKey = useCustomPeriod ? 
-              `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}` :
-              dateObj.day.toString();
+            // ✅ FORMAT CLÉ UNIFIÉ: Toujours utiliser YYYY-MM-DD
+            const dayKey = `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
             
             const absence = item.absences[dayKey] || item.absences[dateObj.day.toString()];
             const isWknd = isWeekend(dateObj.day, dateObj.month, dateObj.year);
