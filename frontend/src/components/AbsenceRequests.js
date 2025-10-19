@@ -132,8 +132,13 @@ const AbsenceRequests = ({ user }) => {
     documents: [],
     requiresAcknowledgment: false,
     absence_unit: 'jours',  // 'jours' ou 'heures'
-    hours_amount: null      // nombre d'heures si unit='heures'
+    hours_amount: null,      // nombre d'heures si unit='heures'
+    employee_id: user?.id || '',  // Pour admin: permettre de choisir l'employé
+    employee_name: user?.name || ''
   });
+
+  const [employees, setEmployees] = useState([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(false);
 
   // Suppression de la duplication - utiliser le state requests défini plus haut
 
