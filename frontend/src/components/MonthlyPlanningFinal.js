@@ -234,6 +234,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   useEffect(() => {
     // Only load if employees are already loaded
     if (employees.length === 0) {
+      console.log('⏸️ Skipping absence load: no employees yet');
       return;
     }
     
@@ -241,10 +242,12 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
+          console.warn('⚠️ No token available for absence loading');
           return;
         }
 
         const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/absences/by-period/${selectedYear}/${selectedMonth + 1}`;
+        console.log(`🔄 Loading absences for ${selectedYear}/${selectedMonth + 1} from API...`);
         
         const response = await fetch(
           apiUrl,
@@ -259,22 +262,26 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         let importedAbsences = [];
         if (response.ok) {
           importedAbsences = await response.json();
+          console.log(`✅ Loaded ${importedAbsences.length} absences from API`);
+        } else {
+          console.error(`❌ Failed to load absences: ${response.status}`);
         }
         
         // Charger aussi les demandes d'absence approuvées
         const requestsData = getRequests();
         const approvedRequests = Array.isArray(requestsData) ? requestsData.filter(r => r.status === 'approved') : [];
+        console.log(`📋 Found ${approvedRequests.length} approved requests from local data`);
         
         // FUSION: Appliquer toutes les absences en une seule fois
         applyAllAbsencesToPlanning(importedAbsences, approvedRequests);
         
       } catch (error) {
-        console.error('Error loading absences:', error);
+        console.error('❌ Error loading absences:', error);
       }
     };
 
     loadAndMergeAllAbsences();
-  }, [employees, selectedYear, selectedMonth]);
+  }, [employees.length, selectedYear, selectedMonth]);
 
   // Charger les astreintes
   useEffect(() => {
