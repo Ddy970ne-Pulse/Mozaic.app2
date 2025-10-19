@@ -625,11 +625,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                   (absenceInfo.skipHolidays && isHoliday(day, month, year))
                 );
                 
-                // Debug pour CA sur samedi
-                if (absenceCode === 'CA' && isSaturdayDay) {
-                  console.log(`🔍 CA Samedi ${day}/${month+1}: skipWeekends=${absenceInfo.skipWeekends}, skipOnlySundays=${absenceInfo.skipOnlySundays}, shouldSkip=${shouldSkipThisDay}`);
-                }
-                
                 if (!shouldSkipThisDay) {
                   // ✅ FORMAT CLÉ UNIFIÉ: YYYY-MM-DD pour compatibilité avec le rendu
                   const dayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
