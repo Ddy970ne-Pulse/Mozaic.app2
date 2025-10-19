@@ -115,6 +115,50 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     'AST': { name: 'Astreinte', color: 'bg-orange-600', textColor: 'text-white', type: 'Astreinte cadres', decompte: 'Temps travaillé', skipWeekends: false, skipHolidays: false, priority: 24 }
   };
 
+  // 🔄 MAPPING: Convertir noms complets en codes courts
+  const mapAbsenceNameToCode = (absenceName) => {
+    const mapping = {
+      'Congés Payés': 'CP',
+      'Congés payés': 'CP',
+      'Congé payé': 'CP',
+      'Congés annuels': 'CA',
+      'Congé annuel': 'CA',
+      'Congés Trimestriels': 'CT',
+      'Congé trimestriel': 'CT',
+      'Récupération': 'REC',
+      'Maladie': 'AM',
+      'Arrêt maladie': 'AM',
+      'Congé pour événement familial': 'FAM',
+      'Evènement familiale': 'FAM',
+      'Événement familial': 'FAM',
+      'Heures de délégation': 'HD',
+      'Formation': 'FO',
+      'Congé formation': 'FO',
+      'Congé sans solde': 'CSS',
+      'Rendez-vous médical': 'RMED',
+      'Accident du travail': 'AT',
+      'Télétravail': 'TT',
+      'Congé maternité': 'MAT',
+      'Congé paternité': 'PAT',
+      'Stage': 'STG',
+      'Congés CSE': 'CCSE',
+      'Congés jours fériés': 'CJF',
+      'Fractionnement congés': 'FRC',
+      'Repos Dominical': 'RHD',
+      'Enfants malades': 'EMAL',
+      'Maladie Professionnelle': 'MPRO',
+      'Absence autorisée': 'AUT',
+      'Absence non autorisée': 'NAUT',
+      'CA': 'CA',  // Déjà en code
+      'CP': 'CP',
+      'CT': 'CT',
+      'REC': 'REC',
+      'AM': 'AM'
+    };
+    
+    return mapping[absenceName] || absenceName;
+  };
+
   // 🎉 SYSTÈME DYNAMIQUE: Jours fériés calculés automatiquement pour l'année sélectionnée
   // useMemo pour recalculer quand selectedYear change
   const currentHolidays = React.useMemo(() => {
