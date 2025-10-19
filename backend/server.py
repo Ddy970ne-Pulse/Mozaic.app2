@@ -3088,7 +3088,7 @@ async def import_absences(
                     continue
                 
                 # Trouver la méthode de décompte pour ce type d'absence
-                absence_type = next((at for at in demo_absence_types if at["code"] == motif_absence), None)
+                absence_type = await get_absence_type_config(motif_absence)
                 counting_method = absence_type["counting_method"] if absence_type else "Jours Calendaires"
                 
                 # Calculer la date de fin automatiquement
