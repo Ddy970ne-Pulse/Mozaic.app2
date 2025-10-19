@@ -2240,6 +2240,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                         
                         const dateStr = `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
                         const hasOnCall = isInOnCallWeek(employee.id, dateStr);
+                        const onCallEmployee = getOnCallEmployeeForDate(dateStr);
                         
                         const displayCode = absence || (hasOnCall ? 'AST' : null);
                         const codeInfo = displayCode ? absenceColorMap[displayCode] : null;
@@ -2270,14 +2271,27 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                             onContextMenu={(e) => displayCode && handleCellRightClick(e, employee, dateObj, displayCode)}
                             onMouseEnter={() => isClickable && handleDateCellHover(dateObj.day)}
                           >
-                            {codeInfo && (
-                              <span 
-                                className={`${codeInfo.color} ${codeInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help`}
-                                title={`${codeInfo.name} - ${employee.name} - ${codeInfo.type} - ${codeInfo.decompte}${hasOnCall && absence ? ' + Astreinte semaine' : ''}`}
-                              >
-                                {displayCode}
-                              </span>
-                            )}
+                            <div className="flex flex-col items-center justify-center space-y-0.5">
+                              {/* Affichage de l'absence */}
+                              {codeInfo && (
+                                <span 
+                                  className={`${codeInfo.color} ${codeInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help`}
+                                  title={`${codeInfo.name} - ${employee.name} - ${codeInfo.type} - ${codeInfo.decompte}${hasOnCall && absence ? ' + Astreinte semaine' : ''}`}
+                                >
+                                  {displayCode}
+                                </span>
+                              )}
+                              
+                              {/* Bande d'astreinte avec nom de l'employé d'astreinte */}
+                              {onCallEmployee && (
+                                <div 
+                                  className="bg-orange-600 text-white text-[9px] px-1 py-0.5 rounded-sm w-full truncate"
+                                  title={`🔔 Astreinte: ${onCallEmployee.employeeName}\nSemaine du ${new Date(onCallEmployee.weekStart).toLocaleDateString('fr-FR')} au ${new Date(onCallEmployee.weekEnd).toLocaleDateString('fr-FR')}`}
+                                >
+                                  🔔 {onCallEmployee.employeeName.split(' ')[0]}
+                                </div>
+                              )}
+                            </div>
                           </td>
                         );
                       })}
