@@ -300,13 +300,16 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                   </h1>
                   <div className="flex items-center space-x-2">
                     <p className="text-xs text-gray-600">Gestion des Ressources Humaines</p>
-                    {/* Indicateur de connexion temps réel */}
-                    <div className="flex items-center space-x-1">
-                      <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
-                      <span className="text-xs text-gray-500">
-                        {isConnected ? 'En ligne' : 'Hors ligne'}
-                      </span>
-                    </div>
+                    {/* Indicateur de connexion temps réel - TEMPORAIREMENT DÉSACTIVÉ */}
+                    {/* WebSocket nécessite configuration Ingress Kubernetes spéciale */}
+                    {false && (
+                      <div className="flex items-center space-x-1">
+                        <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                        <span className="text-xs text-gray-500">
+                          {isConnected ? 'En ligne' : 'Hors ligne'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
