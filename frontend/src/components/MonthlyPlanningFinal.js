@@ -577,11 +577,17 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   // 🔄 FONCTION UNIFIÉE: Applique TOUTES les absences (importées + demandes)
   // avec réinitialisation complète pour éviter pollution entre périodes
   const applyAllAbsencesToPlanning = (importedAbsences = [], approvedRequests = []) => {
+    console.log(`🔄 applyAllAbsencesToPlanning called for ${selectedYear}/${selectedMonth + 1}`);
+    console.log(`   📦 Imported absences count: ${importedAbsences.length}`);
+    console.log(`   📋 Approved requests count: ${approvedRequests.length}`);
     
     setEmployees(prevEmployees => {
       if (!prevEmployees || prevEmployees.length === 0) {
+        console.warn('⚠️ No employees to apply absences to!');
         return prevEmployees;
       }
+      
+      console.log(`   👥 Processing ${prevEmployees.length} employees`);
       
       return prevEmployees.map(employee => {
         // 🚨 RÉINITIALISATION COMPLÈTE pour ce mois/année
@@ -594,6 +600,8 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           abs.employee_name === employee.name ||
           `${abs.nom} ${abs.prenom}`.trim() === employee.name
         );
+        
+        console.log(`   👤 ${employee.name}: Found ${employeeImportedAbsences.length} imported absences`);
         
         employeeImportedAbsences.forEach(absence => {
           try {
