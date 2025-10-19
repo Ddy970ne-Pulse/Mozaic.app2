@@ -255,6 +255,18 @@ backend:
         agent: "testing"
         comment: "TEST COMPLET DU FLUX D'APPROBATION ABSENCE → PLANNING RÉUSSI ✅ SYSTÈME ENTIÈREMENT FONCTIONNEL: Test exhaustif du workflow complet d'approbation d'absence selon la demande française spécifique. TOUS LES CRITÈRES CRITIQUES VÉRIFIÉS: ✅ ÉTAPE 1: Demande d'absence créée avec succès (ID: eb6efca6-a253-4f90-8405-968e74b10898) - Type: CA (Congés Annuels), Durée: 5 jours, Dates: 15/01/2026 → 19/01/2026, ✅ ÉTAPE 2: Planning janvier 2026 récupéré - 12 absences trouvées AVANT approbation, Absence nouvellement créée trouvée avec status=pending (pas encore approuvée), ✅ ÉTAPE 3: Demande approuvée avec succès - success: True, planning_updated: True, ✅ ÉTAPE 4: Planning janvier 2026 récupéré - 12 absences trouvées APRÈS approbation, Absence PRÉSENTE dans planning avec status=approved (date_debut: 15/01/2026, date_fin: 19/01/2026, motif_absence: CA), Nombre d'absences cohérent (avant: 12, après: 12), ✅ ÉTAPE 5: Compteurs récupérés - CA initial: 30.0, CA pris: 10.0, CA solde: 24.0, CA décompté correctement (au moins 5 jours pris), ✅ ÉTAPE 6: 2 notifications créées pour l'employé. RÉSUMÉ FINAL: 17 tests réussis sur 19 (89.5%) - FLUX D'APPROBATION ABSENCE → PLANNING: FONCTIONNEL. PROBLÈMES MINEURS IDENTIFIÉS: Solde CA légèrement incohérent (attendu: 20.0, obtenu: 24.0) - calcul de solde à vérifier, Échec création 2ème demande pour test bonus (400) - validation de chevauchement trop stricte. CONCLUSION: Le flux complet d'approbation absence → planning → compteurs fonctionne correctement et répond aux exigences de la review française."
 
+  - task: "CP → CA Migration Complete Implementation"
+    implemented: false
+    working: false
+    file: "AbsenceRequests.js, EmployeeSpaceV2.js, MonthlyPlanningFinal.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "CP → CA MIGRATION INCOMPLETE ❌ CRITICAL ISSUES IDENTIFIED: Comprehensive testing across all user profiles (Admin Diego DACALOR, Manager Jacques EDAU, Employee Cindy GREGOIRE) reveals the CP → CA migration is NOT complete. SPECIFIC FAILURES: ❌ HISTORICAL DATA: Employee Cindy GREGOIRE's approved requests still show 'Congés Payés' (4 occurrences found), ❌ MANAGER INTERFACE: Manager view displays 'Congés Payés' for Jacques EDAU and Cindy GREGOIRE in approved requests list, ❌ EMPLOYEE COUNTERS: No unified 'CA - Congés Annuels' counter found in Employee Space, existing counters not displaying CA properly, ❌ ANALYTICS MISSING: No CA statistics found in Analytics & KPI module. SUCCESSFUL AREAS: ✅ Planning Mensuel October 2025 shows CA badges (45 found, 0 CP), ✅ Planning Legend shows 'CA - Congés Annuels' only, ✅ New request form dropdown contains 'CA - Congés Annuels' option only. REQUIRED FIXES: 1) Update historical absence data from 'Congés Payés' to 'CA', 2) Fix manager interface to display 'CA' instead of 'Congés Payés', 3) Implement unified CA counters in Employee Space, 4) Update Analytics module to show CA statistics, 5) Ensure all interfaces consistently use 'CA - Congés Annuels' terminology."
+
   - task: "Absence Validation System - Role-based Validation Testing"
     implemented: true
     working: false
