@@ -763,7 +763,7 @@ const AbsenceRequests = ({ user }) => {
                           <span className={`px-3 py-1 rounded-full text-xs font-bold ${config.badgeBg} ${config.text}`}>
                             {config.badge}
                           </span>
-                          <span className="font-semibold text-gray-900 text-lg">{request.type}</span>
+                          <span className="font-semibold text-gray-900 text-lg">{getDisplayName(request.type)}</span>
                           {!isEmployee && (
                             <span className="text-sm text-gray-600">• {request.employee}</span>
                           )}
