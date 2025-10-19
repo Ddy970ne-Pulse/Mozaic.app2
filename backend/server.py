@@ -5299,7 +5299,7 @@ async def seed_demo_data(current_user: User = Depends(get_current_user)):
                 employee = await db.users.find_one({"email": employee_email})
                 if employee:
                     # Find counting method
-                    absence_type = next((at for at in demo_absence_types if at["code"] == abs_data["motif_absence"]), None)
+                    absence_type = await get_absence_type_config(abs_data["motif_absence"])
                     counting_method = absence_type["counting_method"] if absence_type else "Jours Calendaires"
                     
                     # Calculate end date
