@@ -581,17 +581,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
               endDate.setDate(startDate.getDate() + joursAbsence - 1);
             }
             
-            // DEBUG: Log pour cet employé
-            if (employee.name === 'Jean-François BERNARD' || employee.name === 'Christine GRANVILLE' || employee.name === 'Cindy GREGOIRE') {
-              console.log(`🔍 ${employee.name}: Absence ${motifAbsence} du ${dateDebut} au ${dateFin}`, {
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-                startMonth: startDate.getMonth(),
-                selectedMonth,
-                willInclude: startDate.getMonth() === selectedMonth || endDate.getMonth() === selectedMonth
-              });
-            }
-            
             // Générer toutes les dates SEULEMENT pour le mois/année affichés
             const currentDate = new Date(startDate);
             while (currentDate <= endDate) {
