@@ -149,9 +149,9 @@ class MigrationTester:
                 
                 print(f"\n📋 DÉTAILS ANALYTICS:")
                 print(f"   Total Absences: {total_absences}")
-                print(f"   Categories: {list(by_category.keys())}")
+                print(f"   Categories: {category_names[:3]}")
                 print(f"   Mois de tendance: {len(monthly_trend)}")
-                print(f"   Départements: {list(department_breakdown.keys())}")
+                print(f"   Départements: {department_names[:3]}")
                 
             else:
                 self.log_result("phase2", "Analytics endpoint accessible", 
