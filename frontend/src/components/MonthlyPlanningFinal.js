@@ -540,7 +540,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   // 🏛️ FONCTION DE RÉINTÉGRATION: Appelle l'API pour réintégrer des jours
   const reintegrateLeave = async (employee, absenceType, days, reason, interruptingType) => {
     // Vérifier si ce type d'absence doit être réintégré
-    const reintegrableTypes = ['CA', 'CP', 'CT', 'RTT', 'REC', 'CEX'];
+    const reintegrableTypes = ['CA', 'CT', 'RTT', 'REC', 'CEX'];
     if (!reintegrableTypes.includes(absenceType)) {
       return; // Ce type ne nécessite pas de réintégration
     }
