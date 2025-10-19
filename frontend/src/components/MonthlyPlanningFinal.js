@@ -687,6 +687,10 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                 const absenceCode = motifMapping[motifAbsence] || motifAbsence.toUpperCase().substring(0, 4);
                 const absenceInfo = absenceColorMap[absenceCode];
                 
+                if (!absenceInfo) {
+                  console.warn(`      ⚠️ No color map info for code: ${absenceCode} (from ${motifAbsence})`);
+                }
+                
                 // 🚨 NOUVELLE LOGIQUE: Vérifier si on doit skip week-ends/jours fériés
                 const isWeekendDay = isWeekend(day, month, year);
                 const isSundayDay = isSunday(day, month, year);
@@ -922,6 +926,10 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                 
                 const absenceCode = motifMapping[motifAbsence] || motifAbsence.toUpperCase().substring(0, 4);
                 const absenceInfo = absenceColorMap[absenceCode];
+                
+                if (!absenceInfo) {
+                  console.warn(`      ⚠️ No color map info for code: ${absenceCode} (from ${motifAbsence})`);
+                }
                 
                 // 🚨 NOUVELLE LOGIQUE: Vérifier si on doit skip week-ends/jours fériés
                 const shouldSkipThisDay = absenceInfo && (
