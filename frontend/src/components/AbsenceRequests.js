@@ -44,18 +44,29 @@ const AbsenceRequests = ({ user }) => {
             endDate: absence.date_fin,
             days: parseFloat(absence.jours_absence || 0),
             reason: absence.notes || '',
+            // Statut par défaut "approved" pour les absences importées sans statut
             status: absence.status || 'approved',
             submittedDate: absence.created_at ? absence.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
             absence_unit: absence.absence_unit || 'jours',
-            hours_amount: absence.hours_amount
+            hours_amount: absence.hours_amount,
+            approver_name: absence.approver_name || absence.approver,
+            approved_date: absence.approved_date,
+            rejection_reason: absence.rejection_reason,
+            rejected_by: absence.rejected_by || absence.rejectedBy,
+            rejected_date: absence.rejected_date || absence.rejectedDate
           };
           
-          if (requestObj.status === 'pending') {
+          // Catégoriser par statut
+          const absenceStatus = requestObj.status.toLowerCase();
+          if (absenceStatus === 'pending') {
             pending.push(requestObj);
-          } else if (requestObj.status === 'approved') {
+          } else if (absenceStatus === 'approved') {
             approved.push(requestObj);
-          } else if (requestObj.status === 'rejected') {
+          } else if (absenceStatus === 'rejected') {
             rejected.push(requestObj);
+          } else {
+            // Par défaut, considérer comme approuvé
+            approved.push({...requestObj, status: 'approved'});
           }
         });
         
@@ -66,6 +77,9 @@ const AbsenceRequests = ({ user }) => {
         updateRequests(newRequests);
         
         console.log(`✅ Absences chargées: ${pending.length} en attente, ${approved.length} approuvées, ${rejected.length} rejetées`);
+        console.log(`📊 Détail - Pending IDs:`, pending.map(p => p.id));
+        console.log(`📊 Détail - Approved IDs:`, approved.map(p => p.id).slice(0, 5), `... (${approved.length} total)`);
+        console.log(`📊 Détail - Rejected IDs:`, rejected.map(p => p.id));
       } else {
         console.error('Erreur chargement absences:', response.status);
       }
