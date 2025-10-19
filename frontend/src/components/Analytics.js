@@ -51,7 +51,7 @@ const Analytics = ({ user }) => {
     personalAbsences: 1455,  // Non-DEL absences  
     averagePerEmployee: 8.5,
     delegationRate: 5.6,  // % of absences that are DEL
-    mostCommonType: 'Congés Payés',
+    mostCommonType: 'CA - Congés Annuels',
     peakMonth: 'Août',
     comparisonLastYear: '+3.2%'
   };
