@@ -87,10 +87,9 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     'STG': { name: 'Stage', color: 'bg-teal-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Calendaires', skipWeekends: false, skipHolidays: false, skipOnlySundays: false, priority: 8 },
     'FO': { name: 'Congé formation', color: 'bg-indigo-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: true, skipOnlySundays: true, priority: 9 },
     
-    // Niveau 4 : PRIORITÉ MOYENNE-HAUTE - Congés payés
-    'CA': { name: 'Congés annuels', color: 'bg-blue-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: true, skipOnlySundays: true, priority: 10 },
-    'CP': { name: 'Congés Payés', color: 'bg-blue-300', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: true, skipOnlySundays: true, priority: 11 },
-    'CT': { name: 'Congés Trimestriels', color: 'bg-green-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true, skipOnlySundays: false, priority: 12 },
+    // Niveau 4 : PRIORITÉ MOYENNE-HAUTE - Congés annuels
+    'CA': { name: 'CA - Congés Annuels', color: 'bg-blue-400', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: true, skipOnlySundays: true, priority: 10 },
+    'CT': { name: 'Congés Trimestriels', color: 'bg-green-500', textColor: 'text-white', type: 'Absence Programmée', decompte: 'Jours Ouvrés', skipWeekends: true, skipHolidays: true, skipOnlySundays: false, priority: 11 },
     'CEX': { name: 'Congé exceptionnel', color: 'bg-violet-500', textColor: 'text-white', type: 'Absentéisme', decompte: 'Jours Ouvrables', skipWeekends: false, skipHolidays: true, skipOnlySundays: true, priority: 13 },
     
     // Niveau 5 : PRIORITÉ MOYENNE - Récupérations et RTT
