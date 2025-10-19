@@ -87,6 +87,47 @@ demo_absence_types = [
     {"code": "CSS", "name": "Congés Sans Solde", "category": "other", "type": "Absentéisme", "counting_method": "Jours Ouvrables", "requires_validation": True, "requires_acknowledgment": False}
 ]
 
+# 🔄 HELPER: Récupérer types d'absence depuis BDD ou fallback
+async def get_absence_type_config(code: str = None):
+    """
+    Récupère la configuration d'un type d'absence depuis MongoDB
+    Fallback vers demo_absence_types si BDD indisponible
+    
+    Args:
+        code: Si fourni, retourne uniquement ce type. Sinon tous les types.
+    
+    Returns:
+        dict ou list[dict]: Configuration du/des type(s) d'absence
+    """
+    try:
+        if code:
+            # Récupérer un type spécifique
+            absence_type = await db.absence_types_config.find_one({"code": code})
+            if absence_type:
+                if "_id" in absence_type:
+                    del absence_type["_id"]
+                return absence_type
+            else:
+                # Fallback vers demo_absence_types
+                return next((at for at in demo_absence_types if at["code"] == code), None)
+        else:
+            # Récupérer tous les types
+            absence_types = await db.absence_types_config.find({}).to_list(100)
+            if absence_types:
+                for at in absence_types:
+                    if "_id" in at:
+                        del at["_id"]
+                return absence_types
+            else:
+                # Fallback vers demo_absence_types
+                return demo_absence_types
+    except Exception as e:
+        logger.warning(f"⚠️ Erreur récupération absence_types_config, fallback vers demo_absence_types: {str(e)}")
+        if code:
+            return next((at for at in demo_absence_types if at["code"] == code), None)
+        else:
+            return demo_absence_types
+
 # Password hashing utilities
 def hash_password(password: str) -> str:
     """Hash a password using bcrypt"""
