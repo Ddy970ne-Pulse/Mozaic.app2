@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://staffhub-83.preview.emergentagent.com')
+BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://rh-planning-app.preview.emergentagent.com')
 BASE_URL = f"{BACKEND_URL}/api"
 
 def test_workflow():
