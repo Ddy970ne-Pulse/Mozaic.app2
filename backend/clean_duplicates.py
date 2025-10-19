@@ -103,8 +103,14 @@ async def clean_absences():
                 created1 = abs1.get('created_at', '')
                 created2 = abs2.get('created_at', '')
                 
-                # Supprimer le plus récent
-                if created2 > created1:
+                # Convertir en string pour comparaison si nécessaire
+                if isinstance(created1, datetime):
+                    created1 = created1.isoformat()
+                if isinstance(created2, datetime):
+                    created2 = created2.isoformat()
+                
+                # Supprimer le plus récent (ou le deuxième si pas de date)
+                if created2 and created1 and created2 > created1:
                     to_delete = abs2
                     to_keep = abs1
                 else:
