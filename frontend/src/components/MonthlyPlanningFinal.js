@@ -489,8 +489,10 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
               // Vérifier si c'est le mois/année sélectionnés
               if (month === selectedMonth && year === selectedYear) {
                 const absenceCode = mapAbsenceTypeToCode(request.type);
-                if (!newAbsences[day.toString()]) {
-                  newAbsences[day.toString()] = absenceCode;
+                // ✅ FORMAT CLÉ UNIFIÉ: YYYY-MM-DD pour compatibilité avec le rendu
+                const dayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                if (!newAbsences[dayKey]) {
+                  newAbsences[dayKey] = absenceCode;
                   totalDays++;
                 }
               }
