@@ -3,6 +3,45 @@ import { getRequests, approveRequest, rejectRequest, subscribe, updateRequests }
 import { DOCUMENT_TYPES, SecurityUtils } from '../shared/securityConfig';
 import { ModuleHeader, TabBar, Button } from './shared/UIComponents';
 
+// 🔄 Fonction de normalisation CP → CA pour rétrocompatibilité
+const normalizeAbsenceType = (type) => {
+  const cpVariants = ['CP', 'Congés Payés', 'Congés payés', 'Congé payé'];
+  if (cpVariants.includes(type)) {
+    return 'CA';
+  }
+  return type;
+};
+
+// 🎨 Fonction pour obtenir le nom d'affichage du type
+const getDisplayName = (type) => {
+  const normalizedType = normalizeAbsenceType(type);
+  const absenceTypes = {
+    'CA': 'CA - Congés Annuels',
+    'CT': 'Congés Trimestriels',
+    'RTT': 'RTT / Récupération',
+    'REC': 'Récupération',
+    'AM': 'Arrêt maladie',
+    'AT': 'Accident du travail',
+    'MAT': 'Congé maternité',
+    'PAT': 'Congé paternité',
+    'FAM': 'Évènement familial',
+    'FO': 'Formation',
+    'TEL': 'Télétravail',
+    'DEL': 'Délégation',
+    'STG': 'Stage',
+    'CEX': 'Congé exceptionnel',
+    'RH': 'Repos Hebdomadaire',
+    'RHD': 'Repos Dominical',
+    'MPRO': 'Maladie Professionnelle',
+    'EMAL': 'Enfants malades',
+    'RMED': 'Rendez-vous médical',
+    'CSS': 'Congés Sans Solde',
+    'NAUT': 'Absence non autorisée',
+    'AUT': 'Absence autorisée'
+  };
+  return absenceTypes[normalizedType] || normalizedType;
+};
+
 const AbsenceRequests = ({ user }) => {
   const [activeTab, setActiveTab] = useState('pending');
   const [showNewRequest, setShowNewRequest] = useState(false);
