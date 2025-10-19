@@ -145,7 +145,16 @@
 #====================================================================================================
 
 user_problem_statement: |
-  WEBSOCKET REAL-TIME SYNCHRONIZATION & BUTTON ACTION BUG TESTING
+  TEST COMPLET DE LA MIGRATION DES DONNÉES DE TEST - PHASES 1+2+3
+  
+  OBJECTIF: Vérifier que toutes les modifications de la migration complète fonctionnent correctement.
+  USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)
+  
+  TESTS CRITIQUES:
+  1. PHASE 1 - SUPPRESSION FICHIERS TEST
+  2. PHASE 2 - ANALYTICS RÉELLES  
+  3. PHASE 3 - ABSENCE TYPES EN BDD
+  4. PHASE 4 - INTÉGRATION CRÉATION ABSENCE
   
   USER PRIORITIES:
   1. Test WebSocket real-time synchronization implementation (IMMEDIATE)
