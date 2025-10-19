@@ -90,12 +90,12 @@ const AbsenceRequests = ({ user }) => {
     }
   };
 
-  // Charger les absences au montage et toutes les 30 secondes
+  // Charger les absences au montage et toutes les 3 minutes
   useEffect(() => {
     loadAbsencesFromAPI();
     
-    // Recharger périodiquement
-    const interval = setInterval(loadAbsencesFromAPI, 30000); // 30 secondes
+    // Recharger périodiquement (3 minutes au lieu de 30s pour éviter les actualisations trop fréquentes)
+    const interval = setInterval(loadAbsencesFromAPI, 180000); // 3 minutes
     
     return () => clearInterval(interval);
   }, []);
