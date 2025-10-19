@@ -782,6 +782,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         });
         
         console.log(`   → ${employee.name}: ${totalDays} jours d'absence en ${selectedMonth + 1}/${selectedYear}`);
+        console.log(`   → ${employee.name}: absences object keys:`, Object.keys(newAbsences).length > 0 ? Object.keys(newAbsences) : 'EMPTY');
         
         // 💰 APPLIQUER LES RÉINTÉGRATIONS: Après avoir traité tous les jours
         if (employee.replacedAbsences && Object.keys(employee.replacedAbsences).length > 0) {
