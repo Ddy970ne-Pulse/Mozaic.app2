@@ -3587,9 +3587,15 @@ async def update_absence(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Update an existing absence
-    🔄 SYNCHRONISATION AUTOMATIQUE : Changement de statut → Synchronise compteurs
-    Admin can update any absence, employees can update only their own pending absences
+    🔄 WORKFLOW DOUBLE VALIDATION CCN66
+    
+    1️⃣ Employee crée → status='pending'
+    2️⃣ Manager valide → status='validated_by_manager' (PAS de déduction compteurs)
+    3️⃣ Admin approuve → status='approved' (DÉDUCTION compteurs)
+    
+    Exceptions:
+    - Manager NE PEUT PAS valider sa propre demande (seul admin peut)
+    - Admin peut directement approuver (skip manager)
     """
     # Récupérer l'absence existante
     existing_absence = await db.absences.find_one({"id": absence_id})
@@ -3599,11 +3605,11 @@ async def update_absence(
     old_status = existing_absence.get("status")
     old_jours = float(existing_absence.get("jours_absence", 0))
     
-    # Vérifier les permissions
+    # 🔒 PERMISSIONS CHECK
     if current_user.role not in ["admin", "manager"]:
-        # Les employés peuvent modifier seulement leurs propres absences en attente
+        # Employees peuvent modifier seulement leurs propres absences en attente
         if existing_absence.get("employee_id") != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to update this absence")
+            raise HTTPException(status_code=403, detail="Non autorisé")
         if existing_absence.get("status") != "pending":
             raise HTTPException(status_code=403, detail="Cannot update validated absences")
     
@@ -3616,96 +3622,105 @@ async def update_absence(
         if field in absence_data:
             update_fields[field] = absence_data[field]
     
-    # Ajouter updated_at
     update_fields['updated_at'] = datetime.utcnow().isoformat()
     update_fields['updated_by'] = current_user.id
     
-    # Si admin/manager, permettre de changer le statut
-    # MAIS un manager ne peut PAS valider sa propre demande
-    if current_user.role in ["admin", "manager"] and 'status' in absence_data:
+    # 🎯 GESTION DU WORKFLOW DE VALIDATION
+    if 'status' in absence_data:
         new_status_requested = absence_data['status']
         
-        # Vérification: Manager ne peut pas approuver/rejeter sa propre demande
-        if current_user.role == "manager" and current_user.id == existing_absence.get('employee_id'):
-            if new_status_requested in ["approved", "rejected"] and old_status == "pending":
+        # ==================== CAS 1: MANAGER VALIDE (pending → validated_by_manager) ====================
+        if current_user.role == "manager" and new_status_requested == "validated_by_manager":
+            # ❌ Manager NE PEUT PAS valider sa propre demande
+            if current_user.id == existing_absence.get('employee_id'):
                 raise HTTPException(
                     status_code=403,
-                    detail="Un manager ne peut pas valider ou rejeter sa propre demande d'absence. Seul un administrateur ou un autre manager peut le faire."
+                    detail="❌ Un manager ne peut pas valider sa propre demande. Seul un administrateur peut le faire."
                 )
-        
-        # 🔍 VALIDATION : Si approbation (pending → approved), vérifier les chevauchements
-        if new_status_requested == "approved" and old_status == "pending":
-            overlapping = await db.absences.find({
-                "employee_id": existing_absence.get('employee_id'),
-                "status": "approved",
-                "id": {"$ne": absence_id},  # Exclure l'absence actuelle
-                "$or": [
-                    {
-                        "date_debut": {"$lte": existing_absence.get('date_fin')},
-                        "date_fin": {"$gte": existing_absence.get('date_debut')}
-                    }
-                ]
-            }).to_list(length=None)
             
-            if overlapping:
-                overlap_details = []
-                for existing in overlapping:
-                    overlap_details.append(
-                        f"- {existing.get('motif_absence')} du {existing.get('date_debut')} au {existing.get('date_fin')}"
+            # ✅ Manager valide une demande d'un autre employé
+            if old_status == "pending":
+                update_fields['status'] = "validated_by_manager"
+                update_fields['validated_by_manager'] = current_user.id
+                update_fields['manager_validation_date'] = datetime.utcnow().isoformat()
+                
+                logger.info(f"✅ Manager {current_user.name} a PRÉ-VALIDÉ l'absence {absence_id} de {existing_absence.get('employee_name')}")
+                
+                # 📧 NOTIFICATION: Notifier l'admin qu'une absence attend approbation finale
+                admins = await db.users.find({"role": "admin"}).to_list(length=None)
+                for admin in admins:
+                    await create_auto_notification(
+                        user_id=admin.get('id'),
+                        notif_type="absence_request",
+                        title="Absence validée par manager - Approbation finale requise ⏳",
+                        message=f"{existing_absence.get('employee_name')} - {existing_absence.get('motif_absence')} ({existing_absence.get('date_debut')} → {existing_absence.get('date_fin')}) - Validée par {current_user.name}",
+                        icon="⏳",
+                        link="/absence-requests",
+                        related_id=absence_id
                     )
                 
-                error_message = (
-                    f"❌ Impossible d'approuver: Chevauchement de dates détecté pour {existing_absence.get('employee_name')}:\n" +
-                    "\n".join(overlap_details) +
-                    f"\n\nDemande à approuver: {existing_absence.get('motif_absence')} du {existing_absence.get('date_debut')} au {existing_absence.get('date_fin')}"
-                )
+                logger.info(f"📧 Notifications envoyées à {len(admins)} admin(s)")
+            else:
+                raise HTTPException(status_code=400, detail=f"Cannot validate absence with status '{old_status}'")
+        
+        # ==================== CAS 2: ADMIN APPROUVE (validated_by_manager → approved) ====================
+        elif current_user.role == "admin" and new_status_requested == "approved":
+            # Admin peut approuver depuis pending OU validated_by_manager
+            if old_status in ["pending", "validated_by_manager"]:
+                update_fields['status'] = "approved"
+                update_fields['approved_by'] = current_user.id
+                update_fields['approved_at'] = datetime.utcnow().isoformat()
                 
-                logger.warning(f"⚠️ Tentative d'approbation avec chevauchement: {existing_absence.get('employee_name')}")
-                raise HTTPException(status_code=400, detail=error_message)
+                logger.info(f"✅ Admin {current_user.name} a APPROUVÉ l'absence {absence_id}")
+            else:
+                raise HTTPException(status_code=400, detail=f"Cannot approve absence with status '{old_status}'")
         
-        update_fields['status'] = new_status_requested
-        
-        # Ajouter les champs de traçabilité selon le statut
-        if new_status_requested == "approved":
-            update_fields['approved_by'] = current_user.id
-            update_fields['approved_at'] = datetime.utcnow().isoformat()
-            update_fields['approver_name'] = current_user.name  # Compatibilité frontend
-            update_fields['approved_date'] = datetime.utcnow().date().isoformat()  # Compatibilité frontend
-        elif new_status_requested == "rejected":
+        # ==================== CAS 3: ADMIN REJETTE ====================
+        elif current_user.role == "admin" and new_status_requested == "rejected":
+            update_fields['status'] = "rejected"
             update_fields['rejected_by'] = current_user.id
             update_fields['rejected_at'] = datetime.utcnow().isoformat()
-            update_fields['rejected_date'] = datetime.utcnow().date().isoformat()  # Compatibilité frontend
-            if 'rejectionReason' in absence_data:
-                update_fields['rejection_reason'] = absence_data['rejectionReason']
+            update_fields['rejection_reason'] = absence_data.get('rejection_reason', 'Aucune raison spécifiée')
+            
+            logger.info(f"❌ Admin {current_user.name} a REJETÉ l'absence {absence_id}")
+        
+        # ==================== CAS 4: MANAGER TENTE D'APPROUVER DIRECTEMENT ====================
+        elif current_user.role == "manager" and new_status_requested == "approved":
+            raise HTTPException(
+                status_code=403,
+                detail="❌ Seul un administrateur peut approuver une absence. Les managers peuvent uniquement pré-valider."
+            )
+        
+        else:
+            # Autres transitions non autorisées
+            raise HTTPException(
+                status_code=403,
+                detail=f"Transition non autorisée: {old_status} → {new_status_requested} pour role={current_user.role}"
+            )
     
     new_status = update_fields.get('status', old_status)
     new_jours = float(update_fields.get('jours_absence', old_jours))
     
-    # Mettre à jour
+    # 💾 METTRE À JOUR DANS MONGODB
     result = await db.absences.update_one(
         {"id": absence_id},
         {"$set": update_fields}
     )
-    
-    if result.modified_count == 0:
-        # Pas d'erreur si aucun changement, retourner l'absence actuelle
-        logger.info(f"Aucune modification pour absence {absence_id}")
     
     # Récupérer l'absence mise à jour
     updated_absence = await db.absences.find_one({"id": absence_id})
     if "_id" in updated_absence:
         del updated_absence["_id"]
     
-    # 🔄 SYNCHRONISATION : Gérer les changements de statut et de durée
+    # 🔄 SYNCHRONISATION COMPTEURS (UNIQUEMENT SUR APPROBATION FINALE)
     sync_performed = False
     
-    # Cas 1: pending → approved (VALIDATION)
-    if old_status == "pending" and new_status == "approved":
-        logger.info(f"🔄 Validation absence {absence_id}: pending → approved")
+    if old_status in ["pending", "validated_by_manager"] and new_status == "approved":
+        logger.info(f"🔄 APPROBATION FINALE: {old_status} → approved - Déduction compteurs")
         sync_result = await sync_service.sync_absence_to_counters(updated_absence, operation="approve")
         sync_performed = sync_result
         
-        # 🔔 NOTIFICATION : Notifier l'employé de l'approbation
+        # 📧 NOTIFICATION: Notifier l'employé de l'approbation
         await create_auto_notification(
             user_id=updated_absence.get('employee_id'),
             notif_type="absence_approved",
@@ -3715,66 +3730,61 @@ async def update_absence(
             link="/my-space",
             related_id=absence_id
         )
-        logger.info(f"🔔 Notification d'approbation envoyée à {updated_absence.get('employee_name')}")
-        
-    # Cas 2: approved → rejected (ANNULATION)
+    
     elif old_status == "approved" and new_status == "rejected":
-        logger.info(f"🔄 Rejet absence {absence_id}: approved → rejected (réintégration)")
+        logger.info(f"🔄 ANNULATION: approved → rejected - Réintégration compteurs")
         sync_result = await sync_service.sync_absence_to_counters(updated_absence, operation="delete")
         sync_performed = sync_result
         
-        # 🔔 NOTIFICATION : Notifier l'employé du rejet
+        # 📧 NOTIFICATION: Notifier l'employé de l'annulation
         await create_auto_notification(
             user_id=updated_absence.get('employee_id'),
             notif_type="absence_rejected",
             title="Demande annulée ❌",
-            message=f"Votre demande de {updated_absence.get('motif_absence')} du {updated_absence.get('date_debut')} au {updated_absence.get('date_fin')} a été annulée",
+            message=f"Votre demande de {updated_absence.get('motif_absence')} a été annulée",
             icon="❌",
             link="/my-space",
             related_id=absence_id
         )
-        logger.info(f"🔔 Notification d'annulation envoyée à {updated_absence.get('employee_name')}")
-        
-    # Cas 3: pending → rejected (PAS DE SYNC, jamais déduit)
+    
     elif old_status == "pending" and new_status == "rejected":
-        logger.info(f"✅ Rejet absence {absence_id}: pending → rejected (pas de déduction)")
-        sync_performed = False
+        logger.info(f"✅ REJET DIRECT: pending → rejected (pas de déduction)")
         
-        # 🔔 NOTIFICATION : Notifier l'employé du rejet
+        # 📧 NOTIFICATION: Notifier l'employé du rejet
         await create_auto_notification(
             user_id=updated_absence.get('employee_id'),
             notif_type="absence_rejected",
             title="Demande rejetée ❌",
-            message=f"Votre demande de {updated_absence.get('motif_absence')} du {updated_absence.get('date_debut')} au {updated_absence.get('date_fin')} a été rejetée",
+            message=f"Votre demande de {updated_absence.get('motif_absence')} a été rejetée",
             icon="❌",
             link="/my-space",
             related_id=absence_id
         )
-        logger.info(f"🔔 Notification de rejet envoyée à {updated_absence.get('employee_name')}")
+    
+    elif old_status == "validated_by_manager" and new_status == "rejected":
+        logger.info(f"✅ REJET POST-VALIDATION: validated_by_manager → rejected (pas de déduction)")
         
-    # Cas 4: Modification de durée sur absence approved
-    elif old_status == "approved" and new_status == "approved" and old_jours != new_jours:
-        logger.info(f"🔄 Modification durée absence {absence_id}: {old_jours}j → {new_jours}j")
-        # Réintégrer l'ancienne durée
-        old_absence_dict = existing_absence.copy()
-        await sync_service.sync_absence_to_counters(old_absence_dict, operation="delete")
-        # Déduire la nouvelle durée
-        sync_result = await sync_service.sync_absence_to_counters(updated_absence, operation="create")
-        sync_performed = sync_result
-        
-        # 🔔 NOTIFICATION : Notifier l'employé de la modification
+        # 📧 NOTIFICATION: Notifier l'employé du rejet
         await create_auto_notification(
             user_id=updated_absence.get('employee_id'),
-            notif_type="absence_approved",
-            title="Absence modifiée 📝",
-            message=f"Votre absence de {updated_absence.get('motif_absence')} a été modifiée: {old_jours}j → {new_jours}j",
-            icon="📝",
+            notif_type="absence_rejected",
+            title="Demande rejetée ❌",
+            message=f"Votre demande de {updated_absence.get('motif_absence')} a été rejetée par l'administrateur",
+            icon="❌",
             link="/my-space",
             related_id=absence_id
         )
-        logger.info(f"🔔 Notification de modification envoyée à {updated_absence.get('employee_name')}")
     
-    # 📡 WEBSOCKET : Broadcast modification à tous les utilisateurs
+    elif old_status == "approved" and new_status == "approved" and old_jours != new_jours:
+        logger.info(f"🔄 MODIFICATION DURÉE: {old_jours}j → {new_jours}j")
+        # Réintégrer ancienne durée
+        old_absence_dict = existing_absence.copy()
+        await sync_service.sync_absence_to_counters(old_absence_dict, operation="delete")
+        # Déduire nouvelle durée
+        sync_result = await sync_service.sync_absence_to_counters(updated_absence, operation="create")
+        sync_performed = sync_result
+    
+    # 📡 WEBSOCKET: Broadcast modification
     await ws_manager.broadcast_absence_updated(updated_absence, current_user.id)
     
     return {
@@ -3782,7 +3792,13 @@ async def update_absence(
         "message": "Absence updated successfully",
         "absence": updated_absence,
         "counters_synced": sync_performed,
-        "status_change": f"{old_status} → {new_status}" if old_status != new_status else None
+        "status_change": f"{old_status} → {new_status}" if old_status != new_status else None,
+        "workflow_step": {
+            "pending": "En attente de validation manager",
+            "validated_by_manager": "✅ Validée par manager - En attente approbation admin",
+            "approved": "✅ APPROUVÉE - Compteurs déduits",
+            "rejected": "❌ Rejetée"
+        }.get(new_status, new_status)
     }
 
 @api_router.delete("/absences/{absence_id}")
