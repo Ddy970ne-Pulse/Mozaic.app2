@@ -4667,6 +4667,7 @@ class BackendTester:
         print("=" * 80)
         
         # Initialize results for all testing categories
+        self.results["absence_workflow"] = {"status": "unknown", "details": []}
         self.results["french_review"] = {"status": "unknown", "details": []}
         self.results["leave_balance"] = {"status": "unknown", "details": []}
         self.results["mongodb_validation"] = {"status": "unknown", "details": []}
@@ -4684,8 +4685,15 @@ class BackendTester:
             # Get auth token for tests
             auth_token = self.test_authentication()
             
-            # PRIORITY 1: Test WebSocket real-time synchronization as requested in review
-            print("\n🎯 PRIORITY 1: WEBSOCKET REAL-TIME SYNCHRONIZATION - IMMEDIATE")
+            # PRIORITY 1: Test Absence Approval Workflow as requested in French review
+            print("\n🎯 PRIORITY 1: TEST COMPLET DU FLUX D'APPROBATION ABSENCE → PLANNING")
+            print("OBJECTIF: Vérifier que le flux complet fonctionne correctement:")
+            print("absence_requests (approved) → absences (créée) → Planning Mensuel (alimenté) → Compteurs synchronisés")
+            print("=" * 80)
+            self.test_absence_approval_workflow(auth_token)
+            
+            # PRIORITY 2: Test WebSocket real-time synchronization as requested in review
+            print("\n🎯 PRIORITY 2: WEBSOCKET REAL-TIME SYNCHRONIZATION - IMMEDIATE")
             print("=" * 80)
             self.test_websocket_real_time_synchronization(auth_token)
             
