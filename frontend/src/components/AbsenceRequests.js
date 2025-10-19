@@ -78,7 +78,7 @@ const AbsenceRequests = ({ user }) => {
             employee: absence.employee_name,
             employeeId: absence.employee_id,
             email: absence.email,
-            type: absence.motif_absence,
+            type: normalizeAbsenceType(absence.motif_absence),  // 🔄 Normalisation CP → CA
             startDate: absence.date_debut,
             endDate: absence.date_fin,
             days: parseFloat(absence.jours_absence || 0),
