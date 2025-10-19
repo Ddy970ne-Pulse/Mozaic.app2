@@ -747,6 +747,11 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           delete employee.replacedAbsences;
         }
         
+        // 📊 LOG pour débogage
+        if (Object.keys(newAbsences).length > 0) {
+          console.log(`👤 ${employee.name}: ${Object.keys(newAbsences).length} jour(s) d'absence`, newAbsences);
+        }
+        
         return {
           ...employee,
           absences: newAbsences,
