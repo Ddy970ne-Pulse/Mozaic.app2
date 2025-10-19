@@ -2083,17 +2083,84 @@ async def approve_absence_request(request_id: str, current_user: User = Depends(
 
 @api_router.put("/absence-requests/{request_id}/reject", response_model=dict)
 async def reject_absence_request(request_id: str, rejection_data: dict, current_user: User = Depends(get_current_user)):
+    """
+    ❌ REJETER UNE DEMANDE D'ABSENCE
+    
+    NE CRÉE PAS d'entrée dans 'absences' car rejetée
+    Pas de synchronisation compteurs
+    """
     if current_user.role not in ["admin", "manager"]:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # In real implementation, update database
-    return {
-        "message": "Request rejected successfully",
-        "request_id": request_id,
-        "rejected_by": current_user.name,
-        "rejected_date": datetime.utcnow().isoformat(),
-        "rejection_reason": rejection_data.get("reason", "")
-    }
+    try:
+        # Récupérer la demande
+        absence_request = await db.absence_requests.find_one({"id": request_id})
+        if not absence_request:
+            raise HTTPException(status_code=404, detail="Demande non trouvée")
+        
+        # 🔒 Validation : Manager ne peut pas rejeter sa propre demande
+        employee_name = absence_request.get("employee", "")
+        if " - " in employee_name:
+            employee_email = employee_name.split(" - ")[1].strip()
+            employee_name = employee_name.split(" - ")[0].strip()
+        else:
+            employee_email = None
+        
+        employee = await db.users.find_one({"name": employee_name}) if employee_name else None
+        if not employee and employee_email:
+            employee = await db.users.find_one({"email": employee_email})
+            
+        if current_user.role == "manager" and employee and employee.get("id") == current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="❌ Un manager ne peut pas rejeter sa propre demande d'absence"
+            )
+        
+        rejected_date = datetime.now(timezone.utc).isoformat()
+        
+        # Mettre à jour dans absence_requests
+        await db.absence_requests.update_one(
+            {"id": request_id},
+            {"$set": {
+                "status": "rejected",
+                "rejectedBy": current_user.name,
+                "rejectedDate": rejected_date,
+                "rejectionReason": rejection_data.get("reason", "Aucune raison spécifiée")
+            }}
+        )
+        
+        logger.info(f"❌ Demande {request_id} rejetée par {current_user.name}")
+        
+        # 📧 Notifier l'employé du rejet
+        if employee:
+            try:
+                await create_auto_notification(
+                    user_id=employee.get('id'),
+                    notif_type="absence_rejected",
+                    title="Demande rejetée ❌",
+                    message=f"Votre demande de {absence_request.get('type')} a été rejetée. Raison: {rejection_data.get('reason', 'Non spécifiée')}",
+                    icon="❌",
+                    link="/my-space",
+                    related_id=request_id
+                )
+                logger.info(f"📧 Notification de rejet envoyée à {employee.get('name')}")
+            except Exception as e:
+                logger.error(f"❌ Erreur notification: {str(e)}")
+        
+        return {
+            "success": True,
+            "message": "Demande rejetée avec succès",
+            "request_id": request_id,
+            "rejected_by": current_user.name,
+            "rejected_date": rejected_date,
+            "rejection_reason": rejection_data.get("reason", "")
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Erreur rejet: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
 # Legacy user management endpoints removed - using MongoDB-based endpoints above
 
