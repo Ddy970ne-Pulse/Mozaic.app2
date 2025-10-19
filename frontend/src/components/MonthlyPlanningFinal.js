@@ -710,7 +710,9 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                 );
                 
                 if (!shouldSkipThisDay) {
-                  const existingAbsence = newAbsences[day.toString()];
+                  // ✅ FORMAT CLÉ UNIFIÉ: YYYY-MM-DD pour compatibilité avec le rendu
+                  const dayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                  const existingAbsence = newAbsences[dayKey];
                   const existingInfo = existingAbsence ? absenceColorMap[existingAbsence] : null;
                   
                   // 🏛️ RÈGLE DE PRIORITÉ: Vérifier si la nouvelle absence peut remplacer l'existante
@@ -719,9 +721,9 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                   
                   if (canOverride) {
                     if (existingAbsence && absenceInfo.priority < existingInfo.priority) {
-                      console.log(`⚠️ ${employee.name} - ${day}/${month + 1}: ${absenceCode} (priorité ${absenceInfo.priority}) remplace ${existingAbsence} (priorité ${existingInfo.priority})`);
+                      console.log(`⚠️ ${employee.name} - ${dayKey}: ${absenceCode} (priorité ${absenceInfo.priority}) remplace ${existingAbsence} (priorité ${existingInfo.priority})`);
                     }
-                    newAbsences[day.toString()] = absenceCode;
+                    newAbsences[dayKey] = absenceCode;
                     if (!existingAbsence) totalDays++;
                   }
                 }
