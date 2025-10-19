@@ -941,6 +941,8 @@ const AbsenceRequests = ({ user }) => {
           )}
         </div>
       </div>
+        </>
+      )}
 
       {/* Modal Nouvelle Demande */}
       {showNewRequest && (
