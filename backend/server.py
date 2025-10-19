@@ -5606,6 +5606,119 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
         ws_manager.disconnect(websocket, user_id)
 
 
+# 📊 ENDPOINT: GÉNÉRATION RAPPORT ABSENCES DOUBLE-BLOC
+@api_router.post("/analytics/generate-absence-report")
+async def generate_absence_report(
+    year: int,
+    month: int = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    📊 Génère un rapport Excel double-bloc (Programmées | Absentéisme)
+    
+    Args:
+        year: Année du rapport
+        month: Mois (optionnel, si None = toute l'année)
+    
+    Returns:
+        Fichier Excel avec les deux blocs côte à côte
+    """
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    try:
+        import subprocess
+        import tempfile
+        from pathlib import Path
+        
+        # 1. Extraire les données d'absences depuis MongoDB
+        query = {}
+        
+        if month:
+            # Filtrer par mois
+            query = {
+                "$or": [
+                    {"date_debut": {"$regex": f"/{month:02d}/{year}"}},
+                    {"date_debut": {"$regex": f"{year}-{month:02d}-"}}
+                ]
+            }
+        else:
+            # Toute l'année
+            query = {
+                "$or": [
+                    {"date_debut": {"$regex": f"/{year}"}},
+                    {"date_debut": {"$regex": f"{year}-"}}
+                ]
+            }
+        
+        absences = await db.absences.find(query).to_list(10000)
+        
+        if not absences:
+            raise HTTPException(status_code=404, detail="Aucune absence trouvée pour cette période")
+        
+        # 2. Créer fichier temporaire CSV
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as tmp_source:
+            import csv
+            writer = csv.DictWriter(tmp_source, fieldnames=['EmployeNom', 'TypeAbsence', 'Duree', 'DateDebut', 'DateFin', 'StatutPlanif'])
+            writer.writeheader()
+            
+            for absence in absences:
+                writer.writerow({
+                    'EmployeNom': absence.get('employee_name', 'Inconnu'),
+                    'TypeAbsence': absence.get('motif_absence', 'INCONNU'),
+                    'Duree': absence.get('jours_absence', '0'),
+                    'DateDebut': absence.get('date_debut', ''),
+                    'DateFin': absence.get('date_fin', ''),
+                    'StatutPlanif': absence.get('status', 'approved')
+                })
+            
+            tmp_source_path = tmp_source.name
+        
+        # 3. Générer nom fichier output
+        period_str = f"{year}_{month:02d}" if month else f"{year}"
+        output_filename = f"Analyse_Absences_{period_str}.xlsx"
+        output_path = Path(f"./out/{output_filename}")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # 4. Exécuter le script adapter
+        script_path = Path(__file__).parent / "adapt_absences_tableau.py"
+        mapping_path = Path(__file__).parent / "config" / "mapping_absences.csv"
+        
+        result = subprocess.run([
+            "python",
+            str(script_path),
+            "--source", tmp_source_path,
+            "--mapping", str(mapping_path),
+            "--output", str(output_path)
+        ], capture_output=True, text=True, timeout=60)
+        
+        # 5. Nettoyer fichier temporaire
+        Path(tmp_source_path).unlink(missing_ok=True)
+        
+        if result.returncode != 0:
+            logger.error(f"Erreur génération rapport: {result.stderr}")
+            raise HTTPException(status_code=500, detail=f"Erreur génération: {result.stderr}")
+        
+        # 6. Vérifier que le fichier existe
+        if not output_path.exists():
+            raise HTTPException(status_code=500, detail="Fichier de sortie non créé")
+        
+        # 7. Retourner le fichier
+        from fastapi.responses import FileResponse
+        
+        return FileResponse(
+            path=str(output_path),
+            filename=output_filename,
+            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur génération rapport absences: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
