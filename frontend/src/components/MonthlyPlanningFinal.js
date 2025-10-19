@@ -117,9 +117,9 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   // 🔄 MAPPING: Convertir noms complets en codes courts
   const mapAbsenceNameToCode = (absenceName) => {
     const mapping = {
-      'Congés Payés': 'CP',
-      'Congés payés': 'CP',
-      'Congé payé': 'CP',
+      'Congés Payés': 'CA',
+      'Congés payés': 'CA',
+      'Congé payé': 'CA',
       'Congés annuels': 'CA',
       'Congé annuel': 'CA',
       'Congés Trimestriels': 'CT',
@@ -149,7 +149,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       'Absence autorisée': 'AUT',
       'Absence non autorisée': 'NAUT',
       'CA': 'CA',  // Déjà en code
-      'CP': 'CP',
       'CT': 'CT',
       'REC': 'REC',
       'AM': 'AM'
