@@ -2257,7 +2257,7 @@ async def get_absence_kpi(current_user: User = Depends(get_current_user)):
         },
         "byCategory": [
             {"code": "DEL", "name": "Délégation CSE", "count": 87, "percentage": 5.6, "color": "bg-indigo-600", "justified": True},
-            {"code": "CP", "name": "Congés payés", "count": 654, "percentage": 42.4, "color": "bg-blue-500", "justified": True},
+            {"code": "CA", "name": "CA - Congés Annuels", "count": 654, "percentage": 42.4, "color": "bg-blue-500", "justified": True},
             {"code": "AM", "name": "Arrêt maladie", "count": 245, "percentage": 15.9, "color": "bg-red-500", "justified": False},
             {"code": "RTT", "name": "RTT/Récupération", "count": 198, "percentage": 12.8, "color": "bg-green-500", "justified": True},
             {"code": "FO", "name": "Formation", "count": 156, "percentage": 10.1, "color": "bg-purple-500", "justified": True},
