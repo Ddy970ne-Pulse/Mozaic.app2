@@ -645,11 +645,11 @@ const AbsenceRequests = ({ user }) => {
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                     <div className="text-sm text-green-800">
                       ✅ <strong>Demande approuvée</strong>
-                      {request.approved_by && (
-                        <span> par {request.approved_by_name || request.approved_by}</span>
+                      {request.approver_name && (
+                        <span> par {request.approver_name}</span>
                       )}
-                      {request.approved_at && (
-                        <span> le {new Date(request.approved_at).toLocaleDateString('fr-FR')}</span>
+                      {request.approved_date && (
+                        <span> le {new Date(request.approved_date).toLocaleDateString('fr-FR')}</span>
                       )}
                     </div>
                   </div>
@@ -660,14 +660,14 @@ const AbsenceRequests = ({ user }) => {
                     <div className="text-sm text-red-800">
                       ❌ <strong>Demande rejetée</strong>
                       {request.rejected_by && (
-                        <span> par {request.rejected_by_name || request.rejected_by}</span>
+                        <span> par {request.rejected_by}</span>
                       )}
-                      {request.rejected_at && (
-                        <span> le {new Date(request.rejected_at).toLocaleDateString('fr-FR')}</span>
+                      {request.rejected_date && (
+                        <span> le {new Date(request.rejected_date).toLocaleDateString('fr-FR')}</span>
                       )}
-                      {request.rejectionReason && (
+                      {request.rejection_reason && (
                         <div className="mt-2 text-xs">
-                          <strong>Motif:</strong> {request.rejectionReason}
+                          <strong>Motif:</strong> {request.rejection_reason}
                         </div>
                       )}
                     </div>
