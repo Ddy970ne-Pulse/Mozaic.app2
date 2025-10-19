@@ -554,12 +554,15 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   // 🔄 FONCTION UNIFIÉE: Applique TOUTES les absences (importées + demandes)
   // avec réinitialisation complète pour éviter pollution entre périodes
   const applyAllAbsencesToPlanning = (importedAbsences = [], approvedRequests = []) => {
+    console.log(`🔄 applyAllAbsencesToPlanning: ${importedAbsences.length} absences importées, ${approvedRequests.length} demandes approuvées`);
     
     setEmployees(prevEmployees => {
       if (!prevEmployees || prevEmployees.length === 0) {
         console.warn('⚠️ No employees loaded yet');
         return prevEmployees;
       }
+      
+      console.log(`✅ Application des absences pour ${prevEmployees.length} employés`);
       
       return prevEmployees.map(employee => {
         // 🚨 RÉINITIALISATION COMPLÈTE pour ce mois/année
