@@ -267,7 +267,7 @@ backend:
     implemented: true
     working: false
     file: "websocket_manager.py, server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "critical"
     needs_retesting: false
     status_history:
