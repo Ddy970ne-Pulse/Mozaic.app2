@@ -142,6 +142,40 @@ const AbsenceRequests = ({ user }) => {
 
   // Suppression de la duplication - utiliser le state requests défini plus haut
 
+  // Charger la liste des employés pour le sélecteur (admin/manager)
+  const loadEmployees = async () => {
+    if (user.role !== 'admin' && user.role !== 'manager') return;
+    
+    setLoadingEmployees(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/users`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.ok) {
+        const users = await response.json();
+        setEmployees(users.filter(u => u.role === 'employee' || u.role === 'manager'));
+      }
+    } catch (error) {
+      console.error('Erreur chargement employés:', error);
+    } finally {
+      setLoadingEmployees(false);
+    }
+  };
+
+  // Charger les employés au montage si admin/manager
+  useEffect(() => {
+    if (user.role === 'admin' || user.role === 'manager') {
+      loadEmployees();
+    }
+  }, [user.role]);
+
   const absenceTypes = {
     // Absences médicales
     'AT': { name: 'Accident du travail/Trajet', color: 'bg-red-500', category: 'medical' },
