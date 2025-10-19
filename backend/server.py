@@ -3543,24 +3543,6 @@ async def get_absences_by_employee(employee_id: str, current_user: User = Depend
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting absences: {str(e)}")
 
-@api_router.delete("/absences/{absence_id}")
-async def delete_absence(absence_id: str, current_user: User = Depends(get_current_user)):
-    """Delete an absence (admin only)"""
-    if current_user.role not in ["admin", "manager"]:
-        raise HTTPException(status_code=403, detail="Insufficient permissions")
-    
-    try:
-        result = await db.absences.delete_one({"id": absence_id})
-        if result.deleted_count == 0:
-            raise HTTPException(status_code=404, detail="Absence not found")
-        
-        return {"message": "Absence deleted successfully"}
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error deleting absence: {str(e)}")
-
 @api_router.delete("/absences/bulk/all")
 async def delete_all_absences(current_user: User = Depends(get_current_user)):
     """Delete ALL absences (admin only) - Use with caution!"""
