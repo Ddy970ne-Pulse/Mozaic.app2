@@ -617,6 +617,18 @@ const AbsenceRequests = ({ user }) => {
 
   const isEmployee = user.role === 'employee';
 
+  // Vue simplifiée pour les employés : toutes les demandes dans une seule liste
+  const allRequestsForEmployee = isEmployee ? [
+    ...requests.pending.map(r => ({...r, statusType: 'pending'})),
+    ...requests.approved.map(r => ({...r, statusType: 'approved'})),
+    ...requests.rejected.map(r => ({...r, statusType: 'rejected'}))
+  ].sort((a, b) => {
+    // Trier par date de soumission décroissante (plus récent en premier)
+    const dateA = new Date(a.submittedDate || a.updated_at || 0);
+    const dateB = new Date(b.submittedDate || b.updated_at || 0);
+    return dateB - dateA;
+  }) : [];
+
   // Afficher le loading
   if (loading) {
     return (
