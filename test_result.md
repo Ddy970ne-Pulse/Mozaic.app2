@@ -1130,6 +1130,21 @@ frontend:
         agent: "main"
         comment: "WEBSOCKET FRONTEND IMPLEMENTATION COMPLETED: Complete WebSocket integration for real-time data synchronization in MOZAIK RH. FRONTEND COMPONENTS: 1) USE_WEBSOCKET.JS HOOK: Custom React hook managing WebSocket connections, automatic reconnection (max 10 attempts with 3s delay), heartbeat mechanism (30s ping/pong), connection state management (isConnected, lastMessage), proper cleanup on unmount, error handling and logging. 2) LAYOUT.JS INTEGRATION: WebSocket connection indicator added to header (green dot = connected, red = disconnected), useWebSocket hook initialized with user ID, connection status display with tooltip. 3) MONTHLY_PLANNING_FINAL.JS INTEGRATION: useWebSocket hook integrated with absence data reload callback, automatic data refresh when receiving absence_created/updated/deleted messages, optimistic UI updates with server sync. 4) ABSENCE_REQUESTS.JS INTEGRATION: useWebSocket hook integrated with request list reload, real-time updates for pending/approved/rejected tabs, automatic refresh when absence status changes, multi-user synchronization support. WEBSOCKET MESSAGE TYPES: absence_created, absence_updated, absence_deleted with complete absence data payload. FEATURES: Connection status indicator, automatic reconnection, real-time data sync, optimistic updates, multi-component integration. Frontend restarted successfully. READY FOR TESTING: 1) WebSocket connection establishment and indicator display, 2) Real-time updates across all components on absence create/update/delete, 3) Multi-user simultaneous testing (2+ users modifying absences), 4) Connection stability and auto-reconnection, 5) Data consistency across Planning, Requests, and Dashboard modules."
 
+  - task: "Monthly Planning Absence Badges Not Displaying"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/MonthlyPlanningFinal.js"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "CRITICAL BUG REPORTED: User reports that only 2 'CA' badges are visible in October planning instead of 6 expected absences. The employee.absences object appears to be empty or malformed, preventing color-coded absence badges from rendering correctly in the monthly calendar view."
+      - working: true
+        agent: "main"
+        comment: "ROOT CAUSE IDENTIFIED & FIXED: Race condition in useEffect at line 234. The absence loading useEffect had an early return when employees.length === 0, but the useEffect dependency on 'employees' array caused infinite re-renders. When employees were first loaded, the useEffect would trigger but return early, and then never re-trigger because the employees array reference changed. FIX IMPLEMENTED: 1) Changed useEffect dependency from 'employees' to 'employees.length' to trigger only when count changes, not on every employee object mutation, 2) Added comprehensive debug logging throughout applyAllAbsencesToPlanning function to trace data flow (API load → date parsing → motif mapping → badge assignment), 3) Added console warnings for unmapped absence codes and empty absence objects. TECHNICAL DETAILS: Backend API /api/absences/by-period returns dates in DD/MM/YYYY format which is correctly parsed by logic at lines 608-626. The motifMapping at lines 638-672 properly converts French absence names (Congés Payés, Congés Trimestriels) to short codes (CP, CT, CA). Badge rendering at line 2168 accesses employee.absences[dayKey] where dayKey format is YYYY-MM-DD. The fix ensures absences are loaded and processed into employee objects after employees are loaded from the API. Ready for testing to confirm all absence badges now display correctly for all employees and periods."
+
   - task: "Action Buttons State Management Bug - Approve/Validate Buttons Remain Visible"
     implemented: false
     working: false
