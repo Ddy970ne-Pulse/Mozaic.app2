@@ -125,11 +125,12 @@ class MigrationTester:
                                "Données réelles (≠ 1542)", total_absences)
                 
                 # Test 3: Vérifier byCategory contient types d'absences réels
-                by_category = analytics_data.get("byCategory", {})
+                by_category = analytics_data.get("byCategory", [])
                 has_real_categories = len(by_category) > 0
+                category_names = [cat.get("name", "") for cat in by_category] if isinstance(by_category, list) else []
                 self.log_result("phase2", "byCategory avec types réels", 
                                has_real_categories,
-                               f"Categories trouvées: {list(by_category.keys())}" if has_real_categories else "Aucune catégorie trouvée")
+                               f"Categories trouvées: {category_names[:5]}" if has_real_categories else "Aucune catégorie trouvée")
                 
                 # Test 4: Vérifier monthlyTrend calculé depuis vraies données
                 monthly_trend = analytics_data.get("monthlyTrend", [])
@@ -139,11 +140,12 @@ class MigrationTester:
                                f"Tendance mensuelle: {len(monthly_trend)} mois de données" if has_monthly_trend else "Aucune tendance mensuelle")
                 
                 # Test 5: Vérifier departmentBreakdown basé sur vrais départements
-                department_breakdown = analytics_data.get("departmentBreakdown", {})
+                department_breakdown = analytics_data.get("departmentBreakdown", [])
                 has_departments = len(department_breakdown) > 0
+                department_names = [dept.get("department", "") for dept in department_breakdown] if isinstance(department_breakdown, list) else []
                 self.log_result("phase2", "departmentBreakdown avec vrais départements", 
                                has_departments,
-                               f"Départements: {list(department_breakdown.keys())}" if has_departments else "Aucun département trouvé")
+                               f"Départements: {department_names[:5]}" if has_departments else "Aucun département trouvé")
                 
                 print(f"\n📋 DÉTAILS ANALYTICS:")
                 print(f"   Total Absences: {total_absences}")
