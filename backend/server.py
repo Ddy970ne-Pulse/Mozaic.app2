@@ -64,7 +64,16 @@ limiter = Limiter(key_func=get_client_ip)
 # Create the main app without a prefix
 app = FastAPI()
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# 🛡️ SECURITY: Add exception handlers
+app.add_exception_handler(RateLimitExceeded, rate_limit_exception_handler)
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
+
+# 🛡️ SECURITY: Add security headers middleware
+environment = os.environ.get('ENVIRONMENT', 'production')
+app.add_middleware(SecurityHeadersMiddleware, environment=environment)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
