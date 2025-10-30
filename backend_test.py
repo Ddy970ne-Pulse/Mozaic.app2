@@ -151,70 +151,169 @@ class SecurityEnhancementsTester:
         except Exception as e:
             self.log_result("phase1_secret_key", "SECRET_KEY validation", False, f"Exception: {str(e)}")
 
-    def test_users_api_email_field(self):
-        """TEST 3: GET /api/users - Vérifier champ email non undefined"""
-        print(f"\n👥 TEST 3 - GET /api/users - VÉRIFICATION CHAMP EMAIL")
+    def test_phase2_pydantic_validation(self):
+        """PHASE 2: Strict Pydantic Validation - Test all validation rules"""
+        print(f"\n🛡️ PHASE 2 - PYDANTIC VALIDATION")
         print("=" * 60)
         
-        try:
-            # Test 1: GET /api/users
-            response = self.session.get(f"{BACKEND_URL}/users")
+        # Test 1: Login Endpoint Validation
+        print(f"\n📧 Test 1: Login Endpoint Validation")
+        
+        # Test invalid email format
+        invalid_email_response = requests.post(f"{BACKEND_URL}/auth/login", json={
+            "email": "invalid-email-format",
+            "password": "admin123"
+        })
+        
+        if invalid_email_response.status_code == 422:
+            print(f"✅ Invalid email format rejected (422)")
+            self.log_result("phase2_validation", "Login invalid email rejected", True, 
+                           "Invalid email format properly rejected with 422")
+        else:
+            self.log_result("phase2_validation", "Login invalid email rejected", False, 
+                           f"Expected 422, got {invalid_email_response.status_code}")
+        
+        # Test valid credentials should work
+        valid_login_response = requests.post(f"{BACKEND_URL}/auth/login", json={
+            "email": ADMIN_EMAIL,
+            "password": ADMIN_PASSWORD
+        })
+        
+        if valid_login_response.status_code == 200:
+            print(f"✅ Valid credentials accepted (200)")
+            self.log_result("phase2_validation", "Login valid credentials accepted", True, 
+                           "Valid login credentials work correctly")
+        else:
+            self.log_result("phase2_validation", "Login valid credentials accepted", False, 
+                           f"Valid login failed: {valid_login_response.status_code}")
+        
+        # Test 2: User Creation Validation
+        print(f"\n👤 Test 2: User Creation Validation")
+        
+        # Test weak password (< 6 chars)
+        weak_password_data = {
+            "name": "Test User",
+            "email": "test@example.com",
+            "password": "123",  # Too short
+            "department": "Test Dept"
+        }
+        
+        weak_password_response = self.session.post(f"{BACKEND_URL}/users", json=weak_password_data)
+        
+        if weak_password_response.status_code == 422:
+            print(f"✅ Weak password rejected (422)")
+            self.log_result("phase2_validation", "Weak password rejected", True, 
+                           "Password < 6 characters properly rejected")
+        else:
+            self.log_result("phase2_validation", "Weak password rejected", False, 
+                           f"Expected 422, got {weak_password_response.status_code}")
+        
+        # Test password without numbers
+        no_number_password_data = {
+            "name": "Test User",
+            "email": "test2@example.com", 
+            "password": "abcdef",  # No numbers
+            "department": "Test Dept"
+        }
+        
+        no_number_response = self.session.post(f"{BACKEND_URL}/users", json=no_number_password_data)
+        
+        if no_number_response.status_code == 422:
+            print(f"✅ Password without numbers rejected (422)")
+            self.log_result("phase2_validation", "Password without numbers rejected", True, 
+                           "Password without numbers properly rejected")
+        else:
+            self.log_result("phase2_validation", "Password without numbers rejected", False, 
+                           f"Expected 422, got {no_number_response.status_code}")
+        
+        # Test invalid role
+        invalid_role_data = {
+            "name": "Test User",
+            "email": "test3@example.com",
+            "password": "admin123",
+            "role": "invalid_role",  # Invalid role
+            "department": "Test Dept"
+        }
+        
+        invalid_role_response = self.session.post(f"{BACKEND_URL}/users", json=invalid_role_data)
+        
+        if invalid_role_response.status_code == 422:
+            print(f"✅ Invalid role rejected (422)")
+            self.log_result("phase2_validation", "Invalid role rejected", True, 
+                           "Invalid role properly rejected")
+        else:
+            self.log_result("phase2_validation", "Invalid role rejected", False, 
+                           f"Expected 422, got {invalid_role_response.status_code}")
+        
+        # Test 3: Absence Creation Validation
+        print(f"\n📅 Test 3: Absence Creation Validation")
+        
+        # Test invalid email format in absence
+        invalid_absence_email = {
+            "employee_id": self.user_id,
+            "employee_name": "Test Employee",
+            "email": "invalid-email",  # Invalid format
+            "motif_absence": "CA",
+            "jours_absence": "2",
+            "date_debut": "01/01/2025"
+        }
+        
+        invalid_absence_response = self.session.post(f"{BACKEND_URL}/absences", json=invalid_absence_email)
+        
+        if invalid_absence_response.status_code == 422:
+            print(f"✅ Invalid absence email rejected (422)")
+            self.log_result("phase2_validation", "Invalid absence email rejected", True, 
+                           "Invalid email in absence properly rejected")
+        else:
+            self.log_result("phase2_validation", "Invalid absence email rejected", False, 
+                           f"Expected 422, got {invalid_absence_response.status_code}")
+        
+        # Test hours > 24
+        invalid_hours_absence = {
+            "employee_id": self.user_id,
+            "employee_name": "Test Employee", 
+            "email": ADMIN_EMAIL,
+            "motif_absence": "CA",
+            "jours_absence": "1",
+            "date_debut": "01/01/2025",
+            "hours_amount": 25.0  # > 24 hours
+        }
+        
+        invalid_hours_response = self.session.post(f"{BACKEND_URL}/absences", json=invalid_hours_absence)
+        
+        if invalid_hours_response.status_code == 422:
+            print(f"✅ Hours > 24 rejected (422)")
+            self.log_result("phase2_validation", "Hours > 24 rejected", True, 
+                           "Hours > 24 properly rejected")
+        else:
+            self.log_result("phase2_validation", "Hours > 24 rejected", False, 
+                           f"Expected 422, got {invalid_hours_response.status_code}")
+        
+        # Test valid absence should work
+        valid_absence_data = {
+            "employee_id": self.user_id,
+            "employee_name": "Diego DACALOR",
+            "email": ADMIN_EMAIL,
+            "motif_absence": "CA",
+            "jours_absence": "1",
+            "date_debut": "01/01/2025",
+            "notes": "Test validation"
+        }
+        
+        valid_absence_response = self.session.post(f"{BACKEND_URL}/absences", json=valid_absence_data)
+        
+        if valid_absence_response.status_code == 200:
+            print(f"✅ Valid absence accepted (200)")
+            self.log_result("phase2_validation", "Valid absence accepted", True, 
+                           "Valid absence data works correctly")
             
-            if response.status_code == 200:
-                users = response.json()
-                print(f"✅ GET /api/users accessible (200)")
-                print(f"✅ Nombre d'utilisateurs: {len(users)}")
-                
-                # Test 2: Vérifier que chaque user a un champ email (pas undefined)
-                users_with_email = 0
-                users_without_email = 0
-                invalid_emails = []
-                
-                for user in users:
-                    email = user.get("email")
-                    if email and email != "undefined" and email.strip():
-                        users_with_email += 1
-                        # Vérifier format email basique
-                        if "@" not in email or "." not in email:
-                            invalid_emails.append(f"{user.get('name', 'Unknown')} - {email}")
-                    else:
-                        users_without_email += 1
-                        invalid_emails.append(f"{user.get('name', 'Unknown')} - {email}")
-                
-                # Résultats
-                all_have_valid_email = users_without_email == 0
-                self.log_result("users_api", "Tous les users ont un champ email", 
-                               all_have_valid_email,
-                               f"{users_with_email} users avec email valide, {users_without_email} sans email" if all_have_valid_email else f"PROBLÈME: {users_without_email} users sans email valide")
-                
-                # Test 3: Vérifier format email valide
-                has_valid_format = len(invalid_emails) == 0
-                self.log_result("users_api", "Format email valide", 
-                               has_valid_format,
-                               "Tous les emails ont un format valide" if has_valid_format else f"Emails invalides: {invalid_emails[:3]}")
-                
-                # Afficher quelques exemples
-                print(f"\n📋 EXEMPLES D'UTILISATEURS:")
-                for i, user in enumerate(users[:5]):
-                    email = user.get("email", "MANQUANT")
-                    name = user.get("name", "Unknown")
-                    print(f"   {i+1}. {name} - {email}")
-                
-                if len(users) > 5:
-                    print(f"   ... et {len(users) - 5} autres utilisateurs")
-                
-                if invalid_emails:
-                    print(f"\n⚠️ EMAILS PROBLÉMATIQUES:")
-                    for invalid in invalid_emails[:5]:
-                        print(f"   - {invalid}")
-                
-            else:
-                self.log_result("users_api", "GET /api/users accessible", 
-                               False, f"Erreur {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            self.log_result("users_api", "Test GET /api/users", 
-                           False, f"Exception: {str(e)}")
+            # Clean up - delete test absence
+            absence_id = valid_absence_response.json().get("id")
+            if absence_id:
+                self.session.delete(f"{BACKEND_URL}/absences/{absence_id}")
+        else:
+            self.log_result("phase2_validation", "Valid absence accepted", False, 
+                           f"Valid absence failed: {valid_absence_response.status_code}")
 
     def test_absence_api_quick_add(self):
         """TEST 2: API Absences (Ajout Rapide) - POST /api/absences"""
