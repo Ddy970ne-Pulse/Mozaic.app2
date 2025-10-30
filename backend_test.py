@@ -29,15 +29,18 @@ WEBSOCKET_URL = "wss://hr-multi-saas.preview.emergentagent.com/api/ws"
 ADMIN_EMAIL = "ddacalor@aaea-gpe.fr"
 ADMIN_PASSWORD = "admin123"
 
-class MigrationTester:
+class WebSocketAbsenceTester:
     def __init__(self):
         self.token = None
+        self.user_id = None
         self.session = requests.Session()
+        self.websocket_messages = []
+        self.websocket_connected = False
         self.test_results = {
-            "phase1": {"passed": 0, "failed": 0, "details": []},
-            "phase2": {"passed": 0, "failed": 0, "details": []},
-            "phase3": {"passed": 0, "failed": 0, "details": []},
-            "phase4": {"passed": 0, "failed": 0, "details": []}
+            "websocket": {"passed": 0, "failed": 0, "details": []},
+            "absence_api": {"passed": 0, "failed": 0, "details": []},
+            "users_api": {"passed": 0, "failed": 0, "details": []},
+            "existing_apis": {"passed": 0, "failed": 0, "details": []}
         }
         
     def log_result(self, phase, test_name, success, message, expected=None, actual=None):
