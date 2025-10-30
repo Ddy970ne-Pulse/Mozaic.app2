@@ -543,7 +543,7 @@ class WebSocketAbsenceTester:
 
 def main():
     """Point d'entrée principal"""
-    tester = MigrationTester()
+    tester = WebSocketAbsenceTester()
     success = tester.run_all_tests()
     
     # Code de sortie
