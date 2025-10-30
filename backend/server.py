@@ -43,7 +43,6 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
-api_router.state.limiter = limiter
 
 # Logger configuration
 logging.basicConfig(level=logging.INFO)
