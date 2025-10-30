@@ -1097,13 +1097,29 @@ async def login(request: Request, login_request: LoginRequest):
         {"$set": {"last_login": datetime.utcnow(), "first_login": False}}
     )
     
-    # Create token
+    # 9. AUDIT: Log successful login
+    from core.audit_logger import AuditLogger, AuditEventType
+    audit = AuditLogger(db)
+    await audit.log_authentication(
+        event_type=AuditEventType.LOGIN_SUCCESS,
+        email=email,
+        ip_address=ip_address,
+        user_agent=request.headers.get("user-agent"),
+        success=True
+    )
+    
+    # 10. Create token
     token = create_access_token(user_data["id"], user_data["email"], user_data["role"])
     
     # Return user info and token (without password hash)
     user_data["last_login"] = datetime.utcnow()
     user_data["first_login"] = False
     user = User(**{k: v for k, v in user_data.items() if k != "hashed_password"})
+    
+    logger.info(
+        f"✅ Successful login: {email}",
+        extra={"email": email, "ip": ip_address, "user_id": user_data["id"]}
+    )
     
     return LoginResponse(token=token, user=user)
 
