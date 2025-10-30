@@ -485,28 +485,36 @@ class UserCreate(BaseModel):
         return v.lower().strip()
 
 class UserUpdate(BaseModel):
-    name: Optional[str] = None
-    email: Optional[str] = None
-    role: Optional[str] = None
-    department: Optional[str] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
-    position: Optional[str] = None
+    name: Optional[constr(min_length=2, max_length=200, strip_whitespace=True)] = None
+    email: Optional[EmailStr] = None
+    role: Optional[constr(pattern=r'^(admin|manager|employee)$')] = None
+    department: Optional[constr(max_length=200)] = None
+    phone: Optional[constr(max_length=50)] = None
+    address: Optional[constr(max_length=500)] = None
+    position: Optional[constr(max_length=200)] = None
     hire_date: Optional[str] = None
     isDelegateCSE: Optional[bool] = None
     is_active: Optional[bool] = None
     # Champs additionnels pour données employés complètes
     date_naissance: Optional[str] = None
-    sexe: Optional[str] = None
-    categorie_employe: Optional[str] = None
-    metier: Optional[str] = None
-    fonction: Optional[str] = None
-    site: Optional[str] = None
-    temps_travail: Optional[str] = None
-    contrat: Optional[str] = None
+    sexe: Optional[constr(pattern=r'^(M|F|Autre)?$')] = None
+    categorie_employe: Optional[constr(max_length=100)] = None
+    metier: Optional[constr(max_length=200)] = None
+    fonction: Optional[constr(max_length=200)] = None
+    site: Optional[constr(max_length=200)] = None
+    temps_travail: Optional[constr(max_length=100)] = None
+    contrat: Optional[constr(max_length=100)] = None
     date_debut_contrat: Optional[str] = None
     date_fin_contrat: Optional[str] = None
-    notes: Optional[str] = None
+    notes: Optional[constr(max_length=2000)] = None
+    
+    @field_validator('email')
+    @classmethod
+    def validate_email_format(cls, v):
+        """Additional email validation"""
+        if v:
+            return v.lower().strip()
+        return v
 
 class PasswordReset(BaseModel):
     new_password: str
