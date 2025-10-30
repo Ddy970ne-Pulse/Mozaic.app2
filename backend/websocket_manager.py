@@ -129,19 +129,30 @@ class ConnectionManager:
         return None
     
     async def send_personal_message(self, message: dict, user_id: str):
-        """Envoyer un message à un utilisateur spécifique"""
-        if user_id in self.active_connections:
-            dead_connections = set()
-            for connection in self.active_connections[user_id]:
-                try:
-                    await connection.send_json(message)
-                except Exception as e:
-                    logger.error(f"Error sending to user {user_id}: {str(e)}")
-                    dead_connections.add(connection)
+        """
+        Envoyer un message à un utilisateur spécifique
+        Thread-safe avec gestion robuste des erreurs
+        """
+        async with self._lock:
+            if user_id not in self.active_connections:
+                logger.warning(f"⚠️ User {user_id} not connected, cannot send message")
+                return
             
-            # Nettoyer les connexions mortes
-            for conn in dead_connections:
-                self.disconnect(conn, user_id)
+            connections = list(self.active_connections[user_id])
+        
+        # Envoyer en dehors du lock pour éviter les blocages
+        dead_connections = []
+        for connection in connections:
+            try:
+                await connection.send_json(message)
+                logger.debug(f"📤 Message sent to user {user_id}: {message.get('type')}")
+            except Exception as e:
+                logger.error(f"❌ Error sending to user {user_id}: {str(e)}")
+                dead_connections.append(connection)
+        
+        # Nettoyer les connexions mortes
+        for conn in dead_connections:
+            await self._cleanup_dead_connection(conn)
     
     async def broadcast(self, message: dict, exclude_user: str = None):
         """Envoyer un message à tous les utilisateurs connectés"""
