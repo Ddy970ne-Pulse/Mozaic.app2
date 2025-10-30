@@ -665,29 +665,47 @@ class Absence(BaseModel):
     """Modèle pour les absences stockées en base"""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     employee_id: str
-    employee_name: str
-    email: str
-    date_debut: str
-    date_fin: Optional[str] = None
+    employee_name: constr(min_length=1, max_length=200)
+    email: EmailStr
+    date_debut: constr(pattern=r'^\d{2}/\d{2}/\d{4}$')  # DD/MM/YYYY format
+    date_fin: Optional[constr(pattern=r'^\d{2}/\d{2}/\d{4}$')] = None  # DD/MM/YYYY format
     jours_absence: str
-    motif_absence: str
-    counting_method: Optional[str] = None
-    notes: Optional[str] = None
-    absence_unit: str = "jours"
-    hours_amount: Optional[float] = None
+    motif_absence: constr(min_length=1, max_length=100)
+    counting_method: Optional[constr(max_length=100)] = None
+    notes: Optional[constr(max_length=2000)] = None
+    absence_unit: constr(pattern=r'^(jours|heures)$') = "jours"
+    hours_amount: Optional[float] = Field(default=None, ge=0, le=24)  # 0-24 hours
     
     # ⭐ NOUVEAUX CHAMPS POUR DOUBLE WORKFLOW
-    status: str = "pending"  # pending, validated_by_manager, approved, rejected
+    status: constr(pattern=r'^(pending|validated_by_manager|approved|rejected)$') = "pending"
     validated_by_manager: Optional[str] = None  # ID du manager
     manager_validation_date: Optional[str] = None
     approved_by: Optional[str] = None  # ID de l'admin
     approved_at: Optional[str] = None
     rejected_by: Optional[str] = None
     rejected_at: Optional[str] = None
-    rejection_reason: Optional[str] = None
+    rejection_reason: Optional[constr(max_length=1000)] = None
     
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: Optional[str] = None
+    
+    @field_validator('employee_id', 'validated_by_manager', 'approved_by', 'rejected_by')
+    @classmethod
+    def validate_uuid_fields(cls, v):
+        """Validate UUID format for ID fields"""
+        if v:
+            try:
+                uuid.UUID(v)
+                return v
+            except ValueError:
+                raise ValueError(f'Invalid UUID format: {v}')
+        return v
+    
+    @field_validator('email')
+    @classmethod
+    def validate_email_format(cls, v):
+        """Additional email validation"""
+        return v.lower().strip()
 
 class ImportWorkHours(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
