@@ -365,8 +365,16 @@ class StatusCheckCreate(BaseModel):
 
 # Authentication Models
 class LoginRequest(BaseModel):
-    email: str
-    password: str
+    email: EmailStr  # Strict email validation
+    password: constr(min_length=1, max_length=128)  # Password length limits
+    
+    @field_validator('email')
+    @classmethod
+    def validate_email_format(cls, v):
+        """Additional email validation"""
+        if not v or len(v) > 255:
+            raise ValueError('Email must be between 1 and 255 characters')
+        return v.lower().strip()
 
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
