@@ -5855,12 +5855,31 @@ app.include_router(api_router)
 # Include WebSocket router
 app.include_router(websocket_router, tags=["WebSocket"])
 
+# 🛡️ SECURITY: CORS Configuration
+# Read allowed origins from environment variable
+cors_origins_str = os.environ.get('CORS_ORIGINS', '')
+cors_origins = [origin.strip() for origin in cors_origins_str.split(',') if origin.strip()]
+
+# Validate CORS origins in production
+if environment == 'production':
+    # Prevent wildcard in production
+    if '*' in cors_origins:
+        logger.error("❌ CRITICAL: Wildcard CORS not allowed in production!")
+        raise ValueError("CORS_ORIGINS cannot contain '*' in production environment")
+    
+    # Warn about localhost in production
+    if any('localhost' in origin or '127.0.0.1' in origin for origin in cors_origins):
+        logger.warning("⚠️ WARNING: Localhost in CORS origins for production environment")
+
+logger.info(f"🛡️ CORS allowed origins: {cors_origins}")
+
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  # Explicit methods
+    allow_headers=["*"],  # Can be restricted further if needed
+    max_age=600  # Cache preflight requests for 10 minutes
 )
 
 # Configure logging
