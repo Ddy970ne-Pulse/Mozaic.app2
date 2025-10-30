@@ -18,6 +18,7 @@ import string
 # Import du service de synchronisation
 from sync_service import DataSyncService
 from websocket_manager import ws_manager
+from websocket_routes import router as websocket_router
 
 
 ROOT_DIR = Path(__file__).parent
