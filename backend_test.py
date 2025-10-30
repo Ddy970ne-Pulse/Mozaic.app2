@@ -315,134 +315,104 @@ class SecurityEnhancementsTester:
             self.log_result("phase2_validation", "Valid absence accepted", False, 
                            f"Valid absence failed: {valid_absence_response.status_code}")
 
-    def test_absence_api_quick_add(self):
-        """TEST 2: API Absences (Ajout Rapide) - POST /api/absences"""
-        print(f"\n📝 TEST 2 - API ABSENCES (AJOUT RAPIDE)")
+    def test_phase3_rate_limiting(self):
+        """PHASE 3: Rate Limiting - Test rate limits on critical endpoints"""
+        print(f"\n⚡ PHASE 3 - RATE LIMITING")
         print("=" * 60)
         
-        try:
-            # Étape a) Login déjà fait dans authenticate()
-            print(f"✅ a) Login admin réussi")
+        # Test 1: Login Rate Limit (5/minute)
+        print(f"\n🔐 Test 1: Login Rate Limit (5/minute)")
+        
+        login_attempts = []
+        for i in range(6):  # Try 6 attempts, 6th should be rate limited
+            response = requests.post(f"{BACKEND_URL}/auth/login", json={
+                "email": ADMIN_EMAIL,
+                "password": ADMIN_PASSWORD
+            })
+            login_attempts.append(response.status_code)
+            print(f"   Attempt {i+1}: {response.status_code}")
             
-            # Étape b) GET /api/users pour récupérer un employé
-            users_response = self.session.get(f"{BACKEND_URL}/users")
-            
-            if users_response.status_code != 200:
-                self.log_result("absence_api", "GET /api/users pour récupérer employé", 
-                               False, f"Erreur {users_response.status_code}: {users_response.text}")
-                return
-            
-            users = users_response.json()
-            print(f"✅ b) GET /api/users réussi - {len(users)} utilisateurs trouvés")
-            
-            # Trouver un employé avec un email valide
-            target_employee = None
-            for user in users:
-                email = user.get("email")
-                if email and email != "undefined" and "@" in email and user.get("id"):
-                    target_employee = user
-                    break
-            
-            if not target_employee:
-                self.log_result("absence_api", "Employé avec email valide trouvé", 
-                               False, "Aucun employé avec email valide trouvé")
-                return
-            
-            employee_id = target_employee.get("id")
-            employee_name = target_employee.get("name")
-            employee_email = target_employee.get("email")
-            
-            print(f"✅ Employé sélectionné: {employee_name} ({employee_email})")
-            self.log_result("absence_api", "Employé avec email valide trouvé", 
-                           True, f"Employé: {employee_name} - Email: {employee_email}")
-            
-            # Étape c) POST /api/absences avec les données spécifiées
-            absence_data = {
-                "employee_id": employee_id,
-                "employee_name": employee_name,
-                "email": employee_email,
-                "motif_absence": "CA",
-                "jours_absence": "2",
-                "date_debut": "2025-11-05",
-                "date_fin": "2025-11-06",
-                "notes": "Test ajout rapide automatisé",
-                "status": "approved",
-                "created_by": "admin"
+            # Check for rate limit headers
+            if 'X-RateLimit-Limit' in response.headers:
+                print(f"     Rate Limit Headers: Limit={response.headers.get('X-RateLimit-Limit')}, "
+                      f"Remaining={response.headers.get('X-RateLimit-Remaining')}")
+        
+        # Check if 6th request was rate limited
+        if login_attempts[5] == 429:
+            print(f"✅ Login rate limit working (6th request = 429)")
+            self.log_result("phase3_rate_limiting", "Login rate limit enforced", True, 
+                           f"6th login attempt properly rate limited with 429")
+        else:
+            self.log_result("phase3_rate_limiting", "Login rate limit enforced", False, 
+                           f"6th login attempt got {login_attempts[5]}, expected 429")
+        
+        # Wait a bit before next test
+        print(f"⏳ Waiting 60 seconds for rate limit reset...")
+        time.sleep(60)
+        
+        # Test 2: User Creation Rate Limit (5/minute)
+        print(f"\n👤 Test 2: User Creation Rate Limit (5/minute)")
+        
+        user_creation_attempts = []
+        for i in range(6):
+            user_data = {
+                "name": f"Test User {i}",
+                "email": f"testuser{i}@example.com",
+                "password": "admin123",
+                "department": "Test Dept"
             }
             
-            print(f"📤 c) Envoi POST /api/absences...")
-            print(f"   Données: {json.dumps(absence_data, indent=2)}")
+            response = self.session.post(f"{BACKEND_URL}/users", json=user_data)
+            user_creation_attempts.append(response.status_code)
+            print(f"   Attempt {i+1}: {response.status_code}")
             
-            absence_response = self.session.post(f"{BACKEND_URL}/absences", json=absence_data)
+            # Clean up created users (if successful)
+            if response.status_code == 200:
+                user_id = response.json().get("temp_password", {})
+                # Note: We can't easily delete users in this test, but that's OK for rate limit testing
+        
+        # Check if 6th request was rate limited
+        if user_creation_attempts[5] == 429:
+            print(f"✅ User creation rate limit working (6th request = 429)")
+            self.log_result("phase3_rate_limiting", "User creation rate limit enforced", True, 
+                           f"6th user creation properly rate limited with 429")
+        else:
+            self.log_result("phase3_rate_limiting", "User creation rate limit enforced", False, 
+                           f"6th user creation got {user_creation_attempts[5]}, expected 429")
+        
+        # Test 3: Absence Creation Rate Limit (10/minute)
+        print(f"\n📅 Test 3: Absence Creation Rate Limit (10/minute)")
+        
+        absence_attempts = []
+        for i in range(11):  # Try 11 attempts, 11th should be rate limited
+            absence_data = {
+                "employee_id": self.user_id,
+                "employee_name": "Diego DACALOR",
+                "email": ADMIN_EMAIL,
+                "motif_absence": "CA",
+                "jours_absence": "1",
+                "date_debut": f"0{(i%9)+1}/01/2025",  # Vary dates
+                "notes": f"Rate limit test {i+1}"
+            }
             
-            # Étape d) Vérifier réponse 200 OK (pas 422)
-            if absence_response.status_code == 200:
-                absence_result = absence_response.json()
-                absence_id = absence_result.get("id")
-                print(f"✅ d) POST /api/absences réussi (200 OK)")
-                print(f"✅ Absence créée avec ID: {absence_id}")
-                
-                self.log_result("absence_api", "POST /api/absences réponse 200 OK", 
-                               True, f"Absence créée avec succès - ID: {absence_id}")
-                
-                # Étape e) Vérifier que l'absence est bien créée
-                # Récupérer les absences de l'employé pour vérifier
-                get_absences_response = self.session.get(f"{BACKEND_URL}/absences/{employee_id}")
-                
-                if get_absences_response.status_code == 200:
-                    employee_absences = get_absences_response.json()
-                    
-                    # Chercher l'absence que nous venons de créer
-                    created_absence = None
-                    for absence in employee_absences:
-                        if absence.get("id") == absence_id:
-                            created_absence = absence
-                            break
-                    
-                    if created_absence:
-                        print(f"✅ e) Absence bien créée et récupérable")
-                        self.log_result("absence_api", "Absence bien créée en base", 
-                                       True, f"Absence trouvée avec motif: {created_absence.get('motif_absence')}")
-                        
-                        # Afficher les détails de l'absence créée
-                        print(f"\n📋 DÉTAILS ABSENCE CRÉÉE:")
-                        print(f"   ID: {created_absence.get('id')}")
-                        print(f"   Employé: {created_absence.get('employee_name')}")
-                        print(f"   Email: {created_absence.get('email')}")
-                        print(f"   Motif: {created_absence.get('motif_absence')}")
-                        print(f"   Jours: {created_absence.get('jours_absence')}")
-                        print(f"   Date début: {created_absence.get('date_debut')}")
-                        print(f"   Date fin: {created_absence.get('date_fin')}")
-                        print(f"   Status: {created_absence.get('status')}")
-                        print(f"   Notes: {created_absence.get('notes')}")
-                        
-                        # Nettoyer - supprimer l'absence de test
-                        delete_response = self.session.delete(f"{BACKEND_URL}/absences/{absence_id}")
-                        if delete_response.status_code == 200:
-                            print(f"✅ Absence de test supprimée")
-                        else:
-                            print(f"⚠️ Impossible de supprimer l'absence de test: {delete_response.status_code}")
-                    else:
-                        self.log_result("absence_api", "Absence bien créée en base", 
-                                       False, f"Absence {absence_id} non trouvée dans les absences de l'employé")
-                else:
-                    self.log_result("absence_api", "Vérification absence créée", 
-                                   False, f"Erreur récupération absences: {get_absences_response.status_code}")
-                
-            elif absence_response.status_code == 422:
-                error_detail = absence_response.json()
-                self.log_result("absence_api", "POST /api/absences réponse 200 OK", 
-                               False, f"Erreur 422 (validation): {error_detail}")
-                print(f"❌ d) Erreur 422 - Problème de validation:")
-                print(f"   {json.dumps(error_detail, indent=2)}")
-            else:
-                self.log_result("absence_api", "POST /api/absences réponse 200 OK", 
-                               False, f"Erreur {absence_response.status_code}: {absence_response.text}")
-                print(f"❌ d) Erreur {absence_response.status_code}: {absence_response.text}")
-                
-        except Exception as e:
-            self.log_result("absence_api", "Test API Absences", 
-                           False, f"Exception: {str(e)}")
+            response = self.session.post(f"{BACKEND_URL}/absences", json=absence_data)
+            absence_attempts.append(response.status_code)
+            print(f"   Attempt {i+1}: {response.status_code}")
+            
+            # Clean up created absences
+            if response.status_code == 200:
+                absence_id = response.json().get("id")
+                if absence_id:
+                    self.session.delete(f"{BACKEND_URL}/absences/{absence_id}")
+        
+        # Check if 11th request was rate limited
+        if absence_attempts[10] == 429:
+            print(f"✅ Absence creation rate limit working (11th request = 429)")
+            self.log_result("phase3_rate_limiting", "Absence creation rate limit enforced", True, 
+                           f"11th absence creation properly rate limited with 429")
+        else:
+            self.log_result("phase3_rate_limiting", "Absence creation rate limit enforced", False, 
+                           f"11th absence creation got {absence_attempts[10]}, expected 429")
 
     def test_existing_endpoints(self):
         """TEST 4: Tests Existants - Valider endpoints existants"""
