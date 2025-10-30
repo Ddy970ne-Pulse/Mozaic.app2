@@ -517,12 +517,32 @@ class UserUpdate(BaseModel):
         return v
 
 class PasswordReset(BaseModel):
-    new_password: str
+    new_password: constr(min_length=6, max_length=128)
+    
+    @field_validator('new_password')
+    @classmethod
+    def validate_password_strength(cls, v):
+        """Validate password strength"""
+        if len(v) < 6:
+            raise ValueError('Password must be at least 6 characters long')
+        if not re.search(r'[A-Za-z]', v) or not re.search(r'[0-9]', v):
+            raise ValueError('Password must contain at least one letter and one number')
+        return v
 
 class PasswordChange(BaseModel):
-    current_password: Optional[str] = None  # Optionnel pour le premier changement
-    new_password: str
-    confirm_password: str
+    current_password: Optional[constr(max_length=128)] = None  # Optionnel pour le premier changement
+    new_password: constr(min_length=6, max_length=128)
+    confirm_password: constr(min_length=6, max_length=128)
+    
+    @field_validator('new_password')
+    @classmethod
+    def validate_password_strength(cls, v):
+        """Validate password strength"""
+        if len(v) < 6:
+            raise ValueError('Password must be at least 6 characters long')
+        if not re.search(r'[A-Za-z]', v) or not re.search(r'[0-9]', v):
+            raise ValueError('Password must contain at least one letter and one number')
+        return v
 
 class TempPasswordResponse(BaseModel):
     temp_password: str
