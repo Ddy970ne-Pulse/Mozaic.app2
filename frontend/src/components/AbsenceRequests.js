@@ -333,7 +333,7 @@ const AbsenceRequests = ({ user }) => {
           const updatedPending = prev.pending.filter(r => r.id !== requestId);
           const approvedRequest = prev.pending.find(r => r.id === requestId);
           const updatedApproved = approvedRequest 
-            ? [...prev.approved, { ...approvedRequest, status: 'approved' }]
+            ? [...prev.approved, { ...approvedRequest, status: 'approved', statusType: 'approved', approver_name: user.name, approved_date: new Date().toISOString().split('T')[0] }]
             : prev.approved;
           return {
             pending: updatedPending,
@@ -341,8 +341,8 @@ const AbsenceRequests = ({ user }) => {
             rejected: prev.rejected
           };
         });
-        // Recharger les absences pour synchroniser avec le serveur
-        loadAbsencesFromAPI();
+        // Recharger les absences pour synchroniser avec le serveur après un court délai
+        setTimeout(() => loadAbsencesFromAPI(), 500);
       } else {
         alert('❌ Erreur lors de l\'approbation de la demande');
       }
