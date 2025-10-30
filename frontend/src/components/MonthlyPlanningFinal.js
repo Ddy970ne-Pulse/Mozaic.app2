@@ -1683,7 +1683,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       const absenceData = {
         employee_id: quickAddData.employee.id,
         employee_name: quickAddData.employee.name,
-        email: quickAddData.employee.email,
+        email: quickAddData.employee.email || quickAddData.employee.mail || 'unknown@email.com',
         motif_absence: quickAddData.type,
         jours_absence: String(quickAddData.days),
         date_debut: dateDebut,
