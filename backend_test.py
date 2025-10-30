@@ -49,10 +49,10 @@ class SecurityEnhancementsTester:
         self.websocket_messages = []
         self.websocket_connected = False
         self.test_results = {
-            "websocket": {"passed": 0, "failed": 0, "details": []},
-            "absence_api": {"passed": 0, "failed": 0, "details": []},
-            "users_api": {"passed": 0, "failed": 0, "details": []},
-            "existing_apis": {"passed": 0, "failed": 0, "details": []}
+            "phase1_secret_key": {"passed": 0, "failed": 0, "details": []},
+            "phase2_validation": {"passed": 0, "failed": 0, "details": []},
+            "phase3_rate_limiting": {"passed": 0, "failed": 0, "details": []},
+            "security_bypass": {"passed": 0, "failed": 0, "details": []}
         }
         
     def log_result(self, phase, test_name, success, message, expected=None, actual=None):
