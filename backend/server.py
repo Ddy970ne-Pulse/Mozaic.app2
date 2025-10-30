@@ -318,8 +318,22 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
 
-# Security
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
+# Security - MANDATORY SECRET_KEY
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY or SECRET_KEY == 'your-secret-key-change-in-production':
+    error_msg = """
+    ❌ CRITICAL SECURITY ERROR ❌
+    SECRET_KEY is missing or using default value!
+    
+    Please set a secure SECRET_KEY in your .env file:
+    SECRET_KEY="your-secure-random-key-here"
+    
+    Generate a secure key using: python3 -c "import secrets; print(secrets.token_urlsafe(64))"
+    
+    The application will NOT start without a secure SECRET_KEY.
+    """
+    logger.error(error_msg)
+    raise ValueError("SECRET_KEY must be set to a secure value in environment variables")
 
 # Initialize default admin user
 async def initialize_admin_user():
