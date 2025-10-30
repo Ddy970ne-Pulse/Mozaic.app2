@@ -2331,7 +2331,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                           return (
                             <td 
                               key={`${dateObj.year}-${dateObj.month}-${dateObj.day}`} 
-                              className={`border border-gray-200 px-1 py-1 text-center text-xs transition-all duration-150 ${
+                              className={`border border-gray-200 px-1 py-1 text-center text-xs transition-all duration-150 relative group ${
                                 isWknd && !displayCode ? 'bg-gray-50' : 
                                 isHol && !displayCode ? 'bg-red-25' : ''
                               } ${
@@ -2339,7 +2339,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                               } ${
                                 isClickable || isPasteTarget ? 'cursor-pointer hover:bg-blue-100' : ''
                               } ${
-                                displayCode ? 'cursor-context-menu' : ''
+                                displayCode ? 'cursor-context-menu' : 'hover:bg-blue-50'
                               }`}
                               onClick={() => {
                                 if (isPasteTarget) {
@@ -2349,8 +2349,26 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                                 }
                               }}
                               onContextMenu={(e) => displayCode && handleCellRightClick(e, employee, dateObj, displayCode)}
-                              onMouseEnter={() => isClickable && handleDateCellHover(dateObj.day)}
+                              onMouseEnter={() => {
+                                if (isClickable) handleDateCellHover(dateObj.day);
+                                setHoveredCell({ employeeId: employee.id, date: `${dateObj.year}-${dateObj.month}-${dateObj.day}` });
+                              }}
+                              onMouseLeave={() => setHoveredCell(null)}
                             >
+                              {/* Bouton + pour ajout rapide (visible au survol si case vide) */}
+                              {!displayCode && !addAbsenceMode && user.role !== 'employee' && hoveredCell?.employeeId === employee.id && hoveredCell?.date === `${dateObj.year}-${dateObj.month}-${dateObj.day}` && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openQuickAddModal(employee, dateObj);
+                                  }}
+                                  className="absolute inset-0 flex items-center justify-center bg-blue-500 bg-opacity-90 text-white font-bold text-lg hover:bg-blue-600 transition-all duration-150 rounded"
+                                  title="Ajouter une absence"
+                                >
+                                  +
+                                </button>
+                              )}
+                              
                               {codeInfo && (
                                 <span 
                                   className={`${codeInfo.color} ${codeInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help`}
