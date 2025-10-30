@@ -510,11 +510,12 @@ class WebSocketAbsenceTester:
         return priority_success
 
     def run_all_tests(self):
-        """Exécuter tous les tests de migration"""
-        print("🚀 DÉMARRAGE DES TESTS DE MIGRATION COMPLÈTE")
+        """Exécuter tous les tests WebSocket et Absence"""
+        print("🚀 DÉMARRAGE DES TESTS WEBSOCKET & ABSENCE")
         print("=" * 80)
-        print("OBJECTIF: Vérifier que toutes les modifications de la migration complète (Phases 1+2+3) fonctionnent correctement")
+        print("OBJECTIF: Test complet des fonctionnalités MOZAIK RH après implémentation WebSocket et ajout rapide d'absence")
         print("USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)")
+        print("PRIORITÉ: Focus sur tests 2 et 3 (bug email résolu?)")
         print("=" * 80)
         
         # Authentification
@@ -523,10 +524,19 @@ class WebSocketAbsenceTester:
             return False
         
         # Exécuter tous les tests
-        self.test_phase1_file_deletion()
-        self.test_phase2_real_analytics()
-        self.test_phase3_absence_types_db()
-        self.test_phase4_absence_creation_integration()
+        print(f"\n🔄 EXÉCUTION DES TESTS...")
+        
+        # Test 1: WebSocket Connection
+        self.run_websocket_test()
+        
+        # Test 2: API Absences (Ajout Rapide) - PRIORITÉ
+        self.test_absence_api_quick_add()
+        
+        # Test 3: GET /api/users (Email Field) - PRIORITÉ  
+        self.test_users_api_email_field()
+        
+        # Test 4: Endpoints Existants
+        self.test_existing_endpoints()
         
         # Afficher le résumé
         return self.print_summary()
