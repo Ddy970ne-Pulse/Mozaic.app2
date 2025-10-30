@@ -16,7 +16,11 @@ router = APIRouter()
 # Import du manager
 from websocket_manager import ws_manager
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
+# Security - Load SECRET_KEY (must be set in .env)
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY or SECRET_KEY == 'your-secret-key-change-in-production':
+    logger.error("❌ SECRET_KEY not configured for WebSocket authentication")
+    raise ValueError("SECRET_KEY must be set to a secure value in environment variables")
 ALGORITHM = "HS256"
 
 
