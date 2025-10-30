@@ -5,10 +5,16 @@ Endpoint WebSocket pour communications temps réel
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from jose import jwt, JWTError
 from typing import Optional
+from dotenv import load_dotenv
+from pathlib import Path
 import logging
 import json
 from datetime import datetime
 import os
+
+# Load environment variables FIRST
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
