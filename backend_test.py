@@ -625,7 +625,7 @@ class SecurityEnhancementsTester:
 
 def main():
     """Point d'entrée principal"""
-    tester = WebSocketAbsenceTester()
+    tester = SecurityEnhancementsTester()
     success = tester.run_all_tests()
     
     # Code de sortie
