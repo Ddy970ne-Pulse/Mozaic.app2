@@ -5580,29 +5580,8 @@ async def create_auto_notification(
 
 
 # ==================== WEBSOCKET ENDPOINT ====================
-
-@app.websocket("/api/ws/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, user_id: str):
-    """
-    WebSocket endpoint pour les mises à jour en temps réel
-    URL: wss://domain.com/api/ws/{user_id}
-    IMPORTANT: Le préfixe /api est requis pour le routing Kubernetes Ingress
-    """
-    await ws_manager.connect(websocket, user_id)
-    
-    try:
-        # Garder la connexion ouverte et écouter les messages
-        while True:
-            # Recevoir un message du client (heartbeat ou autre)
-            data = await websocket.receive_text()
-            
-            # Optionnel : répondre au heartbeat
-            if data == "ping":
-                await websocket.send_text("pong")
-                
-    except WebSocketDisconnect:
-        ws_manager.disconnect(websocket, user_id)
-        logger.info(f"WebSocket disconnected: {user_id}")
+# Note: Le endpoint WebSocket est maintenant géré par websocket_routes.py
+# qui inclut heartbeat, authentification, et gestion complète des messages
     except Exception as e:
         logger.error(f"WebSocket error for {user_id}: {str(e)}")
         ws_manager.disconnect(websocket, user_id)
