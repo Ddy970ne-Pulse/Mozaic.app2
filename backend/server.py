@@ -173,14 +173,37 @@ async def get_absence_type_config(code: str = None):
             return demo_absence_types
 
 # Password hashing utilities
-def hash_password(password: str) -> str:
-    """Hash a password using bcrypt"""
-    salt = bcrypt.gensalt()
+def hash_password(password: str, validate: bool = True) -> str:
+    """
+    Hash a password using bcrypt with optional policy validation
+    
+    Args:
+        password: Plain text password
+        validate: Whether to validate against password policy (default: True)
+    
+    Returns:
+        Hashed password
+    
+    Raises:
+        ValueError: If password doesn't meet policy requirements
+    """
+    # Validate password strength if requested
+    if validate:
+        from core.enhanced_auth import PasswordPolicy
+        is_valid, error_msg = PasswordPolicy.validate(password)
+        if not is_valid:
+            raise ValueError(f"Password policy violation: {error_msg}")
+    
+    # Hash with bcrypt (cost factor 12 = 2^12 = 4096 rounds)
+    salt = bcrypt.gensalt(rounds=12)
     return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
 def verify_password(password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
-    return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+    try:
+        return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+    except Exception:
+        return False
 
 def calculate_end_date(start_date_str: str, days_count: int, counting_method: str) -> str:
     """
