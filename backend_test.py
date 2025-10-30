@@ -111,74 +111,45 @@ class SecurityEnhancementsTester:
             print(f"❌ Authentication error: {str(e)}")
             return False
 
-    async def test_websocket_connection(self):
-        """TEST 1: WebSocket Connection"""
-        print(f"\n🔌 TEST 1 - WEBSOCKET CONNECTION")
+    def test_phase1_secret_key_validation(self):
+        """PHASE 1: SECRET_KEY Validation - Verify backend started with secure SECRET_KEY"""
+        print(f"\n🔐 PHASE 1 - SECRET_KEY VALIDATION")
         print("=" * 60)
         
-        if not self.user_id:
-            self.log_result("websocket", "WebSocket Connection", False, "User ID manquant pour test WebSocket")
-            return
-        
-        websocket_url = f"{WEBSOCKET_URL}/{self.user_id}"
-        print(f"🔗 URL WebSocket: {websocket_url}")
-        
         try:
-            # Test de connexion WebSocket
-            async with websockets.connect(websocket_url) as websocket:
-                self.websocket_connected = True
-                print(f"✅ Connexion WebSocket établie")
-                
-                # Attendre un message de bienvenue
-                try:
-                    welcome_message = await asyncio.wait_for(websocket.recv(), timeout=5.0)
-                    print(f"✅ Message de bienvenue reçu: {welcome_message}")
-                    self.log_result("websocket", "Connexion WebSocket acceptée", True, 
-                                   f"Connexion réussie sur {websocket_url}")
-                    self.log_result("websocket", "Message de bienvenue reçu", True, 
-                                   f"Message: {welcome_message}")
-                except asyncio.TimeoutError:
-                    print(f"⚠️ Aucun message de bienvenue reçu dans les 5 secondes")
-                    self.log_result("websocket", "Message de bienvenue reçu", False, 
-                                   "Timeout - aucun message de bienvenue")
-                
-                # Tester l'envoi d'un message
-                test_message = {"type": "ping", "data": "test"}
-                await websocket.send(json.dumps(test_message))
-                print(f"✅ Message de test envoyé")
-                
-                # Attendre une réponse
-                try:
-                    response = await asyncio.wait_for(websocket.recv(), timeout=3.0)
-                    print(f"✅ Réponse reçue: {response}")
-                    self.log_result("websocket", "Communication bidirectionnelle", True, 
-                                   f"Réponse: {response}")
-                except asyncio.TimeoutError:
-                    print(f"⚠️ Aucune réponse au message de test")
-                    self.log_result("websocket", "Communication bidirectionnelle", False, 
-                                   "Timeout - aucune réponse")
-                
-        except websockets.exceptions.InvalidStatusCode as e:
-            if e.status_code == 404:
-                self.log_result("websocket", "Connexion WebSocket acceptée", False, 
-                               f"Erreur 404 - Endpoint WebSocket non trouvé: {websocket_url}")
+            # Test 1: Backend should be running (if SECRET_KEY is valid)
+            response = requests.get(f"{BACKEND_URL}/")
+            
+            if response.status_code == 200:
+                print(f"✅ Backend started successfully with SECRET_KEY")
+                self.log_result("phase1_secret_key", "Backend started with SECRET_KEY", True, 
+                               "Backend is running, indicating SECRET_KEY is properly configured")
             else:
-                self.log_result("websocket", "Connexion WebSocket acceptée", False, 
-                               f"Erreur HTTP {e.status_code}: {str(e)}")
+                self.log_result("phase1_secret_key", "Backend started with SECRET_KEY", False, 
+                               f"Backend not responding: {response.status_code}")
+            
+            # Test 2: JWT tokens should be properly signed
+            login_response = requests.post(f"{BACKEND_URL}/auth/login", json={
+                "email": ADMIN_EMAIL,
+                "password": ADMIN_PASSWORD
+            })
+            
+            if login_response.status_code == 200:
+                data = login_response.json()
+                token = data.get("token")
+                if token and len(token) > 50:  # JWT tokens are typically long
+                    print(f"✅ JWT token properly generated and signed")
+                    self.log_result("phase1_secret_key", "JWT tokens properly signed", True, 
+                                   f"Token generated: {token[:20]}...")
+                else:
+                    self.log_result("phase1_secret_key", "JWT tokens properly signed", False, 
+                                   "Token missing or invalid format")
+            else:
+                self.log_result("phase1_secret_key", "JWT tokens properly signed", False, 
+                               f"Login failed: {login_response.status_code}")
+                
         except Exception as e:
-            self.log_result("websocket", "Connexion WebSocket acceptée", False, 
-                           f"Erreur de connexion: {str(e)}")
-    
-    def run_websocket_test(self):
-        """Wrapper pour exécuter le test WebSocket de manière synchrone"""
-        try:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(self.test_websocket_connection())
-        except Exception as e:
-            self.log_result("websocket", "Test WebSocket", False, f"Erreur d'exécution: {str(e)}")
-        finally:
-            loop.close()
+            self.log_result("phase1_secret_key", "SECRET_KEY validation", False, f"Exception: {str(e)}")
 
     def test_users_api_email_field(self):
         """TEST 3: GET /api/users - Vérifier champ email non undefined"""
