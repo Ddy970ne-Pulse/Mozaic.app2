@@ -37,7 +37,7 @@ created_by: user?.id || user?.name || 'admin'
 
 ### Test Manuel (Recommandé):
 
-1. **Ouvrir l'application**: https://hr-multi-saas.preview.emergentagent.com
+1. **Ouvrir l'application**: https://saas-hr-hub.preview.emergentagent.com
 
 2. **Se connecter** avec admin:
    - Email: `ddacalor@aaea-gpe.fr`
@@ -138,7 +138,7 @@ Stack: [stack trace]
   ```bash
   curl -X GET \
     -H "Authorization: Bearer $TOKEN" \
-    https://hr-multi-saas.preview.emergentagent.com/api/users
+    https://saas-hr-hub.preview.emergentagent.com/api/users
   ```
 
 ### Scénario 4: Token expiré

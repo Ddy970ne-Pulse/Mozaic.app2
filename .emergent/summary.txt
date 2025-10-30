@@ -1,75 +1,83 @@
 <analysis>
-The AI engineer's work involved a series of critical bug fixes and feature enhancements for the MOZAIK RH application. Initially, a persistent issue with absence badge display in  was resolved by fixing a  race condition. Concurrently, the backend  and  absence request endpoints in  were fully implemented to correctly persist data, synchronize counters, and handle notifications, addressing a major data flow gap. A subsequent major task was the comprehensive migration of CP (Congés Payés) absence types to CA (Congés Annuels) across the entire codebase and database. Following this, test data and hardcoded absence types were replaced with a database-driven configuration. A new module for combined absence analysis reporting was also integrated. The latest significant effort is the implementation of a multi-tenant SaaS architecture. However, the initial attempt to migrate existing data to this new architecture encountered database errors (duplicate emails, MongoDB syntax), leading to a pivot where the AI is now analyzing the ComboHR application for ergonomic and request management insights.
+The AI engineer's trajectory involved a sequence of bug fixes, feature implementations, and architectural shifts for the MOZAIK RH application. Initially, it tackled critical fixes like the absence badge display and a full backend approval/rejection workflow. A major data migration from CP to CA absence types and database-driven configurations were completed. The core challenge became the implementation of a multi-tenant SaaS architecture, which faced initial database migration errors. This led to a pivot for a ComboHR application analysis, exploring ergonomic and request management features.
+
+Upon resuming, the user requested to proceed through a structured plan: Stabilization (A), Multi-Tenant (B), and ComboHR Features (C). The AI engineer addressed several issues under Stabilization, including the WebSocket connection problem and a bug in the absence request UI. It also implemented a new Quick Add Absence feature inspired by ComboHR, which introduced new bugs related to missing employee email data and UI refresh issues. It cleaned up duplicate planning files. The multi-tenant migration was successfully executed. The WebSocket issue, though partially addressed by backend code, was documented as a potential Kubernetes Ingress configuration problem. Currently, the user has instructed to continue with Security Critical fixes (Option A from a newly proposed Quick Wins list), followed by other options up to G.
 </analysis>
 
 <product_requirements>
-The MOZAIK RH application is an HR management system for responsive personnel and absence management with a glassmorphism UI. It includes Excel import, auto-generated credentials, and CSE member identification. Core features encompass robust user management, data integrity, temporary passwords, dynamic dashboards, and PWA mobile accessibility. The CSE Management Module tracks delegation hours. It requires robust temporal data handling for planning and analytics, overtime/recovery integration, and a personal employee space detailing absences. Absence calculations must respect weekends/holidays and priority rules, tracking specific types in hours. Admins can modify any absence, create/manage absences on monthly planning (multi-employee selection, copy/paste, recurring templates). Managers/RH validate others' requests (but not their own) and overtime. All data changes must propagate instantly, supported by a dynamic notification system and user feedback for synchronization. Recent work ensured accurate absence badge display and a complete backend approval/rejection workflow for absence requests.
+The MOZAIK RH application is an HR management system for personnel and absence management, featuring a glassmorphism UI, Excel import, auto-generated credentials, and PWA mobile accessibility. It supports robust user management, dynamic dashboards, and a CSE Management Module for tracking delegation hours. Core requirements include precise temporal data handling, overtime/recovery integration, and a personal employee space. Absence calculations must respect weekends/holidays and priority rules, tracking specific types in hours. Admins can manage absences on monthly planning, while managers/HR validate requests (excluding their own). All data changes require instant propagation via a dynamic notification system.
+Implemented features include: accurate absence badge display, a complete backend approval/rejection workflow, migration of CP to CA absence types, database-driven absence type configuration, a combined absence analysis report, and a multi-tenant SaaS architecture. A Quick Add Absence feature with a '+' button on monthly planning cells and a modal for rapid creation has been implemented.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-Stack**: React (frontend with Hooks), FastAPI (Python backend).
--   **Database**: MongoDB (using UUIDs).
--   **UI/UX**: Tailwind CSS, glassmorphism design.
--   **Data Synchronization**: WebSockets (identified as problematic).
--   **Authentication/Authorization**: JWT, bcrypt, role-based access control.
--   **API Design**: RESTful APIs, Pydantic for data validation.
--   **Multi-Tenancy**: Dynamic tenant management, central registry, per-tenant databases.
+- **Full-Stack**: React (frontend with Hooks), FastAPI (Python backend).
+- **Database**: MongoDB (using UUIDs).
+- **UI/UX**: Tailwind CSS, glassmorphism design.
+- **Data Synchronization**: WebSockets (identified as problematic due to infrastructure/config).
+- **Authentication/Authorization**: JWT, bcrypt, role-based access control.
+- **API Design**: RESTful APIs, Pydantic for data validation.
+- **Multi-Tenancy**: Dynamic tenant management, central registry, per-tenant databases.
 </key_technical_concepts>
 
 <code_architecture>
 
 -   ****:
     -   **Importance**: Core application logic and API endpoints.
-    -   **Changes**: Updated  and  endpoints to correctly manage  entries and related flows. Analytics mock data was updated.  replaced by dynamic fetching from . A new endpoint  was added. Significantly refactored to integrate  and , using  for dynamic database access and including .
+    -   **Changes**: Updated  and  endpoints, updated analytics mock data, replaced  with dynamic fetching, added . Refactored for multi-tenancy with  and . Modified to include  router and removed the duplicate inline WebSocket endpoint.
 -   ****:
     -   **Importance**: Displays the monthly planning calendar.
-    -   **Changes**: Fixed a  race condition by changing dependency from  to , resolving the absence badge display bug. Updated  and  for CP to CA migration.
+    -   **Changes**: Fixed  race condition, updated  and  (CP to CA). Significantly modified to implement Quick Add Absence feature: added + button on hover, a quick-add modal, and pre-filling logic. Fixed a bug where employee objects lacked an  field during quick add. Enhanced error logging.
 -   ****:
     -   **Importance**: Handles employee absence requests.
-    -   **Changes**: Removed Congés Payés references from UI elements and added a  helper for consistent CP to CA conversion.
+    -   **Changes**: Removed Congés Payés references. Added  helper. Implemented  delays in  and  to address potential UI race conditions.
 -   ****:
-    -   **Importance**: Presents various application analytics.
-    -   **Changes**: Replaced cp with ca in internal mock data for consistency after the migration.
+    -   **Importance**: Manages WebSocket connections.
+    -   **Changes**: Refactored to properly construct the WebSocket URL with  prefix, handle connection/reconnection logic,  heartbeat, and  messages.
 -   ****:
-    -   **Importance**: Script for migrating absence type data in MongoDB.
-    -   **Changes**: This script was created and executed to convert all CP absence entries to CA in the  and  collections.
+    -   **Importance**: Manages active WebSocket connections.
+    -   **Changes**: Significant refactoring to improve thread-safety with , implemented a  for regular pings and dead connection detection, and improved disconnection/cleanup logic.
 -   ****:
-    -   **Importance**: Script to transition  from code to database.
-    -   **Changes**: Created and executed to populate  with initial absence type definitions.
+    -   **Importance**: New file for dynamic multi-tenant database connection management.
 -   ****:
-    -   **Importance**: Generates a structured Excel report for absence analysis.
-    -   **Changes**: This new script processes raw absence data, classifies it into Programmées and Absentéisme, and outputs a combined Excel file.
+    -   **Importance**: New file for super-admin API endpoints to manage tenant registrations.
 -   ****:
-    -   **Importance**: Manages multi-tenant database connections and tenant identification.
-    -   **Changes**: This new file provides a dynamic way to identify the current tenant from requests (headers, query params, subdomains) and establish a dedicated MongoDB connection for that tenant, ensuring data isolation.
+    -   **Importance**: New frontend service for tenant detection and injecting  header.
 -   ****:
-    -   **Importance**: Contains API endpoints for platform super-admins to manage tenant registrations.
-    -   **Changes**: This new file defines Pydantic models and FastAPI routes for creating, listing, and updating tenant configurations in a central database.
+    -   **Importance**: Script to migrate existing data to the new multi-tenant structure.
+    -   **Changes**: The existing file was overwritten with an improved version to successfully migrate data for AAEA CAVA.
 -   ****:
-    -   **Importance**: Frontend service for tenant detection and API request modification.
-    -   **Changes**: This new file provides  logic to identify the active tenant and an  wrapper to automatically include the  header in all backend API calls.
+    -   **Importance**: New file containing the FastAPI WebSocket endpoint with authentication, lifecycle management, and message handling.
+-   ****: New file containing the analysis report of ComboHR.
+-   ****: New file documenting the persistent WebSocket issue, likely related to Kubernetes Ingress configuration.
+-   ****: New file summarizing stabilization efforts.
+-   ****: New file summarizing multi-tenant implementation.
+-   ****: New file providing manual debugging instructions for the quick add feature.
+-   **Other  files (e.g., , , )**: These files were identified as old versions and have been deleted, retaining only .
 </code_architecture>
 
 <pending_tasks>
--   **WebSocket Frontend Connection**: Resolve the persistent frontend WebSocket connection failure, requiring infrastructure-level investigation.
--   **Multi-Tenant Data Migration**: Successfully migrate existing data to the new multi-tenant architecture for AAEA CAVA (currently blocked by database errors).
--   **ComboHR Feature Implementation**: Implement interesting ergonomic and request management features identified from the ComboHR analysis.
--   **CSE Unification**: Complete frontend integration and logic for .
--   **Absence in Hours**: Finalize display in Planning, Export Paie, and Statistics modules.
--   **Analytics & KPI**: Complete missing analyses/visualizations based on user images.
--   **Printable Password Document**: Implement generation logic.
--   **Checkbox Issue**: Unchecking checkbox bug.
--   **Mascot Integration**: Integrate mascot image.
--   **User Color Customization**: Implement user ability to personalize space colors.
+- **WebSocket Infrastructure Fix**: Resolve the persistent WebSocket connection failure (404 errors), likely requiring Kubernetes Ingress configuration changes.
+- **Quick Add Modal Closure**: Ensure the quick add absence modal closes automatically after a successful creation.
+- **ComboHR Feature Implementation**: Implement interesting ergonomic and request management features identified from the ComboHR analysis.
+- **CSE Unification**: Complete frontend integration and logic for .
+- **Absence in Hours**: Finalize display in Planning, Export Paie, and Statistics modules.
+- **Analytics & KPI**: Complete missing analyses/visualizations based on user images.
+- **Printable Password Document**: Implement generation logic.
+- **Checkbox Issue**: Unchecking checkbox bug.
+- **Mascot Integration**: Integrate mascot image.
+- **User Color Customization**: Implement user ability to personalize space colors.
+- **Security Critical Fixes**: (Starting now) Force  mandatory, add strict Pydantic validation, add rate limiting.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was engaged in two concurrent, high-priority tasks:
-1.  **Multi-Tenant Architecture Implementation and Data Migration**: The user provided a detailed architectural plan for a multi-tenant SaaS solution, including backend (, ,  modifications) and frontend () components. This architecture has been largely implemented. The next step was to migrate existing application data to this new multi-tenant structure for the first specified tenant, AAEA CAVA. However, an attempt to execute the  script failed, encountering MongoDB errors related to duplicate emails and syntax issues (e.g., , ).
-2.  **Competitor Analysis (ComboHR)**: Due to the blockage in the multi-tenant migration, the user requested a pivot: to analyze the ComboHR application for interesting functionalities, focusing on ergonomics and how absence requests are managed. The AI is currently in the process of fulfilling this request, having just completed the information gathering phase by analyzing ComboHR's public site and documentation. The next step is to compile this analysis into a report.
+Immediately before this summary, the AI engineer was working on the Quick Add Absence feature, requested by the user. Although the UI components for the quick add were functional (button appearing, modal opening), there was a persistent bug where creating an absence resulted in a 422 Unprocessable Content API error. This was traced to the  field of the  object being  during the API call. The AI engineer attempted to fix this by modifying  to ensure the  field is populated when employee data is loaded. After multiple attempts and realizing hot-reloads weren't applying changes, a full frontend restart and cache clearing was performed under the guidance of the . The AI then added more detailed error logging.
+
+Concurrently, there was an ongoing issue with WebSocket connections consistently failing with a 404 error, despite code-level fixes, which the AI deduced points to a Kubernetes Ingress configuration problem. This was documented.
+
+The user then provided new instructions, requesting to start with Option A: Sécurité Critique from a list of proposed Quick Wins.
 </current_work>
 
 <optional_next_step>
-Generate the comprehensive analysis report on ComboHR's functionalities and ergonomics, as requested by the user.
+The next step is to implement Option A: Sécurité Critique, starting with forcing  as mandatory.
 </optional_next_step>
 
