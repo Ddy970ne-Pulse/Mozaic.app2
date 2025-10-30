@@ -524,9 +524,9 @@ class SecurityEnhancementsTester:
                            f"Invalid token not rejected: {invalid_token_response.status_code}")
 
     def print_summary(self):
-        """Afficher le résumé des tests"""
+        """Afficher le résumé des tests de sécurité"""
         print(f"\n" + "=" * 80)
-        print(f"📊 RÉSUMÉ COMPLET DES TESTS WEBSOCKET & ABSENCE")
+        print(f"🛡️ RÉSUMÉ COMPLET DES TESTS DE SÉCURITÉ CRITIQUES")
         print(f"=" * 80)
         
         total_passed = 0
@@ -534,10 +534,10 @@ class SecurityEnhancementsTester:
         
         for phase_name, results in self.test_results.items():
             phase_display = {
-                "websocket": "TEST 1 - WEBSOCKET CONNECTION",
-                "absence_api": "TEST 2 - API ABSENCES (AJOUT RAPIDE)", 
-                "users_api": "TEST 3 - GET /api/users (EMAIL FIELD)",
-                "existing_apis": "TEST 4 - ENDPOINTS EXISTANTS"
+                "phase1_secret_key": "PHASE 1 - SECRET_KEY VALIDATION",
+                "phase2_validation": "PHASE 2 - PYDANTIC VALIDATION", 
+                "phase3_rate_limiting": "PHASE 3 - RATE LIMITING",
+                "security_bypass": "SECURITY BYPASS TESTS"
             }
             
             passed = results["passed"]
@@ -553,42 +553,43 @@ class SecurityEnhancementsTester:
             print(f"   Tests échoués: {failed}/{total}")
             
             if failed > 0:
-                print(f"   Échecs:")
+                print(f"   Échecs critiques:")
                 for detail in results["details"]:
                     if "❌ FAIL" in detail["status"]:
                         print(f"     - {detail['test']}: {detail['message']}")
         
         print(f"\n" + "=" * 80)
-        overall_status = "✅ SUCCÈS COMPLET" if total_failed == 0 else "❌ ÉCHECS DÉTECTÉS" if total_passed == 0 else "⚠️ SUCCÈS PARTIEL"
+        overall_status = "✅ SÉCURITÉ COMPLÈTE" if total_failed == 0 else "❌ FAILLES DÉTECTÉES" if total_passed == 0 else "⚠️ SÉCURITÉ PARTIELLE"
         print(f"🎯 RÉSULTAT GLOBAL: {overall_status}")
         print(f"📈 TOTAL: {total_passed} réussis, {total_failed} échoués sur {total_passed + total_failed} tests")
         
-        # Critères de succès selon la demande française
-        print(f"\n📋 CRITÈRES DE SUCCÈS:")
+        # Critères de succès critiques pour la sécurité
+        print(f"\n🔒 CRITÈRES DE SÉCURITÉ CRITIQUES:")
         success_criteria = [
-            ("WebSocket connexion acceptée (pas 404)", self.test_results["websocket"]["failed"] == 0),
-            ("Message de bienvenue WebSocket reçu", self.test_results["websocket"]["passed"] >= 1),
-            ("POST /api/absences réponse 200 OK (pas 422)", self.test_results["absence_api"]["failed"] == 0),
-            ("Absence bien créée en base", self.test_results["absence_api"]["passed"] >= 2),
-            ("Tous les users ont champ email valide", self.test_results["users_api"]["failed"] == 0),
-            ("Endpoints existants fonctionnels", self.test_results["existing_apis"]["failed"] == 0)
+            ("Backend started with secure SECRET_KEY", self.test_results["phase1_secret_key"]["failed"] == 0),
+            ("JWT tokens properly signed and verified", self.test_results["phase1_secret_key"]["passed"] >= 1),
+            ("Login rate limiting (5/minute) enforced", self.test_results["phase3_rate_limiting"]["passed"] >= 1),
+            ("Password validation (min 6 chars + numbers)", self.test_results["phase2_validation"]["passed"] >= 2),
+            ("Email validation enforced", self.test_results["phase2_validation"]["passed"] >= 1),
+            ("Input sanitization working", self.test_results["phase2_validation"]["passed"] >= 3),
+            ("Authentication bypass prevented", self.test_results["security_bypass"]["passed"] >= 2)
         ]
         
         for criterion, met in success_criteria:
             status = "✅" if met else "❌"
             print(f"   {status} {criterion}")
         
-        # Focus sur tests 2 et 3 comme demandé
-        print(f"\n🎯 PRIORITÉ TESTS 2 & 3 (bug email résolu?):")
-        test2_success = self.test_results["absence_api"]["failed"] == 0
-        test3_success = self.test_results["users_api"]["failed"] == 0
-        print(f"   {'✅' if test2_success else '❌'} TEST 2 - API Absences (Ajout Rapide)")
-        print(f"   {'✅' if test3_success else '❌'} TEST 3 - GET /api/users (Email Field)")
+        # Focus sur les tests critiques de sécurité
+        print(f"\n🎯 TESTS CRITIQUES DE SÉCURITÉ:")
+        rate_limiting_success = self.test_results["phase3_rate_limiting"]["failed"] == 0
+        validation_success = self.test_results["phase2_validation"]["failed"] == 0
+        print(f"   {'✅' if rate_limiting_success else '❌'} RATE LIMITING - Protection contre brute force")
+        print(f"   {'✅' if validation_success else '❌'} VALIDATION - Sécurité des données")
         
-        priority_success = test2_success and test3_success
-        print(f"\n🏆 TESTS PRIORITAIRES: {'✅ RÉUSSIS' if priority_success else '❌ ÉCHECS DÉTECTÉS'}")
+        critical_success = rate_limiting_success and validation_success
+        print(f"\n🏆 SÉCURITÉ CRITIQUE: {'✅ PROTÉGÉE' if critical_success else '❌ VULNÉRABLE'}")
         
-        return priority_success
+        return critical_success
 
     def run_all_tests(self):
         """Exécuter tous les tests WebSocket et Absence"""
