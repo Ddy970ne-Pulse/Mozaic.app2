@@ -34,7 +34,21 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # 🛡️ RATE LIMITING CONFIGURATION
-limiter = Limiter(key_func=get_remote_address)
+def get_client_ip(request):
+    """Get client IP for rate limiting"""
+    # Check for forwarded IP first (for proxy/load balancer)
+    forwarded_ip = request.headers.get("X-Forwarded-For")
+    if forwarded_ip:
+        ip = forwarded_ip.split(",")[0].strip()
+        logger.info(f"🛡️ Rate limiting using forwarded IP: {ip}")
+        return ip
+    
+    # Fallback to remote address
+    ip = get_remote_address(request)
+    logger.info(f"🛡️ Rate limiting using remote address: {ip}")
+    return ip
+
+limiter = Limiter(key_func=get_client_ip)
 
 # Create the main app without a prefix
 app = FastAPI()
