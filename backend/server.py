@@ -1111,6 +1111,109 @@ async def login(request: Request, login_request: LoginRequest):
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     return current_user
 
+# 🛡️ SECURITY: Account Lockout Management Endpoints (Admin only)
+
+@api_router.get("/auth/lockouts/recent")
+async def get_recent_lockouts(
+    hours: int = 24,
+    current_user: User = Depends(get_current_user)
+):
+    """Get recent account lockouts for security monitoring (Admin only)"""
+    from core.account_lockout import AccountLockoutManager
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    lockout_manager = AccountLockoutManager(db)
+    lockouts = await lockout_manager.get_recent_lockouts(hours=hours, limit=100)
+    
+    return {
+        "success": True,
+        "lockouts": lockouts,
+        "count": len(lockouts),
+        "period_hours": hours
+    }
+
+@api_router.get("/auth/lockouts/suspicious")
+async def get_suspicious_patterns(current_user: User = Depends(get_current_user)):
+    """Detect suspicious login patterns (Admin only)"""
+    from core.account_lockout import AccountLockoutManager
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    lockout_manager = AccountLockoutManager(db)
+    patterns = await lockout_manager.get_suspicious_patterns()
+    
+    return {
+        "success": True,
+        "suspicious_patterns": patterns,
+        "count": len(patterns)
+    }
+
+@api_router.get("/auth/lockouts/{email}")
+async def get_lockout_info(
+    email: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get lockout information for a specific email (Admin only)"""
+    from core.account_lockout import AccountLockoutManager
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    lockout_manager = AccountLockoutManager(db)
+    info = await lockout_manager.get_lockout_info(email)
+    
+    if not info:
+        return {
+            "success": True,
+            "email": email,
+            "is_locked": False,
+            "message": "No lockout record found"
+        }
+    
+    # Check if currently locked
+    is_locked, locked_until, remaining = await lockout_manager.is_locked(email)
+    
+    return {
+        "success": True,
+        "email": email,
+        "is_locked": is_locked,
+        "locked_until": locked_until.isoformat() if locked_until else None,
+        "remaining_attempts": remaining,
+        "details": info
+    }
+
+@api_router.post("/auth/lockouts/{email}/unlock")
+async def admin_unlock_account(
+    email: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Admin override to unlock a locked account"""
+    from core.account_lockout import AccountLockoutManager
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    lockout_manager = AccountLockoutManager(db)
+    success = await lockout_manager.admin_unlock(email, current_user.email)
+    
+    if success:
+        logger.info(
+            f"🔓 Admin {current_user.email} unlocked account: {email}",
+            extra={"admin": current_user.email, "unlocked_email": email}
+        )
+        return {
+            "success": True,
+            "message": f"Account {email} has been unlocked by {current_user.email}"
+        }
+    else:
+        return {
+            "success": False,
+            "message": f"No lockout found for {email}"
+        }
+
 # User Management endpoints
 @api_router.get("/users", response_model=List[User])
 async def get_all_users(current_user: User = Depends(get_current_user)):
