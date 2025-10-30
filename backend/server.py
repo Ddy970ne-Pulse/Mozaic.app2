@@ -5580,11 +5580,12 @@ async def create_auto_notification(
 
 # ==================== WEBSOCKET ENDPOINT ====================
 
-@app.websocket("/ws/{user_id}")
+@app.websocket("/api/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
     """
     WebSocket endpoint pour les mises à jour en temps réel
-    URL: ws://localhost:8001/ws/{user_id}
+    URL: wss://domain.com/api/ws/{user_id}
+    IMPORTANT: Le préfixe /api est requis pour le routing Kubernetes Ingress
     """
     await ws_manager.connect(websocket, user_id)
     
