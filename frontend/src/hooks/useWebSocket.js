@@ -1,71 +1,78 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 /**
- * Hook personnalisé pour WebSocket temps réel
- * Gère la connexion, reconnexion automatique et événements
+ * Hook WebSocket avec heartbeat, authentification et reconnexion automatique
+ * 
+ * Usage:
+ * const { isConnected, lastMessage, sendMessage } = useWebSocket(userId);
  */
-const useWebSocket = (userId, onMessage) => {
+export const useWebSocket = (userId) => {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState(null);
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
-  const reconnectAttemptsRef = useRef(0);
+  const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 10;
-  const reconnectDelay = 3000; // 3 secondes
+  const heartbeatIntervalRef = useRef(null);
 
   const connect = useCallback(() => {
     if (!userId) {
-      console.warn('⚠️ No userId provided, skipping WebSocket connection');
+      console.warn('⚠️ Cannot connect WebSocket: missing userId');
       return;
     }
 
-    // Ne pas reconnecter si déjà connecté
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      return;
-    }
+    // Construire l'URL WebSocket
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || window.location.origin;
+    const wsProtocol = backendUrl.startsWith('https') ? 'wss:' : 'ws:';
+    const wsHost = backendUrl.replace(/^https?:\/\//, '');
+    
+    // Obtenir le token (optionnel pour développement)
+    const token = localStorage.getItem('token');
+    const wsUrl = token 
+      ? `${wsProtocol}//${wsHost}/api/ws/${userId}?token=${token}`
+      : `${wsProtocol}//${wsHost}/api/ws/${userId}`;
+    
+    console.log(`🔌 Connecting to WebSocket: ${wsProtocol}//${wsHost}/api/ws/${userId}`);
 
     try {
-      // Construire l'URL WebSocket basée sur REACT_APP_BACKEND_URL
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || window.location.origin;
-      
-      // Remplacer http/https par ws/wss et ajouter le préfixe /api pour Kubernetes Ingress
-      const wsUrl = backendUrl.replace(/^http/, 'ws') + `/api/ws/${userId}`;
-      
-      console.log('🔌 Connecting to WebSocket:', wsUrl);
-
       const ws = new WebSocket(wsUrl);
-      
+
       ws.onopen = () => {
         console.log('✅ WebSocket connected');
         setIsConnected(true);
-        reconnectAttemptsRef.current = 0;
+        reconnectAttempts.current = 0;
         
-        // Heartbeat toutes les 30 secondes
-        const heartbeatInterval = setInterval(() => {
+        // Démarrer le heartbeat client-side (pong en réponse aux pings)
+        heartbeatIntervalRef.current = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
-            ws.send('ping');
+            ws.send(JSON.stringify({ type: 'ping' }));
           }
-        }, 30000);
-        
-        ws.heartbeatInterval = heartbeatInterval;
+        }, 25000); // 25 secondes (moins que le serveur)
       };
 
       ws.onmessage = (event) => {
         try {
-          // Ignorer les pongs
-          if (event.data === 'pong') return;
-          
           const message = JSON.parse(event.data);
-          console.log('📨 WebSocket message received:', message.type);
           
-          setLastMessage(message);
+          // Ne pas logger les pings/pongs pour éviter le spam
+          if (message.type !== 'ping' && message.type !== 'pong') {
+            console.log('📨 WebSocket message:', message.type, message);
+          }
           
-          // Appeler le callback avec le message
-          if (onMessage) {
-            onMessage(message);
+          if (message.type === 'ping') {
+            // Répondre au ping du serveur
+            ws.send(JSON.stringify({ type: 'pong' }));
+          } else if (message.type === 'pong') {
+            // Serveur a répondu à notre ping, tout va bien
+          } else if (message.type === 'connected') {
+            // Message de bienvenue
+            console.log('🎉 WebSocket connection confirmed:', message.data.message);
+          } else {
+            // Autres messages
+            setLastMessage(message);
           }
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+          console.error('❌ Error parsing WebSocket message:', error);
         }
       };
 
@@ -74,22 +81,24 @@ const useWebSocket = (userId, onMessage) => {
       };
 
       ws.onclose = (event) => {
-        console.log('🔌 WebSocket closed:', event.code, event.reason);
+        console.log(`🔌 WebSocket closed: ${event.code}${event.reason ? ' - ' + event.reason : ''}`);
         setIsConnected(false);
         
-        // Nettoyer le heartbeat
-        if (ws.heartbeatInterval) {
-          clearInterval(ws.heartbeatInterval);
+        // Arrêter le heartbeat
+        if (heartbeatIntervalRef.current) {
+          clearInterval(heartbeatIntervalRef.current);
+          heartbeatIntervalRef.current = null;
         }
-        
-        // Tenter une reconnexion automatique
-        if (reconnectAttemptsRef.current < maxReconnectAttempts) {
-          reconnectAttemptsRef.current += 1;
-          console.log(`🔄 Attempting reconnection (${reconnectAttemptsRef.current}/${maxReconnectAttempts})...`);
+
+        // Reconnexion automatique avec backoff exponentiel
+        if (reconnectAttempts.current < maxReconnectAttempts) {
+          reconnectAttempts.current++;
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
+          console.log(`🔄 Attempting reconnection (${reconnectAttempts.current}/${maxReconnectAttempts}) in ${delay}ms...`);
           
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
-          }, reconnectDelay);
+          }, delay);
         } else {
           console.error('❌ Max reconnection attempts reached');
         }
@@ -98,19 +107,36 @@ const useWebSocket = (userId, onMessage) => {
       wsRef.current = ws;
       
     } catch (error) {
-      console.error('Error creating WebSocket:', error);
+      console.error('❌ Error creating WebSocket:', error);
     }
-  }, [userId, onMessage]);
+  }, [userId]);
+
+  const sendMessage = useCallback((message) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(message));
+      console.log('📤 Sent message:', message.type);
+    } else {
+      console.warn('⚠️ WebSocket not connected, cannot send message');
+    }
+  }, []);
 
   const disconnect = useCallback(() => {
+    console.log('🔌 Disconnecting WebSocket...');
+    
+    // Arrêter les tentatives de reconnexion
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
     }
     
+    // Arrêter le heartbeat
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+      heartbeatIntervalRef.current = null;
+    }
+    
+    // Fermer la connexion
     if (wsRef.current) {
-      if (wsRef.current.heartbeatInterval) {
-        clearInterval(wsRef.current.heartbeatInterval);
-      }
       wsRef.current.close();
       wsRef.current = null;
     }
@@ -118,21 +144,22 @@ const useWebSocket = (userId, onMessage) => {
     setIsConnected(false);
   }, []);
 
-  // Connexion au montage du composant
   useEffect(() => {
-    connect();
+    if (userId) {
+      connect();
+    }
     
-    // Nettoyage à la déconnexion
     return () => {
       disconnect();
     };
-  }, [connect, disconnect]);
+  }, [userId, connect, disconnect]);
 
   return {
     isConnected,
     lastMessage,
-    reconnect: connect,
-    disconnect
+    sendMessage,
+    disconnect,
+    reconnect: connect
   };
 };
 
