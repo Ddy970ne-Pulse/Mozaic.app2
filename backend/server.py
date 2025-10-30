@@ -405,7 +405,7 @@ class User(BaseModel):
     has_temp_email: bool = False  # Email généré automatiquement (sans email pro)
     # Champs additionnels depuis employees
     date_naissance: Optional[str] = None
-    sexe: Optional[constr(pattern=r'^(M|F|Autre)?$')] = None
+    sexe: Optional[constr(pattern=r'^(M|F|Homme|Femme|Autre)?$')] = None
     categorie_employe: Optional[constr(max_length=100)] = None
     metier: Optional[constr(max_length=200)] = None
     fonction: Optional[constr(max_length=200)] = None
@@ -464,7 +464,7 @@ class UserCreate(BaseModel):
     isDelegateCSE: Optional[bool] = False
     # Champs additionnels pour données employés complètes
     date_naissance: Optional[str] = None
-    sexe: Optional[constr(pattern=r'^(M|F|Autre)?$')] = None
+    sexe: Optional[constr(pattern=r'^(M|F|Homme|Femme|Autre)?$')] = None
     categorie_employe: Optional[constr(max_length=100)] = None
     metier: Optional[constr(max_length=200)] = None
     fonction: Optional[constr(max_length=200)] = None
@@ -505,7 +505,7 @@ class UserUpdate(BaseModel):
     is_active: Optional[bool] = None
     # Champs additionnels pour données employés complètes
     date_naissance: Optional[str] = None
-    sexe: Optional[constr(pattern=r'^(M|F|Autre)?$')] = None
+    sexe: Optional[constr(pattern=r'^(M|F|Homme|Femme|Autre)?$')] = None
     categorie_employe: Optional[constr(max_length=100)] = None
     metier: Optional[constr(max_length=200)] = None
     fonction: Optional[constr(max_length=200)] = None
