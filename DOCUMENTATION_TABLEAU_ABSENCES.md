@@ -143,7 +143,7 @@ python adapt_absences_tableau.py \
 
 **Exemple** :
 ```bash
-curl -X POST "https://staffhub-83.preview.emergentagent.com/api/analytics/generate-absence-report?year=2025&month=10" \
+curl -X POST "https://hr-multi-saas.preview.emergentagent.com/api/analytics/generate-absence-report?year=2025&month=10" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   --output Analyse_2025_10.xlsx
 ```
@@ -378,7 +378,7 @@ python adapt_absences_tableau.py \
 import requests
 
 response = requests.post(
-    "https://staffhub-83.preview.emergentagent.com/api/analytics/generate-absence-report",
+    "https://hr-multi-saas.preview.emergentagent.com/api/analytics/generate-absence-report",
     params={"year": 2025, "month": 10},
     headers={"Authorization": "Bearer YOUR_TOKEN"}
 )

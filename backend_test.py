@@ -14,7 +14,7 @@ import os
 from datetime import datetime, timedelta
 
 # Configuration
-BACKEND_URL = "https://rh-planning-app.preview.emergentagent.com/api"
+BACKEND_URL = "https://hr-multi-saas.preview.emergentagent.com/api"
 ADMIN_EMAIL = "ddacalor@aaea-gpe.fr"
 ADMIN_PASSWORD = "admin123"
 
