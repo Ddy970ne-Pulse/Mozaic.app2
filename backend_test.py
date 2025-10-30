@@ -445,7 +445,7 @@ class WebSocketAbsenceTester:
     def print_summary(self):
         """Afficher le résumé des tests"""
         print(f"\n" + "=" * 80)
-        print(f"📊 RÉSUMÉ COMPLET DES TESTS DE MIGRATION")
+        print(f"📊 RÉSUMÉ COMPLET DES TESTS WEBSOCKET & ABSENCE")
         print(f"=" * 80)
         
         total_passed = 0
@@ -453,10 +453,10 @@ class WebSocketAbsenceTester:
         
         for phase_name, results in self.test_results.items():
             phase_display = {
-                "phase1": "PHASE 1 - SUPPRESSION FICHIERS TEST",
-                "phase2": "PHASE 2 - ANALYTICS RÉELLES", 
-                "phase3": "PHASE 3 - ABSENCE TYPES EN BDD",
-                "phase4": "PHASE 4 - INTÉGRATION CRÉATION ABSENCE"
+                "websocket": "TEST 1 - WEBSOCKET CONNECTION",
+                "absence_api": "TEST 2 - API ABSENCES (AJOUT RAPIDE)", 
+                "users_api": "TEST 3 - GET /api/users (EMAIL FIELD)",
+                "existing_apis": "TEST 4 - ENDPOINTS EXISTANTS"
             }
             
             passed = results["passed"]
@@ -482,23 +482,32 @@ class WebSocketAbsenceTester:
         print(f"🎯 RÉSULTAT GLOBAL: {overall_status}")
         print(f"📈 TOTAL: {total_passed} réussis, {total_failed} échoués sur {total_passed + total_failed} tests")
         
-        # Critères de succès selon la demande
+        # Critères de succès selon la demande française
         print(f"\n📋 CRITÈRES DE SUCCÈS:")
         success_criteria = [
-            ("Fichiers test supprimés", self.test_results["phase1"]["failed"] == 0),
-            ("Analytics retourne données RÉELLES", self.test_results["phase2"]["failed"] == 0),
-            ("22 types absence depuis MongoDB", self.test_results["phase3"]["failed"] == 0),
-            ("Création absence utilise config BDD", self.test_results["phase4"]["failed"] == 0)
+            ("WebSocket connexion acceptée (pas 404)", self.test_results["websocket"]["failed"] == 0),
+            ("Message de bienvenue WebSocket reçu", self.test_results["websocket"]["passed"] >= 1),
+            ("POST /api/absences réponse 200 OK (pas 422)", self.test_results["absence_api"]["failed"] == 0),
+            ("Absence bien créée en base", self.test_results["absence_api"]["passed"] >= 2),
+            ("Tous les users ont champ email valide", self.test_results["users_api"]["failed"] == 0),
+            ("Endpoints existants fonctionnels", self.test_results["existing_apis"]["failed"] == 0)
         ]
         
         for criterion, met in success_criteria:
             status = "✅" if met else "❌"
             print(f"   {status} {criterion}")
         
-        all_success = all(met for _, met in success_criteria)
-        print(f"\n🏆 MIGRATION COMPLÈTE: {'✅ RÉUSSIE' if all_success else '❌ INCOMPLÈTE'}")
+        # Focus sur tests 2 et 3 comme demandé
+        print(f"\n🎯 PRIORITÉ TESTS 2 & 3 (bug email résolu?):")
+        test2_success = self.test_results["absence_api"]["failed"] == 0
+        test3_success = self.test_results["users_api"]["failed"] == 0
+        print(f"   {'✅' if test2_success else '❌'} TEST 2 - API Absences (Ajout Rapide)")
+        print(f"   {'✅' if test3_success else '❌'} TEST 3 - GET /api/users (Email Field)")
         
-        return all_success
+        priority_success = test2_success and test3_success
+        print(f"\n🏆 TESTS PRIORITAIRES: {'✅ RÉUSSIS' if priority_success else '❌ ÉCHECS DÉTECTÉS'}")
+        
+        return priority_success
 
     def run_all_tests(self):
         """Exécuter tous les tests de migration"""
