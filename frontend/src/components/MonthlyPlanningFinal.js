@@ -1628,6 +1628,118 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     alert('✅ Template supprimé');
   };
 
+  // 🆕 AJOUT RAPIDE D'ABSENCE (bouton +)
+  
+  /**
+   * Ouvre le modal d'ajout rapide avec les données pré-remplies
+   */
+  const openQuickAddModal = (employee, dateObj) => {
+    const dateStr = `${dateObj.year}-${String(dateObj.month + 1).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+    
+    setQuickAddData({
+      employee: employee,
+      date: dateStr,
+      type: 'CA',
+      days: 1,
+      notes: ''
+    });
+    setShowQuickAddModal(true);
+  };
+  
+  /**
+   * Crée l'absence via l'API
+   */
+  const handleQuickAddSubmit = async () => {
+    if (!quickAddData.employee || !quickAddData.date) {
+      alert('⚠️ Données manquantes');
+      return;
+    }
+    
+    if (quickAddData.days < 1) {
+      alert('⚠️ La durée doit être au moins 1 jour');
+      return;
+    }
+    
+    try {
+      setCreatingAbsence(true);
+      const token = localStorage.getItem('token');
+      
+      // Calculer la date de fin
+      const startDate = new Date(quickAddData.date);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + parseInt(quickAddData.days) - 1);
+      
+      const dateDebut = quickAddData.date; // Format YYYY-MM-DD
+      const dateFin = endDate.toISOString().split('T')[0];
+      
+      const absenceData = {
+        employee_id: quickAddData.employee.id,
+        employee_name: quickAddData.employee.name,
+        email: quickAddData.employee.email,
+        motif_absence: quickAddData.type,
+        jours_absence: String(quickAddData.days),
+        date_debut: dateDebut,
+        date_fin: dateFin,
+        notes: quickAddData.notes || `Ajout rapide depuis planning`,
+        status: 'approved',
+        created_by: user.id
+      };
+      
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(absenceData)
+        }
+      );
+      
+      if (response.ok) {
+        console.log('✅ Absence créée avec succès');
+        // Fermer le modal
+        setShowQuickAddModal(false);
+        // Réinitialiser les données
+        setQuickAddData({
+          employee: null,
+          date: null,
+          type: 'CA',
+          days: 1,
+          notes: ''
+        });
+        // Recharger les absences
+        await loadAbsences();
+        // Message de succès
+        alert('✅ Absence ajoutée avec succès !');
+      } else {
+        const errorData = await response.json();
+        alert(`❌ Erreur: ${errorData.detail || 'Impossible de créer l\'absence'}`);
+      }
+    } catch (error) {
+      console.error('Erreur création absence:', error);
+      alert('❌ Erreur lors de la création de l\'absence');
+    } finally {
+      setCreatingAbsence(false);
+    }
+  };
+  
+  /**
+   * Annule l'ajout rapide
+   */
+  const cancelQuickAdd = () => {
+    setShowQuickAddModal(false);
+    setQuickAddData({
+      employee: null,
+      date: null,
+      type: 'CA',
+      days: 1,
+      notes: ''
+    });
+  };
+
+
   // Regroupement des employés par catégorie
   const groupedEmployees = employees.reduce((groups, employee) => {
     const category = employee.category || 'Non classé';
