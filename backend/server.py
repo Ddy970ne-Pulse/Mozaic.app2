@@ -988,20 +988,99 @@ async def get_status_checks():
 @api_router.post("/auth/login", response_model=LoginResponse)
 @limiter.limit("5/minute")  # 🛡️ Rate limit: 5 login attempts per minute
 async def login(request: Request, login_request: LoginRequest):
-    """Authenticate user against MongoDB with temporary password handling"""
+    """
+    Authenticate user with account lockout protection
+    
+    Security Features:
+    - Rate limiting (5 attempts/minute per IP)
+    - Account lockout (5 failed attempts = 30 min lockout)
+    - Timing attack protection
+    - Audit logging
+    """
+    from core.account_lockout import AccountLockoutManager
+    
     email = login_request.email.lower().strip()
     password = login_request.password
+    ip_address = request.client.host if request.client else None
     
-    # Find user in MongoDB
+    # Initialize lockout manager
+    lockout_manager = AccountLockoutManager(db, max_attempts=5, lockout_duration_minutes=30)
+    
+    # 1. Check if account is locked
+    is_locked, locked_until, remaining_attempts = await lockout_manager.is_locked(email)
+    
+    if is_locked:
+        # Calculate remaining time
+        now = datetime.now(timezone.utc)
+        remaining_time = (locked_until - now).total_seconds() / 60  # minutes
+        
+        logger.warning(
+            f"🔒 Login attempt on locked account: {email}",
+            extra={
+                "email": email,
+                "ip": ip_address,
+                "locked_until": locked_until.isoformat(),
+                "remaining_minutes": int(remaining_time)
+            }
+        )
+        
+        raise HTTPException(
+            status_code=423,  # HTTP 423 Locked
+            detail=f"Account locked due to too many failed login attempts. Try again in {int(remaining_time)} minutes."
+        )
+    
+    # 2. Find user in MongoDB
     user_data = await db.users.find_one({"email": email})
-    if not user_data:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
     
-    # Check if user is active
+    # 3. Timing attack protection: always verify password even if user doesn't exist
+    if user_data:
+        password_valid = verify_password(password, user_data["hashed_password"])
+    else:
+        # Hash dummy password to maintain constant timing
+        verify_password(password, "$2b$12$dummy.hash.to.prevent.timing.attacks.xxxxxxxxxxxxxxxxxxxxxxxxx")
+        password_valid = False
+    
+    # 4. Check credentials
+    if not user_data or not password_valid:
+        # Record failed attempt
+        is_now_locked, total_attempts, locked_until = await lockout_manager.record_failed_attempt(
+            email, ip_address
+        )
+        
+        if is_now_locked:
+            remaining_time = lockout_manager.lockout_duration_minutes
+            logger.error(
+                f"🔒 Account LOCKED after {total_attempts} failed attempts: {email}",
+                extra={
+                    "email": email,
+                    "ip": ip_address,
+                    "attempts": total_attempts,
+                    "locked_until": locked_until.isoformat() if locked_until else None
+                }
+            )
+            
+            raise HTTPException(
+                status_code=423,
+                detail=f"Too many failed login attempts. Account locked for {remaining_time} minutes."
+            )
+        else:
+            remaining = 5 - total_attempts
+            logger.warning(
+                f"❌ Failed login attempt {total_attempts}/5 for {email}",
+                extra={"email": email, "ip": ip_address, "remaining": remaining}
+            )
+            
+            raise HTTPException(
+                status_code=401,
+                detail=f"Invalid email or password. {remaining} attempts remaining before lockout."
+            )
+    
+    # 5. Check if user is active
     if not user_data.get("is_active", True):
+        logger.warning(f"❌ Login attempt on inactive account: {email}")
         raise HTTPException(status_code=401, detail="Account is inactive")
     
-    # Check if temporary password has expired
+    # 6. Check if temporary password has expired
     temp_expires = user_data.get("temp_password_expires")
     if temp_expires and is_temp_password_expired(temp_expires):
         raise HTTPException(
@@ -1009,11 +1088,10 @@ async def login(request: Request, login_request: LoginRequest):
             detail="Temporary password has expired. Please contact administrator."
         )
     
-    # Verify password
-    if not verify_password(password, user_data["hashed_password"]):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+    # 7. SUCCESS - Reset lockout counter
+    await lockout_manager.reset_lockout(email)
     
-    # Update last login
+    # 8. Update last login
     await db.users.update_one(
         {"email": email}, 
         {"$set": {"last_login": datetime.utcnow(), "first_login": False}}
