@@ -1022,7 +1022,8 @@ async def get_user(user_id: str, current_user: User = Depends(get_current_user))
     return User(**{k: v for k, v in user.items() if k not in ["hashed_password", "_id"]})
 
 @api_router.post("/users", response_model=TempPasswordResponse)
-async def create_user(user_data: UserCreate, current_user: User = Depends(get_current_user)):
+@limiter.limit("5/minute")  # 🛡️ Rate limit: 5 user creations per minute
+async def create_user(request: Request, user_data: UserCreate, current_user: User = Depends(get_current_user)):
     """Create new user with temporary password (admin only)"""
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
