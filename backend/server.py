@@ -1370,6 +1370,51 @@ async def lift_user_processing_restriction(
         return {"success": True, "message": f"Processing restriction lifted for user {user_id}"}
     else:
         raise HTTPException(status_code=404, detail="User not found")
+
+# 📊 MONITORING: Security Monitoring Endpoints (Admin only)
+
+@api_router.get("/security/dashboard")
+async def get_security_dashboard(current_user: User = Depends(get_current_user)):
+    """Get security metrics dashboard (Admin only)"""
+    from core.security_monitor import SecurityMonitor
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    monitor = SecurityMonitor(db)
+    dashboard = await monitor.get_security_dashboard()
+    
+    return dashboard
+
+@api_router.get("/security/checks")
+async def run_security_checks(current_user: User = Depends(get_current_user)):
+    """Run all security checks and get results (Admin only)"""
+    from core.security_monitor import SecurityMonitor
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    monitor = SecurityMonitor(db)
+    results = await monitor.run_security_checks()
+    
+    return results
+
+@api_router.get("/security/threats/brute-force")
+async def check_brute_force(current_user: User = Depends(get_current_user)):
+    """Check for brute force attack patterns (Admin only)"""
+    from core.security_monitor import SecurityMonitor
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    monitor = SecurityMonitor(db)
+    alerts = await monitor.check_brute_force_attack()
+    
+    return {
+        "status": "alert" if alerts else "ok",
+        "alerts": alerts,
+        "count": len(alerts)
+    }
         "count": len(sessions)
     }
 
