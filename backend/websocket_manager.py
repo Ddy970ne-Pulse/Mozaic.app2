@@ -220,6 +220,51 @@ class ConnectionManager:
     def get_connected_users_count(self) -> int:
         """Retourner le nombre d'utilisateurs connectés"""
         return len(self.active_connections)
+    
+    def get_connection_stats(self) -> dict:
+        """Retourner les statistiques de connexion"""
+        return {
+            "total_connections": len(self.all_connections),
+            "connected_users": len(self.active_connections),
+            "heartbeat_active": self._heartbeat_task is not None and not self._heartbeat_task.done(),
+            "connections_per_user": {
+                user_id: len(conns) 
+                for user_id, conns in self.active_connections.items()
+            }
+        }
+    
+    async def shutdown(self):
+        """
+        Arrêt propre du gestionnaire de connexions
+        Ferme toutes les connexions et arrête le heartbeat
+        """
+        logger.info("🔄 Shutting down WebSocket manager...")
+        
+        # Arrêter le heartbeat
+        if self._heartbeat_task and not self._heartbeat_task.done():
+            self._heartbeat_task.cancel()
+            try:
+                await self._heartbeat_task
+            except asyncio.CancelledError:
+                pass
+            logger.info("💓 Heartbeat task cancelled")
+        
+        # Fermer toutes les connexions
+        async with self._lock:
+            connections_to_close = list(self.all_connections)
+        
+        for connection in connections_to_close:
+            try:
+                await connection.close(code=1001, reason="Server shutdown")
+            except Exception as e:
+                logger.warning(f"⚠️ Error closing connection during shutdown: {str(e)}")
+        
+        # Nettoyer les structures de données
+        async with self._lock:
+            self.all_connections.clear()
+            self.active_connections.clear()
+        
+        logger.info("✅ WebSocket manager shutdown complete")
 
 # Instance globale
 ws_manager = ConnectionManager()
