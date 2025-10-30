@@ -1650,12 +1650,18 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
    * Crée l'absence via l'API
    */
   const handleQuickAddSubmit = async () => {
+    console.log('🚀 handleQuickAddSubmit appelé');
+    console.log('📋 quickAddData:', quickAddData);
+    console.log('👤 user:', user);
+    
     if (!quickAddData.employee || !quickAddData.date) {
+      console.error('❌ Données manquantes');
       alert('⚠️ Données manquantes');
       return;
     }
     
     if (quickAddData.days < 1) {
+      console.error('❌ Durée invalide:', quickAddData.days);
       alert('⚠️ La durée doit être au moins 1 jour');
       return;
     }
@@ -1672,6 +1678,8 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       const dateDebut = quickAddData.date; // Format YYYY-MM-DD
       const dateFin = endDate.toISOString().split('T')[0];
       
+      console.log('📅 Dates calculées:', { dateDebut, dateFin });
+      
       const absenceData = {
         employee_id: quickAddData.employee.id,
         employee_name: quickAddData.employee.name,
@@ -1682,8 +1690,10 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         date_fin: dateFin,
         notes: quickAddData.notes || `Ajout rapide depuis planning`,
         status: 'approved',
-        created_by: user.id
+        created_by: user?.id || user?.name || 'admin'
       };
+      
+      console.log('📤 Envoi des données:', absenceData);
       
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
@@ -1697,8 +1707,13 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         }
       );
       
+      console.log('📥 Réponse API:', response.status, response.statusText);
+      
       if (response.ok) {
         console.log('✅ Absence créée avec succès');
+        const responseData = await response.json();
+        console.log('📄 Données de réponse:', responseData);
+        
         // Fermer le modal
         setShowQuickAddModal(false);
         // Réinitialiser les données
@@ -1714,14 +1729,17 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         // Message de succès
         alert('✅ Absence ajoutée avec succès !');
       } else {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ detail: 'Erreur inconnue' }));
+        console.error('❌ Erreur API:', errorData);
         alert(`❌ Erreur: ${errorData.detail || 'Impossible de créer l\'absence'}`);
       }
     } catch (error) {
-      console.error('Erreur création absence:', error);
-      alert('❌ Erreur lors de la création de l\'absence');
+      console.error('❌ Erreur création absence:', error);
+      console.error('Stack:', error.stack);
+      alert(`❌ Erreur: ${error.message || 'Erreur lors de la création de l\'absence'}`);
     } finally {
       setCreatingAbsence(false);
+      console.log('🏁 Fin handleQuickAddSubmit');
     }
   };
   
