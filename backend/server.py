@@ -1184,8 +1184,88 @@ async def login(request: Request, login_request: LoginRequest):
     )
     
     return LoginResponse(token=access_token, refresh_token=refresh_token, user=user)
+
+@api_router.post("/auth/refresh")
+async def refresh_access_token(
+    request: Request,
+    refresh_token: str
+):
+    """
+    Refresh access token using refresh token
     
-    return LoginResponse(token=token, user=user)
+    Returns new access and refresh tokens
+    """
+    from core.enhanced_auth import SessionManager
+    
+    session_manager = SessionManager(db, SECRET_KEY)
+    
+    new_access, new_refresh, error = await session_manager.refresh_session(refresh_token)
+    
+    if error:
+        logger.warning(f"Failed to refresh token: {error}")
+        raise HTTPException(status_code=401, detail=error)
+    
+    logger.info("🔄 Token refreshed successfully")
+    
+    return {
+        "access_token": new_access,
+        "refresh_token": new_refresh,
+        "token_type": "bearer"
+    }
+
+@api_router.post("/auth/logout")
+async def logout(
+    request: Request,
+    refresh_token: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Logout user and revoke refresh token
+    
+    Args:
+        refresh_token: Optional refresh token to revoke specific session
+    """
+    from core.enhanced_auth import SessionManager
+    from core.audit_logger import AuditLogger, AuditEventType
+    
+    session_manager = SessionManager(db, SECRET_KEY)
+    
+    if refresh_token:
+        # Revoke specific session
+        await session_manager.revoke_session(refresh_token)
+    else:
+        # Revoke all sessions for user (logout from all devices)
+        count = await session_manager.revoke_all_sessions(current_user.id)
+        logger.info(f"Revoked {count} sessions for {current_user.email}")
+    
+    # Audit log
+    audit = AuditLogger(db)
+    await audit.log_event(
+        event_type=AuditEventType.LOGOUT,
+        user_id=current_user.id,
+        user_email=current_user.email,
+        action="User logged out",
+        resource_type="authentication",
+        ip_address=request.client.host if request.client else None
+    )
+    
+    logger.info(f"👋 Logout: {current_user.email}")
+    
+    return {"message": "Logged out successfully"}
+
+@api_router.get("/auth/sessions")
+async def get_active_sessions(current_user: User = Depends(get_current_user)):
+    """Get all active sessions for current user"""
+    from core.enhanced_auth import RefreshTokenManager
+    
+    refresh_manager = RefreshTokenManager(db)
+    sessions = await refresh_manager.get_user_active_sessions(current_user.id)
+    
+    return {
+        "user_id": current_user.id,
+        "active_sessions": sessions,
+        "count": len(sessions)
+    }
 
 @api_router.get("/auth/me", response_model=User)
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
