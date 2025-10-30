@@ -1267,6 +1267,112 @@ async def get_active_sessions(current_user: User = Depends(get_current_user)):
         "count": len(sessions)
     }
 
+# 🛡️ GDPR: Data Protection Endpoints
+
+@api_router.get("/gdpr/export/{user_id}")
+async def export_user_gdpr_data(
+    user_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Export all personal data for user (GDPR Article 15 - Right of Access)
+    
+    Users can export their own data, admins can export any user's data
+    """
+    from core.gdpr_tools import GDPRDataManager
+    
+    # Check permissions
+    if current_user.role != "admin" and current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    gdpr_manager = GDPRDataManager(db)
+    
+    try:
+        export_data = await gdpr_manager.export_user_data(user_id)
+        
+        logger.info(f"📤 GDPR data export for user {user_id} by {current_user.email}")
+        
+        return export_data
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@api_router.post("/gdpr/anonymize/{user_id}")
+async def anonymize_user_gdpr(
+    user_id: str,
+    reason: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Anonymize user data (GDPR Article 17 - Right to Erasure)
+    
+    Admin only. Use when user requests to be forgotten but records
+    must be retained for legal compliance.
+    """
+    from core.gdpr_tools import GDPRDataManager
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    gdpr_manager = GDPRDataManager(db)
+    
+    try:
+        result = await gdpr_manager.anonymize_user(user_id, reason)
+        
+        logger.warning(f"🗑️  User {user_id} anonymized by {current_user.email}: {reason}")
+        
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@api_router.post("/gdpr/restrict/{user_id}")
+async def restrict_user_processing(
+    user_id: str,
+    reason: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Restrict processing of user data (GDPR Article 18)
+    
+    Admin only. Data is retained but not actively processed.
+    """
+    from core.gdpr_tools import GDPRDataManager
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    gdpr_manager = GDPRDataManager(db)
+    success = await gdpr_manager.restrict_processing(user_id, reason)
+    
+    if success:
+        return {"success": True, "message": f"Processing restricted for user {user_id}"}
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
+
+@api_router.post("/gdpr/unrestrict/{user_id}")
+async def lift_user_processing_restriction(
+    user_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Lift processing restriction (GDPR Article 18)
+    
+    Admin only.
+    """
+    from core.gdpr_tools import GDPRDataManager
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    gdpr_manager = GDPRDataManager(db)
+    success = await gdpr_manager.lift_processing_restriction(user_id)
+    
+    if success:
+        return {"success": True, "message": f"Processing restriction lifted for user {user_id}"}
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
+        "count": len(sessions)
+    }
+
 @api_router.get("/auth/me", response_model=User)
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     return current_user
