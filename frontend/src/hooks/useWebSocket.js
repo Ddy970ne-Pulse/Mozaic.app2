@@ -28,8 +28,8 @@ const useWebSocket = (userId, onMessage) => {
       // Construire l'URL WebSocket basée sur REACT_APP_BACKEND_URL
       const backendUrl = process.env.REACT_APP_BACKEND_URL || window.location.origin;
       
-      // Remplacer http/https par ws/wss
-      const wsUrl = backendUrl.replace(/^http/, 'ws') + `/ws/${userId}`;
+      // Remplacer http/https par ws/wss et ajouter le préfixe /api pour Kubernetes Ingress
+      const wsUrl = backendUrl.replace(/^http/, 'ws') + `/api/ws/${userId}`;
       
       console.log('🔌 Connecting to WebSocket:', wsUrl);
 
