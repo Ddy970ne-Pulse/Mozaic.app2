@@ -99,22 +99,74 @@ class WebSocketAbsenceTester:
             print(f"❌ Authentication error: {str(e)}")
             return False
 
-    def test_phase1_file_deletion(self):
-        """PHASE 1 - SUPPRESSION FICHIERS TEST"""
-        print(f"\n📁 PHASE 1 - SUPPRESSION FICHIERS TEST")
+    async def test_websocket_connection(self):
+        """TEST 1: WebSocket Connection"""
+        print(f"\n🔌 TEST 1 - WEBSOCKET CONNECTION")
         print("=" * 60)
         
-        # Test 1: Vérifier que test_workflow.py n'existe plus
-        test_workflow_exists = os.path.exists("/app/test_workflow.py") or os.path.exists("/app/backend/test_workflow.py")
-        self.log_result("phase1", "test_workflow.py supprimé", 
-                       not test_workflow_exists, 
-                       "Fichier test_workflow.py n'existe plus" if not test_workflow_exists else "Fichier test_workflow.py existe encore")
+        if not self.user_id:
+            self.log_result("websocket", "WebSocket Connection", False, "User ID manquant pour test WebSocket")
+            return
         
-        # Test 2: Vérifier que MonthlyPlanningTest.js n'existe plus
-        monthly_test_exists = os.path.exists("/app/frontend/src/MonthlyPlanningTest.js") or os.path.exists("/app/MonthlyPlanningTest.js")
-        self.log_result("phase1", "MonthlyPlanningTest.js supprimé", 
-                       not monthly_test_exists, 
-                       "Fichier MonthlyPlanningTest.js n'existe plus" if not monthly_test_exists else "Fichier MonthlyPlanningTest.js existe encore")
+        websocket_url = f"{WEBSOCKET_URL}/{self.user_id}"
+        print(f"🔗 URL WebSocket: {websocket_url}")
+        
+        try:
+            # Test de connexion WebSocket
+            async with websockets.connect(websocket_url) as websocket:
+                self.websocket_connected = True
+                print(f"✅ Connexion WebSocket établie")
+                
+                # Attendre un message de bienvenue
+                try:
+                    welcome_message = await asyncio.wait_for(websocket.recv(), timeout=5.0)
+                    print(f"✅ Message de bienvenue reçu: {welcome_message}")
+                    self.log_result("websocket", "Connexion WebSocket acceptée", True, 
+                                   f"Connexion réussie sur {websocket_url}")
+                    self.log_result("websocket", "Message de bienvenue reçu", True, 
+                                   f"Message: {welcome_message}")
+                except asyncio.TimeoutError:
+                    print(f"⚠️ Aucun message de bienvenue reçu dans les 5 secondes")
+                    self.log_result("websocket", "Message de bienvenue reçu", False, 
+                                   "Timeout - aucun message de bienvenue")
+                
+                # Tester l'envoi d'un message
+                test_message = {"type": "ping", "data": "test"}
+                await websocket.send(json.dumps(test_message))
+                print(f"✅ Message de test envoyé")
+                
+                # Attendre une réponse
+                try:
+                    response = await asyncio.wait_for(websocket.recv(), timeout=3.0)
+                    print(f"✅ Réponse reçue: {response}")
+                    self.log_result("websocket", "Communication bidirectionnelle", True, 
+                                   f"Réponse: {response}")
+                except asyncio.TimeoutError:
+                    print(f"⚠️ Aucune réponse au message de test")
+                    self.log_result("websocket", "Communication bidirectionnelle", False, 
+                                   "Timeout - aucune réponse")
+                
+        except websockets.exceptions.InvalidStatusCode as e:
+            if e.status_code == 404:
+                self.log_result("websocket", "Connexion WebSocket acceptée", False, 
+                               f"Erreur 404 - Endpoint WebSocket non trouvé: {websocket_url}")
+            else:
+                self.log_result("websocket", "Connexion WebSocket acceptée", False, 
+                               f"Erreur HTTP {e.status_code}: {str(e)}")
+        except Exception as e:
+            self.log_result("websocket", "Connexion WebSocket acceptée", False, 
+                           f"Erreur de connexion: {str(e)}")
+    
+    def run_websocket_test(self):
+        """Wrapper pour exécuter le test WebSocket de manière synchrone"""
+        try:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(self.test_websocket_connection())
+        except Exception as e:
+            self.log_result("websocket", "Test WebSocket", False, f"Erreur d'exécution: {str(e)}")
+        finally:
+            loop.close()
 
     def test_phase2_real_analytics(self):
         """PHASE 2 - ANALYTICS RÉELLES"""
