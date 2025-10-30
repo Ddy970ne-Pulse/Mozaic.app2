@@ -1,7 +1,9 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, WebSocket, WebSocketDisconnect, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.exceptions import RequestValidationError
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -23,6 +25,15 @@ import string
 from sync_service import DataSyncService
 from websocket_manager import ws_manager
 from websocket_routes import router as websocket_router
+
+# Import security middlewares and error handlers
+from middlewares.security_headers import SecurityHeadersMiddleware
+from middlewares.error_handlers import (
+    http_exception_handler,
+    validation_exception_handler,
+    general_exception_handler,
+    rate_limit_exception_handler
+)
 
 
 ROOT_DIR = Path(__file__).parent
