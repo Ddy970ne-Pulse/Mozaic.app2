@@ -952,7 +952,8 @@ async def get_status_checks():
 
 # Authentication endpoints
 @api_router.post("/auth/login", response_model=LoginResponse)
-async def login(login_request: LoginRequest):
+@limiter.limit("5/minute")  # 🛡️ Rate limit: 5 login attempts per minute
+async def login(request: Request, login_request: LoginRequest):
     """Authenticate user against MongoDB with temporary password handling"""
     email = login_request.email.lower().strip()
     password = login_request.password
