@@ -1732,6 +1732,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       } else {
         const errorData = await response.json().catch(() => ({ detail: 'Erreur inconnue' }));
         console.error('❌ Erreur API:', errorData);
+        console.error('📋 Détail complet de l\'erreur:', JSON.stringify(errorData, null, 2));
         
         // Formater le message d'erreur
         let errorMessage = 'Impossible de créer l\'absence';
@@ -1745,6 +1746,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           }
         }
         
+        console.error('💬 Message d\'erreur formaté:', errorMessage);
         alert(`❌ Erreur:\n\n${errorMessage}`);
       }
     } catch (error) {
