@@ -444,28 +444,45 @@ class UserInDB(User):
     hashed_password: str
 
 class UserCreate(BaseModel):
-    name: str
-    email: str
-    password: str
-    role: str = "employee"
-    department: str
-    phone: Optional[str] = None
-    address: Optional[str] = None
-    position: Optional[str] = None
+    name: constr(min_length=2, max_length=200, strip_whitespace=True)
+    email: EmailStr
+    password: constr(min_length=6, max_length=128)  # Minimum password length
+    role: constr(pattern=r'^(admin|manager|employee)$') = "employee"
+    department: constr(min_length=1, max_length=200)
+    phone: Optional[constr(max_length=50)] = None
+    address: Optional[constr(max_length=500)] = None
+    position: Optional[constr(max_length=200)] = None
     hire_date: Optional[str] = None
     isDelegateCSE: Optional[bool] = False
     # Champs additionnels pour données employés complètes
     date_naissance: Optional[str] = None
-    sexe: Optional[str] = None
-    categorie_employe: Optional[str] = None
-    metier: Optional[str] = None
-    fonction: Optional[str] = None
-    site: Optional[str] = None
-    temps_travail: Optional[str] = None
-    contrat: Optional[str] = None
+    sexe: Optional[constr(pattern=r'^(M|F|Autre)?$')] = None
+    categorie_employe: Optional[constr(max_length=100)] = None
+    metier: Optional[constr(max_length=200)] = None
+    fonction: Optional[constr(max_length=200)] = None
+    site: Optional[constr(max_length=200)] = None
+    temps_travail: Optional[constr(max_length=100)] = None
+    contrat: Optional[constr(max_length=100)] = None
     date_debut_contrat: Optional[str] = None
     date_fin_contrat: Optional[str] = None
-    notes: Optional[str] = None
+    notes: Optional[constr(max_length=2000)] = None
+    
+    @field_validator('password')
+    @classmethod
+    def validate_password_strength(cls, v):
+        """Validate password strength"""
+        if len(v) < 6:
+            raise ValueError('Password must be at least 6 characters long')
+        # Check for at least one letter and one number for stronger passwords
+        if not re.search(r'[A-Za-z]', v) or not re.search(r'[0-9]', v):
+            raise ValueError('Password must contain at least one letter and one number')
+        return v
+    
+    @field_validator('email')
+    @classmethod
+    def validate_email_format(cls, v):
+        """Additional email validation"""
+        return v.lower().strip()
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
