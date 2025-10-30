@@ -1,20 +1,31 @@
 #!/usr/bin/env python3
 """
-BACKEND TEST COMPLET DE LA MIGRATION DES DONNÉES DE TEST
-Test des Phases 1+2+3 selon la demande française spécifique
+TEST COMPLET DES FONCTIONNALITÉS MOZAIK RH APRÈS IMPLÉMENTATION WEBSOCKET
+Test complet des fonctionnalités MOZAIK RH après implémentation WebSocket et ajout rapide d'absence
 
-OBJECTIF: Vérifier que toutes les modifications de la migration complète fonctionnent correctement.
+OBJECTIF: Vérifier que toutes les nouvelles fonctionnalités WebSocket et ajout rapide d'absence fonctionnent correctement.
 USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)
+
+TESTS À EFFECTUER:
+1. Test WebSocket Connection - wss://hr-multi-saas.preview.emergentagent.com/api/ws/{user_id}
+2. Test API Absences (Ajout Rapide) - POST /api/absences
+3. Test GET /api/users - vérifier champ email non undefined
+4. Tests Existants - valider endpoints existants
 """
 
 import requests
 import json
 import sys
 import os
+import asyncio
+import websockets
+import threading
+import time
 from datetime import datetime, timedelta
 
 # Configuration
 BACKEND_URL = "https://hr-multi-saas.preview.emergentagent.com/api"
+WEBSOCKET_URL = "wss://hr-multi-saas.preview.emergentagent.com/api/ws"
 ADMIN_EMAIL = "ddacalor@aaea-gpe.fr"
 ADMIN_PASSWORD = "admin123"
 
