@@ -31,10 +31,10 @@ leave_balance_router = APIRouter(prefix="/api/leave-balance", tags=["Leave Balan
 async def get_db() -> AsyncIOMotorDatabase:
     """
     Récupère l'instance MongoDB.
-    À remplacer par votre logique actuelle (ex: app.state.db ou dependency_injector)
+    Utilise l'instance globale de server.py
     """
-    from server import db  # Import depuis votre server.py
-    return db
+    import server
+    return server.db
 
 
 # === UTILITAIRES ===
