@@ -616,6 +616,7 @@ class TempPasswordResponse(BaseModel):
     
 class LoginResponse(BaseModel):
     token: str
+    refresh_token: Optional[str] = None  # New: refresh token for session management
     user: User
 
 # Delegation Hours Models
