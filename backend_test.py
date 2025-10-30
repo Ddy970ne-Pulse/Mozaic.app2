@@ -414,85 +414,114 @@ class SecurityEnhancementsTester:
             self.log_result("phase3_rate_limiting", "Absence creation rate limit enforced", False, 
                            f"11th absence creation got {absence_attempts[10]}, expected 429")
 
-    def test_existing_endpoints(self):
-        """TEST 4: Tests Existants - Valider endpoints existants"""
-        print(f"\n🔧 TEST 4 - ENDPOINTS EXISTANTS")
+    def test_security_bypass_attempts(self):
+        """Security Bypass Tests - Attempt to bypass security measures"""
+        print(f"\n🔒 SECURITY BYPASS TESTS")
         print("=" * 60)
         
-        endpoints_to_test = [
-            ("GET /api/users", f"{BACKEND_URL}/users"),
-            ("GET /api/absences", f"{BACKEND_URL}/absences"),
-            ("POST /api/auth/login", f"{BACKEND_URL}/auth/login"),
+        # Test 1: SQL Injection attempts
+        print(f"\n💉 Test 1: SQL Injection Protection")
+        
+        sql_injection_payloads = [
+            "admin'; DROP TABLE users; --",
+            "' OR '1'='1",
+            "admin' UNION SELECT * FROM users --"
         ]
         
-        for endpoint_name, url in endpoints_to_test:
-            try:
-                if "login" in endpoint_name:
-                    # Test spécial pour login
-                    response = requests.post(url, json={
-                        "email": ADMIN_EMAIL,
-                        "password": ADMIN_PASSWORD
-                    })
-                else:
-                    # Test GET normal avec authentification
-                    response = self.session.get(url)
-                
-                if response.status_code == 200:
-                    print(f"✅ {endpoint_name} - OK (200)")
-                    self.log_result("existing_apis", f"{endpoint_name} fonctionnel", 
-                                   True, f"Réponse 200 OK")
-                else:
-                    print(f"❌ {endpoint_name} - Erreur {response.status_code}")
-                    self.log_result("existing_apis", f"{endpoint_name} fonctionnel", 
-                                   False, f"Erreur {response.status_code}: {response.text[:100]}")
-                    
-            except Exception as e:
-                print(f"❌ {endpoint_name} - Exception: {str(e)}")
-                self.log_result("existing_apis", f"{endpoint_name} fonctionnel", 
-                               False, f"Exception: {str(e)}")
+        for payload in sql_injection_payloads:
+            response = requests.post(f"{BACKEND_URL}/auth/login", json={
+                "email": payload,
+                "password": "admin123"
+            })
+            
+            if response.status_code in [401, 422]:  # Should be rejected
+                print(f"✅ SQL injection payload rejected: {payload[:20]}...")
+                self.log_result("security_bypass", "SQL injection protection", True, 
+                               f"Payload properly rejected with {response.status_code}")
+            else:
+                self.log_result("security_bypass", "SQL injection protection", False, 
+                               f"Payload not rejected: {response.status_code}")
         
-        # Test spécial pour PUT /api/absences/{id} (approve/reject)
-        try:
-            # D'abord créer une absence de test
-            test_absence = {
-                "employee_id": self.user_id,
-                "employee_name": "Diego DACALOR",
-                "email": ADMIN_EMAIL,
-                "motif_absence": "CA",
-                "jours_absence": "1",
-                "date_debut": "2025-12-01",
-                "notes": "Test PUT endpoint",
-                "status": "pending"
+        # Test 2: XSS attempts in user creation
+        print(f"\n🚨 Test 2: XSS Protection")
+        
+        xss_payloads = [
+            "<script>alert('xss')</script>",
+            "javascript:alert('xss')",
+            "<img src=x onerror=alert('xss')>"
+        ]
+        
+        for payload in xss_payloads:
+            user_data = {
+                "name": payload,
+                "email": "xss@test.com",
+                "password": "admin123",
+                "department": "Test"
             }
             
-            create_response = self.session.post(f"{BACKEND_URL}/absences", json=test_absence)
+            response = self.session.post(f"{BACKEND_URL}/users", json=user_data)
             
-            if create_response.status_code == 200:
-                absence_id = create_response.json().get("id")
-                
-                # Tester PUT approve
-                put_response = self.session.put(f"{BACKEND_URL}/absences/{absence_id}", json={
-                    "status": "approved"
-                })
-                
-                if put_response.status_code == 200:
-                    print(f"✅ PUT /api/absences/{absence_id} (approve) - OK (200)")
-                    self.log_result("existing_apis", "PUT /api/absences/{id} (approve) fonctionnel", 
-                                   True, "Approbation réussie")
-                else:
-                    print(f"❌ PUT /api/absences/{absence_id} (approve) - Erreur {put_response.status_code}")
-                    self.log_result("existing_apis", "PUT /api/absences/{id} (approve) fonctionnel", 
-                                   False, f"Erreur {put_response.status_code}")
-                
-                # Nettoyer
-                self.session.delete(f"{BACKEND_URL}/absences/{absence_id}")
+            if response.status_code == 422:  # Should be rejected by validation
+                print(f"✅ XSS payload rejected: {payload[:20]}...")
+                self.log_result("security_bypass", "XSS protection", True, 
+                               f"XSS payload properly rejected with 422")
             else:
-                self.log_result("existing_apis", "PUT /api/absences/{id} test setup", 
-                               False, "Impossible de créer absence de test pour PUT")
-                
-        except Exception as e:
-            self.log_result("existing_apis", "PUT /api/absences/{id} fonctionnel", 
-                           False, f"Exception: {str(e)}")
+                # If accepted, check if it's properly sanitized
+                if response.status_code == 200:
+                    print(f"⚠️ XSS payload accepted but should be sanitized")
+                    self.log_result("security_bypass", "XSS protection", False, 
+                                   f"XSS payload accepted: {response.status_code}")
+        
+        # Test 3: Oversized input attempts
+        print(f"\n📏 Test 3: Input Length Limits")
+        
+        # Test very long name (should exceed max length)
+        long_name = "A" * 500  # Exceeds 200 char limit
+        
+        long_input_data = {
+            "name": long_name,
+            "email": "long@test.com",
+            "password": "admin123",
+            "department": "Test"
+        }
+        
+        long_input_response = self.session.post(f"{BACKEND_URL}/users", json=long_input_data)
+        
+        if long_input_response.status_code == 422:
+            print(f"✅ Oversized input rejected (422)")
+            self.log_result("security_bypass", "Input length limits", True, 
+                           "Oversized input properly rejected")
+        else:
+            self.log_result("security_bypass", "Input length limits", False, 
+                           f"Oversized input not rejected: {long_input_response.status_code}")
+        
+        # Test 4: Authentication bypass attempts
+        print(f"\n🔐 Test 4: Authentication Bypass Protection")
+        
+        # Try to access protected endpoint without token
+        no_auth_response = requests.get(f"{BACKEND_URL}/users")
+        
+        if no_auth_response.status_code == 401:
+            print(f"✅ No authentication rejected (401)")
+            self.log_result("security_bypass", "Authentication required", True, 
+                           "Unauthenticated request properly rejected")
+        else:
+            self.log_result("security_bypass", "Authentication required", False, 
+                           f"Unauthenticated request not rejected: {no_auth_response.status_code}")
+        
+        # Try with invalid token
+        invalid_token_session = requests.Session()
+        invalid_token_session.headers.update({"Authorization": "Bearer invalid_token_here"})
+        
+        invalid_token_response = invalid_token_session.get(f"{BACKEND_URL}/users")
+        
+        if invalid_token_response.status_code == 401:
+            print(f"✅ Invalid token rejected (401)")
+            self.log_result("security_bypass", "Invalid token rejected", True, 
+                           "Invalid token properly rejected")
+        else:
+            self.log_result("security_bypass", "Invalid token rejected", False, 
+                           f"Invalid token not rejected: {invalid_token_response.status_code}")
 
     def print_summary(self):
         """Afficher le résumé des tests"""
