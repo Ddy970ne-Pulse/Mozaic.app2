@@ -592,33 +592,33 @@ class SecurityEnhancementsTester:
         return critical_success
 
     def run_all_tests(self):
-        """Exécuter tous les tests WebSocket et Absence"""
-        print("🚀 DÉMARRAGE DES TESTS WEBSOCKET & ABSENCE")
+        """Exécuter tous les tests de sécurité critiques"""
+        print("🚀 DÉMARRAGE DES TESTS DE SÉCURITÉ CRITIQUES")
         print("=" * 80)
-        print("OBJECTIF: Test complet des fonctionnalités MOZAIK RH après implémentation WebSocket et ajout rapide d'absence")
+        print("OBJECTIF: Test complet des améliorations de sécurité critiques MOZAIK RH")
         print("USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)")
-        print("PRIORITÉ: Focus sur tests 2 et 3 (bug email résolu?)")
+        print("PRIORITÉ: Rate limiting (brute force) + Validation (sécurité données)")
         print("=" * 80)
         
-        # Authentification
+        # Phase 1: SECRET_KEY Validation (should already be working if backend started)
+        self.test_phase1_secret_key_validation()
+        
+        # Authentification pour les tests suivants
         if not self.authenticate():
             print("❌ Impossible de continuer sans authentification")
             return False
         
-        # Exécuter tous les tests
-        print(f"\n🔄 EXÉCUTION DES TESTS...")
+        # Exécuter tous les tests de sécurité
+        print(f"\n🔄 EXÉCUTION DES TESTS DE SÉCURITÉ...")
         
-        # Test 1: WebSocket Connection
-        self.run_websocket_test()
+        # Phase 2: Pydantic Validation - CRITIQUE
+        self.test_phase2_pydantic_validation()
         
-        # Test 2: API Absences (Ajout Rapide) - PRIORITÉ
-        self.test_absence_api_quick_add()
+        # Phase 3: Rate Limiting - CRITIQUE (protection brute force)
+        self.test_phase3_rate_limiting()
         
-        # Test 3: GET /api/users (Email Field) - PRIORITÉ  
-        self.test_users_api_email_field()
-        
-        # Test 4: Endpoints Existants
-        self.test_existing_endpoints()
+        # Security Bypass Tests
+        self.test_security_bypass_attempts()
         
         # Afficher le résumé
         return self.print_summary()
