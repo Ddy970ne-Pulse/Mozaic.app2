@@ -168,65 +168,69 @@ class WebSocketAbsenceTester:
         finally:
             loop.close()
 
-    def test_phase2_real_analytics(self):
-        """PHASE 2 - ANALYTICS RÉELLES"""
-        print(f"\n📊 PHASE 2 - ANALYTICS RÉELLES")
+    def test_users_api_email_field(self):
+        """TEST 3: GET /api/users - Vérifier champ email non undefined"""
+        print(f"\n👥 TEST 3 - GET /api/users - VÉRIFICATION CHAMP EMAIL")
         print("=" * 60)
         
         try:
-            # Test 1: GET /api/analytics/absence-kpi
-            response = self.session.get(f"{BACKEND_URL}/analytics/absence-kpi")
+            # Test 1: GET /api/users
+            response = self.session.get(f"{BACKEND_URL}/users")
             
             if response.status_code == 200:
-                analytics_data = response.json()
-                print(f"✅ Analytics endpoint accessible (200)")
+                users = response.json()
+                print(f"✅ GET /api/users accessible (200)")
+                print(f"✅ Nombre d'utilisateurs: {len(users)}")
                 
-                # Test 2: Vérifier que les données sont réelles (pas mockées)
-                summary = analytics_data.get("summary", {})
-                total_absences = summary.get("totalAbsences", 0)
+                # Test 2: Vérifier que chaque user a un champ email (pas undefined)
+                users_with_email = 0
+                users_without_email = 0
+                invalid_emails = []
                 
-                # Les données mockées avaient 1542 absences - vérifier que ce n'est plus le cas
-                is_real_data = total_absences != 1542 and total_absences > 0
-                self.log_result("phase2", "Données réelles retournées", 
-                               is_real_data,
-                               f"Total absences: {total_absences} (données réelles)" if is_real_data else f"Total absences: {total_absences} (possiblement mockées)",
-                               "Données réelles (≠ 1542)", total_absences)
+                for user in users:
+                    email = user.get("email")
+                    if email and email != "undefined" and email.strip():
+                        users_with_email += 1
+                        # Vérifier format email basique
+                        if "@" not in email or "." not in email:
+                            invalid_emails.append(f"{user.get('name', 'Unknown')} - {email}")
+                    else:
+                        users_without_email += 1
+                        invalid_emails.append(f"{user.get('name', 'Unknown')} - {email}")
                 
-                # Test 3: Vérifier byCategory contient types d'absences réels
-                by_category = analytics_data.get("byCategory", [])
-                has_real_categories = len(by_category) > 0
-                category_names = [cat.get("name", "") for cat in by_category] if isinstance(by_category, list) else []
-                self.log_result("phase2", "byCategory avec types réels", 
-                               has_real_categories,
-                               f"Categories trouvées: {category_names[:5]}" if has_real_categories else "Aucune catégorie trouvée")
+                # Résultats
+                all_have_valid_email = users_without_email == 0
+                self.log_result("users_api", "Tous les users ont un champ email", 
+                               all_have_valid_email,
+                               f"{users_with_email} users avec email valide, {users_without_email} sans email" if all_have_valid_email else f"PROBLÈME: {users_without_email} users sans email valide")
                 
-                # Test 4: Vérifier monthlyTrend calculé depuis vraies données
-                monthly_trend = analytics_data.get("monthlyTrend", [])
-                has_monthly_trend = len(monthly_trend) > 0
-                self.log_result("phase2", "monthlyTrend calculé", 
-                               has_monthly_trend,
-                               f"Tendance mensuelle: {len(monthly_trend)} mois de données" if has_monthly_trend else "Aucune tendance mensuelle")
+                # Test 3: Vérifier format email valide
+                has_valid_format = len(invalid_emails) == 0
+                self.log_result("users_api", "Format email valide", 
+                               has_valid_format,
+                               "Tous les emails ont un format valide" if has_valid_format else f"Emails invalides: {invalid_emails[:3]}")
                 
-                # Test 5: Vérifier departmentBreakdown basé sur vrais départements
-                department_breakdown = analytics_data.get("departmentBreakdown", [])
-                has_departments = len(department_breakdown) > 0
-                department_names = [dept.get("department", "") for dept in department_breakdown] if isinstance(department_breakdown, list) else []
-                self.log_result("phase2", "departmentBreakdown avec vrais départements", 
-                               has_departments,
-                               f"Départements: {department_names[:5]}" if has_departments else "Aucun département trouvé")
+                # Afficher quelques exemples
+                print(f"\n📋 EXEMPLES D'UTILISATEURS:")
+                for i, user in enumerate(users[:5]):
+                    email = user.get("email", "MANQUANT")
+                    name = user.get("name", "Unknown")
+                    print(f"   {i+1}. {name} - {email}")
                 
-                print(f"\n📋 DÉTAILS ANALYTICS:")
-                print(f"   Total Absences: {total_absences}")
-                print(f"   Categories: {category_names[:3]}")
-                print(f"   Mois de tendance: {len(monthly_trend)}")
-                print(f"   Départements: {department_names[:3]}")
+                if len(users) > 5:
+                    print(f"   ... et {len(users) - 5} autres utilisateurs")
+                
+                if invalid_emails:
+                    print(f"\n⚠️ EMAILS PROBLÉMATIQUES:")
+                    for invalid in invalid_emails[:5]:
+                        print(f"   - {invalid}")
                 
             else:
-                self.log_result("phase2", "Analytics endpoint accessible", 
+                self.log_result("users_api", "GET /api/users accessible", 
                                False, f"Erreur {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_result("phase2", "Analytics endpoint test", 
+            self.log_result("users_api", "Test GET /api/users", 
                            False, f"Exception: {str(e)}")
 
     def test_phase3_absence_types_db(self):
