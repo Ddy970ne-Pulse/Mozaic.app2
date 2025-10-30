@@ -381,7 +381,7 @@ const AbsenceRequests = ({ user }) => {
             const updatedPending = prev.pending.filter(r => r.id !== requestId);
             const rejectedRequest = prev.pending.find(r => r.id === requestId);
             const updatedRejected = rejectedRequest 
-              ? [...prev.rejected, { ...rejectedRequest, status: 'rejected' }]
+              ? [...prev.rejected, { ...rejectedRequest, status: 'rejected', statusType: 'rejected', rejectedBy: user.name, rejectedDate: new Date().toISOString().split('T')[0], rejectionReason: rejectionReason || 'Aucune raison spécifiée' }]
               : prev.rejected;
             return {
               pending: updatedPending,
@@ -389,8 +389,8 @@ const AbsenceRequests = ({ user }) => {
               rejected: updatedRejected
             };
           });
-          // Recharger les absences pour synchroniser avec le serveur
-          loadAbsencesFromAPI();
+          // Recharger les absences pour synchroniser avec le serveur après un court délai
+          setTimeout(() => loadAbsencesFromAPI(), 500);
         } else {
           alert('❌ Erreur lors du rejet de la demande');
         }
