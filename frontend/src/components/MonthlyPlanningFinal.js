@@ -217,6 +217,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           const employeesData = sortedUsers.map(user => ({
             id: user.id,
             name: user.name,
+            email: user.email,  // 🆕 Ajout du champ email
             category: user.department || 'Non spécifié',
             categorie_employe: user.categorie_employe || '',
             isCadre: (user.categorie_employe || '').toLowerCase().includes('cadre'),
