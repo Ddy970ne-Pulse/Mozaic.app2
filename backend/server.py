@@ -378,13 +378,13 @@ class LoginRequest(BaseModel):
 
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    name: str
-    email: str
-    role: str  # admin, manager, employee
-    department: Optional[str] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
-    position: Optional[str] = None
+    name: constr(min_length=2, max_length=200, strip_whitespace=True)  # Name validation
+    email: EmailStr  # Strict email validation
+    role: constr(pattern=r'^(admin|manager|employee)$')  # Only valid roles
+    department: Optional[constr(max_length=200)] = None
+    phone: Optional[constr(max_length=50)] = None
+    address: Optional[constr(max_length=500)] = None
+    position: Optional[constr(max_length=200)] = None
     hire_date: Optional[str] = None
     isDelegateCSE: Optional[bool] = False
     is_active: bool = True
@@ -397,13 +397,29 @@ class User(BaseModel):
     has_temp_email: bool = False  # Email généré automatiquement (sans email pro)
     # Champs additionnels depuis employees
     date_naissance: Optional[str] = None
-    sexe: Optional[str] = None
-    categorie_employe: Optional[str] = None
-    metier: Optional[str] = None
-    fonction: Optional[str] = None
-    site: Optional[str] = None
-    temps_travail: Optional[str] = None
-    contrat: Optional[str] = None
+    sexe: Optional[constr(pattern=r'^(M|F|Autre)?$')] = None
+    categorie_employe: Optional[constr(max_length=100)] = None
+    metier: Optional[constr(max_length=200)] = None
+    fonction: Optional[constr(max_length=200)] = None
+    site: Optional[constr(max_length=200)] = None
+    temps_travail: Optional[constr(max_length=100)] = None
+    contrat: Optional[constr(max_length=100)] = None
+    
+    @field_validator('id')
+    @classmethod
+    def validate_uuid(cls, v):
+        """Validate UUID format"""
+        try:
+            uuid.UUID(v)
+            return v
+        except ValueError:
+            raise ValueError('Invalid UUID format')
+    
+    @field_validator('email')
+    @classmethod
+    def validate_email_format(cls, v):
+        """Additional email validation"""
+        return v.lower().strip()
 
 
 class Notification(BaseModel):
