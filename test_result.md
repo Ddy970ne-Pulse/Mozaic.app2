@@ -235,6 +235,21 @@ user_problem_statement: |
   5. Responsive Design: Check legend displays properly on different screen sizes
 
 backend:
+  - task: "WebSocket Connection & Quick Absence Addition Testing"
+    implemented: true
+    working: false
+    file: "server.py, websocket_manager.py, websocket_routes.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "user"
+        comment: "Test complet des fonctionnalités MOZAIK RH après implémentation WebSocket et ajout rapide d'absence. TESTS À EFFECTUER: 1. Test WebSocket Connection - wss://hr-multi-saas.preview.emergentagent.com/api/ws/{user_id}, 2. Test API Absences (Ajout Rapide) - POST /api/absences, 3. Test GET /api/users - vérifier champ email non undefined, 4. Tests Existants - valider endpoints existants. PRIORITÉ: Focus sur tests 2 et 3 (bug email résolu?)"
+      - working: false
+        agent: "testing"
+        comment: "WEBSOCKET & ABSENCE TESTING COMPLETED ⚠️ SUCCÈS PARTIEL: Comprehensive testing reveals mixed results with priority tests successful but WebSocket issues identified. CRITICAL SUCCESS CRITERIA: ✅ TEST 2 - API ABSENCES (AJOUT RAPIDE): POST /api/absences working perfectly (200 OK, not 422), absence creation successful with proper data persistence, employee with valid email found and used, ✅ TEST 3 - GET /api/users (EMAIL FIELD): All 32 users have valid email fields (no undefined), email format validation passed, ✅ TEST 4 - ENDPOINTS EXISTANTS: All existing endpoints functional (GET /api/users, GET /api/absences, POST /api/auth/login, PUT /api/absences/{id}). WEBSOCKET ISSUES IDENTIFIED ❌: Connection established successfully but no welcome message received (timeout after 5 seconds), no bidirectional communication (ping/pong failed), ROOT CAUSE: Duplicate WebSocket endpoints - server.py has simple endpoint without welcome message, websocket_routes.py has complete endpoint with welcome message but not being used. PRIORITY TESTS STATUS: ✅ RÉUSSIS - Tests 2 & 3 (bug email résolu) working correctly. Backend logs confirm WebSocket connects but immediately disconnects due to missing welcome message implementation in active endpoint."
+
   - task: "TEST COMPLET DE LA MIGRATION DES DONNÉES DE TEST - PHASES 1+2+3"
     implemented: true
     working: true
