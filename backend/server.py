@@ -3903,7 +3903,8 @@ async def get_absences(current_user: User = Depends(get_current_user)):
         return []
 
 @api_router.post("/absences", response_model=dict)
-async def create_absence(absence: Absence, current_user: User = Depends(get_current_user)):
+@limiter.limit("10/minute")  # 🛡️ Rate limit: 10 absence creations per minute
+async def create_absence(request: Request, absence: Absence, current_user: User = Depends(get_current_user)):
     """
     Create a new absence request
     🔄 SYNCHRONISATION AUTOMATIQUE : Si approved, déduit automatiquement des compteurs
