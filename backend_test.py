@@ -233,87 +233,133 @@ class WebSocketAbsenceTester:
             self.log_result("users_api", "Test GET /api/users", 
                            False, f"Exception: {str(e)}")
 
-    def test_phase3_absence_types_db(self):
-        """PHASE 3 - ABSENCE TYPES EN BDD"""
-        print(f"\n🗃️ PHASE 3 - ABSENCE TYPES EN BDD")
+    def test_absence_api_quick_add(self):
+        """TEST 2: API Absences (Ajout Rapide) - POST /api/absences"""
+        print(f"\n📝 TEST 2 - API ABSENCES (AJOUT RAPIDE)")
         print("=" * 60)
         
         try:
-            # Test 1: GET /api/absence-types
-            response = self.session.get(f"{BACKEND_URL}/absence-types")
+            # Étape a) Login déjà fait dans authenticate()
+            print(f"✅ a) Login admin réussi")
             
-            if response.status_code == 200:
-                absence_types = response.json()
-                print(f"✅ Absence types endpoint accessible (200)")
-                
-                # Test 2: Vérifier 22 types d'absence retournés depuis MongoDB
-                types_count = len(absence_types)
-                expected_count = 22
-                has_correct_count = types_count == expected_count
-                self.log_result("phase3", "22 types d'absence retournés", 
-                               has_correct_count,
-                               f"{types_count} types trouvés" if has_correct_count else f"Nombre incorrect: {types_count}",
-                               expected_count, types_count)
-                
-                # Test 3: Vérifier structure correcte (code, name, category, counting_method, etc.)
-                if absence_types:
-                    first_type = absence_types[0]
-                    required_fields = ["code", "name", "category", "counting_method", "requires_validation", "requires_acknowledgment"]
-                    has_correct_structure = all(field in first_type for field in required_fields)
-                    self.log_result("phase3", "Structure correcte des types", 
-                                   has_correct_structure,
-                                   f"Champs présents: {list(first_type.keys())}" if has_correct_structure else f"Champs manquants dans: {list(first_type.keys())}")
-                
-                # Afficher quelques types pour vérification
-                print(f"\n📋 TYPES D'ABSENCE TROUVÉS ({types_count}):")
-                for i, abs_type in enumerate(absence_types[:5]):  # Afficher les 5 premiers
-                    print(f"   {i+1}. {abs_type.get('code')} - {abs_type.get('name')} ({abs_type.get('counting_method')})")
-                if types_count > 5:
-                    print(f"   ... et {types_count - 5} autres")
-                
-            else:
-                self.log_result("phase3", "Absence types endpoint accessible", 
-                               False, f"Erreur {response.status_code}: {response.text}")
+            # Étape b) GET /api/users pour récupérer un employé
+            users_response = self.session.get(f"{BACKEND_URL}/users")
+            
+            if users_response.status_code != 200:
+                self.log_result("absence_api", "GET /api/users pour récupérer employé", 
+                               False, f"Erreur {users_response.status_code}: {users_response.text}")
                 return
-                
-            # Test 4: GET /api/absence-types/CA
-            response_ca = self.session.get(f"{BACKEND_URL}/absence-types/CA")
             
-            if response_ca.status_code == 200:
-                ca_type = response_ca.json()
-                print(f"✅ Type CA endpoint accessible (200)")
+            users = users_response.json()
+            print(f"✅ b) GET /api/users réussi - {len(users)} utilisateurs trouvés")
+            
+            # Trouver un employé avec un email valide
+            target_employee = None
+            for user in users:
+                email = user.get("email")
+                if email and email != "undefined" and "@" in email and user.get("id"):
+                    target_employee = user
+                    break
+            
+            if not target_employee:
+                self.log_result("absence_api", "Employé avec email valide trouvé", 
+                               False, "Aucun employé avec email valide trouvé")
+                return
+            
+            employee_id = target_employee.get("id")
+            employee_name = target_employee.get("name")
+            employee_email = target_employee.get("email")
+            
+            print(f"✅ Employé sélectionné: {employee_name} ({employee_email})")
+            self.log_result("absence_api", "Employé avec email valide trouvé", 
+                           True, f"Employé: {employee_name} - Email: {employee_email}")
+            
+            # Étape c) POST /api/absences avec les données spécifiées
+            absence_data = {
+                "employee_id": employee_id,
+                "employee_name": employee_name,
+                "email": employee_email,
+                "motif_absence": "CA",
+                "jours_absence": "2",
+                "date_debut": "2025-11-05",
+                "date_fin": "2025-11-06",
+                "notes": "Test ajout rapide automatisé",
+                "status": "approved",
+                "created_by": "admin"
+            }
+            
+            print(f"📤 c) Envoi POST /api/absences...")
+            print(f"   Données: {json.dumps(absence_data, indent=2)}")
+            
+            absence_response = self.session.post(f"{BACKEND_URL}/absences", json=absence_data)
+            
+            # Étape d) Vérifier réponse 200 OK (pas 422)
+            if absence_response.status_code == 200:
+                absence_result = absence_response.json()
+                absence_id = absence_result.get("id")
+                print(f"✅ d) POST /api/absences réussi (200 OK)")
+                print(f"✅ Absence créée avec ID: {absence_id}")
                 
-                # Test 5: Vérifier retourne "CA - Congés Annuels" depuis BDD
-                ca_name = ca_type.get("name", "")
-                expected_ca_name = "CA - Congés Annuels"
-                has_correct_ca_name = ca_name == expected_ca_name
-                self.log_result("phase3", "Type CA correct depuis BDD", 
-                               has_correct_ca_name,
-                               f"Nom CA: '{ca_name}'" if has_correct_ca_name else f"Nom incorrect: '{ca_name}'",
-                               expected_ca_name, ca_name)
+                self.log_result("absence_api", "POST /api/absences réponse 200 OK", 
+                               True, f"Absence créée avec succès - ID: {absence_id}")
                 
-                # Test 6: Vérifier counting_method = "Jours Ouvrables"
-                ca_counting = ca_type.get("counting_method", "")
-                expected_counting = "Jours Ouvrables"
-                has_correct_counting = ca_counting == expected_counting
-                self.log_result("phase3", "CA counting_method correct", 
-                               has_correct_counting,
-                               f"Counting method: '{ca_counting}'" if has_correct_counting else f"Counting method incorrect: '{ca_counting}'",
-                               expected_counting, ca_counting)
+                # Étape e) Vérifier que l'absence est bien créée
+                # Récupérer les absences de l'employé pour vérifier
+                get_absences_response = self.session.get(f"{BACKEND_URL}/absences/{employee_id}")
                 
-                print(f"\n📋 DÉTAILS TYPE CA:")
-                print(f"   Code: {ca_type.get('code')}")
-                print(f"   Name: {ca_type.get('name')}")
-                print(f"   Category: {ca_type.get('category')}")
-                print(f"   Counting Method: {ca_type.get('counting_method')}")
-                print(f"   Requires Validation: {ca_type.get('requires_validation')}")
+                if get_absences_response.status_code == 200:
+                    employee_absences = get_absences_response.json()
+                    
+                    # Chercher l'absence que nous venons de créer
+                    created_absence = None
+                    for absence in employee_absences:
+                        if absence.get("id") == absence_id:
+                            created_absence = absence
+                            break
+                    
+                    if created_absence:
+                        print(f"✅ e) Absence bien créée et récupérable")
+                        self.log_result("absence_api", "Absence bien créée en base", 
+                                       True, f"Absence trouvée avec motif: {created_absence.get('motif_absence')}")
+                        
+                        # Afficher les détails de l'absence créée
+                        print(f"\n📋 DÉTAILS ABSENCE CRÉÉE:")
+                        print(f"   ID: {created_absence.get('id')}")
+                        print(f"   Employé: {created_absence.get('employee_name')}")
+                        print(f"   Email: {created_absence.get('email')}")
+                        print(f"   Motif: {created_absence.get('motif_absence')}")
+                        print(f"   Jours: {created_absence.get('jours_absence')}")
+                        print(f"   Date début: {created_absence.get('date_debut')}")
+                        print(f"   Date fin: {created_absence.get('date_fin')}")
+                        print(f"   Status: {created_absence.get('status')}")
+                        print(f"   Notes: {created_absence.get('notes')}")
+                        
+                        # Nettoyer - supprimer l'absence de test
+                        delete_response = self.session.delete(f"{BACKEND_URL}/absences/{absence_id}")
+                        if delete_response.status_code == 200:
+                            print(f"✅ Absence de test supprimée")
+                        else:
+                            print(f"⚠️ Impossible de supprimer l'absence de test: {delete_response.status_code}")
+                    else:
+                        self.log_result("absence_api", "Absence bien créée en base", 
+                                       False, f"Absence {absence_id} non trouvée dans les absences de l'employé")
+                else:
+                    self.log_result("absence_api", "Vérification absence créée", 
+                                   False, f"Erreur récupération absences: {get_absences_response.status_code}")
                 
+            elif absence_response.status_code == 422:
+                error_detail = absence_response.json()
+                self.log_result("absence_api", "POST /api/absences réponse 200 OK", 
+                               False, f"Erreur 422 (validation): {error_detail}")
+                print(f"❌ d) Erreur 422 - Problème de validation:")
+                print(f"   {json.dumps(error_detail, indent=2)}")
             else:
-                self.log_result("phase3", "Type CA endpoint accessible", 
-                               False, f"Erreur {response_ca.status_code}: {response_ca.text}")
+                self.log_result("absence_api", "POST /api/absences réponse 200 OK", 
+                               False, f"Erreur {absence_response.status_code}: {absence_response.text}")
+                print(f"❌ d) Erreur {absence_response.status_code}: {absence_response.text}")
                 
         except Exception as e:
-            self.log_result("phase3", "Absence types test", 
+            self.log_result("absence_api", "Test API Absences", 
                            False, f"Exception: {str(e)}")
 
     def test_phase4_absence_creation_integration(self):
