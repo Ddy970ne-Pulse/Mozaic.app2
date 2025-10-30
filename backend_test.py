@@ -82,8 +82,10 @@ class WebSocketAbsenceTester:
                 data = response.json()
                 self.token = data.get("token")
                 user = data.get("user", {})
+                self.user_id = user.get("id")
                 print(f"✅ Login successful: {user.get('name')} ({user.get('email')})")
                 print(f"✅ Role: {user.get('role')}")
+                print(f"✅ User ID: {self.user_id}")
                 print(f"✅ Token obtained: {self.token[:20]}...")
                 
                 # Set authorization header for all future requests
