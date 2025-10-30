@@ -5724,6 +5724,9 @@ async def generate_absence_report(
 # Include the router in the main app
 app.include_router(api_router)
 
+# Include WebSocket router
+app.include_router(websocket_router, tags=["WebSocket"])
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
