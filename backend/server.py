@@ -1049,6 +1049,23 @@ async def login(request: Request, login_request: LoginRequest):
         
         if is_now_locked:
             remaining_time = lockout_manager.lockout_duration_minutes
+            
+            # AUDIT: Log account lockout
+            from core.audit_logger import AuditLogger, AuditEventType
+            audit = AuditLogger(db)
+            await audit.log_security_event(
+                event_type=AuditEventType.ACCOUNT_LOCKED,
+                description=f"Account locked after {total_attempts} failed login attempts",
+                user_email=email,
+                ip_address=ip_address,
+                severity="high",
+                details={
+                    "attempts": total_attempts,
+                    "lockout_duration_minutes": remaining_time,
+                    "locked_until": locked_until.isoformat() if locked_until else None
+                }
+            )
+            
             logger.error(
                 f"🔒 Account LOCKED after {total_attempts} failed attempts: {email}",
                 extra={
@@ -1065,6 +1082,19 @@ async def login(request: Request, login_request: LoginRequest):
             )
         else:
             remaining = 5 - total_attempts
+            
+            # AUDIT: Log failed login
+            from core.audit_logger import AuditLogger, AuditEventType
+            audit = AuditLogger(db)
+            await audit.log_authentication(
+                event_type=AuditEventType.LOGIN_FAILED,
+                email=email,
+                ip_address=ip_address,
+                user_agent=request.headers.get("user-agent"),
+                success=False,
+                failure_reason=f"Invalid credentials ({remaining} attempts remaining)"
+            )
+            
             logger.warning(
                 f"❌ Failed login attempt {total_attempts}/5 for {email}",
                 extra={"email": email, "ip": ip_address, "remaining": remaining}
