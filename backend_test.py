@@ -362,102 +362,84 @@ class WebSocketAbsenceTester:
             self.log_result("absence_api", "Test API Absences", 
                            False, f"Exception: {str(e)}")
 
-    def test_phase4_absence_creation_integration(self):
-        """PHASE 4 - INTÉGRATION - CRÉATION ABSENCE"""
-        print(f"\n🔄 PHASE 4 - INTÉGRATION - CRÉATION ABSENCE")
+    def test_existing_endpoints(self):
+        """TEST 4: Tests Existants - Valider endpoints existants"""
+        print(f"\n🔧 TEST 4 - ENDPOINTS EXISTANTS")
         print("=" * 60)
         
+        endpoints_to_test = [
+            ("GET /api/users", f"{BACKEND_URL}/users"),
+            ("GET /api/absences", f"{BACKEND_URL}/absences"),
+            ("POST /api/auth/login", f"{BACKEND_URL}/auth/login"),
+        ]
+        
+        for endpoint_name, url in endpoints_to_test:
+            try:
+                if "login" in endpoint_name:
+                    # Test spécial pour login
+                    response = requests.post(url, json={
+                        "email": ADMIN_EMAIL,
+                        "password": ADMIN_PASSWORD
+                    })
+                else:
+                    # Test GET normal avec authentification
+                    response = self.session.get(url)
+                
+                if response.status_code == 200:
+                    print(f"✅ {endpoint_name} - OK (200)")
+                    self.log_result("existing_apis", f"{endpoint_name} fonctionnel", 
+                                   True, f"Réponse 200 OK")
+                else:
+                    print(f"❌ {endpoint_name} - Erreur {response.status_code}")
+                    self.log_result("existing_apis", f"{endpoint_name} fonctionnel", 
+                                   False, f"Erreur {response.status_code}: {response.text[:100]}")
+                    
+            except Exception as e:
+                print(f"❌ {endpoint_name} - Exception: {str(e)}")
+                self.log_result("existing_apis", f"{endpoint_name} fonctionnel", 
+                               False, f"Exception: {str(e)}")
+        
+        # Test spécial pour PUT /api/absences/{id} (approve/reject)
         try:
-            # Préparer les données de test pour création d'absence
-            test_absence_data = {
-                "employee_id": "test-employee-id",  # Sera remplacé par l'ID admin
+            # D'abord créer une absence de test
+            test_absence = {
+                "employee_id": self.user_id,
                 "employee_name": "Diego DACALOR",
                 "email": ADMIN_EMAIL,
-                "date_debut": "15/01/2026",
-                "jours_absence": "5",
                 "motif_absence": "CA",
-                "notes": "Test migration - création absence avec type CA"
+                "jours_absence": "1",
+                "date_debut": "2025-12-01",
+                "notes": "Test PUT endpoint",
+                "status": "pending"
             }
             
-            # Récupérer l'ID de l'utilisateur admin pour le test
-            me_response = self.session.get(f"{BACKEND_URL}/auth/me")
-            if me_response.status_code == 200:
-                admin_user = me_response.json()
-                test_absence_data["employee_id"] = admin_user.get("id")
-                print(f"✅ Admin user ID récupéré: {admin_user.get('id')}")
+            create_response = self.session.post(f"{BACKEND_URL}/absences", json=test_absence)
             
-            # Test 1: POST /api/absences avec type "CA"
-            response = self.session.post(f"{BACKEND_URL}/absences", json=test_absence_data)
-            
-            if response.status_code == 200:
-                creation_response = response.json()
-                absence_id = creation_response.get("id")
-                print(f"✅ Absence créée avec succès (200)")
+            if create_response.status_code == 200:
+                absence_id = create_response.json().get("id")
                 
-                # Récupérer l'absence créée depuis la base pour vérifier les champs enrichis
-                get_response = self.session.get(f"{BACKEND_URL}/absences/{test_absence_data['employee_id']}")
-                if get_response.status_code == 200:
-                    absences_list = get_response.json()
-                    # Trouver l'absence que nous venons de créer
-                    created_absence = None
-                    for abs_item in absences_list:
-                        if abs_item.get("id") == absence_id:
-                            created_absence = abs_item
-                            break
-                    
-                    if created_absence:
-                        # Test 2: Vérifier counting_method récupéré depuis BDD (via get_absence_type_config)
-                        counting_method = created_absence.get("counting_method")
-                        expected_counting = "Jours Ouvrables"
-                        has_correct_counting = counting_method == expected_counting
-                        self.log_result("phase4", "counting_method récupéré depuis BDD", 
-                                       has_correct_counting,
-                                       f"Counting method: '{counting_method}'" if has_correct_counting else f"Counting method incorrect: '{counting_method}'",
-                                       expected_counting, counting_method)
-                        
-                        # Test 3: Vérifier date fin calculée correctement
-                        date_fin = created_absence.get("date_fin")
-                        has_date_fin = date_fin is not None and date_fin != "" and date_fin != "None"
-                        self.log_result("phase4", "Date fin calculée correctement", 
-                                       has_date_fin,
-                                       f"Date fin calculée: {date_fin}" if has_date_fin else "Date fin manquante")
-                        
-                        # Test 4: Vérifier absence créée avec succès
-                        has_absence_id = absence_id is not None and absence_id != ""
-                        self.log_result("phase4", "Absence créée avec succès", 
-                                       has_absence_id,
-                                       f"Absence ID: {absence_id}" if has_absence_id else "ID absence manquant")
-                        
-                        print(f"\n📋 DÉTAILS ABSENCE CRÉÉE:")
-                        print(f"   ID: {created_absence.get('id')}")
-                        print(f"   Employee: {created_absence.get('employee_name')}")
-                        print(f"   Type: {created_absence.get('motif_absence')}")
-                        print(f"   Date début: {created_absence.get('date_debut')}")
-                        print(f"   Date fin: {created_absence.get('date_fin')}")
-                        print(f"   Jours: {created_absence.get('jours_absence')}")
-                        print(f"   Counting method: {created_absence.get('counting_method')}")
-                        print(f"   Status: {created_absence.get('status')}")
-                    else:
-                        self.log_result("phase4", "Récupération absence créée", 
-                                       False, f"Absence {absence_id} non trouvée dans la liste")
+                # Tester PUT approve
+                put_response = self.session.put(f"{BACKEND_URL}/absences/{absence_id}", json={
+                    "status": "approved"
+                })
+                
+                if put_response.status_code == 200:
+                    print(f"✅ PUT /api/absences/{absence_id} (approve) - OK (200)")
+                    self.log_result("existing_apis", "PUT /api/absences/{id} (approve) fonctionnel", 
+                                   True, "Approbation réussie")
                 else:
-                    self.log_result("phase4", "Récupération absence créée", 
-                                   False, f"Erreur récupération absences: {get_response.status_code}")
+                    print(f"❌ PUT /api/absences/{absence_id} (approve) - Erreur {put_response.status_code}")
+                    self.log_result("existing_apis", "PUT /api/absences/{id} (approve) fonctionnel", 
+                                   False, f"Erreur {put_response.status_code}")
                 
-                # Nettoyer - supprimer l'absence de test
-                if absence_id:
-                    delete_response = self.session.delete(f"{BACKEND_URL}/absences/{absence_id}")
-                    if delete_response.status_code == 200:
-                        print(f"✅ Absence de test supprimée")
-                    else:
-                        print(f"⚠️ Impossible de supprimer l'absence de test: {delete_response.status_code}")
-                
+                # Nettoyer
+                self.session.delete(f"{BACKEND_URL}/absences/{absence_id}")
             else:
-                self.log_result("phase4", "Création absence avec type CA", 
-                               False, f"Erreur {response.status_code}: {response.text}")
+                self.log_result("existing_apis", "PUT /api/absences/{id} test setup", 
+                               False, "Impossible de créer absence de test pour PUT")
                 
         except Exception as e:
-            self.log_result("phase4", "Test création absence", 
+            self.log_result("existing_apis", "PUT /api/absences/{id} fonctionnel", 
                            False, f"Exception: {str(e)}")
 
     def print_summary(self):
