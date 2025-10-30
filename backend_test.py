@@ -41,7 +41,7 @@ WEBSOCKET_URL = "wss://hr-multi-saas.preview.emergentagent.com/api/ws"
 ADMIN_EMAIL = "ddacalor@aaea-gpe.fr"
 ADMIN_PASSWORD = "admin123"
 
-class WebSocketAbsenceTester:
+class SecurityEnhancementsTester:
     def __init__(self):
         self.token = None
         self.user_id = None
