@@ -155,34 +155,39 @@ class ConnectionManager:
             await self._cleanup_dead_connection(conn)
     
     async def broadcast(self, message: dict, exclude_user: str = None):
-        """Envoyer un message à tous les utilisateurs connectés"""
-        logger.info(f"📡 Broadcasting to {len(self.all_connections)} connections: {message.get('type')}")
+        """
+        Envoyer un message à tous les utilisateurs connectés
+        Thread-safe avec gestion robuste des erreurs
+        """
+        async with self._lock:
+            connections_to_send = []
+            for connection in list(self.all_connections):
+                # Trouver le user_id de cette connexion
+                user_id = self._get_user_for_connection(connection)
+                
+                # Exclure l'utilisateur si demandé
+                if exclude_user and user_id == exclude_user:
+                    continue
+                
+                connections_to_send.append((connection, user_id))
         
-        dead_connections = set()
-        for connection in self.all_connections:
-            # Trouver le user_id de cette connexion
-            user_id = None
-            for uid, conns in self.active_connections.items():
-                if connection in conns:
-                    user_id = uid
-                    break
-            
-            # Exclure l'utilisateur si demandé
-            if exclude_user and user_id == exclude_user:
-                continue
-            
+        logger.info(f"📡 Broadcasting to {len(connections_to_send)} connections: {message.get('type')}")
+        
+        # Envoyer en dehors du lock pour éviter les blocages
+        dead_connections = []
+        for connection, user_id in connections_to_send:
             try:
                 await connection.send_json(message)
             except Exception as e:
-                logger.error(f"Error broadcasting: {str(e)}")
-                dead_connections.add(connection)
+                logger.error(f"❌ Error broadcasting to user {user_id}: {str(e)}")
+                dead_connections.append(connection)
         
         # Nettoyer les connexions mortes
         for conn in dead_connections:
-            for user_id, conns in list(self.active_connections.items()):
-                if conn in conns:
-                    self.disconnect(conn, user_id)
-                    break
+            await self._cleanup_dead_connection(conn)
+        
+        if dead_connections:
+            logger.info(f"🧹 Cleaned up {len(dead_connections)} dead connections during broadcast")
     
     async def broadcast_absence_created(self, absence_data: dict, creator_id: str):
         """Notifier tous les utilisateurs qu'une absence a été créée"""
