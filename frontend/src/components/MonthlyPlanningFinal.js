@@ -31,6 +31,17 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [absenceNotes, setAbsenceNotes] = useState('');
   const [creatingAbsence, setCreatingAbsence] = useState(false);
+  
+  // 🆕 États pour l'ajout rapide d'absence (bouton +)
+  const [showQuickAddModal, setShowQuickAddModal] = useState(false);
+  const [quickAddData, setQuickAddData] = useState({
+    employee: null,
+    date: null,
+    type: 'CA',
+    days: 1,
+    notes: ''
+  });
+  const [hoveredCell, setHoveredCell] = useState(null); // {employeeId, date}
 
   // États pour les nouvelles fonctionnalités avancées
   // 1. Multi-sélection d'employés
