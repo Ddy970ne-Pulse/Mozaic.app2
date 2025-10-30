@@ -6501,6 +6501,10 @@ app.include_router(api_router)
 # Include WebSocket router
 app.include_router(websocket_router, tags=["WebSocket"])
 
+# 📊 LEAVE BALANCE: Include leave balance management router
+from leave_balance_routes import leave_balance_router
+app.include_router(leave_balance_router)
+
 # 🛡️ SECURITY: CORS Configuration
 # Read allowed origins from environment variable
 cors_origins_str = os.environ.get('CORS_ORIGINS', '')
