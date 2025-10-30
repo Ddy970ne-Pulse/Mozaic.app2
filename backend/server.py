@@ -1214,6 +1214,160 @@ async def admin_unlock_account(
             "message": f"No lockout found for {email}"
         }
 
+# 📋 AUDIT: Audit Log Management Endpoints (Admin only)
+
+@api_router.get("/audit/logs")
+async def search_audit_logs(
+    request: Request,
+    user_email: Optional[str] = None,
+    event_type: Optional[str] = None,
+    resource_type: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    limit: int = 100,
+    skip: int = 0,
+    current_user: User = Depends(get_current_user)
+):
+    """Search audit logs with filters (Admin only)"""
+    from core.audit_logger import AuditLogger, AuditEventType
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    audit = AuditLogger(db)
+    
+    # Parse dates if provided
+    start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00')) if start_date else None
+    end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00')) if end_date else None
+    
+    # Parse event type
+    event_type_enum = None
+    if event_type:
+        try:
+            event_type_enum = AuditEventType(event_type)
+        except ValueError:
+            pass
+    
+    result = await audit.search_logs(
+        user_email=user_email,
+        event_type=event_type_enum,
+        resource_type=resource_type,
+        start_date=start_dt,
+        end_date=end_dt,
+        limit=limit,
+        skip=skip
+    )
+    
+    return result
+
+@api_router.get("/audit/user/{user_id}/activity")
+async def get_user_activity(
+    user_id: str,
+    days: int = 30,
+    current_user: User = Depends(get_current_user)
+):
+    """Get recent activity for a specific user (Admin or own activity)"""
+    from core.audit_logger import AuditLogger
+    
+    # Allow users to see their own activity
+    if current_user.role != "admin" and current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    audit = AuditLogger(db)
+    logs = await audit.get_user_activity(user_id, days=days, limit=100)
+    
+    return {
+        "success": True,
+        "user_id": user_id,
+        "days": days,
+        "activity": logs,
+        "count": len(logs)
+    }
+
+@api_router.get("/audit/resource/{resource_type}/{resource_id}/history")
+async def get_resource_history(
+    resource_type: str,
+    resource_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get complete history for a specific resource (Admin only)"""
+    from core.audit_logger import AuditLogger
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    audit = AuditLogger(db)
+    history = await audit.get_resource_history(resource_type, resource_id, limit=100)
+    
+    return {
+        "success": True,
+        "resource_type": resource_type,
+        "resource_id": resource_id,
+        "history": history,
+        "count": len(history)
+    }
+
+@api_router.get("/audit/security/alerts")
+async def get_security_alerts(
+    hours: int = 24,
+    severity: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get recent security alerts (Admin only)"""
+    from core.audit_logger import AuditLogger
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    audit = AuditLogger(db)
+    alerts = await audit.get_security_alerts(hours=hours, severity=severity)
+    
+    return {
+        "success": True,
+        "hours": hours,
+        "severity": severity,
+        "alerts": alerts,
+        "count": len(alerts)
+    }
+
+@api_router.get("/audit/failed-logins")
+async def get_failed_logins(
+    hours: int = 24,
+    current_user: User = Depends(get_current_user)
+):
+    """Get recent failed login attempts (Admin only)"""
+    from core.audit_logger import AuditLogger
+    
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    audit = AuditLogger(db)
+    failed = await audit.get_failed_logins(hours=hours, limit=100)
+    
+    return {
+        "success": True,
+        "hours": hours,
+        "failed_logins": failed,
+        "count": len(failed)
+    }
+
+@api_router.get("/audit/export/{user_id}")
+async def export_user_audit_trail(
+    user_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Export complete audit trail for a user - GDPR Article 15 (Admin or own data)"""
+    from core.audit_logger import AuditLogger
+    
+    # Allow users to export their own audit trail
+    if current_user.role != "admin" and current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    audit = AuditLogger(db)
+    export = await audit.export_user_audit_trail(user_id, format="json")
+    
+    return export
+
 # User Management endpoints
 @api_router.get("/users", response_model=List[User])
 async def get_all_users(current_user: User = Depends(get_current_user)):
