@@ -1162,10 +1162,18 @@ async def login(request: Request, login_request: LoginRequest):
         success=True
     )
     
-    # 10. Create token
-    token = create_access_token(user_data["id"], user_data["email"], user_data["role"])
+    # 10. Create access and refresh tokens (Enhanced Authentication)
+    from core.enhanced_auth import SessionManager
+    session_manager = SessionManager(db, SECRET_KEY)
     
-    # Return user info and token (without password hash)
+    access_token, refresh_token = await session_manager.create_session(
+        user_id=user_data["id"],
+        email=user_data["email"],
+        role=user_data["role"],
+        device_id=ip_address  # Use IP as device ID for now
+    )
+    
+    # Return user info and tokens (without password hash)
     user_data["last_login"] = datetime.utcnow()
     user_data["first_login"] = False
     user = User(**{k: v for k, v in user_data.items() if k != "hashed_password"})
@@ -1174,6 +1182,8 @@ async def login(request: Request, login_request: LoginRequest):
         f"✅ Successful login: {email}",
         extra={"email": email, "ip": ip_address, "user_id": user_data["id"]}
     )
+    
+    return LoginResponse(token=access_token, refresh_token=refresh_token, user=user)
     
     return LoginResponse(token=token, user=user)
 
