@@ -3217,6 +3217,131 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           </div>
         </div>
       )}
+
+      {/* 🆕 MODAL AJOUT RAPIDE D'ABSENCE */}
+      {showQuickAddModal && quickAddData.employee && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-800">➕ Ajout rapide</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {quickAddData.employee.name} - {new Date(quickAddData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+              </div>
+              <button
+                onClick={cancelQuickAdd}
+                className="text-gray-400 hover:text-gray-600 text-2xl"
+                disabled={creatingAbsence}
+              >
+                ✕
+              </button>
+            </div>
+            
+            {/* Formulaire */}
+            <div className="space-y-4">
+              {/* Type d'absence */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Type d'absence
+                </label>
+                <select
+                  value={quickAddData.type}
+                  onChange={(e) => setQuickAddData({ ...quickAddData, type: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={creatingAbsence}
+                >
+                  <option value="CA">CA - Congés Annuels</option>
+                  <option value="CT">CT - Congés Trimestriels</option>
+                  <option value="RTT">RTT</option>
+                  <option value="REC">Récupération</option>
+                  <option value="AM">Arrêt maladie</option>
+                  <option value="AT">Accident du travail</option>
+                  <option value="MAT">Congé maternité</option>
+                  <option value="PAT">Congé paternité</option>
+                  <option value="FAM">Évènement familial</option>
+                  <option value="FO">Formation</option>
+                  <option value="TEL">Télétravail</option>
+                  <option value="DEL">Délégation</option>
+                  <option value="STG">Stage</option>
+                  <option value="CEX">Congé exceptionnel</option>
+                  <option value="CSS">Congés Sans Solde</option>
+                  <option value="EMAL">Enfants malades</option>
+                  <option value="MPRO">Maladie Professionnelle</option>
+                  <option value="RMED">Rendez-vous médical</option>
+                  <option value="NAUT">Absence non autorisée</option>
+                  <option value="AUT">Absence autorisée</option>
+                </select>
+              </div>
+              
+              {/* Nombre de jours */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre de jours
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  value={quickAddData.days}
+                  onChange={(e) => setQuickAddData({ ...quickAddData, days: parseInt(e.target.value) || 1 })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={creatingAbsence}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Du {new Date(quickAddData.date).toLocaleDateString('fr-FR')} au{' '}
+                  {new Date(new Date(quickAddData.date).getTime() + (quickAddData.days - 1) * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR')}
+                </p>
+              </div>
+              
+              {/* Notes (optionnel) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Notes (optionnel)
+                </label>
+                <textarea
+                  value={quickAddData.notes}
+                  onChange={(e) => setQuickAddData({ ...quickAddData, notes: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows="3"
+                  placeholder="Ajoutez un commentaire..."
+                  disabled={creatingAbsence}
+                />
+              </div>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={cancelQuickAdd}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+                disabled={creatingAbsence}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleQuickAddSubmit}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors flex items-center justify-center"
+                disabled={creatingAbsence}
+              >
+                {creatingAbsence ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Création...
+                  </>
+                ) : (
+                  '✓ Créer l\'absence'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
