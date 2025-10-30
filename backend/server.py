@@ -4071,7 +4071,9 @@ async def delete_all_absences(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=f"Error deleting all absences: {str(e)}")
 
 @api_router.put("/absences/{absence_id}")
+@limiter.limit("10/minute")  # 🛡️ Rate limit: 10 absence updates per minute
 async def update_absence(
+    request: Request,
     absence_id: str,
     absence_data: dict,
     current_user: User = Depends(get_current_user)
