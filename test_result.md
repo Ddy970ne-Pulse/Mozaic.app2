@@ -1327,15 +1327,18 @@ test_plan:
 frontend:
   - task: "On-Call Schedule (Planning Astreintes) Frontend Integration Testing"
     implemented: true
-    working: "NA"
+    working: false
     file: "OnCallSchedule.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "critical"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "COMPREHENSIVE FRONTEND TESTING STARTED: Testing On-Call Schedule (Planning Astreintes) frontend integration for MOZAIK RH. Backend API implemented and tested (95.2% success). Critical fix implemented: weeks now start on Sunday and end on Saturday (dimanche → samedi). Testing with Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123). TESTS TO PERFORM: 1) Login and navigation to Planning Astreintes, 2) Calendar display verification (Sunday first, full weeks), 3) Week creation test (CRITICAL - Sunday start), 4) Single day creation test, 5) Data persistence test, 6) Employee color codes, 7) Delete functionality (admin only), 8) Month navigation, 9) API integration verification. SUCCESS CRITERIA: Login working, calendar displays correctly with Sunday first, week creation starts on SUNDAY regardless of selected date, creates exactly 7 days (Sunday → Saturday), single day creation works, data persists after reload, employee color codes displayed, delete functionality works, month navigation functional, API calls successful (no 404 errors), no JavaScript errors."
+      - working: false
+        agent: "testing"
+        comment: "ON-CALL SCHEDULE FRONTEND TESTING COMPLETED ❌ CRITICAL ISSUES IDENTIFIED: Comprehensive testing reveals 75% success rate with 2 critical failures preventing full functionality. SUCCESSFUL AREAS ✅: 1) LOGIN & NAVIGATION: Admin Diego DACALOR login (ddacalor@aaea-gpe.fr / admin123) working perfectly, hamburger menu navigation to Planning Astreintes functional, 2) CALENDAR DISPLAY: Sunday-first week headers confirmed (Dim, Lun, Mar, Mer, Jeu, Ven, Sam), full weeks displayed including previous/next month days (greyed out), calendar grid with 7 columns working correctly, 3) EMPLOYEE COLOR CODES: Legend section found with 'Couleurs par employé', 6 employee color indicators displayed, color system functional, 4) MONTH NAVIGATION: Previous/Next month buttons present and functional, 'Aujourd'hui' button working, month display updating correctly, 5) API INTEGRATION: No 404 errors detected, backend API responding, data loading from server. CRITICAL FAILURES ❌: 1) MODAL FUNCTIONALITY: + button appears on hover but modal does not open when clicked, astreinte creation form inaccessible, cannot test week/day creation logic, 2) DATA PERSISTENCE: Astreinte badges visible initially but disappear after page refresh, data not persisting between sessions, API data not loading consistently. MINOR ISSUES: WebSocket connection warnings (non-critical), right-click context menu for delete not appearing. ROOT CAUSE: Modal click handler may not be properly bound, data loading/persistence issues suggest API integration problems. IMPACT: Users cannot create new astreintes, existing data not reliable. RECOMMENDATION: Fix modal event handlers and investigate API data persistence issues."
 
   - task: "CP → CA Migration Complete Implementation"
     implemented: false
