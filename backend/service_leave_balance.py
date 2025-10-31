@@ -143,7 +143,9 @@ class LeaveBalanceService:
         Returns:
             ID de la transaction créée
         """
+        transaction_id = str(uuid.uuid4())
         transaction = {
+            "id": transaction_id,
             "user_id": user_id,
             "operation_type": operation_type,
             "leave_type": leave_type,
@@ -157,10 +159,10 @@ class LeaveBalanceService:
             "created_at": datetime.utcnow()
         }
         
-        result = await self.transactions_collection.insert_one(transaction)
+        await self.transactions_collection.insert_one(transaction)
         logger.info(f"📝 Transaction créée : {operation_type} {amount}j ({leave_type}) pour user {user_id}")
         
-        return str(result.inserted_id)
+        return transaction_id
     
     
     async def get_transaction_history(
