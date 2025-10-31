@@ -5,9 +5,12 @@ Ajoute le champ statut_cse à quelques utilisateurs existants pour tester le mod
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env from backend directory
+env_path = Path(__file__).parent / 'backend' / '.env'
+load_dotenv(env_path)
 
 async def init_cse_members():
     # Connexion MongoDB
