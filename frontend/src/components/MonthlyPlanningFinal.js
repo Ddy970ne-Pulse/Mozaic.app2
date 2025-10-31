@@ -355,51 +355,25 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const isInOnCallWeek = (employeeId, checkDate) => {
     const employeeOnCallData = onCallData[employeeId] || [];
     
-    // Pour chaque assignation d'astreinte de l'employé
-    for (const assignment of employeeOnCallData) {
-      const assignmentStart = new Date(assignment.startDate);
-      const assignmentEnd = new Date(assignment.endDate);
-      
-      // Calculer le début et la fin de la semaine d'astreinte (dimanche à samedi)
-      const checkDateObj = new Date(checkDate);
-      
-      // Trouver le dimanche de cette semaine d'astreinte
-      const weekStartDay = assignmentStart.getDay();
-      const weekStart = new Date(assignmentStart);
-      weekStart.setDate(assignmentStart.getDate() - weekStartDay);
-      
-      // Trouver le samedi de cette semaine d'astreinte  
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      
-      // Vérifier si la date à tester est dans cette semaine d'astreinte
-      if (checkDateObj >= weekStart && checkDateObj <= weekEnd) {
-        return true;
-      }
-    }
+    // Formater checkDate en YYYY-MM-DD pour comparaison
+    const checkDateObj = new Date(checkDate);
+    const checkDateStr = `${checkDateObj.getFullYear()}-${String(checkDateObj.getMonth() + 1).padStart(2, '0')}-${String(checkDateObj.getDate()).padStart(2, '0')}`;
     
-    return false;
+    // Vérifier si cette date fait partie des jours d'astreinte de cet employé
+    return employeeOnCallData.some(assignment => assignment.startDate === checkDateStr);
   };
 
   // Nouvelle fonction : Récupérer l'employé d'astreinte pour une date donnée
   const getOnCallEmployeeForDate = (checkDate) => {
+    // Formater checkDate en YYYY-MM-DD pour comparaison
+    const checkDateObj = new Date(checkDate);
+    const checkDateStr = `${checkDateObj.getFullYear()}-${String(checkDateObj.getMonth() + 1).padStart(2, '0')}-${String(checkDateObj.getDate()).padStart(2, '0')}`;
+    
     // Parcourir tous les employés qui ont des astreintes
     for (const [employeeId, assignments] of Object.entries(onCallData)) {
       for (const assignment of assignments) {
-        const assignmentStart = new Date(assignment.startDate);
-        const assignmentEnd = new Date(assignment.endDate);
-        const checkDateObj = new Date(checkDate);
-        
-        // Calculer le début et la fin de la semaine d'astreinte
-        const weekStartDay = assignmentStart.getDay();
-        const weekStart = new Date(assignmentStart);
-        weekStart.setDate(assignmentStart.getDate() - weekStartDay);
-        
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 6);
-        
-        // Vérifier si la date est dans cette semaine d'astreinte
-        if (checkDateObj >= weekStart && checkDateObj <= weekEnd) {
+        // Vérifier si la date correspond
+        if (assignment.startDate === checkDateStr) {
           return {
             employeeId: employeeId,
             employeeName: assignment.employeeName,
