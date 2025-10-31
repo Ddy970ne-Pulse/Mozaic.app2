@@ -241,104 +241,180 @@ class OnCallScheduleAPITester:
         except Exception as e:
             self.log_result("get_endpoints", "GET assignments invalid date format", False, f"Exception: {str(e)}")
 
-    def test_phase3_rate_limiting(self):
-        """PHASE 3: Rate Limiting - Test rate limits on critical endpoints"""
-        print(f"\n⚡ PHASE 3 - RATE LIMITING")
+    def test_post_endpoints(self):
+        """Test POST endpoints for creating on-call schedules"""
+        print(f"\n➕ POST ENDPOINTS TESTING")
         print("=" * 60)
         
-        # Test 1: Login Rate Limit (5/minute)
-        print(f"\n🔐 Test 1: Login Rate Limit (5/minute)")
+        # Test 1: POST /api/on-call/schedule/bulk (bulk creation)
+        print(f"\n📋 Test 1: POST /api/on-call/schedule/bulk (bulk creation)")
         
-        login_attempts = []
-        for i in range(6):  # Try 6 attempts, 6th should be rate limited
-            response = requests.post(f"{BACKEND_URL}/auth/login", json={
-                "email": ADMIN_EMAIL,
-                "password": ADMIN_PASSWORD
-            })
-            login_attempts.append(response.status_code)
-            print(f"   Attempt {i+1}: {response.status_code}")
-            
-            # Check for rate limit headers
-            if 'X-RateLimit-Limit' in response.headers:
-                print(f"     Rate Limit Headers: Limit={response.headers.get('X-RateLimit-Limit')}, "
-                      f"Remaining={response.headers.get('X-RateLimit-Remaining')}")
-        
-        # Check if 6th request was rate limited
-        if login_attempts[5] == 429:
-            print(f"✅ Login rate limit working (6th request = 429)")
-            self.log_result("phase3_rate_limiting", "Login rate limit enforced", True, 
-                           f"6th login attempt properly rate limited with 429")
-        else:
-            self.log_result("phase3_rate_limiting", "Login rate limit enforced", False, 
-                           f"6th login attempt got {login_attempts[5]}, expected 429")
-        
-        # Wait a bit before next test
-        print(f"⏳ Waiting 60 seconds for rate limit reset...")
-        time.sleep(60)
-        
-        # Test 2: User Creation Rate Limit (5/minute)
-        print(f"\n👤 Test 2: User Creation Rate Limit (5/minute)")
-        
-        user_creation_attempts = []
-        for i in range(6):
-            user_data = {
-                "name": f"Test User {i}",
-                "email": f"testuser{i}@example.com",
-                "password": "admin123",
-                "department": "Test Dept"
+        try:
+            # Create test data for bulk creation (7 schedules for one week)
+            bulk_data = {
+                "schedules": [
+                    {
+                        "employee_id": self.user_id,
+                        "employee_name": "Diego DACALOR",
+                        "date": "2025-01-15",
+                        "type": "Astreinte semaine",
+                        "notes": "Test astreinte week 1"
+                    },
+                    {
+                        "employee_id": self.user_id,
+                        "employee_name": "Diego DACALOR", 
+                        "date": "2025-01-16",
+                        "type": "Astreinte jour",
+                        "notes": "Test astreinte day 2"
+                    }
+                ]
             }
             
-            response = self.session.post(f"{BACKEND_URL}/users", json=user_data)
-            user_creation_attempts.append(response.status_code)
-            print(f"   Attempt {i+1}: {response.status_code}")
+            response = self.session.post(f"{BACKEND_URL}/on-call/schedule/bulk", json=bulk_data)
             
-            # Clean up created users (if successful)
-            if response.status_code == 200:
-                user_id = response.json().get("temp_password", {})
-                # Note: We can't easily delete users in this test, but that's OK for rate limit testing
+            if response.status_code == 201:
+                data = response.json()
+                print(f"✅ Bulk creation successful (201) - Created {len(data)} schedules")
+                
+                # Track created schedules for cleanup
+                for schedule in data:
+                    if schedule.get("id"):
+                        self.created_schedule_ids.append(schedule["id"])
+                
+                # Verify response structure
+                if len(data) == 2 and all("id" in s and "created_at" in s and "created_by" in s for s in data):
+                    self.log_result("post_endpoints", "POST bulk creation", True,
+                                   f"Successfully created {len(data)} schedules with proper structure")
+                else:
+                    self.log_result("post_endpoints", "POST bulk creation", False,
+                                   "Response structure incomplete")
+            else:
+                self.log_result("post_endpoints", "POST bulk creation", False,
+                               f"Expected 201, got {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_result("post_endpoints", "POST bulk creation", False, f"Exception: {str(e)}")
         
-        # Check if 6th request was rate limited
-        if user_creation_attempts[5] == 429:
-            print(f"✅ User creation rate limit working (6th request = 429)")
-            self.log_result("phase3_rate_limiting", "User creation rate limit enforced", True, 
-                           f"6th user creation properly rate limited with 429")
-        else:
-            self.log_result("phase3_rate_limiting", "User creation rate limit enforced", False, 
-                           f"6th user creation got {user_creation_attempts[5]}, expected 429")
+        # Test 2: POST /api/on-call/schedule/bulk (duplicate prevention)
+        print(f"\n📋 Test 2: POST /api/on-call/schedule/bulk (duplicate prevention)")
         
-        # Test 3: Absence Creation Rate Limit (10/minute)
-        print(f"\n📅 Test 3: Absence Creation Rate Limit (10/minute)")
+        try:
+            # Try to create the same schedules again
+            duplicate_data = {
+                "schedules": [
+                    {
+                        "employee_id": self.user_id,
+                        "employee_name": "Diego DACALOR",
+                        "date": "2025-01-15",
+                        "type": "Astreinte semaine",
+                        "notes": "Duplicate test"
+                    }
+                ]
+            }
+            
+            response = self.session.post(f"{BACKEND_URL}/on-call/schedule/bulk", json=duplicate_data)
+            
+            if response.status_code == 201:
+                data = response.json()
+                print(f"✅ Duplicate prevention working - Returned existing schedule")
+                self.log_result("post_endpoints", "POST duplicate prevention", True,
+                               "Duplicate schedule returned existing instead of error")
+            else:
+                self.log_result("post_endpoints", "POST duplicate prevention", False,
+                               f"Expected 201, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("post_endpoints", "POST duplicate prevention", False, f"Exception: {str(e)}")
         
-        absence_attempts = []
-        for i in range(11):  # Try 11 attempts, 11th should be rate limited
-            absence_data = {
+        # Test 3: POST /api/on-call/schedule (single schedule creation)
+        print(f"\n📋 Test 3: POST /api/on-call/schedule (single schedule)")
+        
+        try:
+            single_schedule = {
                 "employee_id": self.user_id,
                 "employee_name": "Diego DACALOR",
-                "email": ADMIN_EMAIL,
-                "motif_absence": "CA",
-                "jours_absence": "1",
-                "date_debut": f"0{(i%9)+1}/01/2025",  # Vary dates
-                "notes": f"Rate limit test {i+1}"
+                "date": "2025-01-20",
+                "type": "Astreinte jour",
+                "notes": "Single schedule test"
             }
             
-            response = self.session.post(f"{BACKEND_URL}/absences", json=absence_data)
-            absence_attempts.append(response.status_code)
-            print(f"   Attempt {i+1}: {response.status_code}")
+            response = self.session.post(f"{BACKEND_URL}/on-call/schedule", json=single_schedule)
             
-            # Clean up created absences
-            if response.status_code == 200:
-                absence_id = response.json().get("id")
-                if absence_id:
-                    self.session.delete(f"{BACKEND_URL}/absences/{absence_id}")
+            if response.status_code == 201:
+                data = response.json()
+                print(f"✅ Single schedule creation successful (201)")
+                
+                # Track for cleanup
+                if data.get("id"):
+                    self.created_schedule_ids.append(data["id"])
+                
+                self.log_result("post_endpoints", "POST single schedule", True,
+                               "Single schedule created successfully")
+            else:
+                self.log_result("post_endpoints", "POST single schedule", False,
+                               f"Expected 201, got {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_result("post_endpoints", "POST single schedule", False, f"Exception: {str(e)}")
         
-        # Check if 11th request was rate limited
-        if absence_attempts[10] == 429:
-            print(f"✅ Absence creation rate limit working (11th request = 429)")
-            self.log_result("phase3_rate_limiting", "Absence creation rate limit enforced", True, 
-                           f"11th absence creation properly rate limited with 429")
-        else:
-            self.log_result("phase3_rate_limiting", "Absence creation rate limit enforced", False, 
-                           f"11th absence creation got {absence_attempts[10]}, expected 429")
+        # Test 4: Data validation (invalid date format)
+        print(f"\n📋 Test 4: POST data validation (invalid date)")
+        
+        try:
+            invalid_data = {
+                "employee_id": self.user_id,
+                "employee_name": "Diego DACALOR",
+                "date": "invalid-date",
+                "type": "Astreinte jour",
+                "notes": "Invalid date test"
+            }
+            
+            response = self.session.post(f"{BACKEND_URL}/on-call/schedule", json=invalid_data)
+            
+            if response.status_code == 422:
+                print(f"✅ Invalid date format rejected (422)")
+                self.log_result("post_endpoints", "POST invalid date validation", True,
+                               "Invalid date format properly rejected")
+            else:
+                self.log_result("post_endpoints", "POST invalid date validation", False,
+                               f"Expected 422, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("post_endpoints", "POST invalid date validation", False, f"Exception: {str(e)}")
+        
+        # Test 5: Type validation and normalization
+        print(f"\n📋 Test 5: POST type validation and normalization")
+        
+        try:
+            type_test_data = {
+                "employee_id": self.user_id,
+                "employee_name": "Diego DACALOR",
+                "date": "2025-01-25",
+                "type": "semaine",  # Should be normalized to "Astreinte semaine"
+                "notes": "Type normalization test"
+            }
+            
+            response = self.session.post(f"{BACKEND_URL}/on-call/schedule", json=type_test_data)
+            
+            if response.status_code == 201:
+                data = response.json()
+                if data.get("type") == "Astreinte semaine":
+                    print(f"✅ Type normalization working ('semaine' → 'Astreinte semaine')")
+                    self.log_result("post_endpoints", "POST type normalization", True,
+                                   "Type properly normalized from 'semaine' to 'Astreinte semaine'")
+                    
+                    # Track for cleanup
+                    if data.get("id"):
+                        self.created_schedule_ids.append(data["id"])
+                else:
+                    self.log_result("post_endpoints", "POST type normalization", False,
+                                   f"Type not normalized: {data.get('type')}")
+            else:
+                self.log_result("post_endpoints", "POST type normalization", False,
+                               f"Expected 201, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("post_endpoints", "POST type normalization", False, f"Exception: {str(e)}")
 
     def test_security_bypass_attempts(self):
         """Security Bypass Tests - Attempt to bypass security measures"""
