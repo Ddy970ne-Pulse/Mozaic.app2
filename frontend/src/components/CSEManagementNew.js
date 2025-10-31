@@ -22,8 +22,10 @@ const CSEManagementNew = ({ user }) => {
     usage_date: '',
     reason: ''
   });
+  const [delegates, setDelegates] = useState([]); // AJOUT: Liste complète des délégués avec heures
 
-  const creditMensuelBase = 10; // CCN66: 50-150 salariés
+  // SUPPRESSION: creditMensuelBase codé en dur
+  // const creditMensuelBase = 10; // Ancien commentaire obsolète
 
   useEffect(() => {
     fetchData();
