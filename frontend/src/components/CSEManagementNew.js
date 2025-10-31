@@ -653,11 +653,26 @@ const CSEManagementNew = ({ user }) => {
                     type="date"
                     required
                     value={cessionData.usage_date}
-                    onChange={(e) => setCessionData({ ...cessionData, usage_date: e.target.value })}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      setCessionData({ ...cessionData, usage_date: newDate });
+                      
+                      // Vérifier si délai < 8 jours
+                      const today = new Date();
+                      const selectedDate = new Date(newDate);
+                      const daysDiff = Math.ceil((selectedDate - today) / (1000 * 60 * 60 * 24));
+                      
+                      if (daysDiff < 8) {
+                        setShowUrgenceField(true);
+                      } else {
+                        setShowUrgenceField(false);
+                        setCessionData(prev => ({ ...prev, justification_urgence: '', delai_inferieur_8jours: false }));
+                      }
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                   />
                   <p className="text-xs text-gray-600 mt-1">
-                    ℹ️ Employeur informé 8j avant
+                    ℹ️ Employeur informé 8j avant (exceptions possibles avec justification)
                   </p>
                 </div>
               </div>
