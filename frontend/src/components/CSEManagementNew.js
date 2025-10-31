@@ -189,6 +189,10 @@ const CSEManagementNew = ({ user }) => {
 
       // Soumettre la cession
       const token = localStorage.getItem('token');
+      
+      // Calculer si délai < 8 jours
+      const delaiInferieur = daysDiff < 8;
+      
       const body = {
         from_id: cessionData.from_id,
         from_name: cedant.user_name,
@@ -198,6 +202,8 @@ const CSEManagementNew = ({ user }) => {
         hours: parseFloat(cessionData.hours),
         usage_date: cessionData.usage_date,
         reason: cessionData.reason,
+        delai_inferieur_8jours: delaiInferieur,
+        justification_urgence: delaiInferieur ? cessionData.justification_urgence : null,
         created_by: user.name
       };
       
