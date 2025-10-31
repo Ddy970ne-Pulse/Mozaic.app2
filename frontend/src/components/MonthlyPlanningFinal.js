@@ -2662,7 +2662,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
             <button
               onClick={() => {
                 setMultiSelectMode(!multiSelectMode);
-                setAddAbsenceMode(false);
                 if (!multiSelectMode) {
                   clearEmployeeSelection();
                 }
