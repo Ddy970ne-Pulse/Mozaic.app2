@@ -194,84 +194,61 @@ class CSERegressionTester:
         except Exception as e:
             self.log_result("external_cession_is_external", "POST cession externe", False, f"Exception: {str(e)}")
 
-    def test_cse_cessions_internal(self):
-        """Test 2: Cession vers Membre CSE (existant) - POST /api/cse/cessions"""
-        print(f"\n🔄 TEST 2: CESSION VERS MEMBRE CSE (EXISTANT)")
+    def test_company_settings_no_500_error(self):
+        """Test 2: Endpoint company-settings ne doit PAS retourner erreur 500"""
+        print(f"\n🏢 TEST 2: ENDPOINT COMPANY-SETTINGS (PAS D'ERREUR 500)")
         print("=" * 60)
         
-        # D'abord, récupérer les IDs des délégués pour les utiliser dans les cessions
         try:
-            delegates_response = self.session.get(f"{BACKEND_URL}/cse/delegates")
-            if delegates_response.status_code != 200:
-                self.log_result("cse_cessions_internal", "Récupération délégués pour cession", False,
-                               "Impossible de récupérer les délégués")
-                return
+            response = self.session.get(f"{BACKEND_URL}/company-settings")
             
-            delegates = delegates_response.json()
+            print(f"📤 GET /api/company-settings")
+            print(f"📥 Status Code: {response.status_code}")
             
-            # Trouver Jacques EDAU et Thierry MARTIAS
-            jacques_id = None
-            thierry_id = None
-            
-            for delegate in delegates:
-                name = delegate.get("user_name", "")
-                if "Jacques" in name and "EDAU" in name:
-                    jacques_id = delegate.get("user_id")
-                elif "Thierry" in name and "MARTIAS" in name:
-                    thierry_id = delegate.get("user_id")
-            
-            if not jacques_id or not thierry_id:
-                self.log_result("cse_cessions_internal", "IDs délégués trouvés", False,
-                               f"Jacques ID: {jacques_id}, Thierry ID: {thierry_id}")
-                return
-            
-            print(f"✅ IDs délégués trouvés - Jacques: {jacques_id[:8]}..., Thierry: {thierry_id[:8]}...")
-            
-            # Test de cession entre membres CSE existants
-            cession_data = {
-                "from_id": jacques_id,
-                "from_name": "Jacques EDAU",
-                "to_id": thierry_id,
-                "to_name": "Thierry MARTIAS",
-                "is_external": False,
-                "hours": 5,
-                "usage_date": "2025-02-15",
-                "reason": "Test cession membre CSE",
-                "created_by": "Test"
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/cse/cessions", json=cession_data)
-            
-            if response.status_code in [200, 201]:
-                data = response.json()
-                print(f"✅ Cession créée avec succès ({response.status_code})")
-                print(f"   De: {data.get('from_name')} → Vers: {data.get('to_name')}")
-                print(f"   Heures: {data.get('hours')}h, Date: {data.get('usage_date')}")
-                
-                # Tracker pour cleanup
-                if data.get("id"):
-                    self.created_cession_ids.append(data["id"])
-                
-                self.log_result("cse_cessions_internal", "POST cession membre CSE", True,
-                               f"Cession créée: {data.get('from_name')} → {data.get('to_name')} ({data.get('hours')}h)")
-                
-                # Vérifier la structure de la réponse
-                required_fields = ["id", "from_id", "from_name", "to_id", "to_name", "hours", "usage_date", "reason", "created_by"]
-                missing_fields = [field for field in required_fields if field not in data]
-                
-                if not missing_fields:
-                    self.log_result("cse_cessions_internal", "Structure réponse cession", True,
-                                   "Tous les champs requis présents")
-                else:
-                    self.log_result("cse_cessions_internal", "Structure réponse cession", False,
-                                   f"Champs manquants: {missing_fields}")
-                
+            # **VÉRIFICATION CRITIQUE** : Ne doit PAS retourner erreur 500
+            if response.status_code != 500:
+                self.log_result("company_settings_no_500", "Pas d'erreur 500", True,
+                               f"Status code {response.status_code} (pas 500)")
             else:
-                self.log_result("cse_cessions_internal", "POST cession membre CSE", False,
-                               f"Expected 200/201, got {response.status_code}: {response.text}")
+                self.log_result("company_settings_no_500", "Pas d'erreur 500", False,
+                               f"Erreur 500 retournée: {response.text}")
+                return
+            
+            if response.status_code == 200:
+                try:
+                    settings = response.json()
+                    print(f"✅ JSON valide retourné")
+                    print(f"   Contenu: {json.dumps(settings, indent=2)}")
+                    
+                    # Doit retourner JSON avec effectif, nom_entreprise, accord_entreprise_heures_cse
+                    required_fields = ["effectif", "nom_entreprise", "accord_entreprise_heures_cse"]
+                    missing_fields = [field for field in required_fields if field not in settings]
+                    
+                    if not missing_fields:
+                        self.log_result("company_settings_no_500", "Champs requis présents", True,
+                                       f"Tous les champs requis présents: {required_fields}")
+                    else:
+                        self.log_result("company_settings_no_500", "Champs requis présents", False,
+                                       f"Champs manquants: {missing_fields}")
+                    
+                    # Vérifier effectif = 250
+                    effectif = settings.get("effectif")
+                    if effectif == 250:
+                        self.log_result("company_settings_no_500", "Effectif = 250", True,
+                                       f"Effectif correct: {effectif}")
+                    else:
+                        self.log_result("company_settings_no_500", "Effectif = 250", False,
+                                       f"Effectif attendu: 250, trouvé: {effectif}")
+                    
+                except json.JSONDecodeError as e:
+                    self.log_result("company_settings_no_500", "JSON valide", False,
+                                   f"Réponse n'est pas du JSON valide: {str(e)}")
+            else:
+                self.log_result("company_settings_no_500", "Status 200", False,
+                               f"Status {response.status_code} au lieu de 200: {response.text}")
                 
         except Exception as e:
-            self.log_result("cse_cessions_internal", "POST cession membre CSE", False, f"Exception: {str(e)}")
+            self.log_result("company_settings_no_500", "GET company-settings", False, f"Exception: {str(e)}")
 
     def test_cse_cessions_external(self):
         """Test 3: Cession vers Personne Externe (NOUVEAU - PRIORITAIRE) - POST /api/cse/cessions"""
