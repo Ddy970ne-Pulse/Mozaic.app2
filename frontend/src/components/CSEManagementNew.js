@@ -184,9 +184,9 @@ const CSEManagementNew = ({ user }) => {
       const token = localStorage.getItem('token');
       const body = {
         from_id: cessionData.from_id,
-        from_name: cedant.name,
+        from_name: cedant.user_name,
         to_id: cessionData.is_external ? 'external' : cessionData.to_id,
-        to_name: cessionData.is_external ? cessionData.to_name : [...titulaires, ...suppleants].find(m => m.id === cessionData.to_id)?.name,
+        to_name: cessionData.is_external ? cessionData.to_name : [...titulaires, ...suppleants].find(m => m.user_id === cessionData.to_id)?.user_name,
         is_external: cessionData.is_external,
         hours: parseFloat(cessionData.hours),
         usage_date: cessionData.usage_date,
