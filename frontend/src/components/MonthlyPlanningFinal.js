@@ -2358,7 +2358,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                   </tr>
                   
                   {nonCadres.map((employee, index) => {
-                    const isSelected = multiSelectMode && selectedEmployees.find(e => e.id === employee.id);
                     const isActiveInAddMode = addAbsenceMode && selectedEmployee?.id === employee.id;
                     
                     return (
@@ -2367,11 +2366,9 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                         className={`border border-gray-200 px-3 py-2 sticky left-0 z-10 transition-all duration-150 ${
                           isActiveInAddMode
                             ? 'bg-purple-100 ring-2 ring-purple-400'
-                            : isSelected
-                            ? 'bg-blue-100 ring-2 ring-blue-400'
                             : 'bg-white'
                         } ${
-                          addAbsenceMode || multiSelectMode ? 'cursor-pointer hover:bg-purple-50' : ''
+                          addAbsenceMode ? 'cursor-pointer hover:bg-purple-50' : ''
                         }`}
                         onClick={() => handleEmployeeClick(employee)}
                       >
@@ -2379,11 +2376,9 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                           <span className={`mr-2 ${
                             isActiveInAddMode
                               ? 'text-purple-600 text-lg'
-                              : isSelected
-                              ? 'text-blue-600 text-lg'
                               : 'text-purple-600'
                           }`}>
-                            {isActiveInAddMode || isSelected ? '✓' : '●'}
+                            {isActiveInAddMode ? '✓' : '●'}
                           </span>
                           {employee.name}
                         </div>
