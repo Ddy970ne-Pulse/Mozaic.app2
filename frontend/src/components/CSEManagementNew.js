@@ -519,7 +519,7 @@ const CSEManagementNew = ({ user }) => {
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
               <h2 className="text-xl font-bold">🔄 Nouvelle Cession d'Heures</h2>
-              <p className="text-sm text-purple-100 mt-1">Mutualisation conforme CCN66</p>
+              <p className="text-sm text-purple-100 mt-1">Mutualisation entre membres CSE - Conforme réglementation</p>
             </div>
 
             <form onSubmit={handleSubmitCession} className="p-6 space-y-6">
