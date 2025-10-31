@@ -1,28 +1,33 @@
 #!/usr/bin/env python3
 """
-COMPREHENSIVE SECURITY ENHANCEMENTS TESTING - OPTION A: SÉCURITÉ CRITIQUE
+COMPREHENSIVE ON-CALL SCHEDULE BACKEND API TESTING
 
-OBJECTIF: Test complet des améliorations de sécurité critiques implémentées dans MOZAIK RH
+OBJECTIF: Test complet de l'API backend Planning Astreintes nouvellement implémentée pour MOZAIK RH
 USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)
 
-PHASES DE SÉCURITÉ À TESTER:
-PHASE 1: SECRET_KEY Validation ✅ (Backend refuse de démarrer sans SECRET_KEY sécurisé)
-PHASE 2: Strict Pydantic Validation (TO TEST)
-PHASE 3: Rate Limiting (TO TEST)
+API ENDPOINTS À TESTER:
+1. GET /api/on-call/schedule - Retrieve schedules with filtering
+2. POST /api/on-call/schedule/bulk - Create multiple schedules (week-long)
+3. GET /api/on-call/assignments - Date range filtering for Monthly Planning
+4. DELETE /api/on-call/schedule/{id} - Delete schedule
+5. PUT /api/on-call/schedule/{id} - Update schedule
 
 TESTS CRITIQUES:
-1. Rate limiting on login endpoint (CRITICAL - prevents brute force)
-2. Password validation (CRITICAL - security)  
-3. Rate limiting on absence/user creation
-4. Email validation
-5. Input sanitization (length limits, patterns)
+1. Authentication required for all endpoints (403 without token)
+2. Bulk creation creates multiple schedules correctly
+3. Duplicate prevention works (returns existing schedule)
+4. GET endpoints filter correctly by month/year and date range
+5. DELETE removes schedules permanently
+6. PUT updates schedules correctly
+7. MongoDB persistence verified (data survives operations)
+8. Proper error handling (404 for not found, 400 for validation errors)
 
 EXPECTED OUTCOMES:
-- All validation rules properly enforced
-- Clear error messages for validation failures
-- Rate limits applied correctly with 429 responses
-- Rate limit headers present in responses
-- No security bypasses possible
+- All endpoints respond with correct HTTP status codes
+- Authentication required for all endpoints (403/401 without token)
+- Data validation working (date format, type validation)
+- MongoDB persistence working correctly
+- Proper error responses for edge cases
 """
 
 import requests
