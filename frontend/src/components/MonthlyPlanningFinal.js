@@ -1421,6 +1421,8 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     try {
       const token = localStorage.getItem('token');
       
+      console.log('🗑️ Tentative de suppression:', selectedAbsenceForEdit);
+      
       // Trouver l'ID de l'absence dans la base
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/absences`,
@@ -1433,12 +1435,28 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       
       if (response.ok) {
         const absences = await response.json();
+        console.log('📋 Absences récupérées:', absences.length);
+        
+        // Convertir la date YYYY-MM-DD en DD/MM/YYYY pour la comparaison
+        const dateKey = selectedAbsenceForEdit.date; // Format: YYYY-MM-DD
+        const [year, month, day] = dateKey.split('-');
+        const dateFormatted = `${day}/${month}/${year}`; // Format: DD/MM/YYYY
+        
+        console.log('🔍 Recherche absence:', {
+          employee_id: selectedAbsenceForEdit.employee.id,
+          date_debut_format1: dateKey,
+          date_debut_format2: dateFormatted
+        });
+        
+        // Chercher l'absence avec les deux formats possibles
         const absenceToDelete = absences.find(a => 
           a.employee_id === selectedAbsenceForEdit.employee.id &&
-          a.date_debut === selectedAbsenceForEdit.date
+          (a.date_debut === dateKey || a.date_debut === dateFormatted)
         );
         
         if (absenceToDelete) {
+          console.log('✅ Absence trouvée:', absenceToDelete);
+          
           const deleteResponse = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/api/absences/${absenceToDelete.id}`,
             {
@@ -1460,7 +1478,14 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
             alert(successMessage);
             console.log('✅ Résultat suppression:', result);
             loadAbsences();
+          } else {
+            console.error('❌ Erreur DELETE:', await deleteResponse.text());
+            alert('❌ Erreur lors de la suppression');
           }
+        } else {
+          console.error('❌ Absence non trouvée dans la base');
+          console.log('Absences disponibles:', absences.filter(a => a.employee_id === selectedAbsenceForEdit.employee.id));
+          alert('❌ Absence non trouvée');
         }
       }
     } catch (error) {
