@@ -8,14 +8,27 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 from datetime import datetime, date
-from motor.motor_asyncio import AsyncIOMotorDatabase
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 import uuid
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 security = HTTPBearer()
 
 router = APIRouter(prefix="/api/on-call", tags=["on-call"])
+
+
+# ========================
+# Database Dependency
+# ========================
+
+async def get_database() -> AsyncIOMotorDatabase:
+    """Get database connection"""
+    mongo_url = os.environ['MONGO_URL']
+    client = AsyncIOMotorClient(mongo_url)
+    db = client[os.environ['DB_NAME']]
+    return db
 
 
 # ========================
