@@ -372,17 +372,32 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   const isInOnCallWeek = (employeeId, checkDate) => {
     const employeeOnCallData = onCallData[employeeId] || [];
     
-    // Formater checkDate en YYYY-MM-DD pour comparaison
+    // Normaliser la date à vérifier en format YYYY-MM-DD
     const checkDateObj = new Date(checkDate);
     const checkDateStr = `${checkDateObj.getFullYear()}-${String(checkDateObj.getMonth() + 1).padStart(2, '0')}-${String(checkDateObj.getDate()).padStart(2, '0')}`;
     
-    // ✅ CORRECTIF B : Normaliser la date de l'assignation avant comparaison
     // Vérifier si cette date fait partie des jours d'astreinte de cet employé
     const result = employeeOnCallData.some(assignment => {
-      // Normaliser assignment.startDate (au cas où il contiendrait un timestamp)
-      let assignmentDateStr = assignment.startDate;
-      if (assignmentDateStr && assignmentDateStr.includes('T')) {
-        assignmentDateStr = assignmentDateStr.split('T')[0];
+      // 🔧 FIX : Normaliser assignment.startDate de manière robuste
+      let assignmentDateStr;
+      
+      // Si assignment.startDate est déjà en format YYYY-MM-DD
+      if (typeof assignment.startDate === 'string' && assignment.startDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        assignmentDateStr = assignment.startDate;
+      }
+      // Si c'est un format ISO complet (2025-10-12T00:00:00Z)
+      else if (typeof assignment.startDate === 'string' && assignment.startDate.includes('T')) {
+        const dateObj = new Date(assignment.startDate);
+        assignmentDateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+      }
+      // Si c'est un objet Date
+      else if (assignment.startDate instanceof Date) {
+        assignmentDateStr = `${assignment.startDate.getFullYear()}-${String(assignment.startDate.getMonth() + 1).padStart(2, '0')}-${String(assignment.startDate.getDate()).padStart(2, '0')}`;
+      }
+      // Sinon essayer de parser
+      else {
+        const dateObj = new Date(assignment.startDate);
+        assignmentDateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
       }
       
       return assignmentDateStr === checkDateStr;
