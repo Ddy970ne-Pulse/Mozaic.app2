@@ -151,16 +151,51 @@
 #====================================================================================================
 
 user_problem_statement: |
-  TEST COMPLET DE LA MIGRATION DES DONNÉES DE TEST - PHASES 1+2+3
+  ON-CALL SCHEDULE BACKEND API IMPLEMENTATION
   
-  OBJECTIF: Vérifier que toutes les modifications de la migration complète fonctionnent correctement.
+  OBJECTIF: Implement backend API for Planning Astreintes module to enable data persistence and full functionality.
   USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)
   
-  TESTS CRITIQUES:
-  1. PHASE 1 - SUPPRESSION FICHIERS TEST
-  2. PHASE 2 - ANALYTICS RÉELLES  
-  3. PHASE 3 - ABSENCE TYPES EN BDD
-  4. PHASE 4 - INTÉGRATION CRÉATION ABSENCE
+  IMPLEMENTATION COMPLETED:
+  1. Created new backend file: api_on_call.py with Pydantic models and endpoints
+  2. Implemented GET /api/on-call/schedule (with month/year/employee_id filtering)
+  3. Implemented GET /api/on-call/assignments (with startDate/endDate filtering for Monthly Planning integration)
+  4. Implemented POST /api/on-call/schedule (single schedule creation)
+  5. Implemented POST /api/on-call/schedule/bulk (bulk creation for week-long schedules)
+  6. Implemented DELETE /api/on-call/schedule/{schedule_id}
+  7. Implemented PUT /api/on-call/schedule/{schedule_id} (update schedule)
+  8. Added MongoDB collection: on_call_schedules
+  9. Integrated router into server.py
+  10. Updated frontend OnCallSchedule.js to call backend API instead of local state
+  11. Updated handleQuickAddSubmit to use POST /api/on-call/schedule/bulk
+  12. Updated handleDelete to use DELETE /api/on-call/schedule/{schedule_id}
+  
+  DATA STRUCTURE:
+  - id: UUID string
+  - employee_id: UUID of employee
+  - employee_name: Full name
+  - date: ISO date string (YYYY-MM-DD)
+  - type: "Astreinte semaine" or "Astreinte jour"
+  - notes: Optional notes
+  - created_at: ISO datetime
+  - created_by: User email
+  
+  BACKEND FILES MODIFIED:
+  - /app/backend/api_on_call.py (NEW)
+  - /app/backend/server.py (added router import and include)
+  
+  FRONTEND FILES MODIFIED:
+  - /app/frontend/src/components/OnCallSchedule.js (API integration)
+  
+  TESTS TO PERFORM:
+  1. GET /api/on-call/schedule with month/year filtering
+  2. POST /api/on-call/schedule/bulk for week creation
+  3. DELETE /api/on-call/schedule/{id}
+  4. GET /api/on-call/assignments with date range
+  5. Verify MongoDB persistence
+  6. Test duplicate prevention
+  7. Test authentication requirement
+  8. Frontend integration: create, view, delete schedules
   
   USER PRIORITIES:
   1. Test WebSocket real-time synchronization implementation (IMMEDIATE)
