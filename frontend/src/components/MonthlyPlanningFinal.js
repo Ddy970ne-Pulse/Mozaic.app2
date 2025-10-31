@@ -2398,27 +2398,27 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                               }}
                               onMouseLeave={() => setHoveredCell(null)}
                             >
-                              {/* Bouton + pour ajout rapide (visible pour admin/manager si case vide) */}
-                              {!displayCode && user.role !== 'employee' && (
+                              {/* Bouton + pour ajout rapide (visible au survol pour admin/manager si case vide) */}
+                              {!displayCode && user.role !== 'employee' && hoveredCell?.employeeId === employee.id && hoveredCell?.date === `${dateObj.year}-${dateObj.month}-${dateObj.day}` && (
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     openQuickAddModal(employee, dateObj);
                                   }}
-                                  className="absolute inset-0 flex items-center justify-center bg-blue-500/20 hover:bg-blue-500/90 text-blue-600 hover:text-white font-bold text-2xl transition-all duration-150 rounded group"
+                                  className="absolute inset-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-bold text-2xl transition-all duration-150 rounded"
                                   title="Ajouter une absence"
                                 >
-                                  <span className="opacity-30 group-hover:opacity-100 transition-opacity">+</span>
+                                  +
                                 </button>
                               )}
                               
                               {codeInfo && (
-                                <span 
-                                  className={`${codeInfo.color} ${codeInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help`}
+                                <div 
+                                  className={`absolute inset-0 ${codeInfo.color} ${codeInfo.textColor} flex items-center justify-center rounded cursor-help`}
                                   title={`${codeInfo.name} - ${employee.name} - ${codeInfo.type} - ${codeInfo.decompte}${hasOnCall && absence ? ' + Astreinte semaine' : ''}\n\nClic droit pour modifier/supprimer`}
                                 >
-                                  {displayCode}
-                                </span>
+                                  <span className="font-bold text-sm">{displayCode}</span>
+                                </div>
                               )}
                             </td>
                           );
