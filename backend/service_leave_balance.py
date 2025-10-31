@@ -57,6 +57,7 @@ class LeaveBalanceService:
         if not balance:
             # Créer un nouveau solde avec valeurs par défaut
             balance = {
+                "id": str(uuid.uuid4()),
                 "user_id": user_id,
                 "fiscal_year": fiscal_year,
                 "ca_balance": 25.0,  # Défaut : 25 jours CA
@@ -67,7 +68,6 @@ class LeaveBalanceService:
             }
             
             result = await self.balances_collection.insert_one(balance)
-            balance["_id"] = result.inserted_id
             
             logger.info(f"✅ Solde créé pour user {user_id} (année {fiscal_year})")
         
