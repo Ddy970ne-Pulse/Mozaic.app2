@@ -385,52 +385,74 @@ class CSEModuleTester:
             self.log_result("cse_cessions_external", "POST cession externe", False, f"Exception: {str(e)}")
 
     def test_cse_cessions_list(self):
-        """Test DELETE endpoints for on-call schedules"""
-        print(f"\n🗑️ DELETE ENDPOINTS TESTING")
+        """Test 4: Vérification Liste Cessions - GET /api/cse/cessions"""
+        print(f"\n📋 TEST 4: VÉRIFICATION LISTE CESSIONS")
         print("=" * 60)
         
-        # Test 1: DELETE existing schedule
-        print(f"\n📋 Test 1: DELETE existing schedule")
-        
-        if self.created_schedule_ids:
-            schedule_id = self.created_schedule_ids[0]
-            
-            try:
-                response = self.session.delete(f"{BACKEND_URL}/on-call/schedule/{schedule_id}")
-                
-                if response.status_code == 204:
-                    print(f"✅ Schedule deleted successfully (204)")
-                    self.log_result("delete_endpoints", "DELETE existing schedule", True,
-                                   "Schedule deleted with proper 204 status")
-                    
-                    # Remove from tracking list
-                    self.created_schedule_ids.remove(schedule_id)
-                else:
-                    self.log_result("delete_endpoints", "DELETE existing schedule", False,
-                                   f"Expected 204, got {response.status_code}")
-                    
-            except Exception as e:
-                self.log_result("delete_endpoints", "DELETE existing schedule", False, f"Exception: {str(e)}")
-        else:
-            self.log_result("delete_endpoints", "DELETE existing schedule", False, "No schedules available to delete")
-        
-        # Test 2: DELETE non-existent schedule (404)
-        print(f"\n📋 Test 2: DELETE non-existent schedule")
-        
         try:
-            fake_id = "00000000-0000-0000-0000-000000000000"
-            response = self.session.delete(f"{BACKEND_URL}/on-call/schedule/{fake_id}")
+            response = self.session.get(f"{BACKEND_URL}/cse/cessions")
             
-            if response.status_code == 404:
-                print(f"✅ Non-existent schedule properly rejected (404)")
-                self.log_result("delete_endpoints", "DELETE non-existent schedule", True,
-                               "Non-existent schedule properly returns 404")
+            if response.status_code == 200:
+                cessions = response.json()
+                print(f"✅ GET /api/cse/cessions successful (200) - Found {len(cessions)} cessions")
+                
+                # Vérifier que les cessions créées apparaissent
+                created_cessions_found = 0
+                external_cession_found = False
+                internal_cession_found = False
+                
+                for cession in cessions:
+                    cession_id = cession.get("id")
+                    to_name = cession.get("to_name", "")
+                    to_id = cession.get("to_id", "")
+                    
+                    if cession_id in self.created_cession_ids:
+                        created_cessions_found += 1
+                        
+                        # Vérifier la cession externe
+                        if to_id == "external" and "Marie Dupont (Externe)" in to_name:
+                            external_cession_found = True
+                            print(f"   ✅ Cession externe trouvée: {to_name}")
+                        
+                        # Vérifier la cession interne
+                        elif "Thierry MARTIAS" in to_name:
+                            internal_cession_found = True
+                            print(f"   ✅ Cession interne trouvée: {to_name}")
+                
+                if created_cessions_found >= 2:
+                    self.log_result("cse_cessions_list", "Cessions créées apparaissent", True,
+                                   f"{created_cessions_found} cessions créées trouvées dans la liste")
+                else:
+                    self.log_result("cse_cessions_list", "Cessions créées apparaissent", False,
+                                   f"Seulement {created_cessions_found} cessions trouvées sur {len(self.created_cession_ids)} créées")
+                
+                # Vérifier l'affichage correct de la cession externe
+                if external_cession_found:
+                    self.log_result("cse_cessions_list", "Affichage cession externe correct", True,
+                                   "Cession externe 'Marie Dupont (Externe)' correctement affichée")
+                else:
+                    self.log_result("cse_cessions_list", "Affichage cession externe correct", False,
+                                   "Cession externe 'Marie Dupont (Externe)' non trouvée dans la liste")
+                
+                # Vérifier l'affichage de la cession interne
+                if internal_cession_found:
+                    self.log_result("cse_cessions_list", "Affichage cession interne correct", True,
+                                   "Cession interne vers 'Thierry MARTIAS' correctement affichée")
+                else:
+                    self.log_result("cse_cessions_list", "Affichage cession interne correct", False,
+                                   "Cession interne vers 'Thierry MARTIAS' non trouvée dans la liste")
+                
+                # Afficher un échantillon des cessions pour debug
+                print(f"\n📊 Échantillon des cessions trouvées:")
+                for i, cession in enumerate(cessions[:3]):  # Afficher les 3 premières
+                    print(f"   {i+1}. {cession.get('from_name')} → {cession.get('to_name')} ({cession.get('hours')}h)")
+                
             else:
-                self.log_result("delete_endpoints", "DELETE non-existent schedule", False,
-                               f"Expected 404, got {response.status_code}")
+                self.log_result("cse_cessions_list", "GET cse/cessions", False,
+                               f"Expected 200, got {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_result("delete_endpoints", "DELETE non-existent schedule", False, f"Exception: {str(e)}")
+            self.log_result("cse_cessions_list", "GET cse/cessions", False, f"Exception: {str(e)}")
 
     def test_put_endpoints(self):
         """Test PUT endpoints for updating on-call schedules"""
