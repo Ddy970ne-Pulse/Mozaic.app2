@@ -1,83 +1,72 @@
 <analysis>
-The AI engineer's trajectory involved a sequence of bug fixes, feature implementations, and architectural shifts for the MOZAIK RH application. Initially, it tackled critical fixes like the absence badge display and a full backend approval/rejection workflow. A major data migration from CP to CA absence types and database-driven configurations were completed. The core challenge became the implementation of a multi-tenant SaaS architecture, which faced initial database migration errors. This led to a pivot for a ComboHR application analysis, exploring ergonomic and request management features.
-
-Upon resuming, the user requested to proceed through a structured plan: Stabilization (A), Multi-Tenant (B), and ComboHR Features (C). The AI engineer addressed several issues under Stabilization, including the WebSocket connection problem and a bug in the absence request UI. It also implemented a new Quick Add Absence feature inspired by ComboHR, which introduced new bugs related to missing employee email data and UI refresh issues. It cleaned up duplicate planning files. The multi-tenant migration was successfully executed. The WebSocket issue, though partially addressed by backend code, was documented as a potential Kubernetes Ingress configuration problem. Currently, the user has instructed to continue with Security Critical fixes (Option A from a newly proposed Quick Wins list), followed by other options up to G.
+The AI engineer's trajectory involved a sequence of bug fixes, significant feature implementations, and architectural enhancements for the MOZAIK RH application. Initially, it addressed issues like absence badge display, backend approval workflows, CP to CA absence type migration, and multi-tenant SaaS architecture. A major phase focused on a comprehensive security overhaul, implementing critical fixes from Option A through G of a detailed security roadmap. This included mandatory , strict Pydantic validation, rate limiting, security headers, CORS, account lockout, audit logging, enhanced authentication (refresh tokens), GDPR tools, and security monitoring. The latest work involved integrating a full leave balance management system, including backend APIs and frontend components. This integration faced a challenge with MongoDB ObjectId versus UUID consistency, leading to a System 2 migration with UUID conversion for all new leave balance components. The backend for this system has just been successfully integrated and is running.
 </analysis>
 
 <product_requirements>
-The MOZAIK RH application is an HR management system for personnel and absence management, featuring a glassmorphism UI, Excel import, auto-generated credentials, and PWA mobile accessibility. It supports robust user management, dynamic dashboards, and a CSE Management Module for tracking delegation hours. Core requirements include precise temporal data handling, overtime/recovery integration, and a personal employee space. Absence calculations must respect weekends/holidays and priority rules, tracking specific types in hours. Admins can manage absences on monthly planning, while managers/HR validate requests (excluding their own). All data changes require instant propagation via a dynamic notification system.
-Implemented features include: accurate absence badge display, a complete backend approval/rejection workflow, migration of CP to CA absence types, database-driven absence type configuration, a combined absence analysis report, and a multi-tenant SaaS architecture. A Quick Add Absence feature with a '+' button on monthly planning cells and a modal for rapid creation has been implemented.
+The MOZAIK RH application is an HR management system for personnel and absence management, featuring a glassmorphism UI, Excel import, auto-generated credentials, and PWA mobile accessibility. It supports robust user management, dynamic dashboards, and a CSE Management Module. Core requirements include precise temporal data handling, overtime/recovery integration, personal employee space, and absence calculations respecting weekends/holidays and priority rules. Admins manage planning, while managers/HR validate requests, with instant notification propagation.
+
+Implemented features include: accurate absence badge display, a complete backend approval/rejection workflow, migration of CP to CA absence types, database-driven absence type configuration, a combined absence analysis report, and a multi-tenant SaaS architecture. A Quick Add Absence feature has been partially implemented. Significant security enhancements (Options A-G) are now integrated: mandatory , strict Pydantic validation, rate limiting, security headers, CORS, account lockout, audit logging, refresh tokens, GDPR data protection (export/delete), and basic security monitoring. A comprehensive leave balance management system has also been integrated, including APIs for managing various leave types (CA, RTT, REC, CT, CP, CEX), automatic reintegration logic for overlapping absences (e.g., sickness during paid leave), and historical transaction tracking. Frontend widgets for displaying balances and transaction history are available.
 </product_requirements>
 
 <key_technical_concepts>
 - **Full-Stack**: React (frontend with Hooks), FastAPI (Python backend).
-- **Database**: MongoDB (using UUIDs).
+- **Database**: MongoDB (using UUIDs for new features, previously ObjectId).
 - **UI/UX**: Tailwind CSS, glassmorphism design.
-- **Data Synchronization**: WebSockets (identified as problematic due to infrastructure/config).
-- **Authentication/Authorization**: JWT, bcrypt, role-based access control.
-- **API Design**: RESTful APIs, Pydantic for data validation.
-- **Multi-Tenancy**: Dynamic tenant management, central registry, per-tenant databases.
+- **Data Synchronization**: WebSockets (Kubernetes Ingress issue identified).
+- **Authentication/Authorization**: JWT (with refresh tokens), bcrypt, role-based access control, account lockout, rate limiting.
+- **API Design**: RESTful APIs, Pydantic for data validation (strict).
+- **Multi-Tenancy**: Dynamic tenant management, central registry.
+- **Security**: OWASP best practices (headers, input sanitization, audit logging, GDPR tools).
 </key_technical_concepts>
 
 <code_architecture>
 
--   ****:
-    -   **Importance**: Core application logic and API endpoints.
-    -   **Changes**: Updated  and  endpoints, updated analytics mock data, replaced  with dynamic fetching, added . Refactored for multi-tenancy with  and . Modified to include  router and removed the duplicate inline WebSocket endpoint.
--   ****:
-    -   **Importance**: Displays the monthly planning calendar.
-    -   **Changes**: Fixed  race condition, updated  and  (CP to CA). Significantly modified to implement Quick Add Absence feature: added + button on hover, a quick-add modal, and pre-filling logic. Fixed a bug where employee objects lacked an  field during quick add. Enhanced error logging.
--   ****:
-    -   **Importance**: Handles employee absence requests.
-    -   **Changes**: Removed Congés Payés references. Added  helper. Implemented  delays in  and  to address potential UI race conditions.
--   ****:
-    -   **Importance**: Manages WebSocket connections.
-    -   **Changes**: Refactored to properly construct the WebSocket URL with  prefix, handle connection/reconnection logic,  heartbeat, and  messages.
--   ****:
-    -   **Importance**: Manages active WebSocket connections.
-    -   **Changes**: Significant refactoring to improve thread-safety with , implemented a  for regular pings and dead connection detection, and improved disconnection/cleanup logic.
--   ****:
-    -   **Importance**: New file for dynamic multi-tenant database connection management.
--   ****:
-    -   **Importance**: New file for super-admin API endpoints to manage tenant registrations.
--   ****:
-    -   **Importance**: New frontend service for tenant detection and injecting  header.
--   ****:
-    -   **Importance**: Script to migrate existing data to the new multi-tenant structure.
-    -   **Changes**: The existing file was overwritten with an improved version to successfully migrate data for AAEA CAVA.
--   ****:
-    -   **Importance**: New file containing the FastAPI WebSocket endpoint with authentication, lifecycle management, and message handling.
--   ****: New file containing the analysis report of ComboHR.
--   ****: New file documenting the persistent WebSocket issue, likely related to Kubernetes Ingress configuration.
--   ****: New file summarizing stabilization efforts.
--   ****: New file summarizing multi-tenant implementation.
--   ****: New file providing manual debugging instructions for the quick add feature.
--   **Other  files (e.g., , , )**: These files were identified as old versions and have been deleted, retaining only .
+-   ****: Core application logic and API endpoints. *Changes*: Made  mandatory, implemented  rate limiting, integrated security middlewares, account lockout logic, audit logging, enhanced auth (refresh tokens, logout), GDPR endpoints, and security monitoring. Integrated the new  router and fixed an .
+-   ****: FastAPI WebSocket endpoint. *Changes*: Modified to correctly load  from .
+-   ** (NEW)**: Adds OWASP HTTP security headers (HSTS, CSP, X-Frame-Options, etc.).
+-   ** (NEW)**: Custom exception handlers to prevent stack trace exposure.
+-   ** (NEW)**: Implements persistent account lockout logic.
+-   ** (NEW)**: Provides structured audit logging and GDPR-compliant data access logging.
+-   ** (NEW)**: Contains password policy, JWT token generation, and refresh token logic, integrated into .
+-   ** (NEW)**: Utility functions for GDPR compliance, including data export, right to be forgotten, and data pseudonymization.
+-   ** (NEW)**: Basic module for security event monitoring and alerts.
+-   ** (NEW)**: Pydantic models for  and , adapted to use UUIDs.
+-   ** (NEW)**: Contains core business logic for leave balance management, including automatic reintegration, deduction, and transaction recording, adapted to use UUIDs.
+-   ** (NEW)**: FastAPI endpoints for leave balance operations, simplified and adapted to use existing authentication and UUIDs.
+-   ** (NEW)**: Directory containing backup of previous leave balance implementation files.
+-   ****: Displays monthly planning. *Changes*: Implemented Quick Add Absence feature, fixed employee  field bug.
+-   ** (NEW)**: React component to display employee leave balances.
+-   ** (NEW)**: React component to display leave transaction history.
+-   ** files**: Updated  with  and .
 </code_architecture>
 
 <pending_tasks>
-- **WebSocket Infrastructure Fix**: Resolve the persistent WebSocket connection failure (404 errors), likely requiring Kubernetes Ingress configuration changes.
-- **Quick Add Modal Closure**: Ensure the quick add absence modal closes automatically after a successful creation.
-- **ComboHR Feature Implementation**: Implement interesting ergonomic and request management features identified from the ComboHR analysis.
+- **Quick Add Absence bug fix**: The 422 Unprocessable Content API error for quick add absence due to missing employee email data and UI refresh issues was deferred.
+- **WebSocket Infrastructure Fix**: Resolve persistent WebSocket connection failure (404 errors), likely requiring Kubernetes Ingress configuration changes.
+- **ComboHR Feature Implementation**: Implement ergonomic and request management features identified from the ComboHR analysis.
 - **CSE Unification**: Complete frontend integration and logic for .
 - **Absence in Hours**: Finalize display in Planning, Export Paie, and Statistics modules.
-- **Analytics & KPI**: Complete missing analyses/visualizations based on user images.
+- **Analytics & KPI**: Complete missing analyses/visualizations.
 - **Printable Password Document**: Implement generation logic.
-- **Checkbox Issue**: Unchecking checkbox bug.
+- **Checkbox Issue**: Fix unchecking checkbox bug.
 - **Mascot Integration**: Integrate mascot image.
 - **User Color Customization**: Implement user ability to personalize space colors.
-- **Security Critical Fixes**: (Starting now) Force  mandatory, add strict Pydantic validation, add rate limiting.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary, the AI engineer was working on the Quick Add Absence feature, requested by the user. Although the UI components for the quick add were functional (button appearing, modal opening), there was a persistent bug where creating an absence resulted in a 422 Unprocessable Content API error. This was traced to the  field of the  object being  during the API call. The AI engineer attempted to fix this by modifying  to ensure the  field is populated when employee data is loaded. After multiple attempts and realizing hot-reloads weren't applying changes, a full frontend restart and cache clearing was performed under the guidance of the . The AI then added more detailed error logging.
+Immediately before this summary request, the AI engineer was finalizing the integration of a new, comprehensive leave balance management system into MOZAIK RH. This followed a significant phase of security enhancements and an initial, partial integration of a leave balance package.
 
-Concurrently, there was an ongoing issue with WebSocket connections consistently failing with a 404 error, despite code-level fixes, which the AI deduced points to a Kubernetes Ingress configuration problem. This was documented.
+The current work involved a complete migration to System 2 (a more complete leave balance package) with a critical adaptation to use UUIDs instead of MongoDB ObjectIds, ensuring consistency with the existing codebase's preference. This detailed process included:
+1.  **Backup and Deletion**: Backing up the previously integrated leave balance files and then deleting them to prepare for the new system.
+2.  **Code Adaptation**: Copying and adapting the new  and  to ensure all  and  operations correctly generate and handle UUIDs.
+3.  **API Simplification**: A new, simplified  was created, as the original package's API was too complex to directly adapt. This new API integrates smoothly with the existing authentication and database structure, utilizing UUIDs.
+4.  **Router Integration**: The new  router was integrated into , replacing any previous leave balance router configurations.
+5.  **Backend Verification**: The backend server was successfully restarted, confirming it starts without errors and that the new API routes are included. MongoDB indexes for the new leave balance collections were verified to exist.
+6.  **API Accessibility**: Basic API accessibility was confirmed (e.g., via Swagger docs), and a 404 response for data retrieval was received (expected as no initial data has been populated).
 
-The user then provided new instructions, requesting to start with Option A: Sécurité Critique from a list of proposed Quick Wins.
+Additionally, new frontend React components (, ) and related documentation were copied into the  directory.
 </current_work>
 
 <optional_next_step>
-The next step is to implement Option A: Sécurité Critique, starting with forcing  as mandatory.
+Run the MongoDB migration script () to initialize leave balances and integrate the new React components into the frontend.
 </optional_next_step>
-

@@ -36,7 +36,7 @@ import time
 from datetime import datetime, timedelta
 
 # Configuration
-BACKEND_URL = "https://saas-hr-hub.preview.emergentagent.com/api"
+BACKEND_URL = "https://absence-tracker-21.preview.emergentagent.com/api"
 WEBSOCKET_URL = "wss://hr-multi-saas.preview.emergentagent.com/api/ws"
 ADMIN_EMAIL = "ddacalor@aaea-gpe.fr"
 ADMIN_PASSWORD = "admin123"

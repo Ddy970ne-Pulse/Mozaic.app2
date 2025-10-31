@@ -81,7 +81,7 @@ chmod +x /app/restore_data.sh
 **1. Vérifier que les endpoints sauvegardent vraiment** :
 ```bash
 # Tester l'import d'un employé
-curl -X POST https://saas-hr-hub.preview.emergentagent.com/api/import/employees \
+curl -X POST https://absence-tracker-21.preview.emergentagent.com/api/import/employees \
   -H "Authorization: Bearer {TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
