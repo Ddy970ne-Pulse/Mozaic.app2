@@ -20,9 +20,12 @@ const CSEManagementNew = ({ user }) => {
     is_external: false,  // Flag pour bénéficiaire externe
     hours: '',
     usage_date: '',
-    reason: ''
+    reason: '',
+    delai_inferieur_8jours: false,  // Exception délai
+    justification_urgence: ''  // Justification si < 8 jours
   });
   const [delegates, setDelegates] = useState([]); // AJOUT: Liste complète des délégués avec heures
+  const [showUrgenceField, setShowUrgenceField] = useState(false); // Afficher champ justification
 
   // SUPPRESSION: creditMensuelBase codé en dur
   // const creditMensuelBase = 10; // Ancien commentaire obsolète
