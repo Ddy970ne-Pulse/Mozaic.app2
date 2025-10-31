@@ -1384,7 +1384,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
 
   // 2. MODIFICATION/SUPPRESSION DIRECTE
   const handleCellRightClick = (e, employee, dateObj, absenceCode) => {
-    if (!absenceCode || !user?.role === 'admin') return;
+    if (!absenceCode || user?.role !== 'admin') return;
     
     e.preventDefault();
     e.stopPropagation();
