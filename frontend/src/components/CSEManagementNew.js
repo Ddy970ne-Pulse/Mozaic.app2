@@ -505,7 +505,7 @@ const CSEManagementNew = ({ user }) => {
                 <p className="text-sm text-yellow-800 font-medium mb-2">⚖️ Règles Légales:</p>
                 <ul className="text-xs text-yellow-700 space-y-1 ml-4 list-disc">
                   <li>Seuls les <strong>titulaires</strong> peuvent céder des heures</li>
-                  <li>Maximum <strong>1.5× le crédit titulaire</strong> par bénéficiaire ({creditMensuelBase * 1.5}h max)</li>
+                  <li>Maximum <strong>1.5× le crédit titulaire</strong> par bénéficiaire (33h max pour 250+ salariés)</li>
                   <li>Employeur informé au moins <strong>8 jours avant</strong> utilisation</li>
                 </ul>
               </div>
