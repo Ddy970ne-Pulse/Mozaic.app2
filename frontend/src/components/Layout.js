@@ -251,8 +251,6 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
           return <ExcelImport user={user} onChangeView={setCurrentView} />;
         case 'cse-management':
           return <CSEManagementNew user={user} onChangeView={setCurrentView} />;
-        case 'on-call-management':
-          return <OnCallManagement user={user} onChangeView={setCurrentView} />;
         case 'on-call-schedule':
           return <OnCallSchedule user={user} onChangeView={setCurrentView} />;
         case 'user-management':
