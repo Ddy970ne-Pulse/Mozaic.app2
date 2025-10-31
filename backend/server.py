@@ -5810,6 +5810,111 @@ async def get_cessions(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
+@api_router.get("/cse/balance/{delegate_id}")
+async def get_delegate_balance_with_report(
+    delegate_id: str,
+    year: Optional[int] = None,
+    month: Optional[int] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Calcule le solde d'un délégué avec report des mois précédents
+    
+    Règle réglementaire : Les heures non utilisées peuvent être reportées sur 12 mois maximum
+    """
+    try:
+        # Utiliser mois actuel si non spécifié
+        if not year or not month:
+            now = datetime.utcnow()
+            year = year or now.year
+            month = month or now.month
+        
+        # Récupérer le délégué
+        delegate = await db.cse_delegates.find_one({"user_id": delegate_id})
+        if not delegate:
+            raise HTTPException(status_code=404, detail="Délégué non trouvé")
+        
+        credit_mensuel = delegate.get("heures_mensuelles", 0)
+        
+        # Calculer le report des 12 derniers mois
+        report_total = 0.0
+        mois_avec_report = []
+        
+        # Parcourir les 12 mois précédents
+        for i in range(1, 13):
+            date_test = datetime(year, month, 1) - timedelta(days=i*30)
+            y, m = date_test.year, date_test.month
+            
+            # Récupérer les cessions du mois
+            start_date = f"{y:04d}-{m:02d}-01"
+            if m == 12:
+                end_date = f"{y+1:04d}-01-01"
+            else:
+                end_date = f"{y:04d}-{m+1:02d}-01"
+            
+            cessions_donnees = await db.hours_cessions.find({
+                "from_id": delegate_id,
+                "usage_date": {"$gte": start_date, "$lt": end_date}
+            }).to_list(100)
+            
+            cessions_recues = await db.hours_cessions.find({
+                "to_id": delegate_id,
+                "usage_date": {"$gte": start_date, "$lt": end_date}
+            }).to_list(100)
+            
+            heures_donnees = sum(c.get("hours", 0) for c in cessions_donnees)
+            heures_recues = sum(c.get("hours", 0) for c in cessions_recues)
+            
+            solde_mois = credit_mensuel - heures_donnees + heures_recues
+            
+            if solde_mois > 0:
+                report_total += solde_mois
+                mois_avec_report.append({
+                    "year": y,
+                    "month": m,
+                    "solde": solde_mois
+                })
+        
+        # Calculer le mois en cours
+        start_date_current = f"{year:04d}-{month:02d}-01"
+        if month == 12:
+            end_date_current = f"{year+1:04d}-01-01"
+        else:
+            end_date_current = f"{year:04d}-{month+1:02d}-01"
+        
+        cessions_donnees_current = await db.hours_cessions.find({
+            "from_id": delegate_id,
+            "usage_date": {"$gte": start_date_current, "$lt": end_date_current}
+        }).to_list(100)
+        
+        cessions_recues_current = await db.hours_cessions.find({
+            "to_id": delegate_id,
+            "usage_date": {"$gte": start_date_current, "$lt": end_date_current}
+        }).to_list(100)
+        
+        heures_donnees_current = sum(c.get("hours", 0) for c in cessions_donnees_current)
+        heures_recues_current = sum(c.get("hours", 0) for c in cessions_recues_current)
+        
+        # Solde total = crédit mois + report + reçues - données
+        solde_total = credit_mensuel + report_total + heures_recues_current - heures_donnees_current
+        
+        return {
+            "delegate_id": delegate_id,
+            "delegate_name": delegate.get("user_name"),
+            "year": year,
+            "month": month,
+            "credit_mensuel": credit_mensuel,
+            "report_12_mois": report_total,
+            "heures_donnees_mois": heures_donnees_current,
+            "heures_recues_mois": heures_recues_current,
+            "solde_disponible": solde_total,
+            "detail_report": mois_avec_report[:3]  # Montrer 3 derniers mois avec solde
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur calcul balance avec report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
 # ========================================
 # STATISTIQUES CSE
 # ========================================
