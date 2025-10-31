@@ -3791,6 +3791,16 @@ async def import_employees(
                 # Si c'est un délégué CSE, créer automatiquement son profil de délégué
                 if is_cse_delegate:
                     try:
+                        # Récupérer l'effectif de l'entreprise (paramètres ou défaut 250)
+                        company_settings = await db.company_settings.find_one({})
+                        effectif_entreprise = company_settings.get('effectif', 250) if company_settings else 250
+                        
+                        # Calculer les heures réglementaires
+                        heures_reglementaires = calculer_heures_delegation_reglementaires(
+                            effectif_entreprise,
+                            cse_status
+                        )
+                        
                         # Déterminer le collège selon "Catégorie Employé"
                         college = "employes"  # Default
                         categorie_employe = employee_data.get('categorie_employe', '').lower()
@@ -3799,19 +3809,21 @@ async def import_employees(
                         elif 'ouvrier' in categorie_employe or 'agent' in categorie_employe:
                             college = "ouvriers"
                         
-                        # Créer le délégué CSE avec 24h par défaut
+                        # Créer le délégué CSE avec heures réglementaires
                         delegate = CSEDelegate(
                             user_id=user_dict["id"],
                             user_name=f"{prenom} {nom}",
                             email=email,
                             statut=cse_status,
-                            heures_mensuelles=24,  # Défaut pour +250 salariés
+                            heures_mensuelles=heures_reglementaires,  # ✅ Calcul réglementaire automatique
                             college=college,
                             date_debut=employee_data.get('date_debut_contrat') or datetime.utcnow().strftime("%Y-%m-%d"),
                             date_fin=None,
                             actif=True,
                             created_by=current_user.name
                         )
+                        
+                        logger.info(f"🏛️ Création délégué CSE: {prenom} {nom} - {cse_status} - {heures_reglementaires}h/mois (effectif: {effectif_entreprise})")
                         
                         # Préparer pour MongoDB
                         delegate_dict = delegate.dict()
