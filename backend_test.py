@@ -368,9 +368,9 @@ class CSERegressionTester:
     # Cleanup method already defined above
 
     def print_summary(self):
-        """Afficher le résumé des tests CSE Module"""
+        """Afficher le résumé des tests de régression CSE"""
         print(f"\n" + "=" * 80)
-        print(f"🏛️ RÉSUMÉ COMPLET DES TESTS MODULE CSE - MEMBRES ET CESSIONS")
+        print(f"🔧 RÉSUMÉ TESTS DE RÉGRESSION MODULE CSE - CORRECTIONS SPÉCIFIQUES")
         print(f"=" * 80)
         
         total_passed = 0
@@ -379,11 +379,9 @@ class CSERegressionTester:
         for phase_name, results in self.test_results.items():
             phase_display = {
                 "authentication": "AUTHENTICATION (Login Admin)",
-                "cse_delegates": "MEMBRES CSE (GET /api/cse/delegates)", 
-                "cse_cessions_internal": "CESSIONS INTERNES (Membre → Membre)",
-                "cse_cessions_external": "CESSIONS EXTERNES (Membre → Externe) - PRIORITAIRE",
-                "cse_cessions_list": "LISTE CESSIONS (GET /api/cse/cessions)",
-                "company_settings": "PARAMÈTRES ENTREPRISE (GET /api/company-settings)"
+                "external_cession_is_external": "TEST 1: Champ is_external dans cession externe",
+                "company_settings_no_500": "TEST 2: Endpoint company-settings (pas d'erreur 500)",
+                "cessions_list_is_external": "TEST 3: Liste cessions avec champ is_external"
             }
             
             passed = results["passed"]
@@ -405,45 +403,34 @@ class CSERegressionTester:
                         print(f"     - {detail['test']}: {detail['message']}")
         
         print(f"\n" + "=" * 80)
-        overall_status = "✅ MODULE CSE COMPLÈTEMENT FONCTIONNEL" if total_failed == 0 else "❌ PROBLÈMES CRITIQUES DÉTECTÉS" if total_passed == 0 else "⚠️ MODULE CSE PARTIELLEMENT FONCTIONNEL"
+        overall_status = "✅ CORRECTIONS VALIDÉES" if total_failed == 0 else "❌ CORRECTIONS INCOMPLÈTES" if total_passed == 0 else "⚠️ CORRECTIONS PARTIELLES"
         print(f"🎯 RÉSULTAT GLOBAL: {overall_status}")
         print(f"📈 TOTAL: {total_passed} réussis, {total_failed} échoués sur {total_passed + total_failed} tests")
         
-        # Critères de succès critiques pour le Module CSE
-        print(f"\n🔒 CRITÈRES DE SUCCÈS CRITIQUES:")
+        # Critères de succès critiques pour les corrections
+        print(f"\n🔒 CRITÈRES DE SUCCÈS CRITIQUES (CORRECTIONS):")
         success_criteria = [
-            ("4 membres CSE retournés avec heures correctes", self.test_results["cse_delegates"]["failed"] == 0),
-            ("3 titulaires (22h/mois) et 1 suppléant (0h/mois)", self.test_results["cse_delegates"]["passed"] >= 2),
-            ("Cession vers membre CSE existant fonctionne", self.test_results["cse_cessions_internal"]["failed"] == 0),
-            ("Cession vers personne externe (to_id='external') fonctionne - PRIORITAIRE", self.test_results["cse_cessions_external"]["failed"] == 0),
-            ("Stockage correct du nom externe en texte libre", self.test_results["cse_cessions_external"]["passed"] >= 2),
-            ("Liste des cessions affiche correctement les cessions créées", self.test_results["cse_cessions_list"]["failed"] == 0),
-            ("Paramètres entreprise: effectif=250, accord_entreprise_heures_cse=false", self.test_results["company_settings"]["failed"] == 0)
+            ("Champ is_external=true présent dans réponse cession externe", self.test_results["external_cession_is_external"]["failed"] == 0),
+            ("GET /api/company-settings ne retourne PAS d'erreur 500", self.test_results["company_settings_no_500"]["failed"] == 0),
+            ("Liste cessions contient le champ is_external correctement", self.test_results["cessions_list_is_external"]["failed"] == 0)
         ]
         
         for criterion, met in success_criteria:
             status = "✅" if met else "❌"
             print(f"   {status} {criterion}")
         
-        # Focus sur les fonctionnalités critiques CSE
-        print(f"\n🎯 FONCTIONNALITÉS CRITIQUES CSE:")
-        delegates_success = self.test_results["cse_delegates"]["failed"] == 0
-        cessions_success = (self.test_results["cse_cessions_internal"]["failed"] == 0 and 
-                           self.test_results["cse_cessions_external"]["failed"] == 0 and
-                           self.test_results["cse_cessions_list"]["failed"] == 0)
-        settings_success = self.test_results["company_settings"]["failed"] == 0
+        # Focus sur les corrections spécifiques
+        print(f"\n🔧 CORRECTIONS SPÉCIFIQUES:")
+        is_external_fix = self.test_results["external_cession_is_external"]["failed"] == 0
+        company_settings_fix = self.test_results["company_settings_no_500"]["failed"] == 0
+        list_is_external_fix = self.test_results["cessions_list_is_external"]["failed"] == 0
         
-        print(f"   {'✅' if delegates_success else '❌'} MEMBRES CSE - Gestion des délégués")
-        print(f"   {'✅' if cessions_success else '❌'} CESSIONS D'HEURES - Internes et externes")
-        print(f"   {'✅' if settings_success else '❌'} PARAMÈTRES ENTREPRISE - Configuration")
+        print(f"   {'✅' if is_external_fix else '❌'} CORRECTION 1: Ajout champ is_external au modèle CSECession")
+        print(f"   {'✅' if company_settings_fix else '❌'} CORRECTION 2: Suppression _id MongoDB dans company-settings")
+        print(f"   {'✅' if list_is_external_fix else '❌'} VÉRIFICATION: Champ is_external dans liste cessions")
         
-        # Focus spécial sur la fonctionnalité PRIORITAIRE
-        external_cessions_success = self.test_results["cse_cessions_external"]["failed"] == 0
-        print(f"\n🌟 FONCTIONNALITÉ PRIORITAIRE:")
-        print(f"   {'✅' if external_cessions_success else '❌'} CESSIONS VERS PERSONNES EXTERNES - to_id='external' + nom libre")
-        
-        critical_success = delegates_success and cessions_success and settings_success
-        print(f"\n🏆 MODULE CSE: {'✅ PRODUCTION-READY' if critical_success else '❌ NÉCESSITE CORRECTIONS'}")
+        critical_success = is_external_fix and company_settings_fix and list_is_external_fix
+        print(f"\n🏆 CORRECTIONS CSE: {'✅ TOUTES VALIDÉES' if critical_success else '❌ NÉCESSITENT INTERVENTION'}")
         
         return critical_success
 
