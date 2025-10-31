@@ -97,36 +97,51 @@ const CSEManagementNew = ({ user }) => {
   const handleSubmitCession = async (e) => {
     e.preventDefault();
     
+    console.log('🔵 handleSubmitCession appelé');
+    console.log('📋 Données cession:', cessionData);
+    
     try {
       // Validations
       const cedant = titulaires.find(t => t.id === cessionData.from_id);
       
       if (!cedant) {
+        console.error('❌ Cédant non trouvé');
         showMessage('Cédant non trouvé', 'error');
         return;
       }
+      
+      console.log('✅ Cédant trouvé:', cedant.name);
 
       // Validation bénéficiaire
       if (cessionData.is_external) {
+        console.log('🔵 Mode externe, vérification nom...');
         // Personne externe - vérifier que le nom est saisi
         if (!cessionData.to_name || cessionData.to_name.trim() === '') {
+          console.error('❌ Nom bénéficiaire externe manquant');
           showMessage('Veuillez saisir le nom du bénéficiaire externe', 'error');
           return;
         }
+        console.log('✅ Nom externe valide:', cessionData.to_name);
       } else {
+        console.log('🔵 Mode membre CSE, vérification membre...');
         // Membre CSE - vérifier qu'il existe
         const beneficiaire = [...titulaires, ...suppleants].find(m => m.id === cessionData.to_id);
         if (!beneficiaire) {
+          console.error('❌ Bénéficiaire CSE non trouvé');
           showMessage('Bénéficiaire non trouvé', 'error');
           return;
         }
+        console.log('✅ Bénéficiaire CSE trouvé:', beneficiaire.name);
 
         // Validation limite 1.5x (seulement pour membres CSE)
         const beneficiaireBalance = calculateBalance(beneficiaire.id);
         const newBalance = beneficiaireBalance.balance + parseFloat(cessionData.hours);
         const maxAllowed = creditMensuelBase * 1.5;
 
+        console.log(`🔵 Vérification limite: ${newBalance.toFixed(1)}h vs max ${maxAllowed}h`);
+        
         if (newBalance > maxAllowed) {
+          console.error('❌ Dépassement limite');
           showMessage(
             `Dépassement limite: Le bénéficiaire aurait ${newBalance.toFixed(1)}h mais le maximum autorisé est ${maxAllowed}h (1.5× ${creditMensuelBase}h)`,
             'error'
@@ -140,18 +155,38 @@ const CSEManagementNew = ({ user }) => {
       const usageDate = new Date(cessionData.usage_date);
       const daysDiff = Math.ceil((usageDate - today) / (1000 * 60 * 60 * 24));
 
+      console.log(`🔵 Vérification délai: ${daysDiff} jours`);
+
       if (daysDiff < 8) {
+        console.warn('⚠️ Délai < 8 jours, demande confirmation');
         if (!window.confirm(
           `⚠️ ATTENTION: L'employeur doit être informé au moins 8 jours avant.\n` +
           `Délai actuel: ${daysDiff} jour(s)\n\n` +
           `Voulez-vous continuer quand même ?`
         )) {
+          console.log('❌ Utilisateur a annulé');
           return;
         }
       }
 
+      console.log('🔵 Préparation de la requête API...');
+
       // Soumettre la cession
       const token = localStorage.getItem('token');
+      const body = {
+        from_id: cessionData.from_id,
+        from_name: cedant.name,
+        to_id: cessionData.is_external ? 'external' : cessionData.to_id,
+        to_name: cessionData.is_external ? cessionData.to_name : [...titulaires, ...suppleants].find(m => m.id === cessionData.to_id)?.name,
+        is_external: cessionData.is_external,
+        hours: parseFloat(cessionData.hours),
+        usage_date: cessionData.usage_date,
+        reason: cessionData.reason,
+        created_by: user.name
+      };
+      
+      console.log('📤 Envoi requête:', body);
+      
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/cse/cessions`,
         {
@@ -160,21 +195,14 @@ const CSEManagementNew = ({ user }) => {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            from_id: cessionData.from_id,
-            from_name: cedant.name,
-            to_id: cessionData.is_external ? 'external' : cessionData.to_id,
-            to_name: cessionData.is_external ? cessionData.to_name : [...titulaires, ...suppleants].find(m => m.id === cessionData.to_id)?.name,
-            is_external: cessionData.is_external,
-            hours: parseFloat(cessionData.hours),
-            usage_date: cessionData.usage_date,
-            reason: cessionData.reason,
-            created_by: user.name
-          })
+          body: JSON.stringify(body)
         }
       );
 
+      console.log('📥 Réponse reçue:', response.status);
+
       if (response.ok) {
+        console.log('✅ Cession créée avec succès');
         showMessage('Cession créée avec succès', 'success');
         setShowCessionModal(false);
         setCessionData({ from_id: '', to_id: '', to_name: '', is_external: false, hours: '', usage_date: '', reason: '' });
