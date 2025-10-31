@@ -471,7 +471,7 @@ class CSERegressionTester:
 
 def main():
     """Point d'entrée principal"""
-    tester = CSEModuleTester()
+    tester = CSERegressionTester()
     success = tester.run_all_tests()
     
     # Code de sortie
