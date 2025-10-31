@@ -2725,29 +2725,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
               </div>
             )}
           </div>
-
-          {/* Ligne 2: Options selon mode */}
-          {multiSelectMode && selectedEmployees.length > 0 && (
-            <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gray-200">
-              <span className="text-sm font-medium text-gray-700">
-                {selectedEmployees.length} employé(s) sélectionné(s):
-              </span>
-              {selectedEmployees.slice(0, 3).map(emp => (
-                <span key={emp.id} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
-                  {emp.name}
-                </span>
-              ))}
-              {selectedEmployees.length > 3 && (
-                <span className="text-xs text-gray-500">+{selectedEmployees.length - 3} autres</span>
-              )}
-              <button
-                onClick={clearEmployeeSelection}
-                className="text-xs text-red-600 hover:text-red-800 font-medium"
-              >
-                ✕ Tout désélectionner
-              </button>
-            </div>
-          )}
         </div>
       )}
 
