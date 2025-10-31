@@ -646,7 +646,7 @@ const Layout = ({ user, currentView, setCurrentView, onLogout }) => {
                         'hr-toolbox': 'from-teal-500 to-teal-600',
                         'excel-import': 'from-emerald-500 to-green-600',
                         'cse-management': 'from-indigo-600 to-purple-600',
-                        'on-call-management': 'from-cyan-500 to-cyan-600',
+                        'on-call-schedule': 'from-cyan-500 to-blue-600',
                         'user-management': 'from-violet-500 to-violet-600'
                       };
                       return colors[id] || 'from-gray-500 to-gray-600';
