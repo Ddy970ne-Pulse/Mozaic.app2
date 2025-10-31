@@ -2683,21 +2683,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         {/* Test October 2025 button removed - production mode only */}
       </div>
 
-      {/* Info intégration */}
-      <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6 rounded">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <div className="w-5 h-5 text-blue-500">ℹ️</div>
-          </div>
-          <div className="ml-3">
-            <p className="text-sm">
-              <strong>Intégration automatique :</strong> Ce planning se met à jour automatiquement 
-              lorsque des demandes d'absence sont approuvées. Les employés sont regroupés par catégorie.
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Légende des 21 motifs et astreintes */}
       {showLegendDetails && (
         <div className="mb-6 p-4 bg-white rounded-lg shadow">
