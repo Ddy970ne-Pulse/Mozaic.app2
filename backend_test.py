@@ -665,9 +665,9 @@ class OnCallScheduleAPITester:
             print(f"✅ All test schedules cleaned up successfully")
 
     def print_summary(self):
-        """Afficher le résumé des tests de sécurité"""
+        """Afficher le résumé des tests On-Call Schedule API"""
         print(f"\n" + "=" * 80)
-        print(f"🛡️ RÉSUMÉ COMPLET DES TESTS DE SÉCURITÉ CRITIQUES")
+        print(f"📅 RÉSUMÉ COMPLET DES TESTS ON-CALL SCHEDULE BACKEND API")
         print(f"=" * 80)
         
         total_passed = 0
@@ -675,10 +675,13 @@ class OnCallScheduleAPITester:
         
         for phase_name, results in self.test_results.items():
             phase_display = {
-                "phase1_secret_key": "PHASE 1 - SECRET_KEY VALIDATION",
-                "phase2_validation": "PHASE 2 - PYDANTIC VALIDATION", 
-                "phase3_rate_limiting": "PHASE 3 - RATE LIMITING",
-                "security_bypass": "SECURITY BYPASS TESTS"
+                "authentication": "AUTHENTICATION REQUIREMENTS",
+                "get_endpoints": "GET ENDPOINTS (Retrieve Schedules)", 
+                "post_endpoints": "POST ENDPOINTS (Create Schedules)",
+                "delete_endpoints": "DELETE ENDPOINTS (Remove Schedules)",
+                "put_endpoints": "PUT ENDPOINTS (Update Schedules)",
+                "data_persistence": "DATA PERSISTENCE (MongoDB)",
+                "error_handling": "ERROR HANDLING & VALIDATION"
             }
             
             passed = results["passed"]
@@ -700,35 +703,43 @@ class OnCallScheduleAPITester:
                         print(f"     - {detail['test']}: {detail['message']}")
         
         print(f"\n" + "=" * 80)
-        overall_status = "✅ SÉCURITÉ COMPLÈTE" if total_failed == 0 else "❌ FAILLES DÉTECTÉES" if total_passed == 0 else "⚠️ SÉCURITÉ PARTIELLE"
+        overall_status = "✅ API COMPLÈTEMENT FONCTIONNELLE" if total_failed == 0 else "❌ PROBLÈMES CRITIQUES DÉTECTÉS" if total_passed == 0 else "⚠️ API PARTIELLEMENT FONCTIONNELLE"
         print(f"🎯 RÉSULTAT GLOBAL: {overall_status}")
         print(f"📈 TOTAL: {total_passed} réussis, {total_failed} échoués sur {total_passed + total_failed} tests")
         
-        # Critères de succès critiques pour la sécurité
-        print(f"\n🔒 CRITÈRES DE SÉCURITÉ CRITIQUES:")
+        # Critères de succès critiques pour l'API On-Call
+        print(f"\n🔒 CRITÈRES DE SUCCÈS CRITIQUES:")
         success_criteria = [
-            ("Backend started with secure SECRET_KEY", self.test_results["phase1_secret_key"]["failed"] == 0),
-            ("JWT tokens properly signed and verified", self.test_results["phase1_secret_key"]["passed"] >= 1),
-            ("Login rate limiting (5/minute) enforced", self.test_results["phase3_rate_limiting"]["passed"] >= 1),
-            ("Password validation (min 6 chars + numbers)", self.test_results["phase2_validation"]["passed"] >= 2),
-            ("Email validation enforced", self.test_results["phase2_validation"]["passed"] >= 1),
-            ("Input sanitization working", self.test_results["phase2_validation"]["passed"] >= 3),
-            ("Authentication bypass prevented", self.test_results["security_bypass"]["passed"] >= 2)
+            ("All endpoints respond with correct HTTP status codes", total_failed == 0),
+            ("Authentication required for all endpoints (403/401 without token)", self.test_results["authentication"]["failed"] == 0),
+            ("Bulk creation creates multiple schedules correctly", self.test_results["post_endpoints"]["passed"] >= 1),
+            ("Duplicate prevention works (returns existing schedule)", self.test_results["post_endpoints"]["passed"] >= 2),
+            ("GET endpoints filter correctly by month/year and date range", self.test_results["get_endpoints"]["failed"] == 0),
+            ("DELETE removes schedules permanently", self.test_results["delete_endpoints"]["passed"] >= 1),
+            ("PUT updates schedules correctly", self.test_results["put_endpoints"]["passed"] >= 1),
+            ("MongoDB persistence verified (data survives operations)", self.test_results["data_persistence"]["failed"] == 0),
+            ("Proper error handling (404 for not found, 400/422 for validation errors)", self.test_results["error_handling"]["failed"] == 0)
         ]
         
         for criterion, met in success_criteria:
             status = "✅" if met else "❌"
             print(f"   {status} {criterion}")
         
-        # Focus sur les tests critiques de sécurité
-        print(f"\n🎯 TESTS CRITIQUES DE SÉCURITÉ:")
-        rate_limiting_success = self.test_results["phase3_rate_limiting"]["failed"] == 0
-        validation_success = self.test_results["phase2_validation"]["failed"] == 0
-        print(f"   {'✅' if rate_limiting_success else '❌'} RATE LIMITING - Protection contre brute force")
-        print(f"   {'✅' if validation_success else '❌'} VALIDATION - Sécurité des données")
+        # Focus sur les fonctionnalités critiques
+        print(f"\n🎯 FONCTIONNALITÉS CRITIQUES:")
+        auth_success = self.test_results["authentication"]["failed"] == 0
+        crud_success = (self.test_results["get_endpoints"]["failed"] == 0 and 
+                       self.test_results["post_endpoints"]["failed"] == 0 and
+                       self.test_results["delete_endpoints"]["failed"] == 0 and
+                       self.test_results["put_endpoints"]["failed"] == 0)
+        persistence_success = self.test_results["data_persistence"]["failed"] == 0
         
-        critical_success = rate_limiting_success and validation_success
-        print(f"\n🏆 SÉCURITÉ CRITIQUE: {'✅ PROTÉGÉE' if critical_success else '❌ VULNÉRABLE'}")
+        print(f"   {'✅' if auth_success else '❌'} AUTHENTICATION - Sécurité des endpoints")
+        print(f"   {'✅' if crud_success else '❌'} CRUD OPERATIONS - Opérations complètes")
+        print(f"   {'✅' if persistence_success else '❌'} DATA PERSISTENCE - Persistance MongoDB")
+        
+        critical_success = auth_success and crud_success and persistence_success
+        print(f"\n🏆 API ON-CALL SCHEDULE: {'✅ PRODUCTION-READY' if critical_success else '❌ NÉCESSITE CORRECTIONS'}")
         
         return critical_success
 
