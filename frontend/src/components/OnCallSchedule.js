@@ -154,14 +154,21 @@ const OnCallSchedule = ({ user }) => {
     // Créer la chaîne de date au format YYYY-MM-DD pour la comparaison
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     
+    console.log(`🔍 Recherche astreintes pour le: ${dateStr} (objet Date: ${date})`);
+    
     const matches = onCallData.filter(item => {
       // Comparer directement les chaînes de date
       const match = item.date === dateStr;
+      console.log(`  Comparaison: ${item.date} === ${dateStr} ? ${match}`);
       if (match) {
         console.log(`✅ Match trouvé: ${item.date} === ${dateStr} pour ${item.employee_name}`);
       }
       return match;
     });
+    
+    if (matches.length > 0) {
+      console.log(`✅ ${matches.length} astreinte(s) trouvée(s) pour ${dateStr}`);
+    }
     
     return matches;
   };
