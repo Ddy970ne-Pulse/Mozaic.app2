@@ -100,29 +100,39 @@ const CSEManagementNew = ({ user }) => {
     try {
       // Validations
       const cedant = titulaires.find(t => t.id === cessionData.from_id);
-      const beneficiaire = [...titulaires, ...suppleants].find(m => m.id === cessionData.to_id);
       
       if (!cedant) {
         showMessage('Cédant non trouvé', 'error');
         return;
       }
 
-      if (!beneficiaire) {
-        showMessage('Bénéficiaire non trouvé', 'error');
-        return;
-      }
+      // Validation bénéficiaire
+      if (cessionData.is_external) {
+        // Personne externe - vérifier que le nom est saisi
+        if (!cessionData.to_name || cessionData.to_name.trim() === '') {
+          showMessage('Veuillez saisir le nom du bénéficiaire externe', 'error');
+          return;
+        }
+      } else {
+        // Membre CSE - vérifier qu'il existe
+        const beneficiaire = [...titulaires, ...suppleants].find(m => m.id === cessionData.to_id);
+        if (!beneficiaire) {
+          showMessage('Bénéficiaire non trouvé', 'error');
+          return;
+        }
 
-      // Validation limite 1.5x
-      const beneficiaireBalance = calculateBalance(beneficiaire.id);
-      const newBalance = beneficiaireBalance.balance + parseFloat(cessionData.hours);
-      const maxAllowed = creditMensuelBase * 1.5;
+        // Validation limite 1.5x (seulement pour membres CSE)
+        const beneficiaireBalance = calculateBalance(beneficiaire.id);
+        const newBalance = beneficiaireBalance.balance + parseFloat(cessionData.hours);
+        const maxAllowed = creditMensuelBase * 1.5;
 
-      if (newBalance > maxAllowed) {
-        showMessage(
-          `Dépassement limite: Le bénéficiaire aurait ${newBalance.toFixed(1)}h mais le maximum autorisé est ${maxAllowed}h (1.5× ${creditMensuelBase}h)`,
-          'error'
-        );
-        return;
+        if (newBalance > maxAllowed) {
+          showMessage(
+            `Dépassement limite: Le bénéficiaire aurait ${newBalance.toFixed(1)}h mais le maximum autorisé est ${maxAllowed}h (1.5× ${creditMensuelBase}h)`,
+            'error'
+          );
+          return;
+        }
       }
 
       // Validation délai 8 jours
