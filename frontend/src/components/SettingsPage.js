@@ -314,6 +314,9 @@ const SettingsPage = ({ user }) => {
           </div>
         );
 
+      case 'theme':
+        return <ThemeCustomizer user={user} />;
+
       case 'privacy':
         return (
           <div className="space-y-6">
