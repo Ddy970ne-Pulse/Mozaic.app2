@@ -54,11 +54,15 @@ class OnCallScheduleAPITester:
         self.websocket_messages = []
         self.websocket_connected = False
         self.test_results = {
-            "phase1_secret_key": {"passed": 0, "failed": 0, "details": []},
-            "phase2_validation": {"passed": 0, "failed": 0, "details": []},
-            "phase3_rate_limiting": {"passed": 0, "failed": 0, "details": []},
-            "security_bypass": {"passed": 0, "failed": 0, "details": []}
+            "authentication": {"passed": 0, "failed": 0, "details": []},
+            "get_endpoints": {"passed": 0, "failed": 0, "details": []},
+            "post_endpoints": {"passed": 0, "failed": 0, "details": []},
+            "delete_endpoints": {"passed": 0, "failed": 0, "details": []},
+            "put_endpoints": {"passed": 0, "failed": 0, "details": []},
+            "data_persistence": {"passed": 0, "failed": 0, "details": []},
+            "error_handling": {"passed": 0, "failed": 0, "details": []}
         }
+        self.created_schedule_ids = []  # Track created schedules for cleanup
         
     def log_result(self, phase, test_name, success, message, expected=None, actual=None):
         """Log test result"""
