@@ -177,7 +177,7 @@ const OnCallSchedule = ({ user }) => {
     setSelectedOnCall(onCallItem);
   };
 
-  // Créer une astreinte (version avec données locales)
+  // Créer une astreinte
   const handleQuickAddSubmit = async () => {
     if (!quickAddData.employeeId || !quickAddData.date) {
       alert('⚠️ Veuillez remplir tous les champs obligatoires');
@@ -189,39 +189,56 @@ const OnCallSchedule = ({ user }) => {
     try {
       const employee = employees.find(e => e.id === quickAddData.employeeId);
       
-      // Ajouter localement (en attendant l'API backend)
+      // Préparer les données pour l'API
       const startDate = new Date(quickAddData.date);
-      const newOnCallItems = [];
+      const schedulesToCreate = [];
       
       if (quickAddData.type === 'semaine') {
-        // Ajouter 7 jours
+        // Créer 7 jours d'astreintes
         for (let i = 0; i < 7; i++) {
           const date = new Date(startDate);
           date.setDate(startDate.getDate() + i);
-          newOnCallItems.push({
-            id: `local-${Date.now()}-${i}`,
+          schedulesToCreate.push({
             employee_id: quickAddData.employeeId,
             employee_name: employee?.name || `${employee?.prenom} ${employee?.nom}`,
             date: date.toISOString(),
             type: 'Astreinte semaine',
-            notes: quickAddData.notes
+            notes: quickAddData.notes || ''
           });
         }
       } else {
-        newOnCallItems.push({
-          id: `local-${Date.now()}`,
+        schedulesToCreate.push({
           employee_id: quickAddData.employeeId,
           employee_name: employee?.name || `${employee?.prenom} ${employee?.nom}`,
           date: startDate.toISOString(),
           type: 'Astreinte jour',
-          notes: quickAddData.notes
+          notes: quickAddData.notes || ''
         });
       }
       
-      setOnCallData([...onCallData, ...newOnCallItems]);
-      alert(`✅ Astreinte créée pour ${employee?.name || employee?.prenom}`);
-      setShowQuickAddModal(false);
-      setQuickAddData({ employeeId: '', date: '', type: 'semaine', notes: '' });
+      // Appel API pour créer les astreintes
+      const response = await fetch(`${backendUrl}/api/on-call/schedule/bulk`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ schedules: schedulesToCreate })
+      });
+
+      if (response.ok) {
+        const createdSchedules = await response.json();
+        setOnCallData([...onCallData, ...createdSchedules]);
+        alert(`✅ Astreinte créée pour ${employee?.name || employee?.prenom}`);
+        setShowQuickAddModal(false);
+        setQuickAddData({ employeeId: '', date: '', type: 'semaine', notes: '' });
+        // Recharger les données
+        fetchOnCallSchedule();
+      } else {
+        const error = await response.json();
+        console.error('Erreur API:', error);
+        alert(`❌ Erreur lors de la création: ${error.detail || 'Erreur inconnue'}`);
+      }
       
     } catch (error) {
       console.error('Erreur création:', error);
