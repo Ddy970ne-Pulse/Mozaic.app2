@@ -1676,8 +1676,17 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + parseInt(quickAddData.days) - 1);
       
-      const dateDebut = quickAddData.date; // Format YYYY-MM-DD
-      const dateFin = endDate.toISOString().split('T')[0];
+      // Convertir en format DD/MM/YYYY (format attendu par le backend)
+      const formatDateToDDMMYYYY = (date) => {
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+      
+      const dateDebut = formatDateToDDMMYYYY(quickAddData.date);
+      const dateFin = formatDateToDDMMYYYY(endDate);
       
       console.log('📅 Dates calculées:', { dateDebut, dateFin });
       
