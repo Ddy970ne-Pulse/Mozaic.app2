@@ -744,33 +744,45 @@ class OnCallScheduleAPITester:
         return critical_success
 
     def run_all_tests(self):
-        """Exécuter tous les tests de sécurité critiques"""
-        print("🚀 DÉMARRAGE DES TESTS DE SÉCURITÉ CRITIQUES")
+        """Exécuter tous les tests de l'API On-Call Schedule"""
+        print("🚀 DÉMARRAGE DES TESTS ON-CALL SCHEDULE BACKEND API")
         print("=" * 80)
-        print("OBJECTIF: Test complet des améliorations de sécurité critiques MOZAIK RH")
+        print("OBJECTIF: Test complet de l'API backend Planning Astreintes nouvellement implémentée")
         print("USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)")
-        print("PRIORITÉ: Rate limiting (brute force) + Validation (sécurité données)")
+        print("PRIORITÉ: CRUD operations + Authentication + Data persistence + Error handling")
         print("=" * 80)
         
-        # Phase 1: SECRET_KEY Validation (should already be working if backend started)
-        self.test_phase1_secret_key_validation()
-        
-        # Authentification pour les tests suivants
+        # Authentification pour tous les tests
         if not self.authenticate():
             print("❌ Impossible de continuer sans authentification")
             return False
         
-        # Exécuter tous les tests de sécurité
-        print(f"\n🔄 EXÉCUTION DES TESTS DE SÉCURITÉ...")
+        # Exécuter tous les tests de l'API On-Call
+        print(f"\n🔄 EXÉCUTION DES TESTS API ON-CALL SCHEDULE...")
         
-        # Phase 2: Pydantic Validation - CRITIQUE
-        self.test_phase2_pydantic_validation()
+        # Test 1: Authentication Requirements - CRITIQUE
+        self.test_authentication_requirements()
         
-        # Phase 3: Rate Limiting - CRITIQUE (protection brute force)
-        self.test_phase3_rate_limiting()
+        # Test 2: GET Endpoints - Retrieve schedules
+        self.test_get_endpoints()
         
-        # Security Bypass Tests
-        self.test_security_bypass_attempts()
+        # Test 3: POST Endpoints - Create schedules (bulk and single)
+        self.test_post_endpoints()
+        
+        # Test 4: DELETE Endpoints - Remove schedules
+        self.test_delete_endpoints()
+        
+        # Test 5: PUT Endpoints - Update schedules
+        self.test_put_endpoints()
+        
+        # Test 6: Data Persistence - MongoDB verification
+        self.test_data_persistence()
+        
+        # Test 7: Error Handling - Edge cases and validation
+        self.test_error_handling()
+        
+        # Cleanup test data
+        self.cleanup_test_data()
         
         # Afficher le résumé
         return self.print_summary()
