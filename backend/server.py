@@ -561,6 +561,7 @@ class UserUpdate(BaseModel):
     position: Optional[constr(max_length=200)] = None
     hire_date: Optional[str] = None
     isDelegateCSE: Optional[bool] = None
+    statut_cse: Optional[constr(pattern=r'^(Titulaire|Suppléant|Non-membre)?$')] = None
     is_active: Optional[bool] = None
     # Champs additionnels pour données employés complètes
     date_naissance: Optional[str] = None
