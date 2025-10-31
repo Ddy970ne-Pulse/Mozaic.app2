@@ -1557,6 +1557,20 @@ const UserManagement = ({ user }) => {
                   </div>
                   
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">🏛️ Statut CSE</label>
+                    <select
+                      value={selectedUser.statut_cse || 'Non-membre'}
+                      onChange={(e) => setSelectedUser({...selectedUser, statut_cse: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="Non-membre">Non-membre</option>
+                      <option value="Titulaire">Titulaire</option>
+                      <option value="Suppléant">Suppléant</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">Définit si l'employé est membre du CSE</p>
+                  </div>
+                  
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Date d'embauche / Début contrat</label>
                     <input
                       type="text"
