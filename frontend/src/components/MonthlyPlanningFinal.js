@@ -371,9 +371,16 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     const checkDateObj = new Date(checkDate);
     const checkDateStr = `${checkDateObj.getFullYear()}-${String(checkDateObj.getMonth() + 1).padStart(2, '0')}-${String(checkDateObj.getDate()).padStart(2, '0')}`;
     
+    // ✅ CORRECTIF B : Normaliser la date de l'assignation avant comparaison
     // Vérifier si cette date fait partie des jours d'astreinte de cet employé
     const result = employeeOnCallData.some(assignment => {
-      return assignment.startDate === checkDateStr;
+      // Normaliser assignment.startDate (au cas où il contiendrait un timestamp)
+      let assignmentDateStr = assignment.startDate;
+      if (assignmentDateStr && assignmentDateStr.includes('T')) {
+        assignmentDateStr = assignmentDateStr.split('T')[0];
+      }
+      
+      return assignmentDateStr === checkDateStr;
     });
     
     return result;
