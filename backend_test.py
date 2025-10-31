@@ -216,80 +216,83 @@ class CSEModuleTester:
             self.log_result("cse_delegates", "GET cse/delegates", False, f"Exception: {str(e)}")
 
     def test_cse_cessions_internal(self):
-        """Test GET endpoints for on-call schedules"""
-        print(f"\n📅 GET ENDPOINTS TESTING")
+        """Test 2: Cession vers Membre CSE (existant) - POST /api/cse/cessions"""
+        print(f"\n🔄 TEST 2: CESSION VERS MEMBRE CSE (EXISTANT)")
         print("=" * 60)
         
-        # Test 1: GET /api/on-call/schedule (no filters - should return empty initially)
-        print(f"\n📋 Test 1: GET /api/on-call/schedule (no filters)")
-        
+        # D'abord, récupérer les IDs des délégués pour les utiliser dans les cessions
         try:
-            response = self.session.get(f"{BACKEND_URL}/on-call/schedule")
+            delegates_response = self.session.get(f"{BACKEND_URL}/cse/delegates")
+            if delegates_response.status_code != 200:
+                self.log_result("cse_cessions_internal", "Récupération délégués pour cession", False,
+                               "Impossible de récupérer les délégués")
+                return
             
-            if response.status_code == 200:
+            delegates = delegates_response.json()
+            
+            # Trouver Jacques EDAU et Thierry MARTIAS
+            jacques_id = None
+            thierry_id = None
+            
+            for delegate in delegates:
+                name = delegate.get("user_name", "")
+                if "Jacques" in name and "EDAU" in name:
+                    jacques_id = delegate.get("user_id")
+                elif "Thierry" in name and "MARTIAS" in name:
+                    thierry_id = delegate.get("user_id")
+            
+            if not jacques_id or not thierry_id:
+                self.log_result("cse_cessions_internal", "IDs délégués trouvés", False,
+                               f"Jacques ID: {jacques_id}, Thierry ID: {thierry_id}")
+                return
+            
+            print(f"✅ IDs délégués trouvés - Jacques: {jacques_id[:8]}..., Thierry: {thierry_id[:8]}...")
+            
+            # Test de cession entre membres CSE existants
+            cession_data = {
+                "from_id": jacques_id,
+                "from_name": "Jacques EDAU",
+                "to_id": thierry_id,
+                "to_name": "Thierry MARTIAS",
+                "is_external": False,
+                "hours": 5,
+                "usage_date": "2025-02-15",
+                "reason": "Test cession membre CSE",
+                "created_by": "Test"
+            }
+            
+            response = self.session.post(f"{BACKEND_URL}/cse/cessions", json=cession_data)
+            
+            if response.status_code in [200, 201]:
                 data = response.json()
-                print(f"✅ GET schedule successful (200) - Found {len(data)} schedules")
-                self.log_result("get_endpoints", "GET schedule no filters", True,
-                               f"Returned {len(data)} schedules successfully")
+                print(f"✅ Cession créée avec succès ({response.status_code})")
+                print(f"   De: {data.get('from_name')} → Vers: {data.get('to_name')}")
+                print(f"   Heures: {data.get('hours')}h, Date: {data.get('usage_date')}")
+                
+                # Tracker pour cleanup
+                if data.get("id"):
+                    self.created_cession_ids.append(data["id"])
+                
+                self.log_result("cse_cessions_internal", "POST cession membre CSE", True,
+                               f"Cession créée: {data.get('from_name')} → {data.get('to_name')} ({data.get('hours')}h)")
+                
+                # Vérifier la structure de la réponse
+                required_fields = ["id", "from_id", "from_name", "to_id", "to_name", "hours", "usage_date", "reason", "created_by"]
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if not missing_fields:
+                    self.log_result("cse_cessions_internal", "Structure réponse cession", True,
+                                   "Tous les champs requis présents")
+                else:
+                    self.log_result("cse_cessions_internal", "Structure réponse cession", False,
+                                   f"Champs manquants: {missing_fields}")
+                
             else:
-                self.log_result("get_endpoints", "GET schedule no filters", False,
-                               f"Expected 200, got {response.status_code}")
+                self.log_result("cse_cessions_internal", "POST cession membre CSE", False,
+                               f"Expected 200/201, got {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_result("get_endpoints", "GET schedule no filters", False, f"Exception: {str(e)}")
-        
-        # Test 2: GET /api/on-call/schedule with month/year filtering
-        print(f"\n📋 Test 2: GET /api/on-call/schedule with month/year filtering")
-        
-        try:
-            response = self.session.get(f"{BACKEND_URL}/on-call/schedule?month=1&year=2025")
-            
-            if response.status_code == 200:
-                data = response.json()
-                print(f"✅ GET schedule with filters successful (200) - Found {len(data)} schedules")
-                self.log_result("get_endpoints", "GET schedule with month/year filter", True,
-                               f"Month/year filtering working, returned {len(data)} schedules")
-            else:
-                self.log_result("get_endpoints", "GET schedule with month/year filter", False,
-                               f"Expected 200, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("get_endpoints", "GET schedule with month/year filter", False, f"Exception: {str(e)}")
-        
-        # Test 3: GET /api/on-call/assignments with date range
-        print(f"\n📋 Test 3: GET /api/on-call/assignments with date range")
-        
-        try:
-            response = self.session.get(f"{BACKEND_URL}/on-call/assignments?startDate=2025-01-01&endDate=2025-01-31")
-            
-            if response.status_code == 200:
-                data = response.json()
-                print(f"✅ GET assignments successful (200) - Found {len(data)} assignments")
-                self.log_result("get_endpoints", "GET assignments with date range", True,
-                               f"Date range filtering working, returned {len(data)} assignments")
-            else:
-                self.log_result("get_endpoints", "GET assignments with date range", False,
-                               f"Expected 200, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("get_endpoints", "GET assignments with date range", False, f"Exception: {str(e)}")
-        
-        # Test 4: GET /api/on-call/assignments with invalid date format
-        print(f"\n📋 Test 4: GET /api/on-call/assignments with invalid date format")
-        
-        try:
-            response = self.session.get(f"{BACKEND_URL}/on-call/assignments?startDate=invalid&endDate=2025-01-31")
-            
-            if response.status_code == 400:
-                print(f"✅ Invalid date format rejected (400)")
-                self.log_result("get_endpoints", "GET assignments invalid date format", True,
-                               "Invalid date format properly rejected with 400")
-            else:
-                self.log_result("get_endpoints", "GET assignments invalid date format", False,
-                               f"Expected 400, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("get_endpoints", "GET assignments invalid date format", False, f"Exception: {str(e)}")
+            self.log_result("cse_cessions_internal", "POST cession membre CSE", False, f"Exception: {str(e)}")
 
     def test_post_endpoints(self):
         """Test POST endpoints for creating on-call schedules"""
