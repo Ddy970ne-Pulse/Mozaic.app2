@@ -624,9 +624,9 @@ const CSEManagementNew = ({ user }) => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                     placeholder="Ex: 5"
                   />
-                  {cessionData.to_id && cessionData.hours && (
+                  {cessionData.to_id && cessionData.hours && !cessionData.is_external && (
                     <p className="text-xs text-gray-600 mt-1">
-                      Max autorisé: {creditMensuelBase * 1.5}h (1.5× {creditMensuelBase}h)
+                      Max autorisé: 33h (1.5× 22h) pour 250+ salariés
                     </p>
                   )}
                 </div>
