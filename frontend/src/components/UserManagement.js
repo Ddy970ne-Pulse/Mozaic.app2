@@ -31,7 +31,8 @@ const UserManagement = ({ user }) => {
     phone: '',
     position: '',
     hire_date: '',
-    isDelegateCSE: false
+    isDelegateCSE: false,
+    statut_cse: 'Non-membre'
   });
   const [showPrintPasswordsModal, setShowPrintPasswordsModal] = useState(false);
   const [selectedUsersForPrint, setSelectedUsersForPrint] = useState([]);
