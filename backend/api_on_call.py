@@ -255,8 +255,8 @@ async def get_on_call_assignments(
 @router.post("/schedule", response_model=OnCallScheduleResponse, status_code=status.HTTP_201_CREATED)
 async def create_on_call_schedule(
     schedule: OnCallScheduleCreate,
-    db: AsyncIOMotorDatabase = None,
-    current_user: str = Depends(get_current_user_email)
+    current_user: str = Depends(get_current_user_email),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ):
     """
     Create a new on-call schedule
@@ -265,14 +265,6 @@ async def create_on_call_schedule(
     """
     try:
         logger.info(f"➕ Creating on-call schedule for employee {schedule.employee_id} on {schedule.date}")
-        
-        # Get database connection
-        if db is None:
-            from motor.motor_asyncio import AsyncIOMotorClient
-            import os
-            mongo_url = os.environ['MONGO_URL']
-            client = AsyncIOMotorClient(mongo_url)
-            db = client[os.environ['DB_NAME']]
         
         # Create schedule document
         schedule_id = str(uuid.uuid4())
