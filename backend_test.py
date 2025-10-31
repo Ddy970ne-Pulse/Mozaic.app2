@@ -250,95 +250,104 @@ class CSERegressionTester:
         except Exception as e:
             self.log_result("company_settings_no_500", "GET company-settings", False, f"Exception: {str(e)}")
 
-    def test_cse_cessions_external(self):
-        """Test 3: Cession vers Personne Externe (NOUVEAU - PRIORITAIRE) - POST /api/cse/cessions"""
-        print(f"\n🌐 TEST 3: CESSION VERS PERSONNE EXTERNE (PRIORITAIRE)")
+    def test_cessions_list_is_external_field(self):
+        """Test 3: Vérification liste cessions (avec is_external)"""
+        print(f"\n📋 TEST 3: VÉRIFICATION LISTE CESSIONS (AVEC is_external)")
         print("=" * 60)
         
-        # D'abord, récupérer l'ID de Jacques EDAU pour la cession
         try:
-            delegates_response = self.session.get(f"{BACKEND_URL}/cse/delegates")
-            if delegates_response.status_code != 200:
-                self.log_result("cse_cessions_external", "Récupération délégués pour cession externe", False,
-                               "Impossible de récupérer les délégués")
-                return
+            response = self.session.get(f"{BACKEND_URL}/cse/cessions")
             
-            delegates = delegates_response.json()
+            print(f"📤 GET /api/cse/cessions")
+            print(f"📥 Status Code: {response.status_code}")
             
-            # Trouver Jacques EDAU
-            jacques_id = None
-            for delegate in delegates:
-                name = delegate.get("user_name", "")
-                if "Jacques" in name and "EDAU" in name:
-                    jacques_id = delegate.get("user_id")
-                    break
-            
-            if not jacques_id:
-                self.log_result("cse_cessions_external", "ID Jacques EDAU trouvé", False,
-                               "Jacques EDAU non trouvé dans les délégués")
-                return
-            
-            print(f"✅ ID Jacques EDAU trouvé: {jacques_id[:8]}...")
-            
-            # Test de cession vers personne externe (NOUVEAU - PRIORITAIRE)
-            external_cession_data = {
-                "from_id": jacques_id,
-                "from_name": "Jacques EDAU",
-                "to_id": "external",
-                "to_name": "Marie Dupont (Externe)",
-                "is_external": True,
-                "hours": 3,
-                "usage_date": "2025-02-20",
-                "reason": "Test cession personne externe non enregistrée",
-                "created_by": "Test"
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/cse/cessions", json=external_cession_data)
-            
-            if response.status_code in [200, 201]:
-                data = response.json()
-                print(f"✅ Cession externe créée avec succès ({response.status_code})")
-                print(f"   De: {data.get('from_name')} → Vers: {data.get('to_name')}")
-                print(f"   Heures: {data.get('hours')}h, Date: {data.get('usage_date')}")
-                print(f"   to_id: {data.get('to_id')}")
+            if response.status_code == 200:
+                cessions = response.json()
+                print(f"✅ GET /api/cse/cessions successful (200) - Found {len(cessions)} cessions")
                 
-                # Tracker pour cleanup
-                if data.get("id"):
-                    self.created_cession_ids.append(data["id"])
+                if len(cessions) == 0:
+                    self.log_result("cessions_list_is_external", "Cessions trouvées", False,
+                                   "Aucune cession trouvée dans la liste")
+                    return
                 
-                self.log_result("cse_cessions_external", "POST cession externe acceptée", True,
-                               f"Cession externe créée sans validation de limite")
+                # Analyser les cessions pour vérifier le champ is_external
+                external_cessions_count = 0
+                internal_cessions_count = 0
+                cessions_with_is_external_field = 0
                 
-                # Vérifier que to_id="external" est conservé
-                if data.get("to_id") == "external":
-                    self.log_result("cse_cessions_external", "to_id external conservé", True,
-                                   "to_id='external' correctement stocké")
+                print(f"\n📊 Analyse des cessions:")
+                for i, cession in enumerate(cessions[:10]):  # Analyser les 10 premières
+                    to_id = cession.get("to_id", "")
+                    to_name = cession.get("to_name", "")
+                    is_external = cession.get("is_external")
+                    
+                    print(f"   {i+1}. {cession.get('from_name', 'N/A')} → {to_name}")
+                    print(f"      to_id: {to_id}, is_external: {is_external}")
+                    
+                    # Compter les cessions avec le champ is_external
+                    if "is_external" in cession:
+                        cessions_with_is_external_field += 1
+                    
+                    # Vérifier les cessions externes
+                    if to_id == "external":
+                        external_cessions_count += 1
+                        if is_external is True:
+                            print(f"      ✅ Cession externe avec is_external=true")
+                        else:
+                            print(f"      ❌ Cession externe SANS is_external=true (trouvé: {is_external})")
+                    else:
+                        internal_cessions_count += 1
+                        if is_external is False or is_external is None:
+                            print(f"      ✅ Cession interne avec is_external=false/null")
+                        else:
+                            print(f"      ❌ Cession interne avec is_external=true (incorrect)")
+                
+                # Vérifier que les cessions externes ont is_external = true
+                external_correct = True
+                internal_correct = True
+                
+                for cession in cessions:
+                    to_id = cession.get("to_id", "")
+                    is_external = cession.get("is_external")
+                    
+                    if to_id == "external" and is_external is not True:
+                        external_correct = False
+                    elif to_id != "external" and is_external is True:
+                        internal_correct = False
+                
+                if external_cessions_count > 0:
+                    if external_correct:
+                        self.log_result("cessions_list_is_external", "Cessions externes is_external=true", True,
+                                       f"{external_cessions_count} cessions externes avec is_external=true")
+                    else:
+                        self.log_result("cessions_list_is_external", "Cessions externes is_external=true", False,
+                                       f"Certaines cessions externes n'ont pas is_external=true")
                 else:
-                    self.log_result("cse_cessions_external", "to_id external conservé", False,
-                                   f"to_id attendu: 'external', trouvé: {data.get('to_id')}")
+                    self.log_result("cessions_list_is_external", "Cessions externes trouvées", False,
+                                   "Aucune cession externe trouvée pour vérifier is_external")
                 
-                # Vérifier que le nom externe est correctement stocké
-                if data.get("to_name") == "Marie Dupont (Externe)":
-                    self.log_result("cse_cessions_external", "Nom externe stocké correctement", True,
-                                   "Nom externe 'Marie Dupont (Externe)' correctement stocké")
-                else:
-                    self.log_result("cse_cessions_external", "Nom externe stocké correctement", False,
-                                   f"Nom attendu: 'Marie Dupont (Externe)', trouvé: {data.get('to_name')}")
+                if internal_cessions_count > 0:
+                    if internal_correct:
+                        self.log_result("cessions_list_is_external", "Cessions internes is_external=false", True,
+                                       f"{internal_cessions_count} cessions internes avec is_external=false/null")
+                    else:
+                        self.log_result("cessions_list_is_external", "Cessions internes is_external=false", False,
+                                       f"Certaines cessions internes ont is_external=true (incorrect)")
                 
-                # Vérifier que is_external est True
-                if data.get("is_external") == True:
-                    self.log_result("cse_cessions_external", "is_external flag correct", True,
-                                   "is_external=True correctement défini")
+                # Vérifier que le champ is_external est présent
+                if cessions_with_is_external_field > 0:
+                    self.log_result("cessions_list_is_external", "Champ is_external présent", True,
+                                   f"{cessions_with_is_external_field}/{len(cessions)} cessions ont le champ is_external")
                 else:
-                    self.log_result("cse_cessions_external", "is_external flag correct", False,
-                                   f"is_external attendu: True, trouvé: {data.get('is_external')}")
+                    self.log_result("cessions_list_is_external", "Champ is_external présent", False,
+                                   "Aucune cession n'a le champ is_external")
                 
             else:
-                self.log_result("cse_cessions_external", "POST cession externe acceptée", False,
-                               f"Expected 200/201, got {response.status_code}: {response.text}")
+                self.log_result("cessions_list_is_external", "GET cse/cessions", False,
+                               f"Expected 200, got {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_result("cse_cessions_external", "POST cession externe", False, f"Exception: {str(e)}")
+            self.log_result("cessions_list_is_external", "GET cse/cessions", False, f"Exception: {str(e)}")
 
     def test_cse_cessions_list(self):
         """Test 4: Vérification Liste Cessions - GET /api/cse/cessions"""
