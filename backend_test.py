@@ -350,62 +350,7 @@ class CSERegressionTester:
             self.log_result("cessions_list_is_external", "GET cse/cessions", False, f"Exception: {str(e)}")
 
     def cleanup_test_data(self):
-        """Test 5: Paramètres Entreprise - GET /api/company-settings"""
-        print(f"\n🏢 TEST 5: PARAMÈTRES ENTREPRISE")
-        print("=" * 60)
-        
-        try:
-            response = self.session.get(f"{BACKEND_URL}/company-settings")
-            
-            if response.status_code == 200:
-                settings = response.json()
-                print(f"✅ GET /api/company-settings successful (200)")
-                
-                # Vérifier effectif = 250 salariés
-                effectif = settings.get("effectif")
-                if effectif == 250:
-                    self.log_result("company_settings", "Effectif correct (250)", True,
-                                   f"Effectif = {effectif} salariés comme attendu")
-                else:
-                    self.log_result("company_settings", "Effectif correct (250)", False,
-                                   f"Effectif attendu: 250, trouvé: {effectif}")
-                
-                # Vérifier accord_entreprise_heures_cse = false
-                accord_cse = settings.get("accord_entreprise_heures_cse")
-                if accord_cse == False:
-                    self.log_result("company_settings", "accord_entreprise_heures_cse = false", True,
-                                   f"accord_entreprise_heures_cse = {accord_cse} comme attendu")
-                else:
-                    self.log_result("company_settings", "accord_entreprise_heures_cse = false", False,
-                                   f"accord_entreprise_heures_cse attendu: false, trouvé: {accord_cse}")
-                
-                # Afficher les paramètres pour information
-                print(f"\n📊 Paramètres entreprise:")
-                print(f"   - Effectif: {settings.get('effectif')} salariés")
-                print(f"   - Nom entreprise: {settings.get('nom_entreprise')}")
-                print(f"   - Accord entreprise heures CSE: {settings.get('accord_entreprise_heures_cse')}")
-                print(f"   - Secteur d'activité: {settings.get('secteur_activite')}")
-                print(f"   - Convention collective: {settings.get('convention_collective')}")
-                
-                # Vérifier la structure complète
-                required_fields = ["effectif", "nom_entreprise", "accord_entreprise_heures_cse"]
-                missing_fields = [field for field in required_fields if field not in settings]
-                
-                if not missing_fields:
-                    self.log_result("company_settings", "Structure paramètres complète", True,
-                                   "Tous les champs requis présents")
-                else:
-                    self.log_result("company_settings", "Structure paramètres complète", False,
-                                   f"Champs manquants: {missing_fields}")
-                
-            else:
-                self.log_result("company_settings", "GET company-settings", False,
-                               f"Expected 200, got {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            self.log_result("company_settings", "GET company-settings", False, f"Exception: {str(e)}")
-
-    def cleanup_test_data(self):
+        """Clean up any remaining test cessions"""
         """Clean up any remaining test cessions"""
         print(f"\n🧹 CLEANUP - Removing test cessions")
         
