@@ -305,6 +305,9 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           const assignments = await response.json();
           
           console.log('📅 Réponse API brute:', assignments);
+          if (assignments.length > 0) {
+            console.log('📅 Exemple de date reçue:', assignments[0]?.date);
+          }
           
           // Transformer les assignations (jours individuels) en format utilisable par le planning
           // Grouper par employé et par semaine
@@ -317,17 +320,20 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
               onCallMap[employeeId] = [];
             }
             
-            // ✅ CORRECTIF A : Normaliser le format de date au chargement
-            // Extraire YYYY-MM-DD si la date contient un timestamp ISO
-            let normalizedDate = assignment.date;
+            // ✅ CORRECTIF : Normaliser la date en YYYY-MM-DD dès le chargement
+            let normalizedDate;
             if (assignment.date && assignment.date.includes('T')) {
+              // Format ISO complet : extraire juste la partie date
               normalizedDate = assignment.date.split('T')[0];
+            } else {
+              // Déjà en format YYYY-MM-DD
+              normalizedDate = assignment.date;
             }
             
             // Ajouter chaque jour comme une assignation
             // Le code existant vérifiera si une date tombe dans une semaine d'astreinte
             onCallMap[employeeId].push({
-              startDate: normalizedDate, // ✅ Date normalisée au format YYYY-MM-DD
+              startDate: normalizedDate, // ✅ Date normalisée au format YYYY-MM-DD garanti
               endDate: normalizedDate,   // Même date pour un jour unique
               employeeName: assignment.employee_name,
               type: assignment.type,
@@ -341,7 +347,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
             const firstEmployeeId = Object.keys(onCallMap)[0];
             const firstEmployeeData = onCallMap[firstEmployeeId];
             console.log('📊 Exemple de données normalisées:', firstEmployeeData[0]);
-            console.log(`   ✅ Format de startDate: "${firstEmployeeData[0].startDate}" (doit être YYYY-MM-DD)`);
+            console.log(`   ✅ Format de startDate: "${firstEmployeeData[0].startDate}" (YYYY-MM-DD)`);
           }
           setOnCallData(onCallMap);
         } else {
