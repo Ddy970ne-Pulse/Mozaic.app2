@@ -2765,46 +2765,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           </div>
 
           {/* Ligne 2: Options selon mode */}
-          {addAbsenceMode && (
-            <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gray-200">
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">Type :</label>
-                <select
-                  value={selectedAbsenceType}
-                  onChange={(e) => setSelectedAbsenceType(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
-                >
-                  <option value="CA">Congés Annuels</option>
-                  <option value="CT">Congés Trimestriels</option>
-                  <option value="RTT">RTT</option>
-                  <option value="REC">Récupération</option>
-                  <option value="AM">Arrêt Maladie</option>
-                  <option value="AT">Accident du travail</option>
-                  <option value="MAT">Congé Maternité</option>
-                  <option value="PAT">Congé Paternité</option>
-                  <option value="FAM">Événement Familial</option>
-                  <option value="FO">Formation</option>
-                  <option value="STG">Stage</option>
-                  <option value="TEL">Télétravail</option>
-                  <option value="CSS">Congés Sans Solde</option>
-                  <option value="CEX">Congé Exceptionnel</option>
-                </select>
-              </div>
-
-              <div className="text-sm text-gray-600">
-                {!selectedEmployee && !multiSelectMode && '👉 Cliquez sur un employé'}
-                {selectedEmployee && !selectionStart && `👤 ${selectedEmployee.name} → Cliquez sur date début`}
-                {selectedEmployee && selectionStart && !selectionEnd && !hoveredDate && `📅 ${formatDateForDisplay(selectionStart)} → Survolez pour voir la période`}
-                {selectedEmployee && selectionStart && !selectionEnd && hoveredDate && (
-                  <span className="font-bold text-green-600">
-                    📅 Du {formatDateForDisplay(selectionStart)} au {formatDateForDisplay(hoveredDate)} 
-                    = {calculateDaysBetween(selectionStart, hoveredDate)} jour(s) ouvrables → Cliquez pour valider
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
           {multiSelectMode && selectedEmployees.length > 0 && (
             <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gray-200">
               <span className="text-sm font-medium text-gray-700">
