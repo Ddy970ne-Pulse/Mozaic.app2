@@ -46,7 +46,7 @@ const LeaveTransactionHistory = ({ employeeId, limit = 20, compact = false }) =>
       }
       
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/leave-balance/transactions/${employeeId}?${params}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/leave-balances/${employeeId}/history?${params}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -56,7 +56,8 @@ const LeaveTransactionHistory = ({ employeeId, limit = 20, compact = false }) =>
       
       if (response.ok) {
         const data = await response.json();
-        setTransactions(data);
+        // Adapter la réponse de l'API
+        setTransactions(data.transactions || []);
         setError(null);
       } else if (response.status === 404) {
         setTransactions([]);
