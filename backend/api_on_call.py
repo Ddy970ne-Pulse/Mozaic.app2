@@ -210,8 +210,8 @@ async def get_on_call_schedule(
 async def get_on_call_assignments(
     startDate: str,
     endDate: str,
-    db: AsyncIOMotorDatabase = None,
-    current_user: str = Depends(get_current_user_email)
+    current_user: str = Depends(get_current_user_email),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ):
     """
     Retrieve on-call assignments for a date range (used by Monthly Planning)
@@ -236,14 +236,6 @@ async def get_on_call_assignments(
                 '$lte': endDate
             }
         }
-        
-        # Get database connection
-        if db is None:
-            from motor.motor_asyncio import AsyncIOMotorClient
-            import os
-            mongo_url = os.environ['MONGO_URL']
-            client = AsyncIOMotorClient(mongo_url)
-            db = client[os.environ['DB_NAME']]
         
         cursor = db.on_call_schedules.find(query)
         assignments = await cursor.to_list(length=None)
