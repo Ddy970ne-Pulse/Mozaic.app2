@@ -490,26 +490,55 @@ const CSEManagementNew = ({ user }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Bénéficiaire *
                 </label>
-                <select
-                  required
-                  value={cessionData.to_id}
-                  onChange={(e) => setCessionData({ ...cessionData, to_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                >
-                  <option value="">Sélectionner un bénéficiaire...</option>
-                  <optgroup label="Titulaires">
-                    {titulaires.filter(t => t.id !== cessionData.from_id).map(t => {
-                      const balance = calculateBalance(t.id);
-                      return (
-                        <option key={t.id} value={t.id}>
-                          {t.name} (Solde: {balance.balance.toFixed(1)}h)
-                        </option>
-                      );
-                    })}
-                  </optgroup>
-                  <optgroup label="Suppléants">
-                    {suppleants.map(s => {
-                      const balance = calculateBalance(s.id);
+                
+                {/* Toggle Membre CSE / Personne externe */}
+                <div className="flex gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setCessionData({...cessionData, is_external: false, to_id: '', to_name: ''})}
+                    className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                      !cessionData.is_external
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    👥 Membre CSE
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCessionData({...cessionData, is_external: true, to_id: 'external', to_name: ''})}
+                    className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                      cessionData.is_external
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    👤 Personne externe
+                  </button>
+                </div>
+                
+                {/* Select pour membre CSE */}
+                {!cessionData.is_external ? (
+                  <select
+                    required
+                    value={cessionData.to_id}
+                    onChange={(e) => setCessionData({ ...cessionData, to_id: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="">Sélectionner un membre CSE...</option>
+                    <optgroup label="Titulaires">
+                      {titulaires.filter(t => t.id !== cessionData.from_id).map(t => {
+                        const balance = calculateBalance(t.id);
+                        return (
+                          <option key={t.id} value={t.id}>
+                            {t.name} (Solde: {balance.balance.toFixed(1)}h)
+                          </option>
+                        );
+                      })}
+                    </optgroup>
+                    <optgroup label="Suppléants">
+                      {suppleants.map(s => {
+                        const balance = calculateBalance(s.id);
                       return (
                         <option key={s.id} value={s.id}>
                           {s.name} (Solde: {balance.balance.toFixed(1)}h)
