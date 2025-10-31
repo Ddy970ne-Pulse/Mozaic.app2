@@ -2413,12 +2413,12 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                               )}
                               
                               {codeInfo && (
-                                <div 
-                                  className={`absolute inset-0 ${codeInfo.color} ${codeInfo.textColor} flex items-center justify-center rounded cursor-help`}
+                                <span 
+                                  className={`${codeInfo.color} ${codeInfo.textColor} px-1 py-0.5 rounded text-xs font-bold cursor-help`}
                                   title={`${codeInfo.name} - ${employee.name} - ${codeInfo.type} - ${codeInfo.decompte}${hasOnCall && absence ? ' + Astreinte semaine' : ''}\n\nClic droit pour modifier/supprimer`}
                                 >
-                                  <span className="font-bold text-sm">{displayCode}</span>
-                                </div>
+                                  {displayCode}
+                                </span>
                               )}
                             </td>
                           );
