@@ -192,8 +192,16 @@ const OnCallSchedule = ({ user }) => {
     try {
       const employee = employees.find(e => e.id === quickAddData.employeeId);
       
+      console.log('📅 Date sélectionnée par l\'utilisateur:', quickAddData.date);
+      
       // Préparer les données pour l'API
-      let startDate = new Date(quickAddData.date);
+      // Parser la date en local time pour éviter les problèmes de timezone
+      const [year, month, day] = quickAddData.date.split('-').map(Number);
+      let startDate = new Date(year, month - 1, day, 12, 0, 0); // Midi pour éviter les problèmes de timezone
+      
+      console.log('📅 Date parsée:', startDate);
+      console.log('📅 Jour de la semaine:', ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'][startDate.getDay()]);
+      
       const schedulesToCreate = [];
       
       if (quickAddData.type === 'semaine') {
@@ -201,22 +209,28 @@ const OnCallSchedule = ({ user }) => {
         // 0 = dimanche, 1 = lundi, ..., 6 = samedi
         const dayOfWeek = startDate.getDay();
         
+        console.log('📅 Jour de la semaine (0=Dim, 6=Sam):', dayOfWeek);
+        
         // Si la date sélectionnée n'est pas un dimanche, remonter au dimanche précédent
         if (dayOfWeek !== 0) {
+          console.log('📅 Ajustement: reculer de', dayOfWeek, 'jours pour atteindre le dimanche');
           startDate.setDate(startDate.getDate() - dayOfWeek);
+        } else {
+          console.log('📅 Date déjà un dimanche, pas d\'ajustement nécessaire');
         }
         
-        console.log('📅 Début de la semaine (dimanche):', startDate.toISOString());
+        console.log('📅 Début de la semaine (dimanche):', startDate, startDate.toISOString().split('T')[0]);
         
         // Créer 7 jours d'astreintes (dimanche → samedi)
         for (let i = 0; i < 7; i++) {
-          const date = new Date(startDate.getTime()); // Créer une copie de startDate
-          date.setDate(date.getDate() + i); // Ajouter i jours
-          console.log(`📅 Jour ${i}: ${date.toISOString()}`);
+          const date = new Date(startDate);
+          date.setDate(startDate.getDate() + i);
+          const dateStr = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+          console.log(`📅 Jour ${i} (${['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'][date.getDay()]}): ${dateStr}`);
           schedulesToCreate.push({
             employee_id: quickAddData.employeeId,
             employee_name: employee?.name || `${employee?.prenom} ${employee?.nom}`,
-            date: date.toISOString(),
+            date: dateStr,
             type: 'Astreinte semaine',
             notes: quickAddData.notes || ''
           });
