@@ -1335,22 +1335,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
 
   // ============ NOUVELLES FONCTIONNALITÉS AVANCÉES ============
 
-  // 1. MULTI-SÉLECTION D'EMPLOYÉS
-  const toggleEmployeeSelection = (employee) => {
-    if (!multiSelectMode) return;
-    
-    setSelectedEmployees(prev => {
-      const exists = prev.find(e => e.id === employee.id);
-      if (exists) {
-        return prev.filter(e => e.id !== employee.id);
-      } else {
-        return [...prev, employee];
-      }
-    });
-  };
-
-
-  // 2. MODIFICATION/SUPPRESSION DIRECTE
+  // MODIFICATION/SUPPRESSION DIRECTE
   const handleCellRightClick = (e, employee, dateObj, absenceCode) => {
     if (!absenceCode || user?.role !== 'admin') return;
     
