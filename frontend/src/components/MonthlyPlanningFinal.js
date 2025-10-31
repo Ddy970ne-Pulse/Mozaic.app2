@@ -304,23 +304,28 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         if (response.ok) {
           const assignments = await response.json();
           
-          // Transformer les assignations en format utilisable par le planning
-          // { employeeId: [{ startDate, endDate, employeeName, ... }] }
+          // Transformer les assignations (jours individuels) en format utilisable par le planning
+          // Grouper par employé et par semaine
           const onCallMap = {};
           
           for (const assignment of assignments) {
-            if (!onCallMap[assignment.employeeId]) {
-              onCallMap[assignment.employeeId] = [];
+            const employeeId = assignment.employee_id;
+            if (!onCallMap[employeeId]) {
+              onCallMap[employeeId] = [];
             }
-            onCallMap[assignment.employeeId].push({
-              startDate: assignment.startDate,
-              endDate: assignment.endDate,
-              employeeName: assignment.employeeName,
-              weekNumber: assignment.weekNumber || null
+            
+            // Ajouter chaque jour comme une assignation
+            // Le code existant vérifiera si une date tombe dans une semaine d'astreinte
+            onCallMap[employeeId].push({
+              startDate: assignment.date, // Date du jour d'astreinte
+              endDate: assignment.date,   // Même date pour un jour unique
+              employeeName: assignment.employee_name,
+              type: assignment.type,
+              weekNumber: null
             });
           }
           
-          console.log('🔔 Astreintes chargées:', Object.keys(onCallMap).length, 'employés');
+          console.log('🔔 Astreintes chargées:', assignments.length, 'jours pour', Object.keys(onCallMap).length, 'employés');
           setOnCallData(onCallMap);
         } else {
           console.warn('Aucune astreinte trouvée pour cette période');
