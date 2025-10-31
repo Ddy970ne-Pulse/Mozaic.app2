@@ -799,6 +799,54 @@ class ImportSettings(BaseModel):
 # CSE MANAGEMENT MODELS
 # ========================================
 
+def calculer_heures_delegation_reglementaires(effectif: int, statut: str) -> int:
+    """
+    Calcule les heures de délégation mensuelles selon la réglementation française
+    Source: https://www.service-public.gouv.fr/particuliers/vosdroits/F34474
+    
+    Args:
+        effectif: Nombre de salariés dans l'entreprise
+        statut: 'Titulaire' ou 'Suppléant'
+    
+    Returns:
+        Nombre d'heures mensuelles réglementaires
+        
+    Note: Les suppléants n'ont PAS d'heures de délégation (sauf remplacement)
+    """
+    # Suppléants n'ont pas d'heures de délégation
+    if statut and statut.lower() in ['suppléant', 'suppleant']:
+        return 0
+    
+    # Titulaires selon effectif (règles légales)
+    if effectif < 50:
+        return 0  # Pas de CSE obligatoire
+    elif 50 <= effectif < 75:
+        return 18
+    elif 75 <= effectif < 100:
+        return 19
+    elif 100 <= effectif < 200:
+        return 21
+    elif 200 <= effectif < 500:
+        return 22
+    elif 500 <= effectif < 1500:
+        return 24
+    elif 1500 <= effectif < 3500:
+        return 26
+    elif 3500 <= effectif < 4000:
+        return 27
+    elif 4000 <= effectif < 5000:
+        return 28
+    elif 5000 <= effectif < 6750:
+        return 29
+    elif 6750 <= effectif < 7500:
+        return 30
+    elif 7500 <= effectif < 7750:
+        return 31
+    elif 7750 <= effectif < 9750:
+        return 32
+    else:  # 9750+
+        return 34
+
 class CSEDelegate(BaseModel):
     """Modèle pour les délégués CSE (titulaires et suppléants)"""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
