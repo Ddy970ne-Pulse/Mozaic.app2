@@ -223,9 +223,8 @@ const OnCallSchedule = ({ user }) => {
         
         // Créer 7 jours d'astreintes (dimanche → samedi)
         for (let i = 0; i < 7; i++) {
-          // Créer une nouvelle date en ajoutant i jours à startDate
-          const date = new Date(startDate);
-          date.setDate(date.getDate() + i);
+          // Créer une nouvelle date en ajoutant i jours (en millisecondes)
+          const date = new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000));
           const dateStr = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
           console.log(`📅 Jour ${i} (${['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'][date.getDay()]}): ${dateStr}`);
           schedulesToCreate.push({
