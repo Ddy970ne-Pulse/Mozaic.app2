@@ -520,6 +520,7 @@ class UserCreate(BaseModel):
     position: Optional[constr(max_length=200)] = None
     hire_date: Optional[str] = None
     isDelegateCSE: Optional[bool] = False
+    statut_cse: Optional[constr(pattern=r'^(Titulaire|Suppléant|Non-membre)?$')] = None
     # Champs additionnels pour données employés complètes
     date_naissance: Optional[str] = None
     sexe: Optional[constr(pattern=r'^(M|F|Homme|Femme|Autre)?$')] = None
