@@ -37,7 +37,7 @@ created_by: user?.id || user?.name || 'admin'
 
 ### Test Manuel (Recommandé):
 
-1. **Ouvrir l'application**: https://mozaik-hr-2.preview.emergentagent.com
+1. **Ouvrir l'application**: https://oncall-planner-2.preview.emergentagent.com
 
 2. **Se connecter** avec admin:
    - Email: `ddacalor@aaea-gpe.fr`
@@ -138,7 +138,7 @@ Stack: [stack trace]
   ```bash
   curl -X GET \
     -H "Authorization: Bearer $TOKEN" \
-    https://mozaik-hr-2.preview.emergentagent.com/api/users
+    https://oncall-planner-2.preview.emergentagent.com/api/users
   ```
 
 ### Scénario 4: Token expiré

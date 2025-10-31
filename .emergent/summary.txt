@@ -1,71 +1,63 @@
 <analysis>
-The previous AI engineer’s trajectory systematically enhanced the MOZAIK RH application across several modules. Initially, a new UUID-based leave balance system (System 2) was integrated, involving backend initialization and frontend component integration. This was followed by UI/UX improvements to the monthly planning, including displaying CT balances and streamlining absence addition to a Quick Add feature. Critical bugs in quick-add absence creation (date format, backend deduction) and deletion (UI interaction, date search logic) were identified and fixed, ensuring correct balance updates. Unnecessary UI elements like Multi-Sélection, Templates, test users (including an XSS vulnerability), and informational banners were removed. The most recent work focused on merging Gestion Astreintes and Planning Astreintes into a unified Planning Astreintes module with an enhanced frontend, though the corresponding backend API remains to be implemented.
+The AI engineer's work in this trajectory primarily focused on two major areas: enhancing the Planning Astreintes (On-Call Planning) module and ensuring its correct integration and display within the Planning Mensuel Final (Monthly Planning Final) module. Key efforts included creating backend APIs for on-call management, meticulously debugging and fixing multiple date and timezone-related issues in the frontend's calendar display and data handling, and resolving integration discrepancies with the Monthly Planning. The process involved fixing date format inconsistencies, correcting database query issues, eliminating conflicting API endpoints, and resolving frontend rendering bugs, culminating in the successful display of on-call assignments in the Monthly Planning from the AI's perspective, though user-side display issues persisted due to suspected caching/environment problems.
 </analysis>
 
 <product_requirements>
-The MOZAIK RH application is an HR management system for personnel and absence management, featuring a glassmorphism UI, Excel import, auto-generated credentials, and PWA mobile accessibility. It supports robust user management, dynamic dashboards, and a CSE Management Module. Core requirements include precise temporal data handling, overtime/recovery integration, personal employee space, and absence calculations respecting weekends/holidays and priority rules. Admins manage planning, while managers/HR validate requests, with instant notification propagation.
+The MOZAIK RH application is a comprehensive HR management system for personnel and absence management, featuring a modern glassmorphism UI, Excel import, auto-generated credentials, and PWA mobile accessibility. It supports robust user management, dynamic dashboards, and a CSE Management Module. Core functionalities include precise temporal data handling, overtime/recovery integration, personal employee space, and complex absence calculations respecting weekends/holidays and priority rules. The system facilitates administrative planning, manager/HR validation of requests, and instant notification propagation.
 
-Implemented features include: accurate absence badge display, a complete backend approval/rejection workflow, migration of CP to CA absence types, database-driven absence type configuration, a combined absence analysis report, and a multi-tenant SaaS architecture. A Quick Add Absence feature has been implemented and refined. Significant security enhancements (Options A-G) are now integrated: mandatory , strict Pydantic validation, rate limiting, security headers, CORS, account lockout, audit logging, refresh tokens, GDPR data protection (export/delete), and basic security monitoring. A comprehensive leave balance management system has also been integrated, including APIs for managing various leave types (CA, RTT, REC, CT, CP, CEX), automatic reintegration logic for overlapping absences, and historical transaction tracking. Frontend widgets for displaying balances and transaction history are available and integrated into the employee space. The monthly planning interface has been simplified, and an initial merge of On-Call Management into On-Call Planning has been completed.
+Existing features include accurate absence badge display, a complete backend approval/rejection workflow, migration of CP to CA absence types, database-driven absence type configuration, a combined absence analysis report, and a multi-tenant SaaS architecture. A Quick Add Absence feature has been implemented and refined. Significant security enhancements (Options A-G) are integrated, covering mandatory , Pydantic validation, rate limiting, security headers, CORS, account lockout, audit logging, refresh tokens, GDPR data protection (export/delete), and basic security monitoring. A comprehensive leave balance management system is also integrated, including APIs for various leave types, automatic reintegration logic for overlapping absences, and historical transaction tracking, with frontend widgets for balances and transaction history in the employee space. The monthly planning interface has been simplified, and an initial merge of On-Call Management into On-Call Planning has been completed, with the ongoing task of fully implementing and integrating the new Planning Astreintes module across the application.
 </product_requirements>
 
 <key_technical_concepts>
-- **Full-Stack**: React (Hooks), FastAPI (Python).
-- **Database**: MongoDB (UUIDs for new features).
-- **Authentication**: JWT (refresh tokens), account lockout, rate limiting.
-- **API Design**: RESTful, Pydantic validation.
-- **Multi-Tenancy**: Dynamic tenant management.
-- **Security**: OWASP (headers, audit logging, GDPR).
-- **UI/UX**: Tailwind CSS, glassmorphism.
+-   **Full-Stack**: React (Hooks), FastAPI (Python).
+-   **Database**: MongoDB (UUIDs for new features).
+-   **Authentication**: JWT (refresh tokens), account lockout, rate limiting.
+-   **API Design**: RESTful, Pydantic validation.
+-   **Multi-Tenancy**: Dynamic tenant management.
+-   **Security**: OWASP (headers, audit logging, GDPR).
+-   **UI/UX**: Tailwind CSS, glassmorphism.
+-   **Date Handling**: Timezone awareness, ISO string conversion, precise date object manipulation.
 </key_technical_concepts>
 
 <code_architecture>
 
--   ****: Integrates  router. Modified  endpoint to call  with correct parameters and fixed date comparison logic for absence overlap validation.
--   ****: Pydantic models adapted for UUIDs.
--   ****: Business logic for leave balances, including  and automatic reintegration, adapted for UUIDs.
--   ****: FastAPI endpoints for leave balance. A new  endpoint was added to allow bulk initialization.
--   ** (NEW)**: Script for initial leave balance population, modified to use  from environment.
--   ** (NEW)**: Script to clear old leave balance data and re-initialize with new API.
--   ****: Central for monthly planning.
-    -   **Changes**: Fixed date format for quick add absence creation (DD/MM/YYYY). Adjusted CT balance display. Removed Mode Ajout buttons/logic, Multi-Sélection, Templates features, and redundant banners. Corrected right-click menu access for admins and refined absence deletion logic to search for containing dates.
--   ****: Displays employee leave balances.
-    -   **Changes**: Updated API endpoint to  and modified logic to ensure CT balance is always shown.
--   ****: Displays leave transaction history.
-    -   **Changes**: Updated API endpoint to .
--   ****: Employee's personal space.
-    -   **Changes**: Imported and integrated  and  into a new Soldes tab.
--   ** (DELETED)**: Removed during the merge of on-call modules.
--   ****: On-call planning.
-    -   **Changes**: Replaced with an enhanced version integrating functionalities from . It now displays full weeks, grays out days outside the current month, shows color codes for employees, and handles the Create button locally (pending backend API).
--   ****: Main navigation.
-    -   **Changes**: Removed menu entry, switch case, and import for Gestion Astreintes.
+-   ****: The main FastAPI application where API routers are included.
+    -   **Changes**: Integrated the new  router. Critically, an older, conflicting  endpoint defined directly within  (around line 3291) was commented out to resolve routing conflicts and allow the new API to be hit correctly.
+-   ** (NEW)**: This file was created to manage all backend logic related to on-call schedules, including Pydantic models for data validation and FastAPI endpoints.
+    -   **Summary of importance**: Centralizes and provides the RESTful API for on-call schedule creation, retrieval, updating, and deletion.
+    -   **Summary of changes**: Initial creation included Pydantic models for on-call events and assignments. Database dependency injection was corrected to use the global  instance from  to ensure proper MongoDB connection and data access.
+-   ****: This component handles the UI and logic for the Planning Astreintes (On-Call Planning) module, where users create and view on-call schedules.
+    -   **Summary of importance**: Provides the primary interface for managing on-call duties.
+    -   **Summary of changes**: Extensive modifications were made to handle date logic correctly. This included ensuring semaine (week) type on-calls align to a Sunday-Saturday week, correcting date object copying (e.g., using ) to avoid mutation issues, fixing modal display bugs (z-index, event propagation), and adjusting how dates are parsed and sent to the backend (using local  format instead of ISO strings to prevent timezone shifts).
+-   ****: This component presents a comprehensive monthly planning view, combining various events like absences and, now, on-call schedules.
+    -   **Summary of importance**: Provides an aggregated view of employee activities for monthly planning.
+    -   **Summary of changes**: Modified to consume data from the new  endpoint. It was adapted to process individual daily on-call assignments from the API and visually group them into weeks for display (as AST badges). Key fixes included normalizing date formats (converting ISO dates from API to ) during data loading and comparison within functions like  to ensure accurate display. Also, references to previously removed  and  variables were corrected to resolve runtime errors.
+-   ** (DELETED)**: This file was removed as its functionalities were merged into  as part of the unification of on-call modules.
 </code_architecture>
 
 <pending_tasks>
-- **WebSocket Infrastructure Fix**: Resolve persistent WebSocket connection failure (404 errors).
-- **ComboHR Feature Implementation**: Implement ergonomic and request management features.
-- **CSE Unification**: Complete frontend integration and logic for .
-- **Absence in Hours**: Finalize display in Planning, Export Paie, and Statistics modules.
-- **Analytics & KPI**: Complete missing analyses/visualizations.
-- **Printable Password Document**: Implement generation logic.
-- **Checkbox Issue**: Fix unchecking checkbox bug.
-- **Mascot Integration**: Integrate mascot image.
-- **User Color Customization**: Implement user ability to personalize space colors.
-- **OnCallSchedule Backend API**: Create the  backend API for the new On-Call Planning module.
+-   WebSocket Infrastructure Fix: Resolve persistent WebSocket connection failure (404 errors).
+-   ComboHR Feature Implementation: Implement ergonomic and request management features.
+-   CSE Unification: Complete frontend integration and logic for .
+-   Absence in Hours: Finalize display in Planning, Export Paie, and Statistics modules.
+-   Analytics & KPI: Complete missing analyses/visualizations.
+-   Printable Password Document: Implement generation logic.
+-   Checkbox Issue: Fix unchecking checkbox bug.
+-   Mascot Integration: Integrate mascot image.
+-   User Color Customization: Implement user ability to personalize space colors.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary, the AI engineer was finalizing the frontend integration and user experience for the merged On-Call Planning module. This involved combining the functionalities of  and  into a single, enhanced  component.
+Immediately prior to this summary, the AI engineer was engaged in troubleshooting and resolving the display of on-call assignments (AST badges) in the Planning Mensuel Final (Monthly Planning) module. The core issue was that despite the backend API () correctly returning the on-call data (7 assignments for Jean-Max POULAIN from October 12-18, 2025), these entries were not visually appearing in the monthly calendar for the user.
 
-The current  now features:
--   **Full-week display**: Shows days from preceding and succeeding months, with days outside the current month styled in a greyed-out manner.
--   **Employee Color Codes**: Each employee assigned to an astreinte is now represented by a distinct color, displayed in a legend at the bottom of the planning, enhancing readability and quick identification.
--   **Local Create Button Functionality**: The Create button within the on-call modal is now functional for local UI interactions, even though the corresponding backend API () for persisting this data is not yet implemented, leading to console 404 errors.
--   **UI Streamlining**: The old  file has been deleted, and all its references, including navigation menu entries, switch cases, and imports within , have been removed to simplify the application's structure and menu.
+The investigation led to several fixes:
+1.  **Backend API Conflict Resolution**: It was discovered that an older, conflicting GET endpoint for  existed in  that was being hit instead of the new, correct endpoint in . This old endpoint, which returned an empty list, was commented out at line 3291 in , ensuring the correct API was called.
+2.  **Frontend Date Normalization**: The  was updated to correctly handle date formats. Specifically, dates received from the backend (which were in ISO format, e.g., 2025-10-12T00:00:00.000Z) were not being properly normalized to YYYY-MM-DD before comparison in the  function. This was addressed by ensuring dates were explicitly transformed to YYYY-MM-DD format both when loading from the API and during comparison.
+3.  **Frontend Runtime Error Fix**: References to non-existent  and  variables in  were identified and removed, resolving a runtime error ().
 
-The frontend is now visually complete for the new Planning Astreintes experience, but the backend API for astreinte management needs to be created to enable data persistence and full functionality.
+After these fixes, the AI engineer's automated checks and screenshots confirmed that the AST badges for Jean-Max POULAIN were correctly displayed from October 12-18, 2025, in the Monthly Planning. However, the user continued to report that the problem persisted on their end, providing console logs that indicated various , , and  errors, as well as WebSocket connection failures across different domains. This discrepancy strongly suggests a client-side caching issue or a problem with the user's browser environment, rather than a code defect in the application itself.
 </current_work>
 
 <optional_next_step>
-Implement the backend API for the new On-Call Planning module, specifically the  endpoint.
+Request the user to perform a hard refresh and re-login to clear any cache issues on their end.
 </optional_next_step>
