@@ -27,7 +27,7 @@ const LeaveBalanceWidget = ({ employeeId, compact = false }) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/leave-balance/${employeeId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/leave-balances/${employeeId}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -37,7 +37,20 @@ const LeaveBalanceWidget = ({ employeeId, compact = false }) => {
       
       if (response.ok) {
         const data = await response.json();
-        setBalances(data);
+        // Adapter la réponse de l'API au format attendu par le composant
+        const adapted = {
+          employee_id: employeeId,
+          year: data.balance?.fiscal_year || new Date().getFullYear(),
+          balances: {
+            CA: data.balance?.ca_balance || 0,
+            RTT: data.balance?.rtt_balance || 0,
+            REC: data.balance?.rec_balance || 0,
+            CT: data.balance?.ct_balance || 0,
+            CEX: data.balance?.cex_balance || 0
+          },
+          last_updated: data.balance?.last_updated || new Date().toISOString()
+        };
+        setBalances(adapted);
         setLastUpdate(new Date());
         setError(null);
       } else if (response.status === 404) {
@@ -50,7 +63,6 @@ const LeaveBalanceWidget = ({ employeeId, compact = false }) => {
             RTT: 12.0,
             REC: 0.0,
             CT: 0.0,
-            CP: 0.0,
             CEX: 0.0
           },
           last_updated: new Date().toISOString()
