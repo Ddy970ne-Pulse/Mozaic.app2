@@ -161,83 +161,263 @@ class CSECompleteTester:
             print(f"❌ Authentication error: {str(e)}")
             return False
 
-    def test_external_cession_is_external_field(self):
-        """Test 1: Vérifier champ is_external dans cession externe"""
-        print(f"\n🌐 TEST 1: VÉRIFIER CHAMP is_external DANS CESSION EXTERNE")
+    def test_cse_delegates_and_hours(self):
+        """Test 1: Vérification membres CSE et heures mensuelles"""
+        print(f"\n👥 TEST 1: VÉRIFICATION MEMBRES CSE ET HEURES MENSUELLES")
         print("=" * 60)
         
         try:
-            # Récupérer un membre CSE pour faire la cession
-            delegates_response = self.session.get(f"{BACKEND_URL}/users")
-            if delegates_response.status_code != 200:
-                self.log_result("external_cession_is_external", "Récupération utilisateurs", False,
-                               "Impossible de récupérer les utilisateurs")
-                return
+            response = self.session.get(f"{BACKEND_URL}/cse/delegates")
             
-            users = delegates_response.json()
+            print(f"📤 GET /api/cse/delegates")
+            print(f"📥 Status Code: {response.status_code}")
             
-            # Trouver un membre CSE (chercher par email ou nom)
-            cse_member_id = None
-            cse_member_name = None
+            if response.status_code == 200:
+                delegates = response.json()
+                print(f"✅ GET /api/cse/delegates successful - Found {len(delegates)} delegates")
+                
+                # VÉRIFIER: 4 délégués retournés
+                if len(delegates) == 4:
+                    self.log_result("cse_delegates", "4 délégués retournés", True,
+                                   f"Nombre correct de délégués: {len(delegates)}")
+                else:
+                    self.log_result("cse_delegates", "4 délégués retournés", False,
+                                   f"Attendu: 4 délégués, trouvé: {len(delegates)}")
+                
+                # Vérifier les heures mensuelles spécifiques
+                expected_delegates = {
+                    "Jacques EDAU": {"statut": "Titulaire", "heures": 22},
+                    "Thierry MARTIAS": {"statut": "Titulaire", "heures": 22},
+                    "Jean-François BERNARD": {"statut": "Titulaire", "heures": 22},
+                    "Richard MANIOC": {"statut": "Suppléant", "heures": 0}
+                }
+                
+                found_delegates = {}
+                for delegate in delegates:
+                    name = delegate.get("user_name", "")
+                    heures = delegate.get("heures_mensuelles", 0)
+                    statut = delegate.get("statut", "")
+                    user_id = delegate.get("user_id", "")
+                    
+                    print(f"   Délégué: {name} - {statut} - {heures}h - ID: {user_id[:8]}...")
+                    
+                    # Store IDs for later tests
+                    if "Jacques EDAU" in name:
+                        self.jacques_edau_id = user_id
+                    elif "Thierry MARTIAS" in name:
+                        self.thierry_martias_id = user_id
+                    
+                    found_delegates[name] = {"statut": statut, "heures": heures}
+                
+                # Vérifier chaque délégué attendu
+                for expected_name, expected_data in expected_delegates.items():
+                    found = False
+                    for found_name, found_data in found_delegates.items():
+                        if expected_name in found_name or found_name in expected_name:
+                            found = True
+                            if found_data["heures"] == expected_data["heures"]:
+                                self.log_result("cse_delegates", f"{expected_name} heures correctes", True,
+                                               f"{expected_name}: {found_data['heures']}h (attendu: {expected_data['heures']}h)")
+                            else:
+                                self.log_result("cse_delegates", f"{expected_name} heures correctes", False,
+                                               f"{expected_name}: {found_data['heures']}h (attendu: {expected_data['heures']}h)")
+                            break
+                    
+                    if not found:
+                        self.log_result("cse_delegates", f"{expected_name} trouvé", False,
+                                       f"Délégué {expected_name} non trouvé")
+                
+            else:
+                self.log_result("cse_delegates", "GET cse/delegates", False,
+                               f"Expected 200, got {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_result("cse_delegates", "GET cse/delegates", False, f"Exception: {str(e)}")
+
+    def test_cse_balance_calculation(self):
+        """Test 2: Test calcul solde avec report"""
+        print(f"\n💰 TEST 2: TEST CALCUL SOLDE AVEC REPORT")
+        print("=" * 60)
+        
+        if not self.jacques_edau_id:
+            self.log_result("cse_balance", "Jacques EDAU ID disponible", False,
+                           "ID de Jacques EDAU non trouvé dans le test précédent")
+            return
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/cse/balance/{self.jacques_edau_id}?year=2025&month=1")
             
-            for user in users:
-                if user.get("email") == "ddacalor@aaea-gpe.fr":  # Admin Diego
-                    cse_member_id = user.get("id")
-                    cse_member_name = user.get("name", "Diego DACALOR")
-                    break
+            print(f"📤 GET /api/cse/balance/{self.jacques_edau_id[:8]}...?year=2025&month=1")
+            print(f"📥 Status Code: {response.status_code}")
             
-            if not cse_member_id:
-                self.log_result("external_cession_is_external", "Membre CSE trouvé", False,
-                               "Aucun membre CSE trouvé pour effectuer la cession")
-                return
-            
-            print(f"✅ Membre CSE trouvé: {cse_member_name} ({cse_member_id[:8]}...)")
-            
-            # Test de cession externe avec is_external=true (selon la demande française)
-            external_cession_data = {
-                "from_id": cse_member_id,
-                "from_name": cse_member_name,
-                "to_id": "external",
-                "to_name": "Test Personne Externe",
-                "is_external": True,
-                "hours": 2,
-                "usage_date": "2025-02-25",
-                "reason": "Test correction is_external",
-                "created_by": "Test Régression"
+            if response.status_code == 200:
+                balance_data = response.json()
+                print(f"✅ GET balance successful")
+                print(f"   Réponse: {json.dumps(balance_data, indent=2)}")
+                
+                # VÉRIFIER structure réponse: credit_mensuel: 22
+                credit_mensuel = balance_data.get("credit_mensuel")
+                if credit_mensuel == 22:
+                    self.log_result("cse_balance", "credit_mensuel = 22", True,
+                                   f"Crédit mensuel correct: {credit_mensuel}")
+                else:
+                    self.log_result("cse_balance", "credit_mensuel = 22", False,
+                                   f"Crédit mensuel attendu: 22, trouvé: {credit_mensuel}")
+                
+                # VÉRIFIER présence report_12_mois
+                if "report_12_mois" in balance_data:
+                    report_value = balance_data.get("report_12_mois")
+                    self.log_result("cse_balance", "report_12_mois présent", True,
+                                   f"Report 12 mois: {report_value}")
+                else:
+                    self.log_result("cse_balance", "report_12_mois présent", False,
+                                   "Champ report_12_mois manquant dans la réponse")
+                
+                # VÉRIFIER présence solde_disponible
+                if "solde_disponible" in balance_data:
+                    solde_value = balance_data.get("solde_disponible")
+                    self.log_result("cse_balance", "solde_disponible présent", True,
+                                   f"Solde disponible: {solde_value}")
+                else:
+                    self.log_result("cse_balance", "solde_disponible présent", False,
+                                   "Champ solde_disponible manquant dans la réponse")
+                
+            else:
+                self.log_result("cse_balance", "GET cse/balance", False,
+                               f"Expected 200, got {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_result("cse_balance", "GET cse/balance", False, f"Exception: {str(e)}")
+
+    def test_cession_internal_with_delai_exception(self):
+        """Test 3: Test création cession avec exception délai"""
+        print(f"\n⚡ TEST 3: TEST CRÉATION CESSION AVEC EXCEPTION DÉLAI")
+        print("=" * 60)
+        
+        if not self.jacques_edau_id or not self.thierry_martias_id:
+            self.log_result("cession_internal_delai", "IDs membres CSE disponibles", False,
+                           "IDs de Jacques EDAU ou Thierry MARTIAS non trouvés")
+            return
+        
+        try:
+            cession_data = {
+                "from_id": self.jacques_edau_id,
+                "from_name": "Jacques EDAU",
+                "to_id": self.thierry_martias_id,
+                "to_name": "Thierry MARTIAS",
+                "is_external": False,
+                "hours": 3,
+                "usage_date": "2025-02-05",
+                "reason": "Test final",
+                "delai_inferieur_8jours": True,
+                "justification_urgence": "Urgence test final module",
+                "created_by": "Test Backend"
             }
             
-            print(f"📤 Envoi cession externe: {external_cession_data}")
+            print(f"📤 Envoi cession interne avec exception délai:")
+            print(f"   {json.dumps(cession_data, indent=2)}")
             
-            response = self.session.post(f"{BACKEND_URL}/cse/cessions", json=external_cession_data)
+            response = self.session.post(f"{BACKEND_URL}/cse/cessions", json=cession_data)
+            
+            print(f"📥 Status Code: {response.status_code}")
             
             if response.status_code in [200, 201]:
                 data = response.json()
-                print(f"✅ Cession externe créée avec succès ({response.status_code})")
+                print(f"✅ Cession interne créée avec succès")
                 print(f"   Réponse: {json.dumps(data, indent=2)}")
                 
                 # Tracker pour cleanup
                 if data.get("id"):
                     self.created_cession_ids.append(data["id"])
                 
-                # **VÉRIFICATION CRITIQUE** : Réponse doit contenir `"is_external": true`
-                is_external_value = data.get("is_external")
-                if is_external_value is True:
-                    self.log_result("external_cession_is_external", "Champ is_external=true présent", True,
-                                   f"is_external={is_external_value} correctement retourné")
-                else:
-                    self.log_result("external_cession_is_external", "Champ is_external=true présent", False,
-                                   f"is_external attendu: true, trouvé: {is_external_value}")
-                
-                # Vérifier statut 200/201
-                self.log_result("external_cession_is_external", "Statut HTTP correct", True,
+                # VÉRIFIER: statut 200/201
+                self.log_result("cession_internal_delai", "Statut HTTP correct", True,
                                f"Statut {response.status_code} reçu")
                 
+                # VÉRIFIER champs délai et justification dans réponse
+                delai_field = data.get("delai_inferieur_8jours")
+                justification_field = data.get("justification_urgence")
+                
+                if delai_field is True:
+                    self.log_result("cession_internal_delai", "delai_inferieur_8jours présent", True,
+                                   f"delai_inferieur_8jours: {delai_field}")
+                else:
+                    self.log_result("cession_internal_delai", "delai_inferieur_8jours présent", False,
+                                   f"delai_inferieur_8jours attendu: true, trouvé: {delai_field}")
+                
+                if justification_field == "Urgence test final module":
+                    self.log_result("cession_internal_delai", "justification_urgence présente", True,
+                                   f"justification_urgence: {justification_field}")
+                else:
+                    self.log_result("cession_internal_delai", "justification_urgence présente", False,
+                                   f"justification_urgence incorrecte: {justification_field}")
+                
             else:
-                self.log_result("external_cession_is_external", "POST cession externe", False,
+                self.log_result("cession_internal_delai", "POST cession interne", False,
                                f"Expected 200/201, got {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_result("external_cession_is_external", "POST cession externe", False, f"Exception: {str(e)}")
+            self.log_result("cession_internal_delai", "POST cession interne", False, f"Exception: {str(e)}")
+
+    def test_cession_external(self):
+        """Test 4: Test création cession vers externe"""
+        print(f"\n🌐 TEST 4: TEST CRÉATION CESSION VERS EXTERNE")
+        print("=" * 60)
+        
+        if not self.jacques_edau_id:
+            self.log_result("cession_external", "Jacques EDAU ID disponible", False,
+                           "ID de Jacques EDAU non trouvé")
+            return
+        
+        try:
+            cession_data = {
+                "from_id": self.jacques_edau_id,
+                "from_name": "Jacques EDAU",
+                "to_id": "external",
+                "to_name": "Marie Dupont (Personne Externe)",
+                "is_external": True,
+                "hours": 2,
+                "usage_date": "2025-02-20",
+                "reason": "Formation externe",
+                "delai_inferieur_8jours": False,
+                "created_by": "Test Backend"
+            }
+            
+            print(f"📤 Envoi cession externe:")
+            print(f"   {json.dumps(cession_data, indent=2)}")
+            
+            response = self.session.post(f"{BACKEND_URL}/cse/cessions", json=cession_data)
+            
+            print(f"📥 Status Code: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                data = response.json()
+                print(f"✅ Cession externe créée avec succès")
+                print(f"   Réponse: {json.dumps(data, indent=2)}")
+                
+                # Tracker pour cleanup
+                if data.get("id"):
+                    self.created_cession_ids.append(data["id"])
+                
+                # VÉRIFIER: statut 200/201
+                self.log_result("cession_external", "Statut HTTP correct", True,
+                               f"Statut {response.status_code} reçu")
+                
+                # VÉRIFIER is_external: true dans réponse
+                is_external_value = data.get("is_external")
+                if is_external_value is True:
+                    self.log_result("cession_external", "is_external = true", True,
+                                   f"is_external: {is_external_value}")
+                else:
+                    self.log_result("cession_external", "is_external = true", False,
+                                   f"is_external attendu: true, trouvé: {is_external_value}")
+                
+            else:
+                self.log_result("cession_external", "POST cession externe", False,
+                               f"Expected 200/201, got {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_result("cession_external", "POST cession externe", False, f"Exception: {str(e)}")
 
     def test_company_settings_no_500_error(self):
         """Test 2: Endpoint company-settings ne doit PAS retourner erreur 500"""
