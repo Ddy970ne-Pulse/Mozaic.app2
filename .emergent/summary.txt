@@ -1,49 +1,49 @@
 <analysis>
-The AI engineer's trajectory involved a sequence of bug fixes, significant feature implementations, and architectural enhancements for the MOZAIK RH application. Initially, it addressed issues like absence badge display, backend approval workflows, CP to CA absence type migration, and multi-tenant SaaS architecture. A major phase focused on a comprehensive security overhaul, implementing critical fixes from Option A through G of a detailed security roadmap. This included mandatory , strict Pydantic validation, rate limiting, security headers, CORS, account lockout, audit logging, enhanced authentication (refresh tokens), GDPR tools, and security monitoring. The latest work involved integrating a full leave balance management system, including backend APIs and frontend components. This integration faced a challenge with MongoDB ObjectId versus UUID consistency, leading to a System 2 migration with UUID conversion for all new leave balance components. The backend for this system has just been successfully integrated and is running.
+The previous AI engineer’s trajectory systematically enhanced the MOZAIK RH application across several modules. Initially, a new UUID-based leave balance system (System 2) was integrated, involving backend initialization and frontend component integration. This was followed by UI/UX improvements to the monthly planning, including displaying CT balances and streamlining absence addition to a Quick Add feature. Critical bugs in quick-add absence creation (date format, backend deduction) and deletion (UI interaction, date search logic) were identified and fixed, ensuring correct balance updates. Unnecessary UI elements like Multi-Sélection, Templates, test users (including an XSS vulnerability), and informational banners were removed. The most recent work focused on merging Gestion Astreintes and Planning Astreintes into a unified Planning Astreintes module with an enhanced frontend, though the corresponding backend API remains to be implemented.
 </analysis>
 
 <product_requirements>
 The MOZAIK RH application is an HR management system for personnel and absence management, featuring a glassmorphism UI, Excel import, auto-generated credentials, and PWA mobile accessibility. It supports robust user management, dynamic dashboards, and a CSE Management Module. Core requirements include precise temporal data handling, overtime/recovery integration, personal employee space, and absence calculations respecting weekends/holidays and priority rules. Admins manage planning, while managers/HR validate requests, with instant notification propagation.
 
-Implemented features include: accurate absence badge display, a complete backend approval/rejection workflow, migration of CP to CA absence types, database-driven absence type configuration, a combined absence analysis report, and a multi-tenant SaaS architecture. A Quick Add Absence feature has been partially implemented. Significant security enhancements (Options A-G) are now integrated: mandatory , strict Pydantic validation, rate limiting, security headers, CORS, account lockout, audit logging, refresh tokens, GDPR data protection (export/delete), and basic security monitoring. A comprehensive leave balance management system has also been integrated, including APIs for managing various leave types (CA, RTT, REC, CT, CP, CEX), automatic reintegration logic for overlapping absences (e.g., sickness during paid leave), and historical transaction tracking. Frontend widgets for displaying balances and transaction history are available.
+Implemented features include: accurate absence badge display, a complete backend approval/rejection workflow, migration of CP to CA absence types, database-driven absence type configuration, a combined absence analysis report, and a multi-tenant SaaS architecture. A Quick Add Absence feature has been implemented and refined. Significant security enhancements (Options A-G) are now integrated: mandatory , strict Pydantic validation, rate limiting, security headers, CORS, account lockout, audit logging, refresh tokens, GDPR data protection (export/delete), and basic security monitoring. A comprehensive leave balance management system has also been integrated, including APIs for managing various leave types (CA, RTT, REC, CT, CP, CEX), automatic reintegration logic for overlapping absences, and historical transaction tracking. Frontend widgets for displaying balances and transaction history are available and integrated into the employee space. The monthly planning interface has been simplified, and an initial merge of On-Call Management into On-Call Planning has been completed.
 </product_requirements>
 
 <key_technical_concepts>
-- **Full-Stack**: React (frontend with Hooks), FastAPI (Python backend).
-- **Database**: MongoDB (using UUIDs for new features, previously ObjectId).
-- **UI/UX**: Tailwind CSS, glassmorphism design.
-- **Data Synchronization**: WebSockets (Kubernetes Ingress issue identified).
-- **Authentication/Authorization**: JWT (with refresh tokens), bcrypt, role-based access control, account lockout, rate limiting.
-- **API Design**: RESTful APIs, Pydantic for data validation (strict).
-- **Multi-Tenancy**: Dynamic tenant management, central registry.
-- **Security**: OWASP best practices (headers, input sanitization, audit logging, GDPR tools).
+- **Full-Stack**: React (Hooks), FastAPI (Python).
+- **Database**: MongoDB (UUIDs for new features).
+- **Authentication**: JWT (refresh tokens), account lockout, rate limiting.
+- **API Design**: RESTful, Pydantic validation.
+- **Multi-Tenancy**: Dynamic tenant management.
+- **Security**: OWASP (headers, audit logging, GDPR).
+- **UI/UX**: Tailwind CSS, glassmorphism.
 </key_technical_concepts>
 
 <code_architecture>
 
--   ****: Core application logic and API endpoints. *Changes*: Made  mandatory, implemented  rate limiting, integrated security middlewares, account lockout logic, audit logging, enhanced auth (refresh tokens, logout), GDPR endpoints, and security monitoring. Integrated the new  router and fixed an .
--   ****: FastAPI WebSocket endpoint. *Changes*: Modified to correctly load  from .
--   ** (NEW)**: Adds OWASP HTTP security headers (HSTS, CSP, X-Frame-Options, etc.).
--   ** (NEW)**: Custom exception handlers to prevent stack trace exposure.
--   ** (NEW)**: Implements persistent account lockout logic.
--   ** (NEW)**: Provides structured audit logging and GDPR-compliant data access logging.
--   ** (NEW)**: Contains password policy, JWT token generation, and refresh token logic, integrated into .
--   ** (NEW)**: Utility functions for GDPR compliance, including data export, right to be forgotten, and data pseudonymization.
--   ** (NEW)**: Basic module for security event monitoring and alerts.
--   ** (NEW)**: Pydantic models for  and , adapted to use UUIDs.
--   ** (NEW)**: Contains core business logic for leave balance management, including automatic reintegration, deduction, and transaction recording, adapted to use UUIDs.
--   ** (NEW)**: FastAPI endpoints for leave balance operations, simplified and adapted to use existing authentication and UUIDs.
--   ** (NEW)**: Directory containing backup of previous leave balance implementation files.
--   ****: Displays monthly planning. *Changes*: Implemented Quick Add Absence feature, fixed employee  field bug.
--   ** (NEW)**: React component to display employee leave balances.
--   ** (NEW)**: React component to display leave transaction history.
--   ** files**: Updated  with  and .
+-   ****: Integrates  router. Modified  endpoint to call  with correct parameters and fixed date comparison logic for absence overlap validation.
+-   ****: Pydantic models adapted for UUIDs.
+-   ****: Business logic for leave balances, including  and automatic reintegration, adapted for UUIDs.
+-   ****: FastAPI endpoints for leave balance. A new  endpoint was added to allow bulk initialization.
+-   ** (NEW)**: Script for initial leave balance population, modified to use  from environment.
+-   ** (NEW)**: Script to clear old leave balance data and re-initialize with new API.
+-   ****: Central for monthly planning.
+    -   **Changes**: Fixed date format for quick add absence creation (DD/MM/YYYY). Adjusted CT balance display. Removed Mode Ajout buttons/logic, Multi-Sélection, Templates features, and redundant banners. Corrected right-click menu access for admins and refined absence deletion logic to search for containing dates.
+-   ****: Displays employee leave balances.
+    -   **Changes**: Updated API endpoint to  and modified logic to ensure CT balance is always shown.
+-   ****: Displays leave transaction history.
+    -   **Changes**: Updated API endpoint to .
+-   ****: Employee's personal space.
+    -   **Changes**: Imported and integrated  and  into a new Soldes tab.
+-   ** (DELETED)**: Removed during the merge of on-call modules.
+-   ****: On-call planning.
+    -   **Changes**: Replaced with an enhanced version integrating functionalities from . It now displays full weeks, grays out days outside the current month, shows color codes for employees, and handles the Create button locally (pending backend API).
+-   ****: Main navigation.
+    -   **Changes**: Removed menu entry, switch case, and import for Gestion Astreintes.
 </code_architecture>
 
 <pending_tasks>
-- **Quick Add Absence bug fix**: The 422 Unprocessable Content API error for quick add absence due to missing employee email data and UI refresh issues was deferred.
-- **WebSocket Infrastructure Fix**: Resolve persistent WebSocket connection failure (404 errors), likely requiring Kubernetes Ingress configuration changes.
-- **ComboHR Feature Implementation**: Implement ergonomic and request management features identified from the ComboHR analysis.
+- **WebSocket Infrastructure Fix**: Resolve persistent WebSocket connection failure (404 errors).
+- **ComboHR Feature Implementation**: Implement ergonomic and request management features.
 - **CSE Unification**: Complete frontend integration and logic for .
 - **Absence in Hours**: Finalize display in Planning, Export Paie, and Statistics modules.
 - **Analytics & KPI**: Complete missing analyses/visualizations.
@@ -51,22 +51,21 @@ Implemented features include: accurate absence badge display, a complete backend
 - **Checkbox Issue**: Fix unchecking checkbox bug.
 - **Mascot Integration**: Integrate mascot image.
 - **User Color Customization**: Implement user ability to personalize space colors.
+- **OnCallSchedule Backend API**: Create the  backend API for the new On-Call Planning module.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was finalizing the integration of a new, comprehensive leave balance management system into MOZAIK RH. This followed a significant phase of security enhancements and an initial, partial integration of a leave balance package.
+Immediately before this summary, the AI engineer was finalizing the frontend integration and user experience for the merged On-Call Planning module. This involved combining the functionalities of  and  into a single, enhanced  component.
 
-The current work involved a complete migration to System 2 (a more complete leave balance package) with a critical adaptation to use UUIDs instead of MongoDB ObjectIds, ensuring consistency with the existing codebase's preference. This detailed process included:
-1.  **Backup and Deletion**: Backing up the previously integrated leave balance files and then deleting them to prepare for the new system.
-2.  **Code Adaptation**: Copying and adapting the new  and  to ensure all  and  operations correctly generate and handle UUIDs.
-3.  **API Simplification**: A new, simplified  was created, as the original package's API was too complex to directly adapt. This new API integrates smoothly with the existing authentication and database structure, utilizing UUIDs.
-4.  **Router Integration**: The new  router was integrated into , replacing any previous leave balance router configurations.
-5.  **Backend Verification**: The backend server was successfully restarted, confirming it starts without errors and that the new API routes are included. MongoDB indexes for the new leave balance collections were verified to exist.
-6.  **API Accessibility**: Basic API accessibility was confirmed (e.g., via Swagger docs), and a 404 response for data retrieval was received (expected as no initial data has been populated).
+The current  now features:
+-   **Full-week display**: Shows days from preceding and succeeding months, with days outside the current month styled in a greyed-out manner.
+-   **Employee Color Codes**: Each employee assigned to an astreinte is now represented by a distinct color, displayed in a legend at the bottom of the planning, enhancing readability and quick identification.
+-   **Local Create Button Functionality**: The Create button within the on-call modal is now functional for local UI interactions, even though the corresponding backend API () for persisting this data is not yet implemented, leading to console 404 errors.
+-   **UI Streamlining**: The old  file has been deleted, and all its references, including navigation menu entries, switch cases, and imports within , have been removed to simplify the application's structure and menu.
 
-Additionally, new frontend React components (, ) and related documentation were copied into the  directory.
+The frontend is now visually complete for the new Planning Astreintes experience, but the backend API for astreinte management needs to be created to enable data persistence and full functionality.
 </current_work>
 
 <optional_next_step>
-Run the MongoDB migration script () to initialize leave balances and integrate the new React components into the frontend.
+Implement the backend API for the new On-Call Planning module, specifically the  endpoint.
 </optional_next_step>

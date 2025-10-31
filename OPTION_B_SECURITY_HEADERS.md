@@ -101,7 +101,7 @@ Successfully implemented OWASP-recommended HTTP security headers and strict CORS
 #### 2.1 Environment-Based Configuration
 ```python
 # .env
-CORS_ORIGINS="https://absence-tracker-21.preview.emergentagent.com,http://localhost:3000"
+CORS_ORIGINS="https://mozaik-hr-2.preview.emergentagent.com,http://localhost:3000"
 ENVIRONMENT="development"
 ```
 
@@ -210,7 +210,7 @@ if environment == 'production':
 
 ### 5.1 Backend Startup
 ✅ Backend starts successfully with security enhancements
-✅ CORS origins properly logged: `['https://absence-tracker-21.preview.emergentagent.com', 'http://localhost:3000']`
+✅ CORS origins properly logged: `['https://mozaik-hr-2.preview.emergentagent.com', 'http://localhost:3000']`
 ✅ No errors during initialization
 
 ### 5.2 Security Headers

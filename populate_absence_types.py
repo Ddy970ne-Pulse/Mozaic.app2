@@ -8,7 +8,7 @@ import json
 import sys
 
 # Configuration
-BACKEND_URL = "https://absence-tracker-21.preview.emergentagent.com/api"
+BACKEND_URL = "https://mozaik-hr-2.preview.emergentagent.com/api"
 ADMIN_EMAIL = "ddacalor@aaea-gpe.fr"
 ADMIN_PASSWORD = "admin123"
 

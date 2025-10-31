@@ -6,7 +6,7 @@ Simple test to check if rate limiting is working
 import requests
 import time
 
-BACKEND_URL = "https://absence-tracker-21.preview.emergentagent.com/api"
+BACKEND_URL = "https://mozaik-hr-2.preview.emergentagent.com/api"
 
 def test_rate_limit():
     print("Testing rate limiting on login endpoint...")
