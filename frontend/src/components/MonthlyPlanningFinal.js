@@ -421,13 +421,18 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     // Parcourir tous les employés qui ont des astreintes
     for (const [employeeId, assignments] of Object.entries(onCallData)) {
       for (const assignment of assignments) {
+        // 🔧 FIX : Normaliser la date de l'assignation
+        let assignmentDateStr = assignment.startDate;
+        if (assignmentDateStr && assignmentDateStr.includes('T')) {
+          assignmentDateStr = assignmentDateStr.split('T')[0];
+        }
+        
         // Vérifier si la date correspond
-        if (assignment.startDate === checkDateStr) {
+        if (assignmentDateStr === checkDateStr) {
           return {
             employeeId: employeeId,
             employeeName: assignment.employeeName,
-            weekStart: weekStart.toISOString().split('T')[0],
-            weekEnd: weekEnd.toISOString().split('T')[0]
+            date: checkDateStr
           };
         }
       }
