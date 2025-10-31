@@ -23,13 +23,22 @@ router = APIRouter(prefix="/api/on-call", tags=["on-call"])
 # Database Dependency
 # ========================
 
-# Note: The database connection is managed globally in server.py
-# We import it here to use in our endpoints
-from server import db as global_db
+# Create a module-level database connection
+_db_client = None
+_db_instance = None
+
+def get_db_instance():
+    """Get or create database instance"""
+    global _db_client, _db_instance
+    if _db_instance is None:
+        mongo_url = os.environ['MONGO_URL']
+        _db_client = AsyncIOMotorClient(mongo_url)
+        _db_instance = _db_client[os.environ['DB_NAME']]
+    return _db_instance
 
 async def get_database() -> AsyncIOMotorDatabase:
-    """Get database connection from global server instance"""
-    return global_db
+    """Get database connection"""
+    return get_db_instance()
 
 
 # ========================
