@@ -676,6 +676,26 @@ const CSEManagementNew = ({ user }) => {
                 ></textarea>
               </div>
 
+              {/* Justification urgence si délai < 8 jours */}
+              {showUrgenceField && (
+                <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-4">
+                  <label className="block text-sm font-bold text-orange-800 mb-2">
+                    ⚠️ Justification d'Urgence (Délai &lt; 8 jours) *
+                  </label>
+                  <textarea
+                    required
+                    rows="3"
+                    value={cessionData.justification_urgence}
+                    onChange={(e) => setCessionData({ ...cessionData, justification_urgence: e.target.value })}
+                    className="w-full px-3 py-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                    placeholder="Expliquez pourquoi le délai de 8 jours ne peut être respecté (urgence, circonstances exceptionnelles...)"
+                  ></textarea>
+                  <p className="text-xs text-orange-700 mt-2">
+                    📋 Réglementation : L'employeur doit normalement être informé 8 jours à l'avance. Cette exception sera tracée.
+                  </p>
+                </div>
+              )}
+
               {/* Boutons */}
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <button
