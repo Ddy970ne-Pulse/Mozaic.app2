@@ -33,6 +33,8 @@ const UserManagement = ({ user }) => {
     hire_date: '',
     isDelegateCSE: false
   });
+  const [showPrintPasswordsModal, setShowPrintPasswordsModal] = useState(false);
+  const [selectedUsersForPrint, setSelectedUsersForPrint] = useState([]);
 
   // Système de permissions granulaires
   const availablePermissions = {
