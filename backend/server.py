@@ -452,6 +452,7 @@ class User(BaseModel):
     position: Optional[constr(max_length=200)] = None
     hire_date: Optional[str] = None
     isDelegateCSE: Optional[bool] = False
+    statut_cse: Optional[constr(pattern=r'^(Titulaire|Suppléant|Non-membre)?$')] = 'Non-membre'  # Statut CSE
     is_active: bool = True
     requires_password_change: bool = False
     first_login: bool = True
