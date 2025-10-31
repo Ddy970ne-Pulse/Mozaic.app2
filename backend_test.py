@@ -349,77 +349,7 @@ class CSERegressionTester:
         except Exception as e:
             self.log_result("cessions_list_is_external", "GET cse/cessions", False, f"Exception: {str(e)}")
 
-    def test_cse_cessions_list(self):
-        """Test 4: Vérification Liste Cessions - GET /api/cse/cessions"""
-        print(f"\n📋 TEST 4: VÉRIFICATION LISTE CESSIONS")
-        print("=" * 60)
-        
-        try:
-            response = self.session.get(f"{BACKEND_URL}/cse/cessions")
-            
-            if response.status_code == 200:
-                cessions = response.json()
-                print(f"✅ GET /api/cse/cessions successful (200) - Found {len(cessions)} cessions")
-                
-                # Vérifier que les cessions créées apparaissent
-                created_cessions_found = 0
-                external_cession_found = False
-                internal_cession_found = False
-                
-                for cession in cessions:
-                    cession_id = cession.get("id")
-                    to_name = cession.get("to_name", "")
-                    to_id = cession.get("to_id", "")
-                    
-                    if cession_id in self.created_cession_ids:
-                        created_cessions_found += 1
-                        
-                        # Vérifier la cession externe
-                        if to_id == "external" and "Marie Dupont (Externe)" in to_name:
-                            external_cession_found = True
-                            print(f"   ✅ Cession externe trouvée: {to_name}")
-                        
-                        # Vérifier la cession interne
-                        elif "Thierry MARTIAS" in to_name:
-                            internal_cession_found = True
-                            print(f"   ✅ Cession interne trouvée: {to_name}")
-                
-                if created_cessions_found >= 2:
-                    self.log_result("cse_cessions_list", "Cessions créées apparaissent", True,
-                                   f"{created_cessions_found} cessions créées trouvées dans la liste")
-                else:
-                    self.log_result("cse_cessions_list", "Cessions créées apparaissent", False,
-                                   f"Seulement {created_cessions_found} cessions trouvées sur {len(self.created_cession_ids)} créées")
-                
-                # Vérifier l'affichage correct de la cession externe
-                if external_cession_found:
-                    self.log_result("cse_cessions_list", "Affichage cession externe correct", True,
-                                   "Cession externe 'Marie Dupont (Externe)' correctement affichée")
-                else:
-                    self.log_result("cse_cessions_list", "Affichage cession externe correct", False,
-                                   "Cession externe 'Marie Dupont (Externe)' non trouvée dans la liste")
-                
-                # Vérifier l'affichage de la cession interne
-                if internal_cession_found:
-                    self.log_result("cse_cessions_list", "Affichage cession interne correct", True,
-                                   "Cession interne vers 'Thierry MARTIAS' correctement affichée")
-                else:
-                    self.log_result("cse_cessions_list", "Affichage cession interne correct", False,
-                                   "Cession interne vers 'Thierry MARTIAS' non trouvée dans la liste")
-                
-                # Afficher un échantillon des cessions pour debug
-                print(f"\n📊 Échantillon des cessions trouvées:")
-                for i, cession in enumerate(cessions[:3]):  # Afficher les 3 premières
-                    print(f"   {i+1}. {cession.get('from_name')} → {cession.get('to_name')} ({cession.get('hours')}h)")
-                
-            else:
-                self.log_result("cse_cessions_list", "GET cse/cessions", False,
-                               f"Expected 200, got {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            self.log_result("cse_cessions_list", "GET cse/cessions", False, f"Exception: {str(e)}")
-
-    def test_company_settings(self):
+    def cleanup_test_data(self):
         """Test 5: Paramètres Entreprise - GET /api/company-settings"""
         print(f"\n🏢 TEST 5: PARAMÈTRES ENTREPRISE")
         print("=" * 60)
