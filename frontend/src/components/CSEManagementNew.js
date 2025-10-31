@@ -163,8 +163,9 @@ const CSEManagementNew = ({ user }) => {
           body: JSON.stringify({
             from_id: cessionData.from_id,
             from_name: cedant.name,
-            to_id: cessionData.to_id,
-            to_name: beneficiaire.name,
+            to_id: cessionData.is_external ? 'external' : cessionData.to_id,
+            to_name: cessionData.is_external ? cessionData.to_name : [...titulaires, ...suppleants].find(m => m.id === cessionData.to_id)?.name,
+            is_external: cessionData.is_external,
             hours: parseFloat(cessionData.hours),
             usage_date: cessionData.usage_date,
             reason: cessionData.reason,
