@@ -407,8 +407,12 @@ const OnCallSchedule = ({ user }) => {
                   {/* Bouton + pour ajout rapide */}
                   {isAdmin && onCallForDay.length === 0 && isHovered && dayData.isCurrentMonth && (
                     <button
-                      onClick={() => openQuickAddModal(dayData)}
-                      className="absolute inset-0 flex items-center justify-center bg-cyan-500 bg-opacity-90 text-white font-bold text-2xl hover:bg-cyan-600 transition-all rounded"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log('🔔 Opening modal for date:', dayData);
+                        openQuickAddModal(dayData);
+                      }}
+                      className="absolute inset-0 flex items-center justify-center bg-cyan-500 bg-opacity-90 text-white font-bold text-2xl hover:bg-cyan-600 transition-all rounded z-10"
                       title="Ajouter une astreinte"
                     >
                       +
