@@ -1144,12 +1144,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
   };
 
   const handleEmployeeClick = (employee) => {
-    // Mode multi-sélection
-    if (multiSelectMode) {
-      toggleEmployeeSelection(employee);
-      return;
-    }
-    
     // Mode ajout normal
     if (!addAbsenceMode) return;
     
