@@ -510,117 +510,20 @@ class CSEModuleTester:
         except Exception as e:
             self.log_result("company_settings", "GET company-settings", False, f"Exception: {str(e)}")
 
-    def test_data_persistence(self):
-        """Test MongoDB data persistence"""
-        print(f"\n💾 DATA PERSISTENCE TESTING")
-        print("=" * 60)
+    def cleanup_test_data(self):
+        """Clean up any remaining test cessions"""
+        print(f"\n🧹 CLEANUP - Removing test cessions")
         
-        # Test 1: Verify created schedules appear in GET requests
-        print(f"\n📋 Test 1: Verify schedules appear in GET requests")
+        for cession_id in self.created_cession_ids[:]:
+            try:
+                # Note: Assuming there's a DELETE endpoint for cessions
+                # If not available, we'll just log the cleanup attempt
+                print(f"ℹ️ Cession {cession_id} created during testing (cleanup may require manual intervention)")
+                self.created_cession_ids.remove(cession_id)
+            except Exception as e:
+                print(f"⚠️ Exception noting cession {cession_id}: {str(e)}")
         
-        try:
-            response = self.session.get(f"{BACKEND_URL}/on-call/schedule")
-            
-            if response.status_code == 200:
-                data = response.json()
-                created_count = len([s for s in data if s.get("id") in self.created_schedule_ids])
-                
-                if created_count > 0:
-                    print(f"✅ Found {created_count} created schedules in GET response")
-                    self.log_result("data_persistence", "Schedules appear in GET", True,
-                                   f"Created schedules properly persisted and retrievable")
-                else:
-                    self.log_result("data_persistence", "Schedules appear in GET", False,
-                                   "Created schedules not found in GET response")
-            else:
-                self.log_result("data_persistence", "Schedules appear in GET", False,
-                               f"GET request failed: {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("data_persistence", "Schedules appear in GET", False, f"Exception: {str(e)}")
-        
-        # Test 2: Test month/year filtering with created data
-        print(f"\n📋 Test 2: Test month/year filtering with created data")
-        
-        try:
-            response = self.session.get(f"{BACKEND_URL}/on-call/schedule?month=1&year=2025")
-            
-            if response.status_code == 200:
-                data = response.json()
-                january_schedules = [s for s in data if s.get("date", "").startswith("2025-01")]
-                
-                if len(january_schedules) > 0:
-                    print(f"✅ Month/year filtering working - Found {len(january_schedules)} January 2025 schedules")
-                    self.log_result("data_persistence", "Month/year filtering works", True,
-                                   f"Filtering correctly returned {len(january_schedules)} schedules for January 2025")
-                else:
-                    print(f"ℹ️ No January 2025 schedules found (expected if no test data in that period)")
-                    self.log_result("data_persistence", "Month/year filtering works", True,
-                                   "Filtering working correctly (no data in filtered period)")
-            else:
-                self.log_result("data_persistence", "Month/year filtering works", False,
-                               f"Filtered GET request failed: {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("data_persistence", "Month/year filtering works", False, f"Exception: {str(e)}")
-
-    def test_error_handling(self):
-        """Test error handling and edge cases"""
-        print(f"\n⚠️ ERROR HANDLING TESTING")
-        print("=" * 60)
-        
-        # Test 1: Missing required fields
-        print(f"\n📋 Test 1: Missing required fields")
-        
-        try:
-            incomplete_data = {
-                "employee_name": "Test User",
-                # Missing employee_id, date, type
-                "notes": "Incomplete data test"
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/on-call/schedule", json=incomplete_data)
-            
-            if response.status_code == 422:
-                print(f"✅ Missing required fields properly rejected (422)")
-                self.log_result("error_handling", "Missing required fields", True,
-                               "Missing required fields properly rejected with validation error")
-            else:
-                self.log_result("error_handling", "Missing required fields", False,
-                               f"Expected 422, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("error_handling", "Missing required fields", False, f"Exception: {str(e)}")
-        
-        # Test 2: Invalid employee_id format
-        print(f"\n📋 Test 2: Invalid employee_id format")
-        
-        try:
-            invalid_id_data = {
-                "employee_id": "not-a-uuid",
-                "employee_name": "Test User",
-                "date": "2025-01-30",
-                "type": "Astreinte jour",
-                "notes": "Invalid ID test"
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/on-call/schedule", json=invalid_id_data)
-            
-            # This might be accepted depending on validation rules, so we check the response
-            if response.status_code in [422, 400]:
-                print(f"✅ Invalid employee_id format handled ({response.status_code})")
-                self.log_result("error_handling", "Invalid employee_id format", True,
-                               f"Invalid employee_id properly handled with {response.status_code}")
-            elif response.status_code == 201:
-                print(f"ℹ️ Invalid employee_id accepted (may be by design)")
-                self.log_result("error_handling", "Invalid employee_id format", True,
-                               "Invalid employee_id accepted (validation may be lenient by design)")
-            else:
-                self.log_result("error_handling", "Invalid employee_id format", False,
-                               f"Unexpected response: {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("error_handling", "Invalid employee_id format", False, f"Exception: {str(e)}")
+        print(f"✅ Test cessions noted for cleanup")
 
     def cleanup_test_data(self):
         """Clean up any remaining test schedules"""
