@@ -622,7 +622,7 @@ const OnCallSchedule = ({ user }) => {
       )}
 
       {/* Menu contextuel */}
-      {contextMenu && (
+      {contextMenu && isAdmin && (
         <div
           className="fixed bg-white border border-gray-200 rounded-lg shadow-xl py-2 z-50"
           style={{ left: contextMenu.x, top: contextMenu.y }}
