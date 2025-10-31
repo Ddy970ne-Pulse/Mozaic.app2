@@ -165,169 +165,81 @@ class OnCallScheduleAPITester:
             except Exception as e:
                 self.log_result("authentication", f"{method} {endpoint} auth test", False, f"Exception: {str(e)}")
 
-    def test_phase2_pydantic_validation(self):
-        """PHASE 2: Strict Pydantic Validation - Test all validation rules"""
-        print(f"\n🛡️ PHASE 2 - PYDANTIC VALIDATION")
+    def test_get_endpoints(self):
+        """Test GET endpoints for on-call schedules"""
+        print(f"\n📅 GET ENDPOINTS TESTING")
         print("=" * 60)
         
-        # Test 1: Login Endpoint Validation
-        print(f"\n📧 Test 1: Login Endpoint Validation")
+        # Test 1: GET /api/on-call/schedule (no filters - should return empty initially)
+        print(f"\n📋 Test 1: GET /api/on-call/schedule (no filters)")
         
-        # Test invalid email format
-        invalid_email_response = requests.post(f"{BACKEND_URL}/auth/login", json={
-            "email": "invalid-email-format",
-            "password": "admin123"
-        })
-        
-        if invalid_email_response.status_code == 422:
-            print(f"✅ Invalid email format rejected (422)")
-            self.log_result("phase2_validation", "Login invalid email rejected", True, 
-                           "Invalid email format properly rejected with 422")
-        else:
-            self.log_result("phase2_validation", "Login invalid email rejected", False, 
-                           f"Expected 422, got {invalid_email_response.status_code}")
-        
-        # Test valid credentials should work
-        valid_login_response = requests.post(f"{BACKEND_URL}/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        
-        if valid_login_response.status_code == 200:
-            print(f"✅ Valid credentials accepted (200)")
-            self.log_result("phase2_validation", "Login valid credentials accepted", True, 
-                           "Valid login credentials work correctly")
-        else:
-            self.log_result("phase2_validation", "Login valid credentials accepted", False, 
-                           f"Valid login failed: {valid_login_response.status_code}")
-        
-        # Test 2: User Creation Validation
-        print(f"\n👤 Test 2: User Creation Validation")
-        
-        # Test weak password (< 6 chars)
-        weak_password_data = {
-            "name": "Test User",
-            "email": "test@example.com",
-            "password": "123",  # Too short
-            "department": "Test Dept"
-        }
-        
-        weak_password_response = self.session.post(f"{BACKEND_URL}/users", json=weak_password_data)
-        
-        if weak_password_response.status_code == 422:
-            print(f"✅ Weak password rejected (422)")
-            self.log_result("phase2_validation", "Weak password rejected", True, 
-                           "Password < 6 characters properly rejected")
-        else:
-            self.log_result("phase2_validation", "Weak password rejected", False, 
-                           f"Expected 422, got {weak_password_response.status_code}")
-        
-        # Test password without numbers
-        no_number_password_data = {
-            "name": "Test User",
-            "email": "test2@example.com", 
-            "password": "abcdef",  # No numbers
-            "department": "Test Dept"
-        }
-        
-        no_number_response = self.session.post(f"{BACKEND_URL}/users", json=no_number_password_data)
-        
-        if no_number_response.status_code == 422:
-            print(f"✅ Password without numbers rejected (422)")
-            self.log_result("phase2_validation", "Password without numbers rejected", True, 
-                           "Password without numbers properly rejected")
-        else:
-            self.log_result("phase2_validation", "Password without numbers rejected", False, 
-                           f"Expected 422, got {no_number_response.status_code}")
-        
-        # Test invalid role
-        invalid_role_data = {
-            "name": "Test User",
-            "email": "test3@example.com",
-            "password": "admin123",
-            "role": "invalid_role",  # Invalid role
-            "department": "Test Dept"
-        }
-        
-        invalid_role_response = self.session.post(f"{BACKEND_URL}/users", json=invalid_role_data)
-        
-        if invalid_role_response.status_code == 422:
-            print(f"✅ Invalid role rejected (422)")
-            self.log_result("phase2_validation", "Invalid role rejected", True, 
-                           "Invalid role properly rejected")
-        else:
-            self.log_result("phase2_validation", "Invalid role rejected", False, 
-                           f"Expected 422, got {invalid_role_response.status_code}")
-        
-        # Test 3: Absence Creation Validation
-        print(f"\n📅 Test 3: Absence Creation Validation")
-        
-        # Test invalid email format in absence
-        invalid_absence_email = {
-            "employee_id": self.user_id,
-            "employee_name": "Test Employee",
-            "email": "invalid-email",  # Invalid format
-            "motif_absence": "CA",
-            "jours_absence": "2",
-            "date_debut": "01/01/2025"
-        }
-        
-        invalid_absence_response = self.session.post(f"{BACKEND_URL}/absences", json=invalid_absence_email)
-        
-        if invalid_absence_response.status_code == 422:
-            print(f"✅ Invalid absence email rejected (422)")
-            self.log_result("phase2_validation", "Invalid absence email rejected", True, 
-                           "Invalid email in absence properly rejected")
-        else:
-            self.log_result("phase2_validation", "Invalid absence email rejected", False, 
-                           f"Expected 422, got {invalid_absence_response.status_code}")
-        
-        # Test hours > 24
-        invalid_hours_absence = {
-            "employee_id": self.user_id,
-            "employee_name": "Test Employee", 
-            "email": ADMIN_EMAIL,
-            "motif_absence": "CA",
-            "jours_absence": "1",
-            "date_debut": "01/01/2025",
-            "hours_amount": 25.0  # > 24 hours
-        }
-        
-        invalid_hours_response = self.session.post(f"{BACKEND_URL}/absences", json=invalid_hours_absence)
-        
-        if invalid_hours_response.status_code == 422:
-            print(f"✅ Hours > 24 rejected (422)")
-            self.log_result("phase2_validation", "Hours > 24 rejected", True, 
-                           "Hours > 24 properly rejected")
-        else:
-            self.log_result("phase2_validation", "Hours > 24 rejected", False, 
-                           f"Expected 422, got {invalid_hours_response.status_code}")
-        
-        # Test valid absence should work
-        valid_absence_data = {
-            "employee_id": self.user_id,
-            "employee_name": "Diego DACALOR",
-            "email": ADMIN_EMAIL,
-            "motif_absence": "CA",
-            "jours_absence": "1",
-            "date_debut": "01/01/2025",
-            "notes": "Test validation"
-        }
-        
-        valid_absence_response = self.session.post(f"{BACKEND_URL}/absences", json=valid_absence_data)
-        
-        if valid_absence_response.status_code == 200:
-            print(f"✅ Valid absence accepted (200)")
-            self.log_result("phase2_validation", "Valid absence accepted", True, 
-                           "Valid absence data works correctly")
+        try:
+            response = self.session.get(f"{BACKEND_URL}/on-call/schedule")
             
-            # Clean up - delete test absence
-            absence_id = valid_absence_response.json().get("id")
-            if absence_id:
-                self.session.delete(f"{BACKEND_URL}/absences/{absence_id}")
-        else:
-            self.log_result("phase2_validation", "Valid absence accepted", False, 
-                           f"Valid absence failed: {valid_absence_response.status_code}")
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ GET schedule successful (200) - Found {len(data)} schedules")
+                self.log_result("get_endpoints", "GET schedule no filters", True,
+                               f"Returned {len(data)} schedules successfully")
+            else:
+                self.log_result("get_endpoints", "GET schedule no filters", False,
+                               f"Expected 200, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("get_endpoints", "GET schedule no filters", False, f"Exception: {str(e)}")
+        
+        # Test 2: GET /api/on-call/schedule with month/year filtering
+        print(f"\n📋 Test 2: GET /api/on-call/schedule with month/year filtering")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/on-call/schedule?month=1&year=2025")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ GET schedule with filters successful (200) - Found {len(data)} schedules")
+                self.log_result("get_endpoints", "GET schedule with month/year filter", True,
+                               f"Month/year filtering working, returned {len(data)} schedules")
+            else:
+                self.log_result("get_endpoints", "GET schedule with month/year filter", False,
+                               f"Expected 200, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("get_endpoints", "GET schedule with month/year filter", False, f"Exception: {str(e)}")
+        
+        # Test 3: GET /api/on-call/assignments with date range
+        print(f"\n📋 Test 3: GET /api/on-call/assignments with date range")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/on-call/assignments?startDate=2025-01-01&endDate=2025-01-31")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ GET assignments successful (200) - Found {len(data)} assignments")
+                self.log_result("get_endpoints", "GET assignments with date range", True,
+                               f"Date range filtering working, returned {len(data)} assignments")
+            else:
+                self.log_result("get_endpoints", "GET assignments with date range", False,
+                               f"Expected 200, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("get_endpoints", "GET assignments with date range", False, f"Exception: {str(e)}")
+        
+        # Test 4: GET /api/on-call/assignments with invalid date format
+        print(f"\n📋 Test 4: GET /api/on-call/assignments with invalid date format")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/on-call/assignments?startDate=invalid&endDate=2025-01-31")
+            
+            if response.status_code == 400:
+                print(f"✅ Invalid date format rejected (400)")
+                self.log_result("get_endpoints", "GET assignments invalid date format", True,
+                               "Invalid date format properly rejected with 400")
+            else:
+                self.log_result("get_endpoints", "GET assignments invalid date format", False,
+                               f"Expected 400, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("get_endpoints", "GET assignments invalid date format", False, f"Exception: {str(e)}")
 
     def test_phase3_rate_limiting(self):
         """PHASE 3: Rate Limiting - Test rate limits on critical endpoints"""
