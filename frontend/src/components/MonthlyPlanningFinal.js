@@ -304,11 +304,14 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         if (response.ok) {
           const assignments = await response.json();
           
+          console.log('📅 Réponse API brute:', assignments);
+          
           // Transformer les assignations (jours individuels) en format utilisable par le planning
           // Grouper par employé et par semaine
           const onCallMap = {};
           
           for (const assignment of assignments) {
+            // L'API retourne employee_id (snake_case)
             const employeeId = assignment.employee_id;
             if (!onCallMap[employeeId]) {
               onCallMap[employeeId] = [];
@@ -326,6 +329,7 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           }
           
           console.log('🔔 Astreintes chargées:', assignments.length, 'jours pour', Object.keys(onCallMap).length, 'employés');
+          console.log('📊 Détails onCallMap:', onCallMap);
           setOnCallData(onCallMap);
         } else {
           console.warn('Aucune astreinte trouvée pour cette période');
