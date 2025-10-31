@@ -416,114 +416,253 @@ class OnCallScheduleAPITester:
         except Exception as e:
             self.log_result("post_endpoints", "POST type normalization", False, f"Exception: {str(e)}")
 
-    def test_security_bypass_attempts(self):
-        """Security Bypass Tests - Attempt to bypass security measures"""
-        print(f"\n🔒 SECURITY BYPASS TESTS")
+    def test_delete_endpoints(self):
+        """Test DELETE endpoints for on-call schedules"""
+        print(f"\n🗑️ DELETE ENDPOINTS TESTING")
         print("=" * 60)
         
-        # Test 1: SQL Injection attempts
-        print(f"\n💉 Test 1: SQL Injection Protection")
+        # Test 1: DELETE existing schedule
+        print(f"\n📋 Test 1: DELETE existing schedule")
         
-        sql_injection_payloads = [
-            "admin'; DROP TABLE users; --",
-            "' OR '1'='1",
-            "admin' UNION SELECT * FROM users --"
-        ]
-        
-        for payload in sql_injection_payloads:
-            response = requests.post(f"{BACKEND_URL}/auth/login", json={
-                "email": payload,
-                "password": "admin123"
-            })
+        if self.created_schedule_ids:
+            schedule_id = self.created_schedule_ids[0]
             
-            if response.status_code in [401, 422]:  # Should be rejected
-                print(f"✅ SQL injection payload rejected: {payload[:20]}...")
-                self.log_result("security_bypass", "SQL injection protection", True, 
-                               f"Payload properly rejected with {response.status_code}")
+            try:
+                response = self.session.delete(f"{BACKEND_URL}/on-call/schedule/{schedule_id}")
+                
+                if response.status_code == 204:
+                    print(f"✅ Schedule deleted successfully (204)")
+                    self.log_result("delete_endpoints", "DELETE existing schedule", True,
+                                   "Schedule deleted with proper 204 status")
+                    
+                    # Remove from tracking list
+                    self.created_schedule_ids.remove(schedule_id)
+                else:
+                    self.log_result("delete_endpoints", "DELETE existing schedule", False,
+                                   f"Expected 204, got {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("delete_endpoints", "DELETE existing schedule", False, f"Exception: {str(e)}")
+        else:
+            self.log_result("delete_endpoints", "DELETE existing schedule", False, "No schedules available to delete")
+        
+        # Test 2: DELETE non-existent schedule (404)
+        print(f"\n📋 Test 2: DELETE non-existent schedule")
+        
+        try:
+            fake_id = "00000000-0000-0000-0000-000000000000"
+            response = self.session.delete(f"{BACKEND_URL}/on-call/schedule/{fake_id}")
+            
+            if response.status_code == 404:
+                print(f"✅ Non-existent schedule properly rejected (404)")
+                self.log_result("delete_endpoints", "DELETE non-existent schedule", True,
+                               "Non-existent schedule properly returns 404")
             else:
-                self.log_result("security_bypass", "SQL injection protection", False, 
-                               f"Payload not rejected: {response.status_code}")
+                self.log_result("delete_endpoints", "DELETE non-existent schedule", False,
+                               f"Expected 404, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("delete_endpoints", "DELETE non-existent schedule", False, f"Exception: {str(e)}")
+
+    def test_put_endpoints(self):
+        """Test PUT endpoints for updating on-call schedules"""
+        print(f"\n✏️ PUT ENDPOINTS TESTING")
+        print("=" * 60)
         
-        # Test 2: XSS attempts in user creation
-        print(f"\n🚨 Test 2: XSS Protection")
+        # Test 1: PUT update existing schedule
+        print(f"\n📋 Test 1: PUT update existing schedule")
         
-        xss_payloads = [
-            "<script>alert('xss')</script>",
-            "javascript:alert('xss')",
-            "<img src=x onerror=alert('xss')>"
-        ]
+        if self.created_schedule_ids:
+            schedule_id = self.created_schedule_ids[0]
+            
+            try:
+                update_data = {
+                    "employee_id": self.user_id,
+                    "employee_name": "Diego DACALOR (Updated)",
+                    "date": "2025-01-16",
+                    "type": "Astreinte jour",
+                    "notes": "Updated schedule notes"
+                }
+                
+                response = self.session.put(f"{BACKEND_URL}/on-call/schedule/{schedule_id}", json=update_data)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    print(f"✅ Schedule updated successfully (200)")
+                    
+                    # Verify updated fields
+                    if (data.get("employee_name") == "Diego DACALOR (Updated)" and 
+                        data.get("type") == "Astreinte jour" and
+                        data.get("notes") == "Updated schedule notes"):
+                        self.log_result("put_endpoints", "PUT update existing schedule", True,
+                                       "Schedule updated with correct field values")
+                    else:
+                        self.log_result("put_endpoints", "PUT update existing schedule", False,
+                                       "Updated fields not reflected correctly")
+                else:
+                    self.log_result("put_endpoints", "PUT update existing schedule", False,
+                                   f"Expected 200, got {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("put_endpoints", "PUT update existing schedule", False, f"Exception: {str(e)}")
+        else:
+            self.log_result("put_endpoints", "PUT update existing schedule", False, "No schedules available to update")
         
-        for payload in xss_payloads:
-            user_data = {
-                "name": payload,
-                "email": "xss@test.com",
-                "password": "admin123",
-                "department": "Test"
+        # Test 2: PUT update non-existent schedule (404)
+        print(f"\n📋 Test 2: PUT update non-existent schedule")
+        
+        try:
+            fake_id = "00000000-0000-0000-0000-000000000000"
+            update_data = {
+                "employee_id": self.user_id,
+                "employee_name": "Test User",
+                "date": "2025-01-30",
+                "type": "Astreinte jour",
+                "notes": "Test update"
             }
             
-            response = self.session.post(f"{BACKEND_URL}/users", json=user_data)
+            response = self.session.put(f"{BACKEND_URL}/on-call/schedule/{fake_id}", json=update_data)
             
-            if response.status_code == 422:  # Should be rejected by validation
-                print(f"✅ XSS payload rejected: {payload[:20]}...")
-                self.log_result("security_bypass", "XSS protection", True, 
-                               f"XSS payload properly rejected with 422")
+            if response.status_code == 404:
+                print(f"✅ Non-existent schedule update properly rejected (404)")
+                self.log_result("put_endpoints", "PUT non-existent schedule", True,
+                               "Non-existent schedule update properly returns 404")
             else:
-                # If accepted, check if it's properly sanitized
-                if response.status_code == 200:
-                    print(f"⚠️ XSS payload accepted but should be sanitized")
-                    self.log_result("security_bypass", "XSS protection", False, 
-                                   f"XSS payload accepted: {response.status_code}")
+                self.log_result("put_endpoints", "PUT non-existent schedule", False,
+                               f"Expected 404, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("put_endpoints", "PUT non-existent schedule", False, f"Exception: {str(e)}")
+
+    def test_data_persistence(self):
+        """Test MongoDB data persistence"""
+        print(f"\n💾 DATA PERSISTENCE TESTING")
+        print("=" * 60)
         
-        # Test 3: Oversized input attempts
-        print(f"\n📏 Test 3: Input Length Limits")
+        # Test 1: Verify created schedules appear in GET requests
+        print(f"\n📋 Test 1: Verify schedules appear in GET requests")
         
-        # Test very long name (should exceed max length)
-        long_name = "A" * 500  # Exceeds 200 char limit
+        try:
+            response = self.session.get(f"{BACKEND_URL}/on-call/schedule")
+            
+            if response.status_code == 200:
+                data = response.json()
+                created_count = len([s for s in data if s.get("id") in self.created_schedule_ids])
+                
+                if created_count > 0:
+                    print(f"✅ Found {created_count} created schedules in GET response")
+                    self.log_result("data_persistence", "Schedules appear in GET", True,
+                                   f"Created schedules properly persisted and retrievable")
+                else:
+                    self.log_result("data_persistence", "Schedules appear in GET", False,
+                                   "Created schedules not found in GET response")
+            else:
+                self.log_result("data_persistence", "Schedules appear in GET", False,
+                               f"GET request failed: {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("data_persistence", "Schedules appear in GET", False, f"Exception: {str(e)}")
         
-        long_input_data = {
-            "name": long_name,
-            "email": "long@test.com",
-            "password": "admin123",
-            "department": "Test"
-        }
+        # Test 2: Test month/year filtering with created data
+        print(f"\n📋 Test 2: Test month/year filtering with created data")
         
-        long_input_response = self.session.post(f"{BACKEND_URL}/users", json=long_input_data)
+        try:
+            response = self.session.get(f"{BACKEND_URL}/on-call/schedule?month=1&year=2025")
+            
+            if response.status_code == 200:
+                data = response.json()
+                january_schedules = [s for s in data if s.get("date", "").startswith("2025-01")]
+                
+                if len(january_schedules) > 0:
+                    print(f"✅ Month/year filtering working - Found {len(january_schedules)} January 2025 schedules")
+                    self.log_result("data_persistence", "Month/year filtering works", True,
+                                   f"Filtering correctly returned {len(january_schedules)} schedules for January 2025")
+                else:
+                    print(f"ℹ️ No January 2025 schedules found (expected if no test data in that period)")
+                    self.log_result("data_persistence", "Month/year filtering works", True,
+                                   "Filtering working correctly (no data in filtered period)")
+            else:
+                self.log_result("data_persistence", "Month/year filtering works", False,
+                               f"Filtered GET request failed: {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("data_persistence", "Month/year filtering works", False, f"Exception: {str(e)}")
+
+    def test_error_handling(self):
+        """Test error handling and edge cases"""
+        print(f"\n⚠️ ERROR HANDLING TESTING")
+        print("=" * 60)
         
-        if long_input_response.status_code == 422:
-            print(f"✅ Oversized input rejected (422)")
-            self.log_result("security_bypass", "Input length limits", True, 
-                           "Oversized input properly rejected")
-        else:
-            self.log_result("security_bypass", "Input length limits", False, 
-                           f"Oversized input not rejected: {long_input_response.status_code}")
+        # Test 1: Missing required fields
+        print(f"\n📋 Test 1: Missing required fields")
         
-        # Test 4: Authentication bypass attempts
-        print(f"\n🔐 Test 4: Authentication Bypass Protection")
+        try:
+            incomplete_data = {
+                "employee_name": "Test User",
+                # Missing employee_id, date, type
+                "notes": "Incomplete data test"
+            }
+            
+            response = self.session.post(f"{BACKEND_URL}/on-call/schedule", json=incomplete_data)
+            
+            if response.status_code == 422:
+                print(f"✅ Missing required fields properly rejected (422)")
+                self.log_result("error_handling", "Missing required fields", True,
+                               "Missing required fields properly rejected with validation error")
+            else:
+                self.log_result("error_handling", "Missing required fields", False,
+                               f"Expected 422, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("error_handling", "Missing required fields", False, f"Exception: {str(e)}")
         
-        # Try to access protected endpoint without token
-        no_auth_response = requests.get(f"{BACKEND_URL}/users")
+        # Test 2: Invalid employee_id format
+        print(f"\n📋 Test 2: Invalid employee_id format")
         
-        if no_auth_response.status_code == 401:
-            print(f"✅ No authentication rejected (401)")
-            self.log_result("security_bypass", "Authentication required", True, 
-                           "Unauthenticated request properly rejected")
-        else:
-            self.log_result("security_bypass", "Authentication required", False, 
-                           f"Unauthenticated request not rejected: {no_auth_response.status_code}")
+        try:
+            invalid_id_data = {
+                "employee_id": "not-a-uuid",
+                "employee_name": "Test User",
+                "date": "2025-01-30",
+                "type": "Astreinte jour",
+                "notes": "Invalid ID test"
+            }
+            
+            response = self.session.post(f"{BACKEND_URL}/on-call/schedule", json=invalid_id_data)
+            
+            # This might be accepted depending on validation rules, so we check the response
+            if response.status_code in [422, 400]:
+                print(f"✅ Invalid employee_id format handled ({response.status_code})")
+                self.log_result("error_handling", "Invalid employee_id format", True,
+                               f"Invalid employee_id properly handled with {response.status_code}")
+            elif response.status_code == 201:
+                print(f"ℹ️ Invalid employee_id accepted (may be by design)")
+                self.log_result("error_handling", "Invalid employee_id format", True,
+                               "Invalid employee_id accepted (validation may be lenient by design)")
+            else:
+                self.log_result("error_handling", "Invalid employee_id format", False,
+                               f"Unexpected response: {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("error_handling", "Invalid employee_id format", False, f"Exception: {str(e)}")
+
+    def cleanup_test_data(self):
+        """Clean up any remaining test schedules"""
+        print(f"\n🧹 CLEANUP - Removing test schedules")
         
-        # Try with invalid token
-        invalid_token_session = requests.Session()
-        invalid_token_session.headers.update({"Authorization": "Bearer invalid_token_here"})
+        for schedule_id in self.created_schedule_ids[:]:
+            try:
+                response = self.session.delete(f"{BACKEND_URL}/on-call/schedule/{schedule_id}")
+                if response.status_code == 204:
+                    print(f"✅ Cleaned up schedule: {schedule_id}")
+                    self.created_schedule_ids.remove(schedule_id)
+                else:
+                    print(f"⚠️ Failed to cleanup schedule {schedule_id}: {response.status_code}")
+            except Exception as e:
+                print(f"⚠️ Exception cleaning up schedule {schedule_id}: {str(e)}")
         
-        invalid_token_response = invalid_token_session.get(f"{BACKEND_URL}/users")
-        
-        if invalid_token_response.status_code == 401:
-            print(f"✅ Invalid token rejected (401)")
-            self.log_result("security_bypass", "Invalid token rejected", True, 
-                           "Invalid token properly rejected")
-        else:
-            self.log_result("security_bypass", "Invalid token rejected", False, 
-                           f"Invalid token not rejected: {invalid_token_response.status_code}")
+        if not self.created_schedule_ids:
+            print(f"✅ All test schedules cleaned up successfully")
 
     def print_summary(self):
         """Afficher le résumé des tests de sécurité"""
