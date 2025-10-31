@@ -89,6 +89,10 @@ const OnCallSchedule = ({ user }) => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('📅 Données astreintes chargées depuis l\'API:', data);
+        data.forEach(item => {
+          console.log(`  - ${item.date} : ${item.employee_name}`);
+        });
         setOnCallData(data);
       } else if (response.status === 404) {
         // API pas encore implémentée
