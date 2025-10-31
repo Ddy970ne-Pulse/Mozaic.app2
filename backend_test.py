@@ -419,65 +419,9 @@ class CSECompleteTester:
         except Exception as e:
             self.log_result("cession_external", "POST cession externe", False, f"Exception: {str(e)}")
 
-    def test_company_settings_no_500_error(self):
-        """Test 2: Endpoint company-settings ne doit PAS retourner erreur 500"""
-        print(f"\n🏢 TEST 2: ENDPOINT COMPANY-SETTINGS (PAS D'ERREUR 500)")
-        print("=" * 60)
-        
-        try:
-            response = self.session.get(f"{BACKEND_URL}/company-settings")
-            
-            print(f"📤 GET /api/company-settings")
-            print(f"📥 Status Code: {response.status_code}")
-            
-            # **VÉRIFICATION CRITIQUE** : Ne doit PAS retourner erreur 500
-            if response.status_code != 500:
-                self.log_result("company_settings_no_500", "Pas d'erreur 500", True,
-                               f"Status code {response.status_code} (pas 500)")
-            else:
-                self.log_result("company_settings_no_500", "Pas d'erreur 500", False,
-                               f"Erreur 500 retournée: {response.text}")
-                return
-            
-            if response.status_code == 200:
-                try:
-                    settings = response.json()
-                    print(f"✅ JSON valide retourné")
-                    print(f"   Contenu: {json.dumps(settings, indent=2)}")
-                    
-                    # Doit retourner JSON avec effectif, nom_entreprise, accord_entreprise_heures_cse
-                    required_fields = ["effectif", "nom_entreprise", "accord_entreprise_heures_cse"]
-                    missing_fields = [field for field in required_fields if field not in settings]
-                    
-                    if not missing_fields:
-                        self.log_result("company_settings_no_500", "Champs requis présents", True,
-                                       f"Tous les champs requis présents: {required_fields}")
-                    else:
-                        self.log_result("company_settings_no_500", "Champs requis présents", False,
-                                       f"Champs manquants: {missing_fields}")
-                    
-                    # Vérifier effectif = 250
-                    effectif = settings.get("effectif")
-                    if effectif == 250:
-                        self.log_result("company_settings_no_500", "Effectif = 250", True,
-                                       f"Effectif correct: {effectif}")
-                    else:
-                        self.log_result("company_settings_no_500", "Effectif = 250", False,
-                                       f"Effectif attendu: 250, trouvé: {effectif}")
-                    
-                except json.JSONDecodeError as e:
-                    self.log_result("company_settings_no_500", "JSON valide", False,
-                                   f"Réponse n'est pas du JSON valide: {str(e)}")
-            else:
-                self.log_result("company_settings_no_500", "Status 200", False,
-                               f"Status {response.status_code} au lieu de 200: {response.text}")
-                
-        except Exception as e:
-            self.log_result("company_settings_no_500", "GET company-settings", False, f"Exception: {str(e)}")
-
-    def test_cessions_list_is_external_field(self):
-        """Test 3: Vérification liste cessions (avec is_external)"""
-        print(f"\n📋 TEST 3: VÉRIFICATION LISTE CESSIONS (AVEC is_external)")
+    def test_cessions_list_verification(self):
+        """Test 5: Vérification liste cessions"""
+        print(f"\n📋 TEST 5: VÉRIFICATION LISTE CESSIONS")
         print("=" * 60)
         
         try:
@@ -488,107 +432,100 @@ class CSECompleteTester:
             
             if response.status_code == 200:
                 cessions = response.json()
-                print(f"✅ GET /api/cse/cessions successful (200) - Found {len(cessions)} cessions")
+                print(f"✅ GET /api/cse/cessions successful - Found {len(cessions)} cessions")
                 
-                if len(cessions) == 0:
-                    self.log_result("cessions_list_is_external", "Cessions trouvées", False,
-                                   "Aucune cession trouvée dans la liste")
-                    return
-                
-                # Analyser les cessions pour vérifier le champ is_external
-                external_cessions_count = 0
-                internal_cessions_count = 0
-                cessions_with_is_external_field = 0
-                
-                print(f"\n📊 Analyse des cessions:")
-                
-                # Analyser TOUTES les cessions, pas seulement les 10 premières
-                for i, cession in enumerate(cessions):
-                    to_id = cession.get("to_id", "")
-                    to_name = cession.get("to_name", "")
-                    is_external = cession.get("is_external")
-                    
-                    # Compter les cessions avec le champ is_external
-                    if "is_external" in cession:
-                        cessions_with_is_external_field += 1
-                    
-                    # Vérifier les cessions externes
-                    if to_id == "external":
-                        external_cessions_count += 1
-                        print(f"   EXTERNE {external_cessions_count}. {cession.get('from_name', 'N/A')} → {to_name}")
-                        print(f"      to_id: {to_id}, is_external: {is_external}")
-                        if is_external is True:
-                            print(f"      ✅ Cession externe avec is_external=true")
-                        else:
-                            print(f"      ❌ Cession externe SANS is_external=true (trouvé: {is_external})")
-                    else:
-                        internal_cessions_count += 1
-                        # Afficher seulement les 3 premières cessions internes pour éviter le spam
-                        if internal_cessions_count <= 3:
-                            print(f"   INTERNE {internal_cessions_count}. {cession.get('from_name', 'N/A')} → {to_name}")
-                            print(f"      to_id: {to_id}, is_external: {is_external}")
-                            if is_external is False or is_external is None:
-                                print(f"      ✅ Cession interne avec is_external=false/null")
-                            else:
-                                print(f"      ❌ Cession interne avec is_external=true (incorrect)")
-                
-                if internal_cessions_count > 3:
-                    print(f"   ... et {internal_cessions_count - 3} autres cessions internes")
-                
-                # Vérifier que les cessions externes ont is_external = true
-                external_correct_count = 0
-                external_incorrect_count = 0
-                internal_correct = True
-                
+                # VÉRIFIER: 2 cessions créées apparaissent (au minimum)
+                created_cessions_found = 0
                 for cession in cessions:
-                    to_id = cession.get("to_id", "")
-                    is_external = cession.get("is_external")
+                    if cession.get("id") in self.created_cession_ids:
+                        created_cessions_found += 1
+                
+                if created_cessions_found >= 2:
+                    self.log_result("cessions_list", "2 cessions créées apparaissent", True,
+                                   f"{created_cessions_found} cessions créées trouvées dans la liste")
+                else:
+                    self.log_result("cessions_list", "2 cessions créées apparaissent", False,
+                                   f"Seulement {created_cessions_found} cessions créées trouvées")
+                
+                # VÉRIFIER présence champs: delai_inferieur_8jours, justification_urgence, is_external
+                required_fields = ["delai_inferieur_8jours", "justification_urgence", "is_external"]
+                cessions_with_all_fields = 0
+                
+                print(f"\n📊 Analyse des champs requis:")
+                for i, cession in enumerate(cessions[:5]):  # Analyser les 5 premières
+                    fields_present = []
+                    for field in required_fields:
+                        if field in cession:
+                            fields_present.append(field)
                     
-                    if to_id == "external":
-                        if is_external is True:
-                            external_correct_count += 1
-                        else:
-                            external_incorrect_count += 1
-                            print(f"      ❌ Cession externe avec is_external={is_external} (devrait être True)")
-                    elif to_id != "external" and is_external is True:
-                        internal_correct = False
+                    print(f"   Cession {i+1}: {len(fields_present)}/{len(required_fields)} champs présents")
+                    print(f"      Présents: {fields_present}")
+                    
+                    if len(fields_present) == len(required_fields):
+                        cessions_with_all_fields += 1
                 
-                if external_cessions_count > 0:
-                    if external_correct_count > 0:
-                        self.log_result("cessions_list_is_external", "Cessions externes is_external=true", True,
-                                       f"{external_correct_count}/{external_cessions_count} cessions externes avec is_external=true")
-                        if external_incorrect_count > 0:
-                            self.log_result("cessions_list_is_external", "Toutes cessions externes correctes", False,
-                                           f"{external_incorrect_count} cessions externes ont is_external incorrect")
-                    else:
-                        self.log_result("cessions_list_is_external", "Cessions externes is_external=true", False,
-                                       f"Aucune cession externe n'a is_external=true")
+                if cessions_with_all_fields > 0:
+                    self.log_result("cessions_list", "Champs requis présents", True,
+                                   f"{cessions_with_all_fields} cessions ont tous les champs requis")
                 else:
-                    self.log_result("cessions_list_is_external", "Cessions externes trouvées", False,
-                                   "Aucune cession externe trouvée pour vérifier is_external")
-                
-                if internal_cessions_count > 0:
-                    if internal_correct:
-                        self.log_result("cessions_list_is_external", "Cessions internes is_external=false", True,
-                                       f"{internal_cessions_count} cessions internes avec is_external=false/null")
-                    else:
-                        self.log_result("cessions_list_is_external", "Cessions internes is_external=false", False,
-                                       f"Certaines cessions internes ont is_external=true (incorrect)")
-                
-                # Vérifier que le champ is_external est présent
-                if cessions_with_is_external_field > 0:
-                    self.log_result("cessions_list_is_external", "Champ is_external présent", True,
-                                   f"{cessions_with_is_external_field}/{len(cessions)} cessions ont le champ is_external")
-                else:
-                    self.log_result("cessions_list_is_external", "Champ is_external présent", False,
-                                   "Aucune cession n'a le champ is_external")
+                    self.log_result("cessions_list", "Champs requis présents", False,
+                                   "Aucune cession n'a tous les champs requis")
                 
             else:
-                self.log_result("cessions_list_is_external", "GET cse/cessions", False,
+                self.log_result("cessions_list", "GET cse/cessions", False,
                                f"Expected 200, got {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_result("cessions_list_is_external", "GET cse/cessions", False, f"Exception: {str(e)}")
+            self.log_result("cessions_list", "GET cse/cessions", False, f"Exception: {str(e)}")
+
+    def test_company_settings(self):
+        """Test 6: Paramètres entreprise"""
+        print(f"\n🏢 TEST 6: PARAMÈTRES ENTREPRISE")
+        print("=" * 60)
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/company-settings")
+            
+            print(f"📤 GET /api/company-settings")
+            print(f"📥 Status Code: {response.status_code}")
+            
+            if response.status_code == 200:
+                settings = response.json()
+                print(f"✅ GET /api/company-settings successful")
+                print(f"   Contenu: {json.dumps(settings, indent=2)}")
+                
+                # VÉRIFIER effectif = 250
+                effectif = settings.get("effectif")
+                if effectif == 250:
+                    self.log_result("company_settings", "Effectif = 250", True,
+                                   f"Effectif correct: {effectif}")
+                else:
+                    self.log_result("company_settings", "Effectif = 250", False,
+                                   f"Effectif attendu: 250, trouvé: {effectif}")
+                
+                # Vérifier autres champs importants
+                nom_entreprise = settings.get("nom_entreprise")
+                if nom_entreprise:
+                    self.log_result("company_settings", "nom_entreprise présent", True,
+                                   f"Nom entreprise: {nom_entreprise}")
+                else:
+                    self.log_result("company_settings", "nom_entreprise présent", False,
+                                   "Champ nom_entreprise manquant")
+                
+                accord_cse = settings.get("accord_entreprise_heures_cse")
+                if accord_cse is not None:
+                    self.log_result("company_settings", "accord_entreprise_heures_cse présent", True,
+                                   f"Accord CSE: {accord_cse}")
+                else:
+                    self.log_result("company_settings", "accord_entreprise_heures_cse présent", False,
+                                   "Champ accord_entreprise_heures_cse manquant")
+                
+            else:
+                self.log_result("company_settings", "GET company-settings", False,
+                               f"Expected 200, got {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_result("company_settings", "GET company-settings", False, f"Exception: {str(e)}")
 
     def cleanup_test_data(self):
         """Clean up any remaining test cessions"""
