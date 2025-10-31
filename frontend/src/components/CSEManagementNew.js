@@ -632,7 +632,7 @@ const CSEManagementNew = ({ user }) => {
                   type="button"
                   onClick={() => {
                     setShowCessionModal(false);
-                    setCessionData({ from_id: '', to_id: '', hours: '', usage_date: '', reason: '' });
+                    setCessionData({ from_id: '', to_id: '', to_name: '', is_external: false, hours: '', usage_date: '', reason: '' });
                   }}
                   className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
