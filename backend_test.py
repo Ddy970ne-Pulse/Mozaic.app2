@@ -87,18 +87,23 @@ WEBSOCKET_URL = "wss://hr-multi-saas.preview.emergentagent.com/api/ws"
 ADMIN_EMAIL = "ddacalor@aaea-gpe.fr"
 ADMIN_PASSWORD = "admin123"
 
-class CSERegressionTester:
+class CSECompleteTester:
     def __init__(self):
         self.token = None
         self.user_id = None
         self.session = requests.Session()
         self.test_results = {
             "authentication": {"passed": 0, "failed": 0, "details": []},
-            "external_cession_is_external": {"passed": 0, "failed": 0, "details": []},
-            "company_settings_no_500": {"passed": 0, "failed": 0, "details": []},
-            "cessions_list_is_external": {"passed": 0, "failed": 0, "details": []}
+            "cse_delegates": {"passed": 0, "failed": 0, "details": []},
+            "cse_balance": {"passed": 0, "failed": 0, "details": []},
+            "cession_internal_delai": {"passed": 0, "failed": 0, "details": []},
+            "cession_external": {"passed": 0, "failed": 0, "details": []},
+            "cessions_list": {"passed": 0, "failed": 0, "details": []},
+            "company_settings": {"passed": 0, "failed": 0, "details": []}
         }
         self.created_cession_ids = []  # Track created cessions for cleanup
+        self.jacques_edau_id = None
+        self.thierry_martias_id = None
         
     def log_result(self, phase, test_name, success, message, expected=None, actual=None):
         """Log test result"""
