@@ -409,6 +409,12 @@ const OnCallSchedule = ({ user }) => {
               const onCallForDay = getOnCallForDay(dayData.date);
               const isTodayDate = isToday(dayData);
               const isHovered = hoveredDay === dayKey;
+              
+              // Log pour déboguer
+              if (onCallForDay.length > 0) {
+                const dateStr = `${dayData.year}-${String(dayData.month + 1).padStart(2, '0')}-${String(dayData.day).padStart(2, '0')}`;
+                console.log(`📅 Cellule: ${dateStr}, dayData.date:`, dayData.date, `Astreintes trouvées: ${onCallForDay.length}`);
+              }
 
               return (
                 <div
