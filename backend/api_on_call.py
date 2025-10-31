@@ -306,8 +306,8 @@ async def create_on_call_schedule(
 @router.post("/schedule/bulk", response_model=List[OnCallScheduleResponse], status_code=status.HTTP_201_CREATED)
 async def create_bulk_on_call_schedules(
     bulk_data: OnCallBulkCreate,
-    db: AsyncIOMotorDatabase = None,
-    current_user: str = Depends(get_current_user_email)
+    current_user: str = Depends(get_current_user_email),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ):
     """
     Create multiple on-call schedules at once
@@ -316,14 +316,6 @@ async def create_bulk_on_call_schedules(
     """
     try:
         logger.info(f"➕ Creating {len(bulk_data.schedules)} on-call schedules in bulk")
-        
-        # Get database connection
-        if db is None:
-            from motor.motor_asyncio import AsyncIOMotorClient
-            import os
-            mongo_url = os.environ['MONGO_URL']
-            client = AsyncIOMotorClient(mongo_url)
-            db = client[os.environ['DB_NAME']]
         
         created_schedules = []
         now = datetime.now().isoformat()
