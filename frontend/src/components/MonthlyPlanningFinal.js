@@ -2672,27 +2672,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-purple-200">
           {/* Ligne 1: Modes principaux */}
           <div className="flex flex-wrap items-center gap-3 mb-3">
-            {/* Bouton Mode Ajout */}
-            <button
-              onClick={() => {
-                setAddAbsenceMode(!addAbsenceMode);
-                setMultiSelectMode(false);
-                if (!addAbsenceMode) {
-                  setSelectedEmployee(null);
-                  setSelectionStart(null);
-                  setSelectionEnd(null);
-                  setHoveredDate(null);
-                }
-              }}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                addAbsenceMode
-                  ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {addAbsenceMode ? '✓ Mode Ajout' : '➕ Mode Ajout'}
-            </button>
-
             {/* Bouton Multi-Sélection */}
             <button
               onClick={() => {
