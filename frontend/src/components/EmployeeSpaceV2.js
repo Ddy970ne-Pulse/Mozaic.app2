@@ -1,5 +1,7 @@
-// Force rebuild - cache buster v8 - 2025-01-15-navigation-fix
+// Force rebuild - cache buster v9 - 2025-01-31-leave-balance-integration
 import React, { useState, useEffect } from 'react';
+import LeaveBalanceWidget from './LeaveBalanceWidget';
+import LeaveTransactionHistory from './LeaveTransactionHistory';
 
 const EmployeeSpaceV2 = ({ user, onChangeView }) => {
   const [activeTab, setActiveTab] = useState('profile');
