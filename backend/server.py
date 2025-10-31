@@ -4671,6 +4671,55 @@ async def create_absence(request: Request, absence: Absence, current_user: User 
                     logger.info(f"🔄 Compteurs synchronisés pour absence {absence.id}")
                 else:
                     logger.warning(f"⚠️ Échec synchronisation compteurs pour absence {absence.id}")
+                
+                # 💰 NOUVEAU: Déduction des soldes de congés (système leave balance)
+                try:
+                    from service_leave_balance import LeaveBalanceService
+                    leave_service = LeaveBalanceService(db)
+                    
+                    # Mapper les types d'absence vers les types de solde
+                    leave_type_mapping = {
+                        "CA": "ca",
+                        "Congés Annuels": "ca",
+                        "Congés Payés": "ca",
+                        "RTT": "rtt",
+                        "REC": "rec",
+                        "Récupération": "rec",
+                        "CT": "ct",
+                        "Congés Trimestriels": "ct",
+                        "CEX": "cex",
+                        "Congé Exceptionnel": "cex"
+                    }
+                    
+                    absence_type = absence.motif_absence
+                    leave_type = leave_type_mapping.get(absence_type)
+                    
+                    if leave_type:
+                        # Calculer le nombre de jours
+                        try:
+                            days = float(absence.jours_absence)
+                        except:
+                            days = 1.0
+                        
+                        # Déduire du solde
+                        deduction_result = await leave_service.deduct_leave(
+                            user_id=absence.employee_id,
+                            leave_type=leave_type,
+                            amount=days,
+                            reason=f"Absence {absence_type}",
+                            absence_id=absence.id
+                        )
+                        
+                        if deduction_result:
+                            logger.info(f"💰 Solde {leave_type.upper()} déduit: {days}j pour {absence.employee_name}")
+                        else:
+                            logger.warning(f"⚠️ Échec déduction solde {leave_type.upper()} pour {absence.employee_name}")
+                    else:
+                        logger.info(f"ℹ️ Type d'absence {absence_type} ne nécessite pas de déduction de solde")
+                        
+                except Exception as e:
+                    logger.error(f"❌ Erreur déduction solde leave balance: {e}")
+                    # Ne pas bloquer la création si la déduction échoue
             
             # 🔔 NOTIFICATION : Si demande pending, notifier les managers et admins
             if absence.status == "pending":
