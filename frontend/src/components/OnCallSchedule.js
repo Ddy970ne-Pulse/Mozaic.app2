@@ -146,7 +146,11 @@ const OnCallSchedule = ({ user }) => {
 
   const getOnCallForDay = (date) => {
     return onCallData.filter(item => {
-      const itemDate = new Date(item.date);
+      // Parser la date en local pour éviter les problèmes de timezone
+      // item.date est au format "YYYY-MM-DD"
+      const [year, month, day] = item.date.split('-').map(Number);
+      const itemDate = new Date(year, month - 1, day);
+      
       return itemDate.getDate() === date.getDate() && 
              itemDate.getMonth() === date.getMonth() && 
              itemDate.getFullYear() === date.getFullYear();
