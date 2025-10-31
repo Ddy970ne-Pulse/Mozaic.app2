@@ -1,43 +1,34 @@
 #!/usr/bin/env python3
 """
-TEST COMPLET DU MODULE CSE - MEMBRES ET CESSION D'HEURES
+TESTS DE RÉGRESSION MODULE CSE - CORRECTIONS SPÉCIFIQUES
 
-OBJECTIF: Test exhaustif du module CSE selon la demande française spécifique
+OBJECTIF: Retest des 2 problèmes corrigés du module CSE selon demande française
 USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)
 BACKEND URL: https://oncall-planner-2.preview.emergentagent.com/api
 
-MEMBRES CSE À VÉRIFIER (base de données):
-1. Jacques EDAU - Titulaire - 22h/mois
-2. Thierry MARTIAS - Titulaire - 22h/mois  
-3. Jean-François BERNARD - Titulaire - 22h/mois
-4. Richard MANIOC - Suppléant - 0h/mois
+CORRECTIONS EFFECTUÉES:
+1. Ajout du champ `is_external` au modèle CSECession
+2. Correction de l'erreur 500 sur GET /api/company-settings (removal de _id MongoDB)
 
-TESTS À EFFECTUER:
-### 1. Vérification Membres CSE
-- GET /api/cse/delegates
-- Vérifier 4 membres retournés avec heures correctes
-- Vérifier statuts (3 titulaires, 1 suppléant)
+TESTS DE RÉGRESSION À EFFECTUER:
 
-### 2. Test Cession vers Membre CSE (existant)
-- POST /api/cse/cessions
-- Vérifier statut 200/201 et cession créée
+### Test 1: Vérifier champ is_external dans cession externe
+- POST /api/cse/cessions avec to_id="external" et is_external=true
+- **VÉRIFICATION CRITIQUE** : Réponse doit contenir `"is_external": true`
+- Vérifier statut 200/201
 
-### 3. Test Cession vers Personne Externe (NOUVEAU - PRIORITAIRE)
-- POST /api/cse/cessions avec to_id="external"
-- Vérifier acceptation sans validation de limite
-- Vérifier stockage correct du nom externe
-
-### 4. Vérification Liste Cessions
-- GET /api/cse/cessions
-- Vérifier les cessions créées apparaissent
-
-### 5. Paramètres Entreprise
+### Test 2: Endpoint company-settings 
 - GET /api/company-settings
-- Vérifier effectif = 250 salariés
-- Vérifier accord_entreprise_heures_cse = false
+- **VÉRIFICATION CRITIQUE** : Ne doit PAS retourner erreur 500
+- Doit retourner JSON avec effectif, nom_entreprise, accord_entreprise_heures_cse
+- Vérifier effectif = 250
 
-FOCUS PRINCIPAL: Vérifier que la cession vers une personne externe (non enregistrée dans la base) 
-fonctionne correctement avec to_id="external" et to_name en texte libre.
+### Test 3: Vérification liste cessions (avec is_external)
+- GET /api/cse/cessions
+- Vérifier que les cessions externes ont le champ is_external = true
+- Vérifier que les cessions internes ont is_external = false (ou absent)
+
+FOCUS: Ces 3 tests de régression doivent être 100% réussis pour confirmer que les corrections fonctionnent.
 """
 
 import requests
