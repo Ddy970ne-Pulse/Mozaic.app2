@@ -4600,32 +4600,59 @@ async def create_absence(request: Request, absence: Absence, current_user: User 
             absence.status = "pending"
         
         # 🔍 VALIDATION : Vérifier les chevauchements de dates
-        overlapping = await db.absences.find({
+        # Récupérer toutes les absences de l'employé (approuvées et en attente)
+        all_absences = await db.absences.find({
             "employee_id": absence.employee_id,
-            "status": {"$in": ["approved", "pending"]},  # Vérifier les absences approuvées et en attente
-            "$or": [
-                {
-                    "date_debut": {"$lte": absence.date_fin},
-                    "date_fin": {"$gte": absence.date_debut}
-                }
-            ]
+            "status": {"$in": ["approved", "pending"]}
         }).to_list(length=None)
         
-        if overlapping:
-            overlap_details = []
-            for existing in overlapping:
-                overlap_details.append(
-                    f"- {existing.get('motif_absence')} du {existing.get('date_debut')} au {existing.get('date_fin')} (statut: {existing.get('status')})"
+        # Fonction pour normaliser les dates (DD/MM/YYYY ou YYYY-MM-DD → datetime)
+        def parse_date(date_str):
+            if not date_str:
+                return None
+            try:
+                # Essayer DD/MM/YYYY
+                return datetime.strptime(date_str, "%d/%m/%Y")
+            except:
+                try:
+                    # Essayer YYYY-MM-DD
+                    return datetime.strptime(date_str, "%Y-%m-%d")
+                except:
+                    return None
+        
+        # Convertir les dates de la nouvelle absence
+        new_start = parse_date(absence.date_debut)
+        new_end = parse_date(absence.date_fin)
+        
+        if not new_start or not new_end:
+            logger.warning(f"⚠️ Impossible de parser les dates: {absence.date_debut} - {absence.date_fin}")
+        else:
+            # Vérifier les chevauchements
+            overlapping = []
+            for existing in all_absences:
+                existing_start = parse_date(existing.get('date_debut'))
+                existing_end = parse_date(existing.get('date_fin'))
+                
+                if existing_start and existing_end:
+                    # Vérifier le chevauchement : [new_start, new_end] chevauche [existing_start, existing_end]
+                    if new_start <= existing_end and new_end >= existing_start:
+                        overlapping.append(existing)
+            
+            if overlapping:
+                overlap_details = []
+                for existing in overlapping:
+                    overlap_details.append(
+                        f"- {existing.get('motif_absence')} du {existing.get('date_debut')} au {existing.get('date_fin')} (statut: {existing.get('status')})"
+                    )
+                
+                error_message = (
+                    f"❌ Chevauchement de dates détecté pour {absence.employee_name}:\n" +
+                    "\n".join(overlap_details) +
+                    f"\n\nNouvelle demande: {absence.motif_absence} du {absence.date_debut} au {absence.date_fin}"
                 )
-            
-            error_message = (
-                f"❌ Chevauchement de dates détecté pour {absence.employee_name}:\n" +
-                "\n".join(overlap_details) +
-                f"\n\nNouvelle demande: {absence.motif_absence} du {absence.date_debut} au {absence.date_fin}"
-            )
-            
-            logger.warning(f"⚠️ Tentative de création d'absence avec chevauchement: {absence.employee_name}")
-            raise HTTPException(status_code=400, detail=error_message)
+                
+                logger.warning(f"⚠️ Tentative de création d'absence avec chevauchement: {absence.employee_name}")
+                raise HTTPException(status_code=400, detail=error_message)
         
         # 🔄 ENRICHISSEMENT : Récupérer la configuration du type d'absence depuis BDD
         absence_type_config = await get_absence_type_config(absence.motif_absence)
