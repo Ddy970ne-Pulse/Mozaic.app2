@@ -925,8 +925,26 @@ class CSECession(BaseModel):
     hours: float  # Nombre d'heures cédées
     usage_date: str  # Date d'utilisation prévue (YYYY-MM-DD)
     reason: Optional[str] = None  # Motif de la cession
+    delai_inferieur_8jours: Optional[bool] = False  # True si exception au délai de 8 jours
+    justification_urgence: Optional[str] = None  # Justification si délai < 8 jours
     created_by: str  # Nom de l'utilisateur qui a créé la cession
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class CSEMonthlyBalance(BaseModel):
+    """Solde mensuel des heures de délégation CSE avec report"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    delegate_id: str  # ID du délégué (user_id)
+    delegate_name: str  # Nom pour référence
+    year: int  # Année
+    month: int  # Mois (1-12)
+    credit_mensuel: float  # Crédit du mois (heures_mensuelles du délégué)
+    report_mois_precedent: float = 0.0  # Heures reportées du mois précédent
+    heures_utilisees: float = 0.0  # Heures utilisées ce mois (cessions données)
+    heures_recues: float = 0.0  # Heures reçues ce mois (cessions reçues)
+    solde_fin_mois: float = 0.0  # Solde à reporter au mois suivant
+    limite_report_atteinte: bool = False  # True si limite 12 mois de report atteinte
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 # Leave Balance and Transaction Models
 class EmployeeLeaveBalance(BaseModel):
