@@ -1,34 +1,74 @@
 #!/usr/bin/env python3
 """
-TESTS DE RÉGRESSION MODULE CSE - CORRECTIONS SPÉCIFIQUES
+TEST COMPLET MODULE CSE - BACKEND VALIDATION FINALE
 
-OBJECTIF: Retest des 2 problèmes corrigés du module CSE selon demande française
+OBJECTIF: Test complet du module CSE selon demande française spécifique
 USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)
 BACKEND URL: https://oncall-planner-2.preview.emergentagent.com/api
 
-CORRECTIONS EFFECTUÉES:
-1. Ajout du champ `is_external` au modèle CSECession
-2. Correction de l'erreur 500 sur GET /api/company-settings (removal de _id MongoDB)
+TESTS PRIORITAIRES:
 
-TESTS DE RÉGRESSION À EFFECTUER:
+### 1. Vérification membres CSE et heures mensuelles
+- GET /api/cse/delegates
+- VÉRIFIER: 4 délégués retournés
+- VÉRIFIER heures mensuelles:
+  - Jacques EDAU (titulaire): 22h
+  - Thierry MARTIAS (titulaire): 22h
+  - Jean-François BERNARD (titulaire): 22h
+  - Richard MANIOC (suppléant): 0h
 
-### Test 1: Vérifier champ is_external dans cession externe
-- POST /api/cse/cessions avec to_id="external" et is_external=true
-- **VÉRIFICATION CRITIQUE** : Réponse doit contenir `"is_external": true`
-- Vérifier statut 200/201
+### 2. Test calcul solde avec report
+- GET /api/cse/balance/{jacques_edau_id}?year=2025&month=1
+- VÉRIFIER structure réponse:
+  - credit_mensuel: 22
+  - report_12_mois: (nombre)
+  - solde_disponible: (nombre)
 
-### Test 2: Endpoint company-settings 
-- GET /api/company-settings
-- **VÉRIFICATION CRITIQUE** : Ne doit PAS retourner erreur 500
-- Doit retourner JSON avec effectif, nom_entreprise, accord_entreprise_heures_cse
-- Vérifier effectif = 250
+### 3. Test création cession avec exception délai
+- POST /api/cse/cessions
+- Body: {
+    "from_id": "jacques_id",
+    "from_name": "Jacques EDAU",
+    "to_id": "thierry_id", 
+    "to_name": "Thierry MARTIAS",
+    "is_external": false,
+    "hours": 3,
+    "usage_date": "2025-02-05",
+    "reason": "Test final",
+    "delai_inferieur_8jours": true,
+    "justification_urgence": "Urgence test final module",
+    "created_by": "Test Backend"
+  }
+- VÉRIFIER: statut 200/201
+- VÉRIFIER champs délai et justification dans réponse
 
-### Test 3: Vérification liste cessions (avec is_external)
+### 4. Test création cession vers externe
+- POST /api/cse/cessions
+- Body: {
+    "from_id": "jacques_id",
+    "from_name": "Jacques EDAU", 
+    "to_id": "external",
+    "to_name": "Marie Dupont (Personne Externe)",
+    "is_external": true,
+    "hours": 2,
+    "usage_date": "2025-02-20",
+    "reason": "Formation externe",
+    "delai_inferieur_8jours": false,
+    "created_by": "Test Backend"
+  }
+- VÉRIFIER: statut 200/201
+- VÉRIFIER is_external: true dans réponse
+
+### 5. Vérification liste cessions
 - GET /api/cse/cessions
-- Vérifier que les cessions externes ont le champ is_external = true
-- Vérifier que les cessions internes ont is_external = false (ou absent)
+- VÉRIFIER: 2 cessions créées apparaissent
+- VÉRIFIER présence champs: delai_inferieur_8jours, justification_urgence, is_external
 
-FOCUS: Ces 3 tests de régression doivent être 100% réussis pour confirmer que les corrections fonctionnent.
+### 6. Paramètres entreprise
+- GET /api/company-settings
+- VÉRIFIER effectif = 250
+
+OBJECTIF: Validation complète avant tests frontend finaux
 """
 
 import requests
