@@ -155,7 +155,9 @@ const OnCallSchedule = ({ user }) => {
 
   // Ouvrir le modal d'ajout rapide
   const openQuickAddModal = (dayData) => {
+    console.log('📅 Opening quick add modal for:', dayData);
     const dateStr = `${dayData.year}-${String(dayData.month + 1).padStart(2, '0')}-${String(dayData.day).padStart(2, '0')}`;
+    console.log('📅 Date string:', dateStr);
     setQuickAddData({
       employeeId: '',
       date: dateStr,
@@ -163,6 +165,7 @@ const OnCallSchedule = ({ user }) => {
       notes: ''
     });
     setShowQuickAddModal(true);
+    console.log('✅ Modal should be visible now');
   };
 
   // Menu contextuel (clic droit)
