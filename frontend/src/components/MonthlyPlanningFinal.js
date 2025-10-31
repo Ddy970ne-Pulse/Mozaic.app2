@@ -2635,6 +2635,24 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       </div>
 
       {/* Carte d'aide pour la fonctionnalité de sélection par période */}
+      {/* Message d'aide pour l'ajout rapide */}
+      {user?.role !== 'employee' && (
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 mb-4 border-2 border-blue-200">
+          <div className="flex items-start gap-3">
+            <div className="text-3xl">✨</div>
+            <div className="flex-1">
+              <h3 className="font-bold text-blue-800 mb-2">
+                💡 Ajout rapide d'absence
+              </h3>
+              <p className="text-sm text-gray-700">
+                Cliquez sur le bouton <strong className="text-blue-600">+</strong> dans n'importe quelle case vide du planning 
+                pour ajouter rapidement une absence. Un modal s'ouvrira pour saisir le type, la durée et les notes.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Barre d'outils d'ajout d'absence (Admin uniquement) */}
       {user?.role === 'admin' && (
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-purple-200">
