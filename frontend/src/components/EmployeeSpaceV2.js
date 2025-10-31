@@ -492,6 +492,41 @@ const EmployeeSpaceV2 = ({ user, onChangeView }) => {
             </div>
           )}
 
+          {/* Tab: Soldes de Congés */}
+          {activeTab === 'soldes' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-800">💰 Soldes de Congés {new Date().getFullYear()}</h3>
+                <p className="text-sm text-gray-500">Calculés selon CCN66</p>
+              </div>
+              
+              {/* Widget de soldes */}
+              <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-1">
+                <div className="bg-white rounded-lg p-6">
+                  <LeaveBalanceWidget employeeId={user.id} />
+                </div>
+              </div>
+              
+              {/* Historique des transactions */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h4 className="text-md font-semibold text-gray-800 mb-4">📜 Historique des Mouvements</h4>
+                <LeaveTransactionHistory employeeId={user.id} limit={30} />
+              </div>
+              
+              {/* Information CCN66 */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-2">ℹ️ À propos des soldes</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• <strong>CA (Congés Annuels)</strong>: 25 jours par an (proratisé temps partiel)</li>
+                  <li>• <strong>RTT</strong>: 12 jours par an</li>
+                  <li>• <strong>CT (Congés Trimestriels)</strong>: 9j ou 18j selon catégorie (proratisé)</li>
+                  <li>• <strong>CEX (Ancienneté)</strong>: 2 jours tous les 5 ans (max 6j, non proratisé)</li>
+                  <li>• <strong>REC (Récupération)</strong>: Variable selon heures supplémentaires</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
           {/* Tab: Mes Absences */}
           {activeTab === 'absences' && (
             <div className="space-y-6">
