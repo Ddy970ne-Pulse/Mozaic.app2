@@ -539,14 +539,25 @@ const CSEManagementNew = ({ user }) => {
                     <optgroup label="Suppléants">
                       {suppleants.map(s => {
                         const balance = calculateBalance(s.id);
-                      return (
-                        <option key={s.id} value={s.id}>
-                          {s.name} (Solde: {balance.balance.toFixed(1)}h)
-                        </option>
-                      );
-                    })}
-                  </optgroup>
-                </select>
+                        return (
+                          <option key={s.id} value={s.id}>
+                            {s.name} (Solde: {balance.balance.toFixed(1)}h)
+                          </option>
+                        );
+                      })}
+                    </optgroup>
+                  </select>
+                ) : (
+                  /* Input pour personne externe */
+                  <input
+                    type="text"
+                    required
+                    value={cessionData.to_name}
+                    onChange={(e) => setCessionData({ ...cessionData, to_name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    placeholder="Nom et prénom de la personne externe..."
+                  />
+                )}
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
