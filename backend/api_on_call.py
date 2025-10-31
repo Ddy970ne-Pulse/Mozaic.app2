@@ -222,6 +222,12 @@ async def get_on_call_assignments(
     """
     try:
         logger.info(f"📅 Fetching on-call assignments - startDate={startDate}, endDate={endDate}")
+        logger.info(f"📊 Database name: {db.name}")
+        logger.info(f"📊 Collection exists: {('on_call_schedules' in await db.list_collection_names())}")
+        
+        # Count total documents in collection
+        total_count = await db.on_call_schedules.count_documents({})
+        logger.info(f"📊 Total on-call schedules in DB: {total_count}")
         
         # Validate date format
         try:
@@ -238,8 +244,12 @@ async def get_on_call_assignments(
             }
         }
         
+        logger.info(f"📊 Query: {query}")
+        
         cursor = db.on_call_schedules.find(query)
         assignments = await cursor.to_list(length=None)
+        
+        logger.info(f"📊 Found {len(assignments)} raw documents")
         
         # Parse and return
         result = [parse_from_mongo(assignment) for assignment in assignments]
