@@ -371,3 +371,149 @@ async def manual_adjustment(request: ManualAdjustmentRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+@router.post("/initialize-all")
+async def initialize_all_balances(
+    fiscal_year: Optional[int] = None,
+    force_recalculate: bool = False
+):
+    """
+    🚀 Initialiser les soldes de tous les employés avec calcul CCN66
+    
+    Cette fonction:
+    1. Récupère tous les employés de la base
+    2. Calcule les droits selon CCN66:
+       - CA: 25j (proratisé temps partiel)
+       - RTT: 12j
+       - CT: 9j ou 18j selon catégorie (proratisé)
+       - CEX: Ancienneté 2j/5ans max 6j (non proratisé)
+    3. Crée les soldes dans la collection leave_balances
+    
+    Query params:
+    - fiscal_year: Année (défaut: année en cours)
+    - force_recalculate: Recalculer même si solde existe (défaut: false)
+    """
+    import server
+    
+    if fiscal_year is None:
+        fiscal_year = datetime.now().year
+    
+    print(f"\n🚀 Starting initialization for fiscal year {fiscal_year}")
+    
+    # Get all users
+    users = await server.db.users.find({}).to_list(None)
+    print(f"📋 Found {len(users)} users")
+    
+    initialized = 0
+    skipped = 0
+    updated = 0
+    errors = []
+    
+    for user in users:
+        user_id = user.get("id")
+        if not user_id:
+            continue
+        
+        try:
+            # Check if balance exists
+            existing = await server.db.leave_balances.find_one({
+                "user_id": user_id,
+                "fiscal_year": fiscal_year
+            })
+            
+            if existing and not force_recalculate:
+                skipped += 1
+                continue
+            
+            # Calculate CCN66-compliant balances
+            categorie = user.get("categorie_employe", "").upper()
+            metier = user.get("metier", "").lower()
+            temps_travail = user.get("temps_travail", "100%")
+            date_embauche = user.get("date_embauche")
+            
+            # Parse temps_travail percentage
+            try:
+                if isinstance(temps_travail, str):
+                    temps_percent = float(temps_travail.replace("%", "").strip()) / 100.0
+                else:
+                    temps_percent = float(temps_travail) / 100.0
+            except:
+                temps_percent = 1.0
+            
+            # Calculate CA (prorated for part-time)
+            ca_initial = 25.0 if temps_percent == 1.0 else round(25.0 * temps_percent, 1)
+            
+            # Calculate CT based on category
+            category_a_keywords = ["educateur", "éducateur", "ouvrier", "chef"]
+            is_category_a = categorie == "A" or any(kw in metier for kw in category_a_keywords)
+            
+            ct_base = 18.0 if is_category_a else 9.0
+            ct_initial = ct_base if temps_percent == 1.0 else round(ct_base * temps_percent, 1)
+            
+            # Calculate ancienneté (NOT prorated)
+            cex_initial = 0.0
+            if date_embauche:
+                try:
+                    if isinstance(date_embauche, str):
+                        for fmt in ["%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d"]:
+                            try:
+                                hire_date = datetime.strptime(date_embauche, fmt)
+                                break
+                            except:
+                                continue
+                    else:
+                        hire_date = date_embauche
+                    
+                    years_service = (datetime.now() - hire_date).days / 365.25
+                    if years_service >= 5:
+                        cex_initial = min(6.0, (int(years_service / 5) * 2))
+                except:
+                    pass
+            
+            # RTT: 12 days base
+            rtt_initial = 12.0
+            
+            # Create balance document
+            balance_doc = {
+                "id": f"lb_{user_id}_{fiscal_year}",
+                "user_id": user_id,
+                "fiscal_year": fiscal_year,
+                "ca_balance": ca_initial,
+                "rtt_balance": rtt_initial,
+                "rec_balance": 0.0,
+                "ct_balance": ct_initial,
+                "cex_balance": cex_initial,
+                "last_updated": datetime.utcnow()
+            }
+            
+            if existing:
+                # Update existing
+                await server.db.leave_balances.update_one(
+                    {"user_id": user_id, "fiscal_year": fiscal_year},
+                    {"$set": balance_doc}
+                )
+                updated += 1
+                print(f"  ✅ Updated: {user.get('prenom')} {user.get('nom')} - CA={ca_initial}j, CT={ct_initial}j, CEX={cex_initial}j")
+            else:
+                # Create new
+                await server.db.leave_balances.insert_one(balance_doc)
+                initialized += 1
+                print(f"  ✅ Created: {user.get('prenom')} {user.get('nom')} - CA={ca_initial}j, CT={ct_initial}j, CEX={cex_initial}j")
+        
+        except Exception as e:
+            errors.append({"user_id": user_id, "error": str(e)})
+            print(f"  ❌ Error for {user.get('email')}: {e}")
+    
+    return {
+        "success": True,
+        "fiscal_year": fiscal_year,
+        "initialized": initialized,
+        "updated": updated,
+        "skipped": skipped,
+        "errors": len(errors),
+        "error_details": errors if errors else None,
+        "total_processed": initialized + updated + skipped
+    }
+
