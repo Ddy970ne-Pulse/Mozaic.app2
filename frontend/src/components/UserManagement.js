@@ -650,6 +650,246 @@ const UserManagement = ({ user }) => {
     }
   };
 
+  // 📄 PRINTABLE PASSWORD DOCUMENT GENERATOR
+  const generatePrintablePasswordDocument = (usersWithPasswords) => {
+    const printWindow = window.open('', '_blank');
+    const currentDate = new Date().toLocaleString('fr-FR');
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="fr">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Identifiants MOZAIK RH</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            color: #1f2937;
+            background: white;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #4f46e5;
+          }
+          .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+          }
+          .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-bottom: 10px;
+          }
+          .subtitle {
+            color: #6b7280;
+            font-size: 16px;
+          }
+          .warning-banner {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+          }
+          .warning-banner strong {
+            color: #d97706;
+            display: block;
+            margin-bottom: 5px;
+          }
+          .user-card {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+          }
+          .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #d1d5db;
+          }
+          .user-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f2937;
+          }
+          .user-role {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+          }
+          .credentials-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+          }
+          .credential-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+          }
+          .credential-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 5px;
+          }
+          .credential-value {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: bold;
+            color: #1f2937;
+            background: #f3f4f6;
+            padding: 8px;
+            border-radius: 4px;
+            word-break: break-all;
+          }
+          .password-highlight {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px dashed #f87171;
+          }
+          .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 12px;
+          }
+          .security-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 30px;
+          }
+          .security-info h3 {
+            color: #1e40af;
+            margin-bottom: 10px;
+            font-size: 14px;
+          }
+          .security-info ul {
+            margin-left: 20px;
+            color: #4b5563;
+            font-size: 13px;
+            line-height: 1.8;
+          }
+          @media print {
+            body { padding: 20px; }
+            .no-print { display: none; }
+            .user-card { page-break-inside: avoid; }
+          }
+          .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
+            z-index: 1000;
+          }
+          .print-button:hover {
+            background: #4338ca;
+          }
+        </style>
+      </head>
+      <body>
+        <button class="print-button no-print" onclick="window.print()">🖨️ Imprimer</button>
+        
+        <div class="header">
+          <div class="logo">🏢</div>
+          <div class="title">MOZAIK RH</div>
+          <div class="subtitle">Document Confidentiel - Identifiants de Connexion</div>
+        </div>
+
+        <div class="warning-banner">
+          <strong>⚠️ DOCUMENT CONFIDENTIEL</strong>
+          Ce document contient des informations sensibles. Veuillez le conserver en lieu sûr et le détruire après communication aux utilisateurs concernés.
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <strong>Date de génération:</strong> ${currentDate}<br>
+          <strong>Généré par:</strong> ${user.name} (${user.role})<br>
+          <strong>Nombre d'utilisateurs:</strong> ${usersWithPasswords.length}
+        </div>
+
+        ${usersWithPasswords.map((u, index) => `
+          <div class="user-card">
+            <div class="user-header">
+              <div class="user-name">${index + 1}. ${u.name}</div>
+              <div class="user-role">${u.role}</div>
+            </div>
+            
+            <div class="credentials-grid">
+              <div class="credential-item">
+                <div class="credential-label">📧 Email / Identifiant</div>
+                <div class="credential-value">${u.email}</div>
+              </div>
+              
+              <div class="credential-item">
+                <div class="credential-label">🔑 Mot de passe temporaire</div>
+                <div class="credential-value password-highlight">${u.temp_password || '********'}</div>
+              </div>
+              
+              <div class="credential-item">
+                <div class="credential-label">🏢 Département</div>
+                <div class="credential-value">${u.department || 'Non spécifié'}</div>
+              </div>
+              
+              <div class="credential-item">
+                <div class="credential-label">💼 Poste</div>
+                <div class="credential-value">${u.position || 'Non spécifié'}</div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+
+        <div class="security-info">
+          <h3>🔒 Consignes de sécurité</h3>
+          <ul>
+            <li>Les mots de passe temporaires doivent être changés lors de la première connexion</li>
+            <li>Ne jamais partager les identifiants par email ou messagerie non sécurisée</li>
+            <li>Ce document doit être détruit après distribution des identifiants</li>
+            <li>En cas de perte, contacter immédiatement l'administrateur système</li>
+          </ul>
+        </div>
+
+        <div class="footer">
+          <p><strong>MOZAIK RH</strong> - Système de Gestion des Ressources Humaines</p>
+          <p>Document généré automatiquement - Confidentiel</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
   // Récupération de comptes
   const handleAccountRecovery = (type, identifier) => {
     console.log('Récupération de compte:', type, identifier);
