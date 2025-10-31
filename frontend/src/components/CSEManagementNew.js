@@ -177,7 +177,7 @@ const CSEManagementNew = ({ user }) => {
       if (response.ok) {
         showMessage('Cession créée avec succès', 'success');
         setShowCessionModal(false);
-        setCessionData({ from_id: '', to_id: '', hours: '', usage_date: '', reason: '' });
+        setCessionData({ from_id: '', to_id: '', to_name: '', is_external: false, hours: '', usage_date: '', reason: '' });
         fetchData(); // Recharger les données
       } else {
         const error = await response.json();
