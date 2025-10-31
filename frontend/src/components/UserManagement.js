@@ -1300,20 +1300,38 @@ const UserManagement = ({ user }) => {
         subtitle="Administration complète avec permissions, RGPD et audit"
         icon="👥"
         action={
-          <Button
-            onClick={() => {
-              setSelectedUser({
-                name: '', email: '', role: 'employee', department: '', site: '',
-                phone: '', address: '', children: 0, hireDate: '', contract: '',
-                category: '', isActive: true, permissions: [],
-                personalData: { gdprConsent: { dataProcessing: false, marketing: false } }
-              });
-              setShowUserModal(true);
-            }}
-            variant="primary"
-          >
-            ➕ Nouvel Utilisateur
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => {
+                // Generate printable document for all users (admin can add temp passwords)
+                if (users.length > 0) {
+                  generatePrintablePasswordDocument(users.map(u => ({
+                    ...u,
+                    temp_password: '********' // Default masked, admin must reset to get real password
+                  })));
+                } else {
+                  alert('Aucun utilisateur à imprimer');
+                }
+              }}
+              variant="secondary"
+            >
+              🖨️ Document Identifiants
+            </Button>
+            <Button
+              onClick={() => {
+                setSelectedUser({
+                  name: '', email: '', role: 'employee', department: '', site: '',
+                  phone: '', address: '', children: 0, hireDate: '', contract: '',
+                  category: '', isActive: true, permissions: [],
+                  personalData: { gdprConsent: { dataProcessing: false, marketing: false } }
+                });
+                setShowUserModal(true);
+              }}
+              variant="primary"
+            >
+              ➕ Nouvel Utilisateur
+            </Button>
+          </div>
         }
       />
       
