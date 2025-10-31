@@ -2966,60 +2966,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         </div>
       )}
 
-      {/* Modal de création de template */}
-      {showTemplateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">
-              📚 Créer un Template
-            </h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nom du template *
-                </label>
-                <input
-                  type="text"
-                  value={newTemplateName}
-                  onChange={(e) => setNewTemplateName(e.target.value)}
-                  placeholder="Ex: Vacances d'été, Formation trimestrielle..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-600">
-                  <strong>Type:</strong> {absenceColorMap[selectedAbsenceType]?.name}
-                  <br/>
-                  <strong>Période:</strong> Du {formatDateForDisplay(selectionStart)} au {formatDateForDisplay(selectionEnd)}
-                  <br/>
-                  <strong>Durée:</strong> {calculateDaysBetween(selectionStart, selectionEnd)} jour(s)
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => {
-                  setShowTemplateModal(false);
-                  setNewTemplateName('');
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={confirmSaveTemplate}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                Sauvegarder
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* 🆕 MODAL AJOUT RAPIDE D'ABSENCE */}
       {showQuickAddModal && quickAddData.employee && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
