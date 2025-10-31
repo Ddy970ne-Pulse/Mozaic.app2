@@ -608,12 +608,13 @@ class CSEModuleTester:
         return critical_success
 
     def run_all_tests(self):
-        """Exécuter tous les tests de l'API On-Call Schedule"""
-        print("🚀 DÉMARRAGE DES TESTS ON-CALL SCHEDULE BACKEND API")
+        """Exécuter tous les tests du Module CSE"""
+        print("🚀 DÉMARRAGE DES TESTS MODULE CSE - MEMBRES ET CESSIONS D'HEURES")
         print("=" * 80)
-        print("OBJECTIF: Test complet de l'API backend Planning Astreintes nouvellement implémentée")
+        print("OBJECTIF: Test exhaustif du module CSE selon la demande française spécifique")
         print("USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)")
-        print("PRIORITÉ: CRUD operations + Authentication + Data persistence + Error handling")
+        print("BACKEND URL: https://oncall-planner-2.preview.emergentagent.com/api")
+        print("PRIORITÉ: Cessions vers personnes externes (to_id='external') - NOUVEAU PRIORITAIRE")
         print("=" * 80)
         
         # Authentification pour tous les tests
@@ -621,29 +622,23 @@ class CSEModuleTester:
             print("❌ Impossible de continuer sans authentification")
             return False
         
-        # Exécuter tous les tests de l'API On-Call
-        print(f"\n🔄 EXÉCUTION DES TESTS API ON-CALL SCHEDULE...")
+        # Exécuter tous les tests du Module CSE
+        print(f"\n🔄 EXÉCUTION DES TESTS MODULE CSE...")
         
-        # Test 1: Authentication Requirements - CRITIQUE
-        self.test_authentication_requirements()
+        # Test 1: Vérification Membres CSE - CRITIQUE
+        self.test_cse_delegates()
         
-        # Test 2: GET Endpoints - Retrieve schedules
-        self.test_get_endpoints()
+        # Test 2: Cession vers Membre CSE (existant)
+        self.test_cse_cessions_internal()
         
-        # Test 3: POST Endpoints - Create schedules (bulk and single)
-        self.test_post_endpoints()
+        # Test 3: Cession vers Personne Externe - PRIORITAIRE
+        self.test_cse_cessions_external()
         
-        # Test 4: DELETE Endpoints - Remove schedules
-        self.test_delete_endpoints()
+        # Test 4: Vérification Liste Cessions
+        self.test_cse_cessions_list()
         
-        # Test 5: PUT Endpoints - Update schedules
-        self.test_put_endpoints()
-        
-        # Test 6: Data Persistence - MongoDB verification
-        self.test_data_persistence()
-        
-        # Test 7: Error Handling - Edge cases and validation
-        self.test_error_handling()
+        # Test 5: Paramètres Entreprise
+        self.test_company_settings()
         
         # Cleanup test data
         self.cleanup_test_data()
