@@ -455,74 +455,60 @@ class CSEModuleTester:
             self.log_result("cse_cessions_list", "GET cse/cessions", False, f"Exception: {str(e)}")
 
     def test_company_settings(self):
-        """Test PUT endpoints for updating on-call schedules"""
-        print(f"\n✏️ PUT ENDPOINTS TESTING")
+        """Test 5: Paramètres Entreprise - GET /api/company-settings"""
+        print(f"\n🏢 TEST 5: PARAMÈTRES ENTREPRISE")
         print("=" * 60)
         
-        # Test 1: PUT update existing schedule
-        print(f"\n📋 Test 1: PUT update existing schedule")
-        
-        if self.created_schedule_ids:
-            schedule_id = self.created_schedule_ids[0]
-            
-            try:
-                update_data = {
-                    "employee_id": self.user_id,
-                    "employee_name": "Diego DACALOR (Updated)",
-                    "date": "2025-01-16",
-                    "type": "Astreinte jour",
-                    "notes": "Updated schedule notes"
-                }
-                
-                response = self.session.put(f"{BACKEND_URL}/on-call/schedule/{schedule_id}", json=update_data)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    print(f"✅ Schedule updated successfully (200)")
-                    
-                    # Verify updated fields
-                    if (data.get("employee_name") == "Diego DACALOR (Updated)" and 
-                        data.get("type") == "Astreinte jour" and
-                        data.get("notes") == "Updated schedule notes"):
-                        self.log_result("put_endpoints", "PUT update existing schedule", True,
-                                       "Schedule updated with correct field values")
-                    else:
-                        self.log_result("put_endpoints", "PUT update existing schedule", False,
-                                       "Updated fields not reflected correctly")
-                else:
-                    self.log_result("put_endpoints", "PUT update existing schedule", False,
-                                   f"Expected 200, got {response.status_code}")
-                    
-            except Exception as e:
-                self.log_result("put_endpoints", "PUT update existing schedule", False, f"Exception: {str(e)}")
-        else:
-            self.log_result("put_endpoints", "PUT update existing schedule", False, "No schedules available to update")
-        
-        # Test 2: PUT update non-existent schedule (404)
-        print(f"\n📋 Test 2: PUT update non-existent schedule")
-        
         try:
-            fake_id = "00000000-0000-0000-0000-000000000000"
-            update_data = {
-                "employee_id": self.user_id,
-                "employee_name": "Test User",
-                "date": "2025-01-30",
-                "type": "Astreinte jour",
-                "notes": "Test update"
-            }
+            response = self.session.get(f"{BACKEND_URL}/company-settings")
             
-            response = self.session.put(f"{BACKEND_URL}/on-call/schedule/{fake_id}", json=update_data)
-            
-            if response.status_code == 404:
-                print(f"✅ Non-existent schedule update properly rejected (404)")
-                self.log_result("put_endpoints", "PUT non-existent schedule", True,
-                               "Non-existent schedule update properly returns 404")
+            if response.status_code == 200:
+                settings = response.json()
+                print(f"✅ GET /api/company-settings successful (200)")
+                
+                # Vérifier effectif = 250 salariés
+                effectif = settings.get("effectif")
+                if effectif == 250:
+                    self.log_result("company_settings", "Effectif correct (250)", True,
+                                   f"Effectif = {effectif} salariés comme attendu")
+                else:
+                    self.log_result("company_settings", "Effectif correct (250)", False,
+                                   f"Effectif attendu: 250, trouvé: {effectif}")
+                
+                # Vérifier accord_entreprise_heures_cse = false
+                accord_cse = settings.get("accord_entreprise_heures_cse")
+                if accord_cse == False:
+                    self.log_result("company_settings", "accord_entreprise_heures_cse = false", True,
+                                   f"accord_entreprise_heures_cse = {accord_cse} comme attendu")
+                else:
+                    self.log_result("company_settings", "accord_entreprise_heures_cse = false", False,
+                                   f"accord_entreprise_heures_cse attendu: false, trouvé: {accord_cse}")
+                
+                # Afficher les paramètres pour information
+                print(f"\n📊 Paramètres entreprise:")
+                print(f"   - Effectif: {settings.get('effectif')} salariés")
+                print(f"   - Nom entreprise: {settings.get('nom_entreprise')}")
+                print(f"   - Accord entreprise heures CSE: {settings.get('accord_entreprise_heures_cse')}")
+                print(f"   - Secteur d'activité: {settings.get('secteur_activite')}")
+                print(f"   - Convention collective: {settings.get('convention_collective')}")
+                
+                # Vérifier la structure complète
+                required_fields = ["effectif", "nom_entreprise", "accord_entreprise_heures_cse"]
+                missing_fields = [field for field in required_fields if field not in settings]
+                
+                if not missing_fields:
+                    self.log_result("company_settings", "Structure paramètres complète", True,
+                                   "Tous les champs requis présents")
+                else:
+                    self.log_result("company_settings", "Structure paramètres complète", False,
+                                   f"Champs manquants: {missing_fields}")
+                
             else:
-                self.log_result("put_endpoints", "PUT non-existent schedule", False,
-                               f"Expected 404, got {response.status_code}")
+                self.log_result("company_settings", "GET company-settings", False,
+                               f"Expected 200, got {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_result("put_endpoints", "PUT non-existent schedule", False, f"Exception: {str(e)}")
+            self.log_result("company_settings", "GET company-settings", False, f"Exception: {str(e)}")
 
     def test_data_persistence(self):
         """Test MongoDB data persistence"""
