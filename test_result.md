@@ -159,10 +159,11 @@
 #====================================================================================================
 
 user_problem_statement: |
-  ON-CALL SCHEDULE BACKEND API IMPLEMENTATION
+  TEST COMPLET MODULE CSE - BACKEND VALIDATION FINALE
   
-  OBJECTIF: Implement backend API for Planning Astreintes module to enable data persistence and full functionality.
+  OBJECTIF: Test complet du module CSE selon demande française spécifique pour validation finale avant tests frontend.
   USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)
+  BACKEND URL: https://oncall-planner-2.preview.emergentagent.com/api
   
   IMPLEMENTATION COMPLETED:
   1. Created new backend file: api_on_call.py with Pydantic models and endpoints
