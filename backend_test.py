@@ -672,7 +672,7 @@ class CSECompleteTester:
 
 def main():
     """Point d'entrée principal"""
-    tester = CSERegressionTester()
+    tester = CSECompleteTester()
     success = tester.run_all_tests()
     
     # Code de sortie
