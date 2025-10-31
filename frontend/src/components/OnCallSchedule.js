@@ -238,7 +238,8 @@ const OnCallSchedule = ({ user }) => {
         for (let i = 0; i < 7; i++) {
           // Créer une nouvelle date en ajoutant i jours (en millisecondes)
           const date = new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000));
-          const dateStr = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+          // Formater la date en YYYY-MM-DD en utilisant les valeurs locales
+          const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
           console.log(`📅 Jour ${i} (${['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'][date.getDay()]}): ${dateStr}`);
           schedulesToCreate.push({
             employee_id: quickAddData.employeeId,
