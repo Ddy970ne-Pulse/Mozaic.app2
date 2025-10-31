@@ -295,179 +295,94 @@ class CSEModuleTester:
             self.log_result("cse_cessions_internal", "POST cession membre CSE", False, f"Exception: {str(e)}")
 
     def test_cse_cessions_external(self):
-        """Test POST endpoints for creating on-call schedules"""
-        print(f"\n➕ POST ENDPOINTS TESTING")
+        """Test 3: Cession vers Personne Externe (NOUVEAU - PRIORITAIRE) - POST /api/cse/cessions"""
+        print(f"\n🌐 TEST 3: CESSION VERS PERSONNE EXTERNE (PRIORITAIRE)")
         print("=" * 60)
         
-        # Test 1: POST /api/on-call/schedule/bulk (bulk creation)
-        print(f"\n📋 Test 1: POST /api/on-call/schedule/bulk (bulk creation)")
-        
+        # D'abord, récupérer l'ID de Jacques EDAU pour la cession
         try:
-            # Create test data for bulk creation (7 schedules for one week)
-            bulk_data = {
-                "schedules": [
-                    {
-                        "employee_id": self.user_id,
-                        "employee_name": "Diego DACALOR",
-                        "date": "2025-01-15",
-                        "type": "Astreinte semaine",
-                        "notes": "Test astreinte week 1"
-                    },
-                    {
-                        "employee_id": self.user_id,
-                        "employee_name": "Diego DACALOR", 
-                        "date": "2025-01-16",
-                        "type": "Astreinte jour",
-                        "notes": "Test astreinte day 2"
-                    }
-                ]
+            delegates_response = self.session.get(f"{BACKEND_URL}/cse/delegates")
+            if delegates_response.status_code != 200:
+                self.log_result("cse_cessions_external", "Récupération délégués pour cession externe", False,
+                               "Impossible de récupérer les délégués")
+                return
+            
+            delegates = delegates_response.json()
+            
+            # Trouver Jacques EDAU
+            jacques_id = None
+            for delegate in delegates:
+                name = delegate.get("user_name", "")
+                if "Jacques" in name and "EDAU" in name:
+                    jacques_id = delegate.get("user_id")
+                    break
+            
+            if not jacques_id:
+                self.log_result("cse_cessions_external", "ID Jacques EDAU trouvé", False,
+                               "Jacques EDAU non trouvé dans les délégués")
+                return
+            
+            print(f"✅ ID Jacques EDAU trouvé: {jacques_id[:8]}...")
+            
+            # Test de cession vers personne externe (NOUVEAU - PRIORITAIRE)
+            external_cession_data = {
+                "from_id": jacques_id,
+                "from_name": "Jacques EDAU",
+                "to_id": "external",
+                "to_name": "Marie Dupont (Externe)",
+                "is_external": True,
+                "hours": 3,
+                "usage_date": "2025-02-20",
+                "reason": "Test cession personne externe non enregistrée",
+                "created_by": "Test"
             }
             
-            response = self.session.post(f"{BACKEND_URL}/on-call/schedule/bulk", json=bulk_data)
+            response = self.session.post(f"{BACKEND_URL}/cse/cessions", json=external_cession_data)
             
-            if response.status_code == 201:
+            if response.status_code in [200, 201]:
                 data = response.json()
-                print(f"✅ Bulk creation successful (201) - Created {len(data)} schedules")
+                print(f"✅ Cession externe créée avec succès ({response.status_code})")
+                print(f"   De: {data.get('from_name')} → Vers: {data.get('to_name')}")
+                print(f"   Heures: {data.get('hours')}h, Date: {data.get('usage_date')}")
+                print(f"   to_id: {data.get('to_id')}")
                 
-                # Track created schedules for cleanup
-                for schedule in data:
-                    if schedule.get("id"):
-                        self.created_schedule_ids.append(schedule["id"])
-                
-                # Verify response structure
-                if len(data) == 2 and all("id" in s and "created_at" in s and "created_by" in s for s in data):
-                    self.log_result("post_endpoints", "POST bulk creation", True,
-                                   f"Successfully created {len(data)} schedules with proper structure")
-                else:
-                    self.log_result("post_endpoints", "POST bulk creation", False,
-                                   "Response structure incomplete")
-            else:
-                self.log_result("post_endpoints", "POST bulk creation", False,
-                               f"Expected 201, got {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            self.log_result("post_endpoints", "POST bulk creation", False, f"Exception: {str(e)}")
-        
-        # Test 2: POST /api/on-call/schedule/bulk (duplicate prevention)
-        print(f"\n📋 Test 2: POST /api/on-call/schedule/bulk (duplicate prevention)")
-        
-        try:
-            # Try to create the same schedules again
-            duplicate_data = {
-                "schedules": [
-                    {
-                        "employee_id": self.user_id,
-                        "employee_name": "Diego DACALOR",
-                        "date": "2025-01-15",
-                        "type": "Astreinte semaine",
-                        "notes": "Duplicate test"
-                    }
-                ]
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/on-call/schedule/bulk", json=duplicate_data)
-            
-            if response.status_code == 201:
-                data = response.json()
-                print(f"✅ Duplicate prevention working - Returned existing schedule")
-                self.log_result("post_endpoints", "POST duplicate prevention", True,
-                               "Duplicate schedule returned existing instead of error")
-            else:
-                self.log_result("post_endpoints", "POST duplicate prevention", False,
-                               f"Expected 201, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("post_endpoints", "POST duplicate prevention", False, f"Exception: {str(e)}")
-        
-        # Test 3: POST /api/on-call/schedule (single schedule creation)
-        print(f"\n📋 Test 3: POST /api/on-call/schedule (single schedule)")
-        
-        try:
-            single_schedule = {
-                "employee_id": self.user_id,
-                "employee_name": "Diego DACALOR",
-                "date": "2025-01-20",
-                "type": "Astreinte jour",
-                "notes": "Single schedule test"
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/on-call/schedule", json=single_schedule)
-            
-            if response.status_code == 201:
-                data = response.json()
-                print(f"✅ Single schedule creation successful (201)")
-                
-                # Track for cleanup
+                # Tracker pour cleanup
                 if data.get("id"):
-                    self.created_schedule_ids.append(data["id"])
+                    self.created_cession_ids.append(data["id"])
                 
-                self.log_result("post_endpoints", "POST single schedule", True,
-                               "Single schedule created successfully")
-            else:
-                self.log_result("post_endpoints", "POST single schedule", False,
-                               f"Expected 201, got {response.status_code}: {response.text}")
+                self.log_result("cse_cessions_external", "POST cession externe acceptée", True,
+                               f"Cession externe créée sans validation de limite")
                 
-        except Exception as e:
-            self.log_result("post_endpoints", "POST single schedule", False, f"Exception: {str(e)}")
-        
-        # Test 4: Data validation (invalid date format)
-        print(f"\n📋 Test 4: POST data validation (invalid date)")
-        
-        try:
-            invalid_data = {
-                "employee_id": self.user_id,
-                "employee_name": "Diego DACALOR",
-                "date": "invalid-date",
-                "type": "Astreinte jour",
-                "notes": "Invalid date test"
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/on-call/schedule", json=invalid_data)
-            
-            if response.status_code == 422:
-                print(f"✅ Invalid date format rejected (422)")
-                self.log_result("post_endpoints", "POST invalid date validation", True,
-                               "Invalid date format properly rejected")
-            else:
-                self.log_result("post_endpoints", "POST invalid date validation", False,
-                               f"Expected 422, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("post_endpoints", "POST invalid date validation", False, f"Exception: {str(e)}")
-        
-        # Test 5: Type validation and normalization
-        print(f"\n📋 Test 5: POST type validation and normalization")
-        
-        try:
-            type_test_data = {
-                "employee_id": self.user_id,
-                "employee_name": "Diego DACALOR",
-                "date": "2025-01-25",
-                "type": "semaine",  # Should be normalized to "Astreinte semaine"
-                "notes": "Type normalization test"
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/on-call/schedule", json=type_test_data)
-            
-            if response.status_code == 201:
-                data = response.json()
-                if data.get("type") == "Astreinte semaine":
-                    print(f"✅ Type normalization working ('semaine' → 'Astreinte semaine')")
-                    self.log_result("post_endpoints", "POST type normalization", True,
-                                   "Type properly normalized from 'semaine' to 'Astreinte semaine'")
-                    
-                    # Track for cleanup
-                    if data.get("id"):
-                        self.created_schedule_ids.append(data["id"])
+                # Vérifier que to_id="external" est conservé
+                if data.get("to_id") == "external":
+                    self.log_result("cse_cessions_external", "to_id external conservé", True,
+                                   "to_id='external' correctement stocké")
                 else:
-                    self.log_result("post_endpoints", "POST type normalization", False,
-                                   f"Type not normalized: {data.get('type')}")
+                    self.log_result("cse_cessions_external", "to_id external conservé", False,
+                                   f"to_id attendu: 'external', trouvé: {data.get('to_id')}")
+                
+                # Vérifier que le nom externe est correctement stocké
+                if data.get("to_name") == "Marie Dupont (Externe)":
+                    self.log_result("cse_cessions_external", "Nom externe stocké correctement", True,
+                                   "Nom externe 'Marie Dupont (Externe)' correctement stocké")
+                else:
+                    self.log_result("cse_cessions_external", "Nom externe stocké correctement", False,
+                                   f"Nom attendu: 'Marie Dupont (Externe)', trouvé: {data.get('to_name')}")
+                
+                # Vérifier que is_external est True
+                if data.get("is_external") == True:
+                    self.log_result("cse_cessions_external", "is_external flag correct", True,
+                                   "is_external=True correctement défini")
+                else:
+                    self.log_result("cse_cessions_external", "is_external flag correct", False,
+                                   f"is_external attendu: True, trouvé: {data.get('is_external')}")
+                
             else:
-                self.log_result("post_endpoints", "POST type normalization", False,
-                               f"Expected 201, got {response.status_code}")
+                self.log_result("cse_cessions_external", "POST cession externe acceptée", False,
+                               f"Expected 200/201, got {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_result("post_endpoints", "POST type normalization", False, f"Exception: {str(e)}")
+            self.log_result("cse_cessions_external", "POST cession externe", False, f"Exception: {str(e)}")
 
     def test_delete_endpoints(self):
         """Test DELETE endpoints for on-call schedules"""
