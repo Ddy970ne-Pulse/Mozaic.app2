@@ -1368,9 +1368,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     });
   };
 
-  const clearEmployeeSelection = () => {
-    setSelectedEmployees([]);
-  };
 
   // 2. MODIFICATION/SUPPRESSION DIRECTE
   const handleCellRightClick = (e, employee, dateObj, absenceCode) => {
