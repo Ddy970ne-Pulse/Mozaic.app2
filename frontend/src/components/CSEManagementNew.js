@@ -84,8 +84,9 @@ const CSEManagementNew = ({ user }) => {
     const cessionsDonnees = cessions.filter(c => c.from_id === memberId);
     const cessionsRecues = cessions.filter(c => c.to_id === memberId);
     
-    const member = [...titulaires, ...suppleants].find(m => m.id === memberId);
-    const creditInitial = member?.statut_cse === 'Titulaire' ? creditMensuelBase : 0;
+    // CORRECTION: Utiliser les vraies heures du délégué CSE
+    const delegate = delegates.find(d => d.user_id === memberId);
+    const creditInitial = delegate?.heures_mensuelles || 0;
     
     const cedees = cessionsDonnees.reduce((sum, c) => sum + parseFloat(c.hours || 0), 0);
     const recues = cessionsRecues.reduce((sum, c) => sum + parseFloat(c.hours || 0), 0);
