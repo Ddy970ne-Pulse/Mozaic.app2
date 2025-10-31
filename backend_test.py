@@ -116,85 +116,83 @@ class CSERegressionTester:
             print(f"❌ Authentication error: {str(e)}")
             return False
 
-    def test_cse_delegates(self):
-        """Test 1: Vérification Membres CSE - GET /api/cse/delegates"""
-        print(f"\n👥 TEST 1: VÉRIFICATION MEMBRES CSE")
+    def test_external_cession_is_external_field(self):
+        """Test 1: Vérifier champ is_external dans cession externe"""
+        print(f"\n🌐 TEST 1: VÉRIFIER CHAMP is_external DANS CESSION EXTERNE")
         print("=" * 60)
         
         try:
-            response = self.session.get(f"{BACKEND_URL}/cse/delegates")
+            # Récupérer un membre CSE pour faire la cession
+            delegates_response = self.session.get(f"{BACKEND_URL}/users")
+            if delegates_response.status_code != 200:
+                self.log_result("external_cession_is_external", "Récupération utilisateurs", False,
+                               "Impossible de récupérer les utilisateurs")
+                return
             
-            if response.status_code == 200:
-                delegates = response.json()
-                print(f"✅ GET /api/cse/delegates successful (200) - Found {len(delegates)} delegates")
+            users = delegates_response.json()
+            
+            # Trouver un membre CSE (chercher par email ou nom)
+            cse_member_id = None
+            cse_member_name = None
+            
+            for user in users:
+                if user.get("email") == "ddacalor@aaea-gpe.fr":  # Admin Diego
+                    cse_member_id = user.get("id")
+                    cse_member_name = user.get("name", "Diego DACALOR")
+                    break
+            
+            if not cse_member_id:
+                self.log_result("external_cession_is_external", "Membre CSE trouvé", False,
+                               "Aucun membre CSE trouvé pour effectuer la cession")
+                return
+            
+            print(f"✅ Membre CSE trouvé: {cse_member_name} ({cse_member_id[:8]}...)")
+            
+            # Test de cession externe avec is_external=true (selon la demande française)
+            external_cession_data = {
+                "from_id": cse_member_id,
+                "from_name": cse_member_name,
+                "to_id": "external",
+                "to_name": "Test Personne Externe",
+                "is_external": True,
+                "hours": 2,
+                "usage_date": "2025-02-25",
+                "reason": "Test correction is_external",
+                "created_by": "Test Régression"
+            }
+            
+            print(f"📤 Envoi cession externe: {external_cession_data}")
+            
+            response = self.session.post(f"{BACKEND_URL}/cse/cessions", json=external_cession_data)
+            
+            if response.status_code in [200, 201]:
+                data = response.json()
+                print(f"✅ Cession externe créée avec succès ({response.status_code})")
+                print(f"   Réponse: {json.dumps(data, indent=2)}")
                 
-                # Vérifier le nombre de délégués (4 attendus)
-                if len(delegates) == 4:
-                    self.log_result("cse_delegates", "Nombre de délégués correct", True,
-                                   f"4 délégués trouvés comme attendu")
+                # Tracker pour cleanup
+                if data.get("id"):
+                    self.created_cession_ids.append(data["id"])
+                
+                # **VÉRIFICATION CRITIQUE** : Réponse doit contenir `"is_external": true`
+                is_external_value = data.get("is_external")
+                if is_external_value is True:
+                    self.log_result("external_cession_is_external", "Champ is_external=true présent", True,
+                                   f"is_external={is_external_value} correctement retourné")
                 else:
-                    self.log_result("cse_delegates", "Nombre de délégués correct", False,
-                                   f"Attendu: 4 délégués, Trouvé: {len(delegates)}")
+                    self.log_result("external_cession_is_external", "Champ is_external=true présent", False,
+                                   f"is_external attendu: true, trouvé: {is_external_value}")
                 
-                # Vérifier les délégués spécifiques
-                found_delegates = []
-                titulaires_count = 0
-                suppleants_count = 0
-                
-                for delegate in delegates:
-                    name = delegate.get("user_name", "")
-                    statut = delegate.get("statut", "")
-                    heures = delegate.get("heures_mensuelles", 0)
-                    
-                    found_delegates.append({
-                        "name": name,
-                        "statut": statut,
-                        "heures": heures
-                    })
-                    
-                    if statut.lower() == "titulaire":
-                        titulaires_count += 1
-                    elif statut.lower() == "suppléant":
-                        suppleants_count += 1
-                
-                print(f"📊 Délégués trouvés:")
-                for delegate in found_delegates:
-                    print(f"   - {delegate['name']}: {delegate['statut']} - {delegate['heures']}h/mois")
-                
-                # Vérifier les statuts (3 titulaires, 1 suppléant)
-                if titulaires_count == 3 and suppleants_count == 1:
-                    self.log_result("cse_delegates", "Statuts délégués corrects", True,
-                                   f"3 titulaires et 1 suppléant trouvés")
-                else:
-                    self.log_result("cse_delegates", "Statuts délégués corrects", False,
-                                   f"Attendu: 3 titulaires + 1 suppléant, Trouvé: {titulaires_count} titulaires + {suppleants_count} suppléants")
-                
-                # Vérifier les heures mensuelles (titulaires = 22h, suppléants = 0h)
-                heures_correctes = True
-                for delegate in delegates:
-                    statut = delegate.get("statut", "").lower()
-                    heures = delegate.get("heures_mensuelles", 0)
-                    
-                    if statut == "titulaire" and heures != 22:
-                        heures_correctes = False
-                        print(f"❌ {delegate.get('user_name')}: Titulaire devrait avoir 22h, a {heures}h")
-                    elif statut == "suppléant" and heures != 0:
-                        heures_correctes = False
-                        print(f"❌ {delegate.get('user_name')}: Suppléant devrait avoir 0h, a {heures}h")
-                
-                if heures_correctes:
-                    self.log_result("cse_delegates", "Heures mensuelles correctes", True,
-                                   "Toutes les heures mensuelles sont correctes")
-                else:
-                    self.log_result("cse_delegates", "Heures mensuelles correctes", False,
-                                   "Certaines heures mensuelles sont incorrectes")
+                # Vérifier statut 200/201
+                self.log_result("external_cession_is_external", "Statut HTTP correct", True,
+                               f"Statut {response.status_code} reçu")
                 
             else:
-                self.log_result("cse_delegates", "GET cse/delegates", False,
-                               f"Expected 200, got {response.status_code}: {response.text}")
+                self.log_result("external_cession_is_external", "POST cession externe", False,
+                               f"Expected 200/201, got {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_result("cse_delegates", "GET cse/delegates", False, f"Exception: {str(e)}")
+            self.log_result("external_cession_is_external", "POST cession externe", False, f"Exception: {str(e)}")
 
     def test_cse_cessions_internal(self):
         """Test 2: Cession vers Membre CSE (existant) - POST /api/cse/cessions"""
