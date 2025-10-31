@@ -303,25 +303,33 @@ class CSERegressionTester:
                             print(f"      ❌ Cession interne avec is_external=true (incorrect)")
                 
                 # Vérifier que les cessions externes ont is_external = true
-                external_correct = True
+                external_correct_count = 0
+                external_incorrect_count = 0
                 internal_correct = True
                 
                 for cession in cessions:
                     to_id = cession.get("to_id", "")
                     is_external = cession.get("is_external")
                     
-                    if to_id == "external" and is_external is not True:
-                        external_correct = False
+                    if to_id == "external":
+                        if is_external is True:
+                            external_correct_count += 1
+                        else:
+                            external_incorrect_count += 1
+                            print(f"      ❌ Cession externe avec is_external={is_external} (devrait être True)")
                     elif to_id != "external" and is_external is True:
                         internal_correct = False
                 
                 if external_cessions_count > 0:
-                    if external_correct:
+                    if external_correct_count > 0:
                         self.log_result("cessions_list_is_external", "Cessions externes is_external=true", True,
-                                       f"{external_cessions_count} cessions externes avec is_external=true")
+                                       f"{external_correct_count}/{external_cessions_count} cessions externes avec is_external=true")
+                        if external_incorrect_count > 0:
+                            self.log_result("cessions_list_is_external", "Toutes cessions externes correctes", False,
+                                           f"{external_incorrect_count} cessions externes ont is_external incorrect")
                     else:
                         self.log_result("cessions_list_is_external", "Cessions externes is_external=true", False,
-                                       f"Certaines cessions externes n'ont pas is_external=true")
+                                       f"Aucune cession externe n'a is_external=true")
                 else:
                     self.log_result("cessions_list_is_external", "Cessions externes trouvées", False,
                                    "Aucune cession externe trouvée pour vérifier is_external")
