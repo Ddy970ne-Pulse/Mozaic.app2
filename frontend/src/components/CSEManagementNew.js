@@ -83,7 +83,8 @@ const CSEManagementNew = ({ user }) => {
   };
 
   const calculateBalance = (memberId) => {
-    // Calculer le solde d'heures d'un membre
+    // Calculer le solde d'heures d'un membre (simple pour affichage rapide)
+    // Note: Le calcul complet avec report est fait côté backend
     const cessionsDonnees = cessions.filter(c => c.from_id === memberId);
     const cessionsRecues = cessions.filter(c => c.to_id === memberId);
     
@@ -98,7 +99,9 @@ const CSEManagementNew = ({ user }) => {
       initial: creditInitial,
       cedees,
       recues,
-      balance: creditInitial - cedees + recues
+      balance: creditInitial - cedees + recues,
+      // Note: Le report des mois précédents n'est pas inclus ici
+      // Utiliser l'API /cse/balance/{id} pour le calcul complet
     };
   };
 
