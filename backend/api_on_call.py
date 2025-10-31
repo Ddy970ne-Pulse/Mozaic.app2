@@ -359,8 +359,8 @@ async def create_bulk_on_call_schedules(
 @router.delete("/schedule/{schedule_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_on_call_schedule(
     schedule_id: str,
-    db: AsyncIOMotorDatabase = None,
-    current_user: str = Depends(get_current_user_email)
+    current_user: str = Depends(get_current_user_email),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ):
     """
     Delete an on-call schedule
@@ -369,14 +369,6 @@ async def delete_on_call_schedule(
     """
     try:
         logger.info(f"🗑️ Deleting on-call schedule: {schedule_id}")
-        
-        # Get database connection
-        if db is None:
-            from motor.motor_asyncio import AsyncIOMotorClient
-            import os
-            mongo_url = os.environ['MONGO_URL']
-            client = AsyncIOMotorClient(mongo_url)
-            db = client[os.environ['DB_NAME']]
         
         # Delete from database
         result = await db.on_call_schedules.delete_one({'id': schedule_id})
