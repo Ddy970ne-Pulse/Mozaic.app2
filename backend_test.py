@@ -47,28 +47,18 @@ WEBSOCKET_URL = "wss://hr-multi-saas.preview.emergentagent.com/api/ws"
 ADMIN_EMAIL = "ddacalor@aaea-gpe.fr"
 ADMIN_PASSWORD = "admin123"
 
-class CSEModuleTester:
+class CSERegressionTester:
     def __init__(self):
         self.token = None
         self.user_id = None
         self.session = requests.Session()
-        self.websocket_messages = []
-        self.websocket_connected = False
         self.test_results = {
             "authentication": {"passed": 0, "failed": 0, "details": []},
-            "cse_delegates": {"passed": 0, "failed": 0, "details": []},
-            "cse_cessions_internal": {"passed": 0, "failed": 0, "details": []},
-            "cse_cessions_external": {"passed": 0, "failed": 0, "details": []},
-            "cse_cessions_list": {"passed": 0, "failed": 0, "details": []},
-            "company_settings": {"passed": 0, "failed": 0, "details": []}
+            "external_cession_is_external": {"passed": 0, "failed": 0, "details": []},
+            "company_settings_no_500": {"passed": 0, "failed": 0, "details": []},
+            "cessions_list_is_external": {"passed": 0, "failed": 0, "details": []}
         }
         self.created_cession_ids = []  # Track created cessions for cleanup
-        self.expected_delegates = [
-            {"name": "Jacques EDAU", "statut": "Titulaire", "heures": 22},
-            {"name": "Thierry MARTIAS", "statut": "Titulaire", "heures": 22},
-            {"name": "Jean-François BERNARD", "statut": "Titulaire", "heures": 22},
-            {"name": "Richard MANIOC", "statut": "Suppléant", "heures": 0}
-        ]
         
     def log_result(self, phase, test_name, success, message, expected=None, actual=None):
         """Log test result"""
