@@ -337,7 +337,12 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           
           console.log('🔔 Astreintes chargées:', assignments.length, 'jours pour', Object.keys(onCallMap).length, 'employés');
           console.log('📊 IDs des employés avec astreintes:', Object.keys(onCallMap));
-          console.log('📊 Exemple de données pour premier employé:', Object.values(onCallMap)[0]);
+          if (Object.keys(onCallMap).length > 0) {
+            const firstEmployeeId = Object.keys(onCallMap)[0];
+            const firstEmployeeData = onCallMap[firstEmployeeId];
+            console.log('📊 Exemple de données normalisées:', firstEmployeeData[0]);
+            console.log(`   ✅ Format de startDate: "${firstEmployeeData[0].startDate}" (doit être YYYY-MM-DD)`);
+          }
           setOnCallData(onCallMap);
         } else {
           console.warn('Aucune astreinte trouvée pour cette période');
