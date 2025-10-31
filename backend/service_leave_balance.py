@@ -7,12 +7,15 @@ Ce service gère :
 - Réintégration automatique des congés interrompus par maladie
 - Historique des transactions
 - Validation des soldes avant approbation
+
+Adapté pour utiliser UUID au lieu d'ObjectId
 """
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from datetime import datetime, date
 from typing import Optional, List, Dict
 import logging
+import uuid
 
 logger = logging.getLogger(__name__)
 
