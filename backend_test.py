@@ -623,15 +623,19 @@ class CSECompleteTester:
         return critical_success
 
     def run_all_tests(self):
-        """Exécuter tous les tests de régression CSE"""
-        print("🚀 DÉMARRAGE DES TESTS DE RÉGRESSION MODULE CSE")
+        """Exécuter tous les tests complets du module CSE"""
+        print("🚀 DÉMARRAGE DES TESTS COMPLETS MODULE CSE")
         print("=" * 80)
-        print("OBJECTIF: Retest des 2 problèmes corrigés du module CSE")
+        print("OBJECTIF: Test complet du module CSE selon demande française spécifique")
         print("USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)")
         print("BACKEND URL: https://oncall-planner-2.preview.emergentagent.com/api")
-        print("CORRECTIONS TESTÉES:")
-        print("  1. Ajout du champ `is_external` au modèle CSECession")
-        print("  2. Correction de l'erreur 500 sur GET /api/company-settings")
+        print("TESTS PRIORITAIRES:")
+        print("  1. Vérification membres CSE et heures mensuelles")
+        print("  2. Test calcul solde avec report")
+        print("  3. Test création cession avec exception délai")
+        print("  4. Test création cession vers externe")
+        print("  5. Vérification liste cessions")
+        print("  6. Paramètres entreprise")
         print("=" * 80)
         
         # Authentification pour tous les tests
@@ -639,17 +643,26 @@ class CSECompleteTester:
             print("❌ Impossible de continuer sans authentification")
             return False
         
-        # Exécuter tous les tests de régression
-        print(f"\n🔄 EXÉCUTION DES TESTS DE RÉGRESSION...")
+        # Exécuter tous les tests du module CSE
+        print(f"\n🔄 EXÉCUTION DES TESTS MODULE CSE...")
         
-        # Test 1: Vérifier champ is_external dans cession externe
-        self.test_external_cession_is_external_field()
+        # Test 1: Vérification membres CSE et heures mensuelles
+        self.test_cse_delegates_and_hours()
         
-        # Test 2: Endpoint company-settings ne doit PAS retourner erreur 500
-        self.test_company_settings_no_500_error()
+        # Test 2: Test calcul solde avec report
+        self.test_cse_balance_calculation()
         
-        # Test 3: Vérification liste cessions (avec is_external)
-        self.test_cessions_list_is_external_field()
+        # Test 3: Test création cession avec exception délai
+        self.test_cession_internal_with_delai_exception()
+        
+        # Test 4: Test création cession vers externe
+        self.test_cession_external()
+        
+        # Test 5: Vérification liste cessions
+        self.test_cessions_list_verification()
+        
+        # Test 6: Paramètres entreprise
+        self.test_company_settings()
         
         # Cleanup test data
         self.cleanup_test_data()
