@@ -3697,6 +3697,7 @@ async def import_employees(
                     position=employee_data.get('fonction'),
                     hire_date=employee_data.get('date_debut_contrat'),
                     isDelegateCSE=is_cse_delegate,  # Marqué si délégué CSE détecté
+                    statut_cse=cse_status.capitalize() if cse_status else 'Non-membre',  # AJOUT: Statut CSE (Titulaire/Suppléant/Non-membre)
                     is_active=True,
                     requires_password_change=True,
                     first_login=True,
