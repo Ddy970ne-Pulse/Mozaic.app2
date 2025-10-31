@@ -384,7 +384,7 @@ class CSEModuleTester:
         except Exception as e:
             self.log_result("cse_cessions_external", "POST cession externe", False, f"Exception: {str(e)}")
 
-    def test_delete_endpoints(self):
+    def test_cse_cessions_list(self):
         """Test DELETE endpoints for on-call schedules"""
         print(f"\n🗑️ DELETE ENDPOINTS TESTING")
         print("=" * 60)
