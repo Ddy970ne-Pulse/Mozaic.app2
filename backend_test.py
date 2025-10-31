@@ -435,13 +435,15 @@ class CSERegressionTester:
         return critical_success
 
     def run_all_tests(self):
-        """Exécuter tous les tests du Module CSE"""
-        print("🚀 DÉMARRAGE DES TESTS MODULE CSE - MEMBRES ET CESSIONS D'HEURES")
+        """Exécuter tous les tests de régression CSE"""
+        print("🚀 DÉMARRAGE DES TESTS DE RÉGRESSION MODULE CSE")
         print("=" * 80)
-        print("OBJECTIF: Test exhaustif du module CSE selon la demande française spécifique")
+        print("OBJECTIF: Retest des 2 problèmes corrigés du module CSE")
         print("USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)")
         print("BACKEND URL: https://oncall-planner-2.preview.emergentagent.com/api")
-        print("PRIORITÉ: Cessions vers personnes externes (to_id='external') - NOUVEAU PRIORITAIRE")
+        print("CORRECTIONS TESTÉES:")
+        print("  1. Ajout du champ `is_external` au modèle CSECession")
+        print("  2. Correction de l'erreur 500 sur GET /api/company-settings")
         print("=" * 80)
         
         # Authentification pour tous les tests
@@ -449,23 +451,17 @@ class CSERegressionTester:
             print("❌ Impossible de continuer sans authentification")
             return False
         
-        # Exécuter tous les tests du Module CSE
-        print(f"\n🔄 EXÉCUTION DES TESTS MODULE CSE...")
+        # Exécuter tous les tests de régression
+        print(f"\n🔄 EXÉCUTION DES TESTS DE RÉGRESSION...")
         
-        # Test 1: Vérification Membres CSE - CRITIQUE
-        self.test_cse_delegates()
+        # Test 1: Vérifier champ is_external dans cession externe
+        self.test_external_cession_is_external_field()
         
-        # Test 2: Cession vers Membre CSE (existant)
-        self.test_cse_cessions_internal()
+        # Test 2: Endpoint company-settings ne doit PAS retourner erreur 500
+        self.test_company_settings_no_500_error()
         
-        # Test 3: Cession vers Personne Externe - PRIORITAIRE
-        self.test_cse_cessions_external()
-        
-        # Test 4: Vérification Liste Cessions
-        self.test_cse_cessions_list()
-        
-        # Test 5: Paramètres Entreprise
-        self.test_company_settings()
+        # Test 3: Vérification liste cessions (avec is_external)
+        self.test_cessions_list_is_external_field()
         
         # Cleanup test data
         self.cleanup_test_data()
