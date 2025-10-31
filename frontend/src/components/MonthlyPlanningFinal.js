@@ -1444,15 +1444,43 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
         
         console.log('🔍 Recherche absence:', {
           employee_id: selectedAbsenceForEdit.employee.id,
-          date_debut_format1: dateKey,
-          date_debut_format2: dateFormatted
+          date_clicked: dateKey,
+          date_formatted: dateFormatted
         });
         
-        // Chercher l'absence avec les deux formats possibles
-        const absenceToDelete = absences.find(a => 
-          a.employee_id === selectedAbsenceForEdit.employee.id &&
-          (a.date_debut === dateKey || a.date_debut === dateFormatted)
-        );
+        // Fonction pour parser les dates
+        const parseDate = (dateStr) => {
+          if (!dateStr) return null;
+          try {
+            // Essayer DD/MM/YYYY
+            if (dateStr.includes('/')) {
+              const [d, m, y] = dateStr.split('/');
+              return new Date(y, m - 1, d);
+            }
+            // Essayer YYYY-MM-DD
+            if (dateStr.includes('-')) {
+              return new Date(dateStr);
+            }
+          } catch (e) {
+            return null;
+          }
+          return null;
+        };
+        
+        const clickedDate = parseDate(dateKey);
+        
+        // Chercher l'absence qui CONTIENT cette date (pas celle qui commence à cette date)
+        const absenceToDelete = absences.find(a => {
+          if (a.employee_id !== selectedAbsenceForEdit.employee.id) return false;
+          
+          const startDate = parseDate(a.date_debut);
+          const endDate = parseDate(a.date_fin || a.date_debut);
+          
+          if (!startDate || !endDate || !clickedDate) return false;
+          
+          // Vérifier si la date cliquée est dans la période [date_debut, date_fin]
+          return clickedDate >= startDate && clickedDate <= endDate;
+        });
         
         if (absenceToDelete) {
           console.log('✅ Absence trouvée:', absenceToDelete);
