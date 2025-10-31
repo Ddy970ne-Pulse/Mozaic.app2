@@ -391,8 +391,8 @@ async def delete_on_call_schedule(
 async def update_on_call_schedule(
     schedule_id: str,
     schedule: OnCallScheduleCreate,
-    db: AsyncIOMotorDatabase = None,
-    current_user: str = Depends(get_current_user_email)
+    current_user: str = Depends(get_current_user_email),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ):
     """
     Update an existing on-call schedule
@@ -401,14 +401,6 @@ async def update_on_call_schedule(
     """
     try:
         logger.info(f"✏️ Updating on-call schedule: {schedule_id}")
-        
-        # Get database connection
-        if db is None:
-            from motor.motor_asyncio import AsyncIOMotorClient
-            import os
-            mongo_url = os.environ['MONGO_URL']
-            client = AsyncIOMotorClient(mongo_url)
-            db = client[os.environ['DB_NAME']]
         
         # Check if schedule exists
         existing = await db.on_call_schedules.find_one({'id': schedule_id})
