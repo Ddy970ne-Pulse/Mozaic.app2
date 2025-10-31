@@ -16,6 +16,8 @@ const CSEManagementNew = ({ user }) => {
   const [cessionData, setCessionData] = useState({
     from_id: '',
     to_id: '',
+    to_name: '',  // Ajout pour saisie libre
+    is_external: false,  // Flag pour bénéficiaire externe
     hours: '',
     usage_date: '',
     reason: ''
