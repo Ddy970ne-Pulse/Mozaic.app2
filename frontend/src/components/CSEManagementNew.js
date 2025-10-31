@@ -90,6 +90,13 @@ const CSEManagementNew = ({ user }) => {
     
     // CORRECTION: Utiliser les vraies heures du délégué CSE
     const delegate = delegates.find(d => d.user_id === memberId);
+    
+    console.log(`📊 calculateBalance pour ${memberId}:`, {
+      delegate_found: !!delegate,
+      heures_mensuelles: delegate?.heures_mensuelles,
+      delegates_total: delegates.length
+    });
+    
     const creditInitial = delegate?.heures_mensuelles || 0;
     
     const cedees = cessionsDonnees.reduce((sum, c) => sum + parseFloat(c.hours || 0), 0);
