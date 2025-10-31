@@ -471,9 +471,9 @@ const OnCallSchedule = ({ user }) => {
                   {onCallForDay.map((item, idx) => (
                     <div
                       key={idx}
-                      className={`text-xs border rounded px-2 py-1 mb-1 cursor-pointer hover:opacity-80 ${getEmployeeColor(item.employee_id)}`}
-                      title={`${item.employee_name} - ${item.type}\nClic droit pour gérer`}
-                      onContextMenu={(e) => handleRightClick(e, item)}
+                      className={`text-xs border rounded px-2 py-1 mb-1 ${isAdmin ? 'cursor-pointer hover:opacity-80' : ''} ${getEmployeeColor(item.employee_id)}`}
+                      title={isAdmin ? `${item.employee_name} - ${item.type}\nClic droit pour gérer` : `${item.employee_name} - ${item.type}`}
+                      onContextMenu={isAdmin ? (e) => handleRightClick(e, item) : undefined}
                     >
                       <div className="font-medium truncate">
                         🔔 {item.employee_name}
