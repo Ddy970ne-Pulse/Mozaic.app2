@@ -525,23 +525,7 @@ class CSEModuleTester:
         
         print(f"✅ Test cessions noted for cleanup")
 
-    def cleanup_test_data(self):
-        """Clean up any remaining test schedules"""
-        print(f"\n🧹 CLEANUP - Removing test schedules")
-        
-        for schedule_id in self.created_schedule_ids[:]:
-            try:
-                response = self.session.delete(f"{BACKEND_URL}/on-call/schedule/{schedule_id}")
-                if response.status_code == 204:
-                    print(f"✅ Cleaned up schedule: {schedule_id}")
-                    self.created_schedule_ids.remove(schedule_id)
-                else:
-                    print(f"⚠️ Failed to cleanup schedule {schedule_id}: {response.status_code}")
-            except Exception as e:
-                print(f"⚠️ Exception cleaning up schedule {schedule_id}: {str(e)}")
-        
-        if not self.created_schedule_ids:
-            print(f"✅ All test schedules cleaned up successfully")
+    # Cleanup method already defined above
 
     def print_summary(self):
         """Afficher le résumé des tests On-Call Schedule API"""
