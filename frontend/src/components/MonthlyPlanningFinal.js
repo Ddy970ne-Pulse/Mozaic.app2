@@ -317,11 +317,18 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
               onCallMap[employeeId] = [];
             }
             
+            // ✅ CORRECTIF A : Normaliser le format de date au chargement
+            // Extraire YYYY-MM-DD si la date contient un timestamp ISO
+            let normalizedDate = assignment.date;
+            if (assignment.date && assignment.date.includes('T')) {
+              normalizedDate = assignment.date.split('T')[0];
+            }
+            
             // Ajouter chaque jour comme une assignation
             // Le code existant vérifiera si une date tombe dans une semaine d'astreinte
             onCallMap[employeeId].push({
-              startDate: assignment.date, // Date du jour d'astreinte
-              endDate: assignment.date,   // Même date pour un jour unique
+              startDate: normalizedDate, // ✅ Date normalisée au format YYYY-MM-DD
+              endDate: normalizedDate,   // Même date pour un jour unique
               employeeName: assignment.employee_name,
               type: assignment.type,
               weekNumber: null
