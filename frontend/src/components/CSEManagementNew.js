@@ -162,7 +162,7 @@ const CSEManagementNew = ({ user }) => {
         }
       }
 
-      // Validation délai 8 jours
+      // Validation délai 8 jours avec possibilité d'exception
       const today = new Date();
       const usageDate = new Date(cessionData.usage_date);
       const daysDiff = Math.ceil((usageDate - today) / (1000 * 60 * 60 * 24));
@@ -170,15 +170,19 @@ const CSEManagementNew = ({ user }) => {
       console.log(`🔵 Vérification délai: ${daysDiff} jours`);
 
       if (daysDiff < 8) {
-        console.warn('⚠️ Délai < 8 jours, demande confirmation');
-        if (!window.confirm(
-          `⚠️ ATTENTION: L'employeur doit être informé au moins 8 jours avant.\n` +
-          `Délai actuel: ${daysDiff} jour(s)\n\n` +
-          `Voulez-vous continuer quand même ?`
-        )) {
-          console.log('❌ Utilisateur a annulé');
+        console.warn('⚠️ Délai < 8 jours, vérification exception');
+        
+        // Vérifier si justification fournie
+        if (!cessionData.justification_urgence || cessionData.justification_urgence.trim() === '') {
+          showMessage(
+            `⚠️ Délai inférieur à 8 jours (${daysDiff} jour(s)). Une justification d'urgence est obligatoire.`,
+            'error'
+          );
+          setShowUrgenceField(true); // Afficher le champ justification
           return;
         }
+        
+        console.log('✅ Exception délai avec justification:', cessionData.justification_urgence);
       }
 
       console.log('🔵 Préparation de la requête API...');
