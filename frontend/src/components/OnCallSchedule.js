@@ -190,11 +190,20 @@ const OnCallSchedule = ({ user }) => {
       const employee = employees.find(e => e.id === quickAddData.employeeId);
       
       // Préparer les données pour l'API
-      const startDate = new Date(quickAddData.date);
+      let startDate = new Date(quickAddData.date);
       const schedulesToCreate = [];
       
       if (quickAddData.type === 'semaine') {
-        // Créer 7 jours d'astreintes
+        // Pour une semaine d'astreinte, ajuster pour commencer le dimanche
+        // 0 = dimanche, 1 = lundi, ..., 6 = samedi
+        const dayOfWeek = startDate.getDay();
+        
+        // Si la date sélectionnée n'est pas un dimanche, remonter au dimanche précédent
+        if (dayOfWeek !== 0) {
+          startDate.setDate(startDate.getDate() - dayOfWeek);
+        }
+        
+        // Créer 7 jours d'astreintes (dimanche → samedi)
         for (let i = 0; i < 7; i++) {
           const date = new Date(startDate);
           date.setDate(startDate.getDate() + i);
