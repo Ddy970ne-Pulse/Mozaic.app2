@@ -370,9 +370,9 @@ const CSEManagementNew = ({ user }) => {
           {/* Tab: Heures de Délégation */}
           {activeTab === 'hours' && (
             <div className="space-y-6">
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                <p className="text-sm text-yellow-800">
-                  ⚖️ <strong>CCN66:</strong> Crédit de base = {creditMensuelBase}h/mois (50-150 salariés)
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-blue-800">
+                  ⚖️ <strong>Réglementation:</strong> Heures calculées automatiquement selon l'effectif de l'entreprise (22h/mois pour 250+ salariés)
                 </p>
               </div>
 
