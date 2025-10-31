@@ -276,13 +276,12 @@ class CSERegressionTester:
                 cessions_with_is_external_field = 0
                 
                 print(f"\n📊 Analyse des cessions:")
-                for i, cession in enumerate(cessions[:10]):  # Analyser les 10 premières
+                
+                # Analyser TOUTES les cessions, pas seulement les 10 premières
+                for i, cession in enumerate(cessions):
                     to_id = cession.get("to_id", "")
                     to_name = cession.get("to_name", "")
                     is_external = cession.get("is_external")
-                    
-                    print(f"   {i+1}. {cession.get('from_name', 'N/A')} → {to_name}")
-                    print(f"      to_id: {to_id}, is_external: {is_external}")
                     
                     # Compter les cessions avec le champ is_external
                     if "is_external" in cession:
@@ -291,16 +290,25 @@ class CSERegressionTester:
                     # Vérifier les cessions externes
                     if to_id == "external":
                         external_cessions_count += 1
+                        print(f"   EXTERNE {external_cessions_count}. {cession.get('from_name', 'N/A')} → {to_name}")
+                        print(f"      to_id: {to_id}, is_external: {is_external}")
                         if is_external is True:
                             print(f"      ✅ Cession externe avec is_external=true")
                         else:
                             print(f"      ❌ Cession externe SANS is_external=true (trouvé: {is_external})")
                     else:
                         internal_cessions_count += 1
-                        if is_external is False or is_external is None:
-                            print(f"      ✅ Cession interne avec is_external=false/null")
-                        else:
-                            print(f"      ❌ Cession interne avec is_external=true (incorrect)")
+                        # Afficher seulement les 3 premières cessions internes pour éviter le spam
+                        if internal_cessions_count <= 3:
+                            print(f"   INTERNE {internal_cessions_count}. {cession.get('from_name', 'N/A')} → {to_name}")
+                            print(f"      to_id: {to_id}, is_external: {is_external}")
+                            if is_external is False or is_external is None:
+                                print(f"      ✅ Cession interne avec is_external=false/null")
+                            else:
+                                print(f"      ❌ Cession interne avec is_external=true (incorrect)")
+                
+                if internal_cessions_count > 3:
+                    print(f"   ... et {internal_cessions_count - 3} autres cessions internes")
                 
                 # Vérifier que les cessions externes ont is_external = true
                 external_correct_count = 0
