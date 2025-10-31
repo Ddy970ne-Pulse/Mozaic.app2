@@ -528,9 +528,9 @@ class CSEModuleTester:
     # Cleanup method already defined above
 
     def print_summary(self):
-        """Afficher le résumé des tests On-Call Schedule API"""
+        """Afficher le résumé des tests CSE Module"""
         print(f"\n" + "=" * 80)
-        print(f"📅 RÉSUMÉ COMPLET DES TESTS ON-CALL SCHEDULE BACKEND API")
+        print(f"🏛️ RÉSUMÉ COMPLET DES TESTS MODULE CSE - MEMBRES ET CESSIONS")
         print(f"=" * 80)
         
         total_passed = 0
@@ -538,13 +538,12 @@ class CSEModuleTester:
         
         for phase_name, results in self.test_results.items():
             phase_display = {
-                "authentication": "AUTHENTICATION REQUIREMENTS",
-                "get_endpoints": "GET ENDPOINTS (Retrieve Schedules)", 
-                "post_endpoints": "POST ENDPOINTS (Create Schedules)",
-                "delete_endpoints": "DELETE ENDPOINTS (Remove Schedules)",
-                "put_endpoints": "PUT ENDPOINTS (Update Schedules)",
-                "data_persistence": "DATA PERSISTENCE (MongoDB)",
-                "error_handling": "ERROR HANDLING & VALIDATION"
+                "authentication": "AUTHENTICATION (Login Admin)",
+                "cse_delegates": "MEMBRES CSE (GET /api/cse/delegates)", 
+                "cse_cessions_internal": "CESSIONS INTERNES (Membre → Membre)",
+                "cse_cessions_external": "CESSIONS EXTERNES (Membre → Externe) - PRIORITAIRE",
+                "cse_cessions_list": "LISTE CESSIONS (GET /api/cse/cessions)",
+                "company_settings": "PARAMÈTRES ENTREPRISE (GET /api/company-settings)"
             }
             
             passed = results["passed"]
@@ -566,43 +565,45 @@ class CSEModuleTester:
                         print(f"     - {detail['test']}: {detail['message']}")
         
         print(f"\n" + "=" * 80)
-        overall_status = "✅ API COMPLÈTEMENT FONCTIONNELLE" if total_failed == 0 else "❌ PROBLÈMES CRITIQUES DÉTECTÉS" if total_passed == 0 else "⚠️ API PARTIELLEMENT FONCTIONNELLE"
+        overall_status = "✅ MODULE CSE COMPLÈTEMENT FONCTIONNEL" if total_failed == 0 else "❌ PROBLÈMES CRITIQUES DÉTECTÉS" if total_passed == 0 else "⚠️ MODULE CSE PARTIELLEMENT FONCTIONNEL"
         print(f"🎯 RÉSULTAT GLOBAL: {overall_status}")
         print(f"📈 TOTAL: {total_passed} réussis, {total_failed} échoués sur {total_passed + total_failed} tests")
         
-        # Critères de succès critiques pour l'API On-Call
+        # Critères de succès critiques pour le Module CSE
         print(f"\n🔒 CRITÈRES DE SUCCÈS CRITIQUES:")
         success_criteria = [
-            ("All endpoints respond with correct HTTP status codes", total_failed == 0),
-            ("Authentication required for all endpoints (403/401 without token)", self.test_results["authentication"]["failed"] == 0),
-            ("Bulk creation creates multiple schedules correctly", self.test_results["post_endpoints"]["passed"] >= 1),
-            ("Duplicate prevention works (returns existing schedule)", self.test_results["post_endpoints"]["passed"] >= 2),
-            ("GET endpoints filter correctly by month/year and date range", self.test_results["get_endpoints"]["failed"] == 0),
-            ("DELETE removes schedules permanently", self.test_results["delete_endpoints"]["passed"] >= 1),
-            ("PUT updates schedules correctly", self.test_results["put_endpoints"]["passed"] >= 1),
-            ("MongoDB persistence verified (data survives operations)", self.test_results["data_persistence"]["failed"] == 0),
-            ("Proper error handling (404 for not found, 400/422 for validation errors)", self.test_results["error_handling"]["failed"] == 0)
+            ("4 membres CSE retournés avec heures correctes", self.test_results["cse_delegates"]["failed"] == 0),
+            ("3 titulaires (22h/mois) et 1 suppléant (0h/mois)", self.test_results["cse_delegates"]["passed"] >= 2),
+            ("Cession vers membre CSE existant fonctionne", self.test_results["cse_cessions_internal"]["failed"] == 0),
+            ("Cession vers personne externe (to_id='external') fonctionne - PRIORITAIRE", self.test_results["cse_cessions_external"]["failed"] == 0),
+            ("Stockage correct du nom externe en texte libre", self.test_results["cse_cessions_external"]["passed"] >= 2),
+            ("Liste des cessions affiche correctement les cessions créées", self.test_results["cse_cessions_list"]["failed"] == 0),
+            ("Paramètres entreprise: effectif=250, accord_entreprise_heures_cse=false", self.test_results["company_settings"]["failed"] == 0)
         ]
         
         for criterion, met in success_criteria:
             status = "✅" if met else "❌"
             print(f"   {status} {criterion}")
         
-        # Focus sur les fonctionnalités critiques
-        print(f"\n🎯 FONCTIONNALITÉS CRITIQUES:")
-        auth_success = self.test_results["authentication"]["failed"] == 0
-        crud_success = (self.test_results["get_endpoints"]["failed"] == 0 and 
-                       self.test_results["post_endpoints"]["failed"] == 0 and
-                       self.test_results["delete_endpoints"]["failed"] == 0 and
-                       self.test_results["put_endpoints"]["failed"] == 0)
-        persistence_success = self.test_results["data_persistence"]["failed"] == 0
+        # Focus sur les fonctionnalités critiques CSE
+        print(f"\n🎯 FONCTIONNALITÉS CRITIQUES CSE:")
+        delegates_success = self.test_results["cse_delegates"]["failed"] == 0
+        cessions_success = (self.test_results["cse_cessions_internal"]["failed"] == 0 and 
+                           self.test_results["cse_cessions_external"]["failed"] == 0 and
+                           self.test_results["cse_cessions_list"]["failed"] == 0)
+        settings_success = self.test_results["company_settings"]["failed"] == 0
         
-        print(f"   {'✅' if auth_success else '❌'} AUTHENTICATION - Sécurité des endpoints")
-        print(f"   {'✅' if crud_success else '❌'} CRUD OPERATIONS - Opérations complètes")
-        print(f"   {'✅' if persistence_success else '❌'} DATA PERSISTENCE - Persistance MongoDB")
+        print(f"   {'✅' if delegates_success else '❌'} MEMBRES CSE - Gestion des délégués")
+        print(f"   {'✅' if cessions_success else '❌'} CESSIONS D'HEURES - Internes et externes")
+        print(f"   {'✅' if settings_success else '❌'} PARAMÈTRES ENTREPRISE - Configuration")
         
-        critical_success = auth_success and crud_success and persistence_success
-        print(f"\n🏆 API ON-CALL SCHEDULE: {'✅ PRODUCTION-READY' if critical_success else '❌ NÉCESSITE CORRECTIONS'}")
+        # Focus spécial sur la fonctionnalité PRIORITAIRE
+        external_cessions_success = self.test_results["cse_cessions_external"]["failed"] == 0
+        print(f"\n🌟 FONCTIONNALITÉ PRIORITAIRE:")
+        print(f"   {'✅' if external_cessions_success else '❌'} CESSIONS VERS PERSONNES EXTERNES - to_id='external' + nom libre")
+        
+        critical_success = delegates_success and cessions_success and settings_success
+        print(f"\n🏆 MODULE CSE: {'✅ PRODUCTION-READY' if critical_success else '❌ NÉCESSITE CORRECTIONS'}")
         
         return critical_success
 
