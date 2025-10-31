@@ -130,13 +130,13 @@ const CSEManagementNew = ({ user }) => {
       } else {
         console.log('🔵 Mode membre CSE, vérification membre...');
         // Membre CSE - vérifier qu'il existe
-        const beneficiaire = [...titulaires, ...suppleants].find(m => m.id === cessionData.to_id);
+        const beneficiaire = [...titulaires, ...suppleants].find(m => m.user_id === cessionData.to_id);
         if (!beneficiaire) {
           console.error('❌ Bénéficiaire CSE non trouvé');
           showMessage('Bénéficiaire non trouvé', 'error');
           return;
         }
-        console.log('✅ Bénéficiaire CSE trouvé:', beneficiaire.name);
+        console.log('✅ Bénéficiaire CSE trouvé:', beneficiaire.user_name);
 
         // Validation limite 1.5x (seulement pour membres CSE)
         const beneficiaireBalance = calculateBalance(beneficiaire.user_id);
