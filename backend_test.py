@@ -120,45 +120,50 @@ class OnCallScheduleAPITester:
             print(f"❌ Authentication error: {str(e)}")
             return False
 
-    def test_phase1_secret_key_validation(self):
-        """PHASE 1: SECRET_KEY Validation - Verify backend started with secure SECRET_KEY"""
-        print(f"\n🔐 PHASE 1 - SECRET_KEY VALIDATION")
+    def test_authentication_requirements(self):
+        """Test that all on-call endpoints require authentication"""
+        print(f"\n🔐 AUTHENTICATION REQUIREMENTS")
         print("=" * 60)
         
-        try:
-            # Test 1: Backend should be running (if SECRET_KEY is valid)
-            response = requests.get(f"{BACKEND_URL}/")
-            
-            if response.status_code == 200:
-                print(f"✅ Backend started successfully with SECRET_KEY")
-                self.log_result("phase1_secret_key", "Backend started with SECRET_KEY", True, 
-                               "Backend is running, indicating SECRET_KEY is properly configured")
-            else:
-                self.log_result("phase1_secret_key", "Backend started with SECRET_KEY", False, 
-                               f"Backend not responding: {response.status_code}")
-            
-            # Test 2: JWT tokens should be properly signed
-            login_response = requests.post(f"{BACKEND_URL}/auth/login", json={
-                "email": ADMIN_EMAIL,
-                "password": ADMIN_PASSWORD
+        # Test endpoints without authentication
+        endpoints_to_test = [
+            ("GET", "/on-call/schedule", {}),
+            ("GET", "/on-call/assignments?startDate=2025-01-01&endDate=2025-01-31", {}),
+            ("POST", "/on-call/schedule", {
+                "employee_id": "test-id",
+                "employee_name": "Test User",
+                "date": "2025-01-15",
+                "type": "Astreinte semaine",
+                "notes": "Test"
+            }),
+            ("POST", "/on-call/schedule/bulk", {
+                "schedules": [{
+                    "employee_id": "test-id",
+                    "employee_name": "Test User", 
+                    "date": "2025-01-15",
+                    "type": "Astreinte semaine",
+                    "notes": "Test"
+                }]
             })
-            
-            if login_response.status_code == 200:
-                data = login_response.json()
-                token = data.get("token")
-                if token and len(token) > 50:  # JWT tokens are typically long
-                    print(f"✅ JWT token properly generated and signed")
-                    self.log_result("phase1_secret_key", "JWT tokens properly signed", True, 
-                                   f"Token generated: {token[:20]}...")
+        ]
+        
+        for method, endpoint, data in endpoints_to_test:
+            try:
+                if method == "GET":
+                    response = requests.get(f"{BACKEND_URL}{endpoint}")
                 else:
-                    self.log_result("phase1_secret_key", "JWT tokens properly signed", False, 
-                                   "Token missing or invalid format")
-            else:
-                self.log_result("phase1_secret_key", "JWT tokens properly signed", False, 
-                               f"Login failed: {login_response.status_code}")
+                    response = requests.post(f"{BACKEND_URL}{endpoint}", json=data)
                 
-        except Exception as e:
-            self.log_result("phase1_secret_key", "SECRET_KEY validation", False, f"Exception: {str(e)}")
+                if response.status_code in [401, 403]:
+                    print(f"✅ {method} {endpoint} requires authentication ({response.status_code})")
+                    self.log_result("authentication", f"{method} {endpoint} auth required", True,
+                                   f"Properly rejected with {response.status_code}")
+                else:
+                    self.log_result("authentication", f"{method} {endpoint} auth required", False,
+                                   f"Expected 401/403, got {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("authentication", f"{method} {endpoint} auth test", False, f"Exception: {str(e)}")
 
     def test_phase2_pydantic_validation(self):
         """PHASE 2: Strict Pydantic Validation - Test all validation rules"""
