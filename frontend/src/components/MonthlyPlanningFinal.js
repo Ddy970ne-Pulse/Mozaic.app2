@@ -329,7 +329,8 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
           }
           
           console.log('🔔 Astreintes chargées:', assignments.length, 'jours pour', Object.keys(onCallMap).length, 'employés');
-          console.log('📊 Détails onCallMap:', onCallMap);
+          console.log('📊 IDs des employés avec astreintes:', Object.keys(onCallMap));
+          console.log('📊 Exemple de données pour premier employé:', Object.values(onCallMap)[0]);
           setOnCallData(onCallMap);
         } else {
           console.warn('Aucune astreinte trouvée pour cette période');
