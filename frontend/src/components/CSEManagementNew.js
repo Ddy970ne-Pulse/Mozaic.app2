@@ -295,16 +295,16 @@ const CSEManagementNew = ({ user }) => {
                 {titulaires.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {titulaires.map(member => {
-                      const balance = calculateBalance(member.id);
+                      const balance = calculateBalance(member.user_id);
                       return (
-                        <div key={member.id} className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-lg p-4">
+                        <div key={member.user_id} className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-lg p-4">
                           <div className="flex items-center gap-3 mb-3">
                             <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                              {member.name.split(' ').map(n => n[0]).join('')}
+                              {member.user_name.split(' ').map(n => n[0]).join('')}
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-800">{member.name}</p>
-                              <p className="text-sm text-gray-600">{member.department || 'N/A'}</p>
+                              <p className="font-semibold text-gray-800">{member.user_name}</p>
+                              <p className="text-sm text-gray-600">{member.college || 'N/A'}</p>
                             </div>
                           </div>
                           <div className="space-y-1 text-sm">
