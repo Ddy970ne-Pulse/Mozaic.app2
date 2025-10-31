@@ -345,6 +345,7 @@ const EmployeeSpaceV2 = ({ user, onChangeView }) => {
           <div className="flex gap-2 p-2">
             {[
               { id: 'profile', label: '👤 Profil', icon: '👤' },
+              { id: 'soldes', label: '💰 Soldes', icon: '💰' },
               { id: 'absences', label: '📅 Mes Absences', icon: '📅' },
               { id: 'overtime', label: '⏰ Heures Sup', icon: '⏰' },
               { id: 'requests', label: '📝 Mes Demandes', icon: '📝' }
