@@ -6579,6 +6579,10 @@ app.include_router(websocket_router, tags=["WebSocket"])
 from api_leave_balance import router as leave_balance_router
 app.include_router(leave_balance_router)
 
+# 📅 ON-CALL SCHEDULE: Include on-call schedule management router
+from api_on_call import router as on_call_router
+app.include_router(on_call_router)
+
 # 🛡️ SECURITY: CORS Configuration
 # Read allowed origins from environment variable
 cors_origins_str = os.environ.get('CORS_ORIGINS', '')
