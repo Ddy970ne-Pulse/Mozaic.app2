@@ -115,36 +115,34 @@ const OnCallSchedule = ({ user }) => {
 
   // Obtenir tous les jours à afficher (semaines complètes)
   const getCalendarDays = () => {
-    const firstDayOfMonth = new Date(selectedYear, selectedMonth, 1);
-    const lastDayOfMonth = new Date(selectedYear, selectedMonth + 1, 0);
+    const firstDayOfMonth = new Date(selectedYear, selectedMonth, 1, 12, 0, 0);
+    const lastDayOfMonth = new Date(selectedYear, selectedMonth + 1, 0, 12, 0, 0);
     
     // Jour de la semaine du 1er du mois (0 = dimanche)
     const startDayOfWeek = firstDayOfMonth.getDay();
     
-    // Début: aller au dimanche précédent si le mois ne commence pas un dimanche
-    const startDate = new Date(firstDayOfMonth);
-    startDate.setDate(firstDayOfMonth.getDate() - startDayOfWeek);
+    // Calculer la date de début (dimanche de la première semaine)
+    const startTimestamp = firstDayOfMonth.getTime() - (startDayOfWeek * 24 * 60 * 60 * 1000);
     
-    // Fin: aller au samedi suivant
-    const endDate = new Date(lastDayOfMonth);
+    // Jour de la semaine du dernier jour du mois
     const endDayOfWeek = lastDayOfMonth.getDay();
     const daysToAdd = endDayOfWeek === 6 ? 0 : (6 - endDayOfWeek);
-    endDate.setDate(lastDayOfMonth.getDate() + daysToAdd);
+    const endTimestamp = lastDayOfMonth.getTime() + (daysToAdd * 24 * 60 * 60 * 1000);
     
-    // Générer tous les jours
+    // Générer tous les jours en utilisant les timestamps
     const days = [];
-    const currentDate = new Date(startDate);
-    while (currentDate <= endDate) {
-      // Créer une vraie copie de la date pour éviter les problèmes de référence
-      const dateForDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 12, 0, 0);
+    let currentTimestamp = startTimestamp;
+    
+    while (currentTimestamp <= endTimestamp) {
+      const currentDate = new Date(currentTimestamp);
       days.push({
-        date: dateForDay,
+        date: currentDate,
         day: currentDate.getDate(),
         month: currentDate.getMonth(),
         year: currentDate.getFullYear(),
         isCurrentMonth: currentDate.getMonth() === selectedMonth
       });
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentTimestamp += 24 * 60 * 60 * 1000; // Ajouter un jour
     }
     
     return days;
