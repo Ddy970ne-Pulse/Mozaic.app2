@@ -107,7 +107,7 @@ const CSEManagementNew = ({ user }) => {
     
     try {
       // Validations
-      const cedant = titulaires.find(t => t.id === cessionData.from_id);
+      const cedant = titulaires.find(t => t.user_id === cessionData.from_id);
       
       if (!cedant) {
         console.error('❌ Cédant non trouvé');
@@ -115,7 +115,7 @@ const CSEManagementNew = ({ user }) => {
         return;
       }
       
-      console.log('✅ Cédant trouvé:', cedant.name);
+      console.log('✅ Cédant trouvé:', cedant.user_name);
 
       // Validation bénéficiaire
       if (cessionData.is_external) {
