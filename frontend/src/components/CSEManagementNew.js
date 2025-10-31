@@ -37,25 +37,27 @@ const CSEManagementNew = ({ user }) => {
       const token = localStorage.getItem('token');
       const headers = { 'Authorization': `Bearer ${token}` };
 
-      // 1. Charger tous les utilisateurs
-      const usersResponse = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/users`,
+      // 1. Charger les délégués CSE (avec heures mensuelles)
+      const delegatesResponse = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/cse/delegates`,
         { headers }
       );
-      const users = await usersResponse.json();
+      const delegatesData = await delegatesResponse.json();
+      
+      console.log('🏛️ Délégués CSE chargés:', delegatesData);
+      
+      setDelegates(delegatesData);
 
-      // 2. Filtrer les membres CSE automatiquement
-      const cseMembers = users.filter(u => 
-        u.statut_cse === 'Titulaire' || u.statut_cse === 'Suppléant'
-      );
+      // 2. Séparer titulaires et suppléants
+      const tit = delegatesData.filter(d => d.statut && d.statut.toLowerCase() === 'titulaire');
+      const sup = delegatesData.filter(d => d.statut && d.statut.toLowerCase() === 'suppléant');
 
-      const tit = cseMembers.filter(m => m.statut_cse === 'Titulaire');
-      const sup = cseMembers.filter(m => m.statut_cse === 'Suppléant');
+      console.log(`👥 Titulaires: ${tit.length}, 🔄 Suppléants: ${sup.length}`);
 
       setTitulaires(tit);
       setSuppleants(sup);
 
-      // 3. Charger les cessions (si endpoint existe)
+      // 3. Charger les cessions
       try {
         const cessionsResponse = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/cse/cessions`,
