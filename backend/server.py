@@ -5419,6 +5419,113 @@ async def cleanup_delegation_test_data(current_user: User = Depends(require_admi
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
 # ========================================
+# PARAMÈTRES D'ENTREPRISE (EFFECTIF CSE)
+# ========================================
+
+@api_router.get("/company-settings")
+async def get_company_settings(current_user: User = Depends(get_current_user)):
+    """Récupérer les paramètres de l'entreprise"""
+    try:
+        settings = await db.company_settings.find_one({})
+        
+        if not settings:
+            # Créer les paramètres par défaut
+            default_settings = CompanySettings(
+                effectif=250,
+                nom_entreprise="MOZAIK RH",
+                accord_entreprise_heures_cse=False
+            )
+            await db.company_settings.insert_one(default_settings.dict())
+            settings = default_settings.dict()
+        
+        return settings
+    except Exception as e:
+        logger.error(f"Erreur récupération paramètres: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@api_router.put("/company-settings")
+async def update_company_settings(
+    effectif: Optional[int] = None,
+    nom_entreprise: Optional[str] = None,
+    secteur_activite: Optional[str] = None,
+    convention_collective: Optional[str] = None,
+    accord_entreprise_heures_cse: Optional[bool] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Mettre à jour les paramètres de l'entreprise (admin uniquement)"""
+    if current_user.role not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Accès refusé - admin uniquement")
+    
+    try:
+        # Récupérer les paramètres existants
+        settings = await db.company_settings.find_one({})
+        
+        if not settings:
+            # Créer si n'existe pas
+            new_settings = CompanySettings(
+                effectif=effectif or 250,
+                nom_entreprise=nom_entreprise or "MOZAIK RH",
+                secteur_activite=secteur_activite,
+                convention_collective=convention_collective,
+                accord_entreprise_heures_cse=accord_entreprise_heures_cse or False,
+                updated_by=current_user.name
+            )
+            await db.company_settings.insert_one(new_settings.dict())
+            
+            logger.info(f"✅ Paramètres entreprise créés: effectif={effectif}")
+            return {"message": "Paramètres créés", "settings": new_settings.dict()}
+        
+        # Mettre à jour
+        update_data = {
+            "updated_at": datetime.utcnow(),
+            "updated_by": current_user.name
+        }
+        
+        if effectif is not None:
+            update_data["effectif"] = effectif
+            logger.info(f"🔄 Mise à jour effectif entreprise: {effectif}")
+        if nom_entreprise is not None:
+            update_data["nom_entreprise"] = nom_entreprise
+        if secteur_activite is not None:
+            update_data["secteur_activite"] = secteur_activite
+        if convention_collective is not None:
+            update_data["convention_collective"] = convention_collective
+        if accord_entreprise_heures_cse is not None:
+            update_data["accord_entreprise_heures_cse"] = accord_entreprise_heures_cse
+        
+        await db.company_settings.update_one({}, {"$set": update_data})
+        
+        # Si l'effectif a changé, recalculer les heures des délégués
+        if effectif is not None and not update_data.get("accord_entreprise_heures_cse", False):
+            delegates = await db.cse_delegates.find().to_list(length=100)
+            updated_count = 0
+            
+            for delegate in delegates:
+                nouvelles_heures = calculer_heures_delegation_reglementaires(
+                    effectif,
+                    delegate.get('statut', 'Titulaire')
+                )
+                
+                await db.cse_delegates.update_one(
+                    {"id": delegate["id"]},
+                    {"$set": {"heures_mensuelles": nouvelles_heures}}
+                )
+                updated_count += 1
+                logger.info(f"✅ Heures mises à jour pour {delegate['user_name']}: {nouvelles_heures}h/mois")
+            
+            return {
+                "message": "Paramètres mis à jour et heures délégués recalculées",
+                "delegates_updated": updated_count,
+                "new_effectif": effectif
+            }
+        
+        return {"message": "Paramètres mis à jour", "effectif": effectif}
+        
+    except Exception as e:
+        logger.error(f"Erreur mise à jour paramètres: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+# ========================================
 # HEURES DE DÉLÉGATION - DÉCLARATION ET PRISE DE CONNAISSANCE
 # ========================================
 
