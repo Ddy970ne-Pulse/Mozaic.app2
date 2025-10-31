@@ -3288,40 +3288,41 @@ async def get_on_call_employees(current_user: User = Depends(get_current_user)):
         print(f"Error getting on-call employees: {e}")
         return []  # Return empty list if no data yet
 
-@api_router.get("/on-call/assignments", response_model=List[OnCallAssignment])
-async def get_on_call_assignments(
-    month: Optional[int] = None, 
-    year: Optional[int] = None,
-    current_user: User = Depends(get_current_user)
-):
-    """Récupérer les assignations d'astreinte pour une période donnée"""
-    # Get on-call assignments from database
-    try:
-        query = {}
-        assignments = await db.on_call_assignments.find(query).to_list(1000)
-        
-        # Convert ObjectIds to strings for JSON serialization
-        for assignment in assignments:
-            if "_id" in assignment:
-                del assignment["_id"]
-        
-        # Convert to OnCallAssignment objects
-        assignment_objects = [OnCallAssignment(**assignment) for assignment in assignments]
-        
-        # Filter by month/year if specified
-        if month is not None and year is not None:
-            filtered_assignments = []
-            for assignment in assignment_objects:
-                assignment_date = datetime.fromisoformat(assignment.startDate.replace('Z', '+00:00'))
-                if assignment_date.month == month and assignment_date.year == year:
-                    filtered_assignments.append(assignment)
-            return filtered_assignments
-        
-        return assignment_objects
-        
-    except Exception as e:
-        print(f"Error getting on-call assignments: {e}")
-        return []  # Return empty list if no data yet
+# ❌ ANCIEN ENDPOINT DÉSACTIVÉ - Remplacé par api_on_call.py
+# @api_router.get("/on-call/assignments", response_model=List[OnCallAssignment])
+# async def get_on_call_assignments(
+#     month: Optional[int] = None, 
+#     year: Optional[int] = None,
+#     current_user: User = Depends(get_current_user)
+# ):
+#     """Récupérer les assignations d'astreinte pour une période donnée"""
+#     # Get on-call assignments from database
+#     try:
+#         query = {}
+#         assignments = await db.on_call_assignments.find(query).to_list(1000)
+#         
+#         # Convert ObjectIds to strings for JSON serialization
+#         for assignment in assignments:
+#             if "_id" in assignment:
+#                 del assignment["_id"]
+#         
+#         # Convert to OnCallAssignment objects
+#         assignment_objects = [OnCallAssignment(**assignment) for assignment in assignments]
+#         
+#         # Filter by month/year if specified
+#         if month is not None and year is not None:
+#             filtered_assignments = []
+#             for assignment in assignment_objects:
+#                 assignment_date = datetime.fromisoformat(assignment.startDate.replace('Z', '+00:00'))
+#                 if assignment_date.month == month and assignment_date.year == year:
+#                     filtered_assignments.append(assignment)
+#             return filtered_assignments
+#         
+#         return assignment_objects
+#         
+#     except Exception as e:
+#         print(f"Error getting on-call assignments: {e}")
+#         return []  # Return empty list if no data yet
 
 @api_router.post("/on-call/assignments", response_model=OnCallAssignment)
 async def create_on_call_assignment(
