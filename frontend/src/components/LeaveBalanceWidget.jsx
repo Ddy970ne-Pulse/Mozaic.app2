@@ -226,7 +226,7 @@ const LeaveBalanceWidget = ({ employeeId, compact = false }) => {
   const displayTypes = Object.entries(balances.balances)
     .filter(([type, balance]) => 
       ['CA', 'CP', 'RTT', 'REC', 'CT', 'CEX'].includes(type) && 
-      (balance > 0 || ['CA', 'CP', 'RTT'].includes(type))
+      (balance > 0 || ['CA', 'RTT', 'CT'].includes(type))  // Toujours afficher CA, RTT et CT
     )
     .map(([type, balance]) => ({
       type,
