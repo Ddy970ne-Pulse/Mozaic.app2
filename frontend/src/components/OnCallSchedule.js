@@ -135,8 +135,10 @@ const OnCallSchedule = ({ user }) => {
     const days = [];
     const currentDate = new Date(startDate);
     while (currentDate <= endDate) {
+      // Créer une vraie copie de la date pour éviter les problèmes de référence
+      const dateForDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 12, 0, 0);
       days.push({
-        date: new Date(currentDate),
+        date: dateForDay,
         day: currentDate.getDate(),
         month: currentDate.getMonth(),
         year: currentDate.getFullYear(),
