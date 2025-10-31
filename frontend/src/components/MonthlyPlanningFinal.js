@@ -2708,83 +2708,8 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
       {/* Barre d'outils d'ajout d'absence (Admin uniquement) */}
       {user?.role === 'admin' && (
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-purple-200">
-          {/* Ligne 1: Modes principaux */}
+          {/* Ligne 1: Actions rapides */}
           <div className="flex flex-wrap items-center gap-3 mb-3">
-            {/* Bouton Multi-Sélection */}
-            <button
-              onClick={() => {
-                setMultiSelectMode(!multiSelectMode);
-                if (!multiSelectMode) {
-                  clearEmployeeSelection();
-                }
-              }}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                multiSelectMode
-                  ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {multiSelectMode ? `✓ Multi (${selectedEmployees.length})` : '👥 Multi-Sélection'}
-            </button>
-
-            {/* Bouton Templates */}
-            <div className="relative">
-              <button
-                onClick={() => setSelectedTemplate(selectedTemplate ? null : 'show')}
-                className="px-4 py-2 rounded-lg font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-lg transition-all duration-200"
-              >
-                📚 Templates ({templates.length})
-              </button>
-
-              {selectedTemplate && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-30 min-w-[300px] max-h-[400px] overflow-y-auto">
-                  <h4 className="font-semibold text-gray-800 mb-3">Templates d'absence</h4>
-                  
-                  {templates.length === 0 ? (
-                    <p className="text-sm text-gray-500 italic">Aucun template sauvegardé</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {templates.map(template => (
-                        <div key={template.id} className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50">
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h5 className="font-semibold text-sm">{template.name}</h5>
-                              <p className="text-xs text-gray-600">
-                                {absenceColorMap[template.type]?.name} - {template.duration} jour(s)
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => deleteTemplate(template.id)}
-                              className="text-red-500 hover:text-red-700 text-xs"
-                              title="Supprimer"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                          <button
-                            onClick={() => applyTemplate(template)}
-                            className="w-full px-3 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700"
-                          >
-                            Appliquer
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <button
-                    onClick={() => {
-                      setSelectedTemplate(null);
-                      saveAsTemplate();
-                    }}
-                    className="w-full mt-3 px-3 py-2 border-2 border-dashed border-green-400 text-green-600 rounded-lg hover:bg-green-50 text-sm font-medium"
-                  >
-                    ➕ Créer nouveau template
-                  </button>
-                </div>
-              )}
-            </div>
-
             {/* Indicateur Copier-Coller */}
             {showPasteIndicator && (
               <div className="flex items-center gap-2 px-4 py-2 bg-yellow-100 border border-yellow-300 rounded-lg">
