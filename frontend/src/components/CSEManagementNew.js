@@ -213,8 +213,8 @@ const CSEManagementNew = ({ user }) => {
       }
 
     } catch (error) {
-      console.error('Erreur soumission cession:', error);
-      showMessage('Erreur lors de la soumission', 'error');
+      console.error('❌ Erreur lors de la création de la cession:', error);
+      showMessage(`Erreur lors de la création de la cession: ${error.message}`, 'error');
     }
   };
 
