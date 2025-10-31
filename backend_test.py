@@ -135,50 +135,85 @@ class CSEModuleTester:
             print(f"❌ Authentication error: {str(e)}")
             return False
 
-    def test_authentication_requirements(self):
-        """Test that all on-call endpoints require authentication"""
-        print(f"\n🔐 AUTHENTICATION REQUIREMENTS")
+    def test_cse_delegates(self):
+        """Test 1: Vérification Membres CSE - GET /api/cse/delegates"""
+        print(f"\n👥 TEST 1: VÉRIFICATION MEMBRES CSE")
         print("=" * 60)
         
-        # Test endpoints without authentication
-        endpoints_to_test = [
-            ("GET", "/on-call/schedule", {}),
-            ("GET", "/on-call/assignments?startDate=2025-01-01&endDate=2025-01-31", {}),
-            ("POST", "/on-call/schedule", {
-                "employee_id": "test-id",
-                "employee_name": "Test User",
-                "date": "2025-01-15",
-                "type": "Astreinte semaine",
-                "notes": "Test"
-            }),
-            ("POST", "/on-call/schedule/bulk", {
-                "schedules": [{
-                    "employee_id": "test-id",
-                    "employee_name": "Test User", 
-                    "date": "2025-01-15",
-                    "type": "Astreinte semaine",
-                    "notes": "Test"
-                }]
-            })
-        ]
-        
-        for method, endpoint, data in endpoints_to_test:
-            try:
-                if method == "GET":
-                    response = requests.get(f"{BACKEND_URL}{endpoint}")
-                else:
-                    response = requests.post(f"{BACKEND_URL}{endpoint}", json=data)
+        try:
+            response = self.session.get(f"{BACKEND_URL}/cse/delegates")
+            
+            if response.status_code == 200:
+                delegates = response.json()
+                print(f"✅ GET /api/cse/delegates successful (200) - Found {len(delegates)} delegates")
                 
-                if response.status_code in [401, 403]:
-                    print(f"✅ {method} {endpoint} requires authentication ({response.status_code})")
-                    self.log_result("authentication", f"{method} {endpoint} auth required", True,
-                                   f"Properly rejected with {response.status_code}")
+                # Vérifier le nombre de délégués (4 attendus)
+                if len(delegates) == 4:
+                    self.log_result("cse_delegates", "Nombre de délégués correct", True,
+                                   f"4 délégués trouvés comme attendu")
                 else:
-                    self.log_result("authentication", f"{method} {endpoint} auth required", False,
-                                   f"Expected 401/403, got {response.status_code}")
+                    self.log_result("cse_delegates", "Nombre de délégués correct", False,
+                                   f"Attendu: 4 délégués, Trouvé: {len(delegates)}")
+                
+                # Vérifier les délégués spécifiques
+                found_delegates = []
+                titulaires_count = 0
+                suppleants_count = 0
+                
+                for delegate in delegates:
+                    name = delegate.get("user_name", "")
+                    statut = delegate.get("statut", "")
+                    heures = delegate.get("heures_mensuelles", 0)
                     
-            except Exception as e:
-                self.log_result("authentication", f"{method} {endpoint} auth test", False, f"Exception: {str(e)}")
+                    found_delegates.append({
+                        "name": name,
+                        "statut": statut,
+                        "heures": heures
+                    })
+                    
+                    if statut.lower() == "titulaire":
+                        titulaires_count += 1
+                    elif statut.lower() == "suppléant":
+                        suppleants_count += 1
+                
+                print(f"📊 Délégués trouvés:")
+                for delegate in found_delegates:
+                    print(f"   - {delegate['name']}: {delegate['statut']} - {delegate['heures']}h/mois")
+                
+                # Vérifier les statuts (3 titulaires, 1 suppléant)
+                if titulaires_count == 3 and suppleants_count == 1:
+                    self.log_result("cse_delegates", "Statuts délégués corrects", True,
+                                   f"3 titulaires et 1 suppléant trouvés")
+                else:
+                    self.log_result("cse_delegates", "Statuts délégués corrects", False,
+                                   f"Attendu: 3 titulaires + 1 suppléant, Trouvé: {titulaires_count} titulaires + {suppleants_count} suppléants")
+                
+                # Vérifier les heures mensuelles (titulaires = 22h, suppléants = 0h)
+                heures_correctes = True
+                for delegate in delegates:
+                    statut = delegate.get("statut", "").lower()
+                    heures = delegate.get("heures_mensuelles", 0)
+                    
+                    if statut == "titulaire" and heures != 22:
+                        heures_correctes = False
+                        print(f"❌ {delegate.get('user_name')}: Titulaire devrait avoir 22h, a {heures}h")
+                    elif statut == "suppléant" and heures != 0:
+                        heures_correctes = False
+                        print(f"❌ {delegate.get('user_name')}: Suppléant devrait avoir 0h, a {heures}h")
+                
+                if heures_correctes:
+                    self.log_result("cse_delegates", "Heures mensuelles correctes", True,
+                                   "Toutes les heures mensuelles sont correctes")
+                else:
+                    self.log_result("cse_delegates", "Heures mensuelles correctes", False,
+                                   "Certaines heures mensuelles sont incorrectes")
+                
+            else:
+                self.log_result("cse_delegates", "GET cse/delegates", False,
+                               f"Expected 200, got {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_result("cse_delegates", "GET cse/delegates", False, f"Exception: {str(e)}")
 
     def test_get_endpoints(self):
         """Test GET endpoints for on-call schedules"""
