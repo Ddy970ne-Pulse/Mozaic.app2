@@ -648,7 +648,7 @@ class CSEModuleTester:
 
 def main():
     """Point d'entrée principal"""
-    tester = OnCallScheduleAPITester()
+    tester = CSEModuleTester()
     success = tester.run_all_tests()
     
     # Code de sortie
