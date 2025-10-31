@@ -1323,6 +1323,18 @@ test_plan:
         comment: "HEADER BUTTON HARMONIZATION COMPREHENSIVE TESTING COMPLETED ✅ Successfully completed comprehensive testing of MOZAIK RH header action button harmonization as requested in French review. ALL CRITICAL OBJECTIVES VERIFIED: 1) LOGIN & AUTHENTICATION: ✅ Login with sophie.martin@company.com / demo123 working perfectly, dashboard loads correctly with 'Tableau de Bord' interface, 2) HAMBURGER MENU BUTTON: ✅ Found with blue → indigo gradient (from-blue-500 to-indigo-600) as specified, has rounded-xl corners and shadow-lg effects, hover effects working perfectly, 3) MOZAIK LOGO: ✅ Found with orange → pink → purple gradient (from-orange-400 via-pink-500 to-purple-600) as specified, has rounded-xl corners and shadow-lg effects, hover scale animation working, 4) NOTIFICATIONS BUTTON: ✅ Found with yellow → orange gradient (from-yellow-400 to-orange-500) as specified, has rounded-xl corners and shadow-lg effects, hover effects working, 5) SETTINGS BUTTON: ✅ Found with purple → indigo gradient (from-purple-500 to-indigo-600) as specified, has rounded-xl corners and shadow-lg effects, hover effects working, 6) LOGOUT BUTTON: ✅ Found with red → pink gradient (from-red-500 to-pink-600) as specified, has rounded-xl corners and shadow-lg effects, hover effects working, 7) STYLISTIC CONSISTENCY: ✅ All 4/4 action buttons have consistent styling with bg-gradient-to-br, rounded-xl, shadow-lg, and transition-all duration-200, 8) RESPONSIVE DESIGN: ✅ Tested across Desktop (1920x1080), Tablet (768x1024), and Mobile (390x844) - all 5/5 harmonized elements visible and functional on all screen sizes, 9) VISUAL EFFECTS: ✅ All buttons have proper shadow-lg effects, rounded-xl corners, smooth hover transitions, and white icons on colored backgrounds, 10) HAMBURGER MENU FUNCTIONALITY: ✅ Menu opens/closes correctly with backdrop overlay, all navigation tiles functional. HARMONIZATION SUCCESS RATE: 100% (5/5 elements properly harmonized). All header action buttons successfully harmonized with established style guidelines. No critical issues found. Feature is production-ready and meets all specified requirements from the French review request."
 
 frontend:
+  - task: "On-Call Schedule (Planning Astreintes) Frontend Integration Testing"
+    implemented: true
+    working: "NA"
+    file: "OnCallSchedule.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "COMPREHENSIVE FRONTEND TESTING STARTED: Testing On-Call Schedule (Planning Astreintes) frontend integration for MOZAIK RH. Backend API implemented and tested (95.2% success). Critical fix implemented: weeks now start on Sunday and end on Saturday (dimanche → samedi). Testing with Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123). TESTS TO PERFORM: 1) Login and navigation to Planning Astreintes, 2) Calendar display verification (Sunday first, full weeks), 3) Week creation test (CRITICAL - Sunday start), 4) Single day creation test, 5) Data persistence test, 6) Employee color codes, 7) Delete functionality (admin only), 8) Month navigation, 9) API integration verification. SUCCESS CRITERIA: Login working, calendar displays correctly with Sunday first, week creation starts on SUNDAY regardless of selected date, creates exactly 7 days (Sunday → Saturday), single day creation works, data persists after reload, employee color codes displayed, delete functionality works, month navigation functional, API calls successful (no 404 errors), no JavaScript errors."
+
   - task: "CP → CA Migration Complete Implementation"
     implemented: false
     working: false
