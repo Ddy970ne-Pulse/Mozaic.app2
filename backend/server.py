@@ -5436,9 +5436,14 @@ async def get_company_settings(current_user: User = Depends(get_current_user)):
                 nom_entreprise="MOZAIK RH",
                 accord_entreprise_heures_cse=False
             )
-            await db.company_settings.insert_one(default_settings.dict())
-            settings = default_settings.dict()
+            settings_dict = default_settings.dict()
+            await db.company_settings.insert_one(settings_dict)
+            # Retirer _id avant de retourner
+            settings_dict.pop('_id', None)
+            return settings_dict
         
+        # Retirer _id de MongoDB avant de retourner
+        settings.pop('_id', None)
         return settings
     except Exception as e:
         logger.error(f"Erreur récupération paramètres: {str(e)}")
