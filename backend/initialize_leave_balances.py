@@ -15,7 +15,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # MongoDB connection
-MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017/test_database")
+MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+DB_NAME = os.getenv("DB_NAME", "test_database")
 
 async def calculate_ccn66_balances(user):
     """
