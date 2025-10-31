@@ -45,6 +45,7 @@ const SettingsPage = ({ user }) => {
     { id: 'profile', name: 'Profil', icon: '👤', color: 'from-blue-500 to-blue-600' },
     { id: 'notifications', name: 'Notifications', icon: '🔔', color: 'from-green-500 to-green-600' },
     { id: 'display', name: 'Affichage', icon: '🎨', color: 'from-purple-500 to-purple-600' },
+    { id: 'theme', name: 'Thème & Couleurs', icon: '🌈', color: 'from-pink-500 to-purple-600' },
     { id: 'privacy', name: 'Confidentialité', icon: '🔒', color: 'from-orange-500 to-orange-600' },
     { id: 'security', name: 'Sécurité', icon: '🛡️', color: 'from-red-500 to-red-600' }
   ];
