@@ -47,45 +47,28 @@ async def get_leave_balance_service() -> LeaveBalanceService:
 # ENDPOINTS : Consultation des soldes
 # ============================================================================
 
-@router.get("", response_model=List[BalanceResponse])
+@router.get("")
 async def get_all_balances(
     fiscal_year: Optional[int] = None,
-    db = Depends(get_db),
-    current_user = Depends(get_current_user)
+    service: LeaveBalanceService = Depends(get_leave_balance_service)
 ):
     """
     📊 Récupère tous les soldes de congés
-    
-    **Permissions** : Tous les utilisateurs authentifiés
     
     **Query Params** :
     - fiscal_year (optionnel) : Année fiscale (défaut: année en cours)
     
     **Retourne** : Liste des soldes de tous les employés
     """
-    service = await get_leave_balance_service(db)
     balances = await service.get_all_balances(fiscal_year)
-    
-    return [
-        BalanceResponse(
-            user_id=b["user_id"],
-            ca_balance=b["ca_balance"],
-            rtt_balance=b["rtt_balance"],
-            ct_balance=b["ct_balance"],
-            rec_balance=b["rec_balance"],
-            last_updated=b["last_updated"],
-            fiscal_year=b["fiscal_year"]
-        )
-        for b in balances
-    ]
+    return {"balances": balances}
 
 
-@router.get("/{user_id}", response_model=BalanceResponse)
+@router.get("/{user_id}")
 async def get_user_balance(
     user_id: str,
     fiscal_year: Optional[int] = None,
-    db = Depends(get_db),
-    current_user = Depends(get_current_user)
+    service: LeaveBalanceService = Depends(get_leave_balance_service)
 ):
     """
     👤 Récupère le solde d'un employé spécifique
