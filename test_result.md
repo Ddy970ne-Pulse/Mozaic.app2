@@ -169,6 +169,10 @@ user_problem_statement: |
   10. Updated frontend OnCallSchedule.js to call backend API instead of local state
   11. Updated handleQuickAddSubmit to use POST /api/on-call/schedule/bulk
   12. Updated handleDelete to use DELETE /api/on-call/schedule/{schedule_id}
+  13. FIXED: Week logic to start on Sunday and end on Saturday (dimanche → samedi)
+      - When user selects a date for "semaine" type, automatically adjusts to start on the previous Sunday
+      - Creates 7 consecutive days from Sunday to Saturday
+      - Calendar display already shows weeks starting with Sunday (Dim, Lun, Mar, Mer, Jeu, Ven, Sam)
   
   DATA STRUCTURE:
   - id: UUID string
@@ -185,17 +189,19 @@ user_problem_statement: |
   - /app/backend/server.py (added router import and include)
   
   FRONTEND FILES MODIFIED:
-  - /app/frontend/src/components/OnCallSchedule.js (API integration)
+  - /app/frontend/src/components/OnCallSchedule.js (API integration + week logic fix)
   
-  TESTS TO PERFORM:
-  1. GET /api/on-call/schedule with month/year filtering
-  2. POST /api/on-call/schedule/bulk for week creation
-  3. DELETE /api/on-call/schedule/{id}
-  4. GET /api/on-call/assignments with date range
-  5. Verify MongoDB persistence
-  6. Test duplicate prevention
-  7. Test authentication requirement
-  8. Frontend integration: create, view, delete schedules
+  BACKEND TESTS COMPLETED: ✅ 95.2% success rate (20/21 tests passed)
+  
+  FRONTEND TESTS TO PERFORM:
+  1. Login as admin and navigate to Planning Astreintes
+  2. Test week creation: Select any date and verify astreinte starts on Sunday
+  3. Test single day creation
+  4. Verify calendar displays correctly with weeks starting on Sunday
+  5. Test delete functionality
+  6. Verify data persistence after page reload
+  7. Test employee color codes display
+  8. Verify full week display (including days from previous/next months)
   
   USER PRIORITIES:
   1. Test WebSocket real-time synchronization implementation (IMMEDIATE)
