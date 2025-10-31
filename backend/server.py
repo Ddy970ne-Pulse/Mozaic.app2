@@ -4705,9 +4705,9 @@ async def create_absence(request: Request, absence: Absence, current_user: User 
                         deduction_result = await leave_service.deduct_leave(
                             user_id=absence.employee_id,
                             leave_type=leave_type,
-                            amount=days,
-                            reason=f"Absence {absence_type}",
-                            absence_id=absence.id
+                            days=days,
+                            absence_id=absence.id,
+                            approved_by=absence_dict.get('approved_by') or current_user.id
                         )
                         
                         if deduction_result:
