@@ -1,33 +1,43 @@
 #!/usr/bin/env python3
 """
-COMPREHENSIVE ON-CALL SCHEDULE BACKEND API TESTING
+TEST COMPLET DU MODULE CSE - MEMBRES ET CESSION D'HEURES
 
-OBJECTIF: Test complet de l'API backend Planning Astreintes nouvellement implémentée pour MOZAIK RH
+OBJECTIF: Test exhaustif du module CSE selon la demande française spécifique
 USER ACCOUNT: Admin Diego DACALOR (ddacalor@aaea-gpe.fr / admin123)
+BACKEND URL: https://oncall-planner-2.preview.emergentagent.com/api
 
-API ENDPOINTS À TESTER:
-1. GET /api/on-call/schedule - Retrieve schedules with filtering
-2. POST /api/on-call/schedule/bulk - Create multiple schedules (week-long)
-3. GET /api/on-call/assignments - Date range filtering for Monthly Planning
-4. DELETE /api/on-call/schedule/{id} - Delete schedule
-5. PUT /api/on-call/schedule/{id} - Update schedule
+MEMBRES CSE À VÉRIFIER (base de données):
+1. Jacques EDAU - Titulaire - 22h/mois
+2. Thierry MARTIAS - Titulaire - 22h/mois  
+3. Jean-François BERNARD - Titulaire - 22h/mois
+4. Richard MANIOC - Suppléant - 0h/mois
 
-TESTS CRITIQUES:
-1. Authentication required for all endpoints (403 without token)
-2. Bulk creation creates multiple schedules correctly
-3. Duplicate prevention works (returns existing schedule)
-4. GET endpoints filter correctly by month/year and date range
-5. DELETE removes schedules permanently
-6. PUT updates schedules correctly
-7. MongoDB persistence verified (data survives operations)
-8. Proper error handling (404 for not found, 400 for validation errors)
+TESTS À EFFECTUER:
+### 1. Vérification Membres CSE
+- GET /api/cse/delegates
+- Vérifier 4 membres retournés avec heures correctes
+- Vérifier statuts (3 titulaires, 1 suppléant)
 
-EXPECTED OUTCOMES:
-- All endpoints respond with correct HTTP status codes
-- Authentication required for all endpoints (403/401 without token)
-- Data validation working (date format, type validation)
-- MongoDB persistence working correctly
-- Proper error responses for edge cases
+### 2. Test Cession vers Membre CSE (existant)
+- POST /api/cse/cessions
+- Vérifier statut 200/201 et cession créée
+
+### 3. Test Cession vers Personne Externe (NOUVEAU - PRIORITAIRE)
+- POST /api/cse/cessions avec to_id="external"
+- Vérifier acceptation sans validation de limite
+- Vérifier stockage correct du nom externe
+
+### 4. Vérification Liste Cessions
+- GET /api/cse/cessions
+- Vérifier les cessions créées apparaissent
+
+### 5. Paramètres Entreprise
+- GET /api/company-settings
+- Vérifier effectif = 250 salariés
+- Vérifier accord_entreprise_heures_cse = false
+
+FOCUS PRINCIPAL: Vérifier que la cession vers une personne externe (non enregistrée dans la base) 
+fonctionne correctement avec to_id="external" et to_name en texte libre.
 """
 
 import requests
