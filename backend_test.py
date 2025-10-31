@@ -789,7 +789,7 @@ class OnCallScheduleAPITester:
 
 def main():
     """Point d'entrée principal"""
-    tester = SecurityEnhancementsTester()
+    tester = OnCallScheduleAPITester()
     success = tester.run_all_tests()
     
     # Code de sortie
