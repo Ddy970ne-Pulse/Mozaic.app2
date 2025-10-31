@@ -454,7 +454,7 @@ class CSEModuleTester:
         except Exception as e:
             self.log_result("cse_cessions_list", "GET cse/cessions", False, f"Exception: {str(e)}")
 
-    def test_put_endpoints(self):
+    def test_company_settings(self):
         """Test PUT endpoints for updating on-call schedules"""
         print(f"\n✏️ PUT ENDPOINTS TESTING")
         print("=" * 60)
