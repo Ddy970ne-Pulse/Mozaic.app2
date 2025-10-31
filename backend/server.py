@@ -919,8 +919,9 @@ class CSECession(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     from_id: str  # ID du membre CSE cédant
     from_name: str  # Nom du cédant
-    to_id: str  # ID du bénéficiaire
+    to_id: str  # ID du bénéficiaire (ou 'external')
     to_name: str  # Nom du bénéficiaire
+    is_external: Optional[bool] = False  # True si bénéficiaire externe (non dans la base)
     hours: float  # Nombre d'heures cédées
     usage_date: str  # Date d'utilisation prévue (YYYY-MM-DD)
     reason: Optional[str] = None  # Motif de la cession
