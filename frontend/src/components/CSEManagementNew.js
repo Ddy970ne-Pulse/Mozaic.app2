@@ -523,10 +523,10 @@ const CSEManagementNew = ({ user }) => {
                 >
                   <option value="">Sélectionner un titulaire...</option>
                   {titulaires.map(t => {
-                    const balance = calculateBalance(t.id);
+                    const balance = calculateBalance(t.user_id);
                     return (
-                      <option key={t.id} value={t.id}>
-                        {t.name} (Solde: {balance.balance.toFixed(1)}h)
+                      <option key={t.user_id} value={t.user_id}>
+                        {t.user_name} (Solde: {balance.balance.toFixed(1)}h)
                       </option>
                     );
                   })}
