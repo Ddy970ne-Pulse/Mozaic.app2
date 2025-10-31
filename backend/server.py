@@ -854,7 +854,7 @@ class CSEDelegate(BaseModel):
     user_name: str  # Nom pour affichage
     email: str
     statut: str  # "titulaire" ou "suppléant"
-    heures_mensuelles: int = 24  # Heures allouées par mois (défaut pour +250 salariés)
+    heures_mensuelles: int = 22  # Heures allouées par mois (défaut 250-299 salariés, modifiable par accord d'entreprise)
     college: str  # "cadres", "employes", "ouvriers"
     date_debut: str  # Date de début du mandat
     date_fin: Optional[str] = None  # Date de fin du mandat (optionnel)
@@ -862,6 +862,17 @@ class CSEDelegate(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
     updated_at: Optional[datetime] = None
+
+class CompanySettings(BaseModel):
+    """Paramètres de l'entreprise"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    effectif: int = 250  # Nombre de salariés (défaut 250 pour calcul heures CSE)
+    nom_entreprise: Optional[str] = "MOZAIK RH"
+    secteur_activite: Optional[str] = None
+    convention_collective: Optional[str] = None
+    accord_entreprise_heures_cse: bool = False  # Si True, heures manuelles, sinon calcul auto
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_by: Optional[str] = None
 
 class DelegationHoursDeclaration(BaseModel):
     """Déclaration d'heures de délégation par un délégué"""
