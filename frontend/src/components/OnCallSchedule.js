@@ -145,16 +145,19 @@ const OnCallSchedule = ({ user }) => {
   };
 
   const getOnCallForDay = (date) => {
-    return onCallData.filter(item => {
-      // Parser la date en local pour éviter les problèmes de timezone
-      // item.date est au format "YYYY-MM-DD"
-      const [year, month, day] = item.date.split('-').map(Number);
-      const itemDate = new Date(year, month - 1, day);
-      
-      return itemDate.getDate() === date.getDate() && 
-             itemDate.getMonth() === date.getMonth() && 
-             itemDate.getFullYear() === date.getFullYear();
+    // Créer la chaîne de date au format YYYY-MM-DD pour la comparaison
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    
+    const matches = onCallData.filter(item => {
+      // Comparer directement les chaînes de date
+      const match = item.date === dateStr;
+      if (match) {
+        console.log(`✅ Match trouvé: ${item.date} === ${dateStr} pour ${item.employee_name}`);
+      }
+      return match;
     });
+    
+    return matches;
   };
 
   // Ouvrir le modal d'ajout rapide
