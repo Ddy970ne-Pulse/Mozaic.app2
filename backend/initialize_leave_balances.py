@@ -112,10 +112,8 @@ async def initialize_all_balances():
     
     # Connect to MongoDB
     client = AsyncIOMotorClient(MONGO_URL)
-    # Extract database name from URL
-    db_name = MONGO_URL.split("/")[-1].split("?")[0] if "/" in MONGO_URL else "test_database"
-    db = client[db_name]
-    print(f"📊 Using database: {db_name}")
+    db = client[DB_NAME]
+    print(f"📊 Using database: {DB_NAME}")
     print()
     
     try:
