@@ -363,18 +363,11 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     const checkDateObj = new Date(checkDate);
     const checkDateStr = `${checkDateObj.getFullYear()}-${String(checkDateObj.getMonth() + 1).padStart(2, '0')}-${String(checkDateObj.getDate()).padStart(2, '0')}`;
     
-    console.log(`🔍 Vérification astreinte pour employé ${employeeId} le ${checkDateStr}. Données disponibles:`, employeeOnCallData.length, 'jours');
-    
     // Vérifier si cette date fait partie des jours d'astreinte de cet employé
     const result = employeeOnCallData.some(assignment => {
-      const match = assignment.startDate === checkDateStr;
-      if (match) {
-        console.log(`✅ Astreinte trouvée: ${assignment.startDate} === ${checkDateStr}`);
-      }
-      return match;
+      return assignment.startDate === checkDateStr;
     });
     
-    console.log(`Résultat pour ${employeeId} le ${checkDateStr}: ${result}`);
     return result;
   };
 
