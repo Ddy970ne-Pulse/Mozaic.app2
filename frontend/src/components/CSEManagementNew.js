@@ -575,21 +575,21 @@ const CSEManagementNew = ({ user }) => {
                   >
                     <option value="">Sélectionner un membre CSE...</option>
                     <optgroup label="Titulaires">
-                      {titulaires.filter(t => t.id !== cessionData.from_id).map(t => {
-                        const balance = calculateBalance(t.id);
+                      {titulaires.filter(t => t.user_id !== cessionData.from_id).map(t => {
+                        const balance = calculateBalance(t.user_id);
                         return (
-                          <option key={t.id} value={t.id}>
-                            {t.name} (Solde: {balance.balance.toFixed(1)}h)
+                          <option key={t.user_id} value={t.user_id}>
+                            {t.user_name} (Solde: {balance.balance.toFixed(1)}h)
                           </option>
                         );
                       })}
                     </optgroup>
                     <optgroup label="Suppléants">
                       {suppleants.map(s => {
-                        const balance = calculateBalance(s.id);
+                        const balance = calculateBalance(s.user_id);
                         return (
-                          <option key={s.id} value={s.id}>
-                            {s.name} (Solde: {balance.balance.toFixed(1)}h)
+                          <option key={s.user_id} value={s.user_id}>
+                            {s.user_name} (Solde: {balance.balance.toFixed(1)}h)
                           </option>
                         );
                       })}
