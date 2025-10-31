@@ -10,27 +10,24 @@ Routes :
 - POST /api/leave-balances/manual-adjustment : Ajustement manuel (admin)
 - POST /api/leave-balances/reintegrate : Réintégrer des congés (admin)
 - POST /api/leave-balances/validate : Valider solde avant approbation
+
+Adapté pour MOZAIK RH avec système d'authentification existant
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
 from datetime import datetime
 
-# Imports internes (à adapter selon votre structure)
+# Imports internes
 from models_leave_balance import (
     EmployeeLeaveBalance,
     LeaveTransaction,
     InitializeBalanceRequest,
     ManualAdjustmentRequest,
-    ReintegrationRequest,
-    BalanceResponse,
-    TransactionResponse,
-    ReintegrationResponse
+    ReintegrateLeaveRequest,
+    ValidateLeaveRequest
 )
 from service_leave_balance import LeaveBalanceService
-
-# Dépendances (à adapter selon votre main.py)
-# from dependencies import get_current_user, get_db, require_admin
 
 router = APIRouter(prefix="/api/leave-balances", tags=["Leave Balances"])
 
@@ -39,9 +36,11 @@ router = APIRouter(prefix="/api/leave-balances", tags=["Leave Balances"])
 # HELPER : Dépendance Service
 # ============================================================================
 
-async def get_leave_balance_service(db) -> LeaveBalanceService:
+async def get_leave_balance_service() -> LeaveBalanceService:
     """Retourne une instance du service de gestion des soldes"""
-    return LeaveBalanceService(db)
+    # Import local pour éviter les dépendances circulaires
+    import server
+    return LeaveBalanceService(server.db)
 
 
 # ============================================================================
