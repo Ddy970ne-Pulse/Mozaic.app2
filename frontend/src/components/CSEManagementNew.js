@@ -269,7 +269,7 @@ const CSEManagementNew = ({ user }) => {
       {/* Header Harmonisé */}
       <ModuleHeader
         title="Gestion CSE & Délégation"
-        subtitle="Module unifié - Membres, Heures de Délégation & Cessions (CCN66)"
+        subtitle="Module unifié - Membres, Heures de Délégation & Cessions - Conforme réglementation"
         icon="🏛️"
       />
 
