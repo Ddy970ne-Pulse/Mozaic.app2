@@ -2389,17 +2389,17 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
                               }}
                               onMouseLeave={() => setHoveredCell(null)}
                             >
-                              {/* Bouton + pour ajout rapide (visible au survol si case vide) */}
-                              {!displayCode && !addAbsenceMode && user.role !== 'employee' && hoveredCell?.employeeId === employee.id && hoveredCell?.date === `${dateObj.year}-${dateObj.month}-${dateObj.day}` && (
+                              {/* Bouton + pour ajout rapide (visible pour admin/manager si case vide) */}
+                              {!displayCode && user.role !== 'employee' && (
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     openQuickAddModal(employee, dateObj);
                                   }}
-                                  className="absolute inset-0 flex items-center justify-center bg-blue-500 bg-opacity-90 text-white font-bold text-lg hover:bg-blue-600 transition-all duration-150 rounded"
+                                  className="absolute inset-0 flex items-center justify-center bg-blue-500/20 hover:bg-blue-500/90 text-blue-600 hover:text-white font-bold text-2xl transition-all duration-150 rounded group"
                                   title="Ajouter une absence"
                                 >
-                                  +
+                                  <span className="opacity-30 group-hover:opacity-100 transition-opacity">+</span>
                                 </button>
                               )}
                               
