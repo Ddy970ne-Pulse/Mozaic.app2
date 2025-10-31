@@ -347,7 +347,6 @@ const MonthlyPlanningFinal = ({ user, onChangeView }) => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [contextMenu]);
 
-  // Charger les templates depuis localStorage
   const isInOnCallWeek = (employeeId, checkDate) => {
     const employeeOnCallData = onCallData[employeeId] || [];
     
