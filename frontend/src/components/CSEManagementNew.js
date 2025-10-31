@@ -139,16 +139,20 @@ const CSEManagementNew = ({ user }) => {
         console.log('✅ Bénéficiaire CSE trouvé:', beneficiaire.name);
 
         // Validation limite 1.5x (seulement pour membres CSE)
-        const beneficiaireBalance = calculateBalance(beneficiaire.id);
+        const beneficiaireBalance = calculateBalance(beneficiaire.user_id);
         const newBalance = beneficiaireBalance.balance + parseFloat(cessionData.hours);
-        const maxAllowed = creditMensuelBase * 1.5;
+        
+        // CORRECTION: Utiliser les heures du bénéficiaire pour calculer la limite
+        const beneficiaireDelegate = delegates.find(d => d.user_id === beneficiaire.user_id);
+        const creditBeneficiaire = beneficiaireDelegate?.heures_mensuelles || 22;
+        const maxAllowed = creditBeneficiaire * 1.5;
 
         console.log(`🔵 Vérification limite: ${newBalance.toFixed(1)}h vs max ${maxAllowed}h`);
         
         if (newBalance > maxAllowed) {
           console.error('❌ Dépassement limite');
           showMessage(
-            `Dépassement limite: Le bénéficiaire aurait ${newBalance.toFixed(1)}h mais le maximum autorisé est ${maxAllowed}h (1.5× ${creditMensuelBase}h)`,
+            `Dépassement limite: Le bénéficiaire aurait ${newBalance.toFixed(1)}h mais le maximum autorisé est ${maxAllowed}h (1.5× ${creditBeneficiaire}h)`,
             'error'
           );
           return;
