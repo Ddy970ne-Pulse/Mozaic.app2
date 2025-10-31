@@ -206,10 +206,13 @@ const OnCallSchedule = ({ user }) => {
           startDate.setDate(startDate.getDate() - dayOfWeek);
         }
         
+        console.log('📅 Début de la semaine (dimanche):', startDate.toISOString());
+        
         // Créer 7 jours d'astreintes (dimanche → samedi)
         for (let i = 0; i < 7; i++) {
-          const date = new Date(startDate);
-          date.setDate(startDate.getDate() + i);
+          const date = new Date(startDate.getTime()); // Créer une copie de startDate
+          date.setDate(date.getDate() + i); // Ajouter i jours
+          console.log(`📅 Jour ${i}: ${date.toISOString()}`);
           schedulesToCreate.push({
             employee_id: quickAddData.employeeId,
             employee_name: employee?.name || `${employee?.prenom} ${employee?.nom}`,
