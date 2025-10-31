@@ -249,12 +249,32 @@ const OnCallSchedule = ({ user }) => {
   };
 
   // Supprimer une astreinte
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedOnCall) return;
-    setOnCallData(onCallData.filter(item => item.id !== selectedOnCall.id));
-    alert('✅ Astreinte supprimée');
-    setShowDeleteConfirm(false);
-    setSelectedOnCall(null);
+    
+    try {
+      const response = await fetch(`${backendUrl}/api/on-call/schedule/${selectedOnCall.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        setOnCallData(onCallData.filter(item => item.id !== selectedOnCall.id));
+        alert('✅ Astreinte supprimée');
+        setShowDeleteConfirm(false);
+        setSelectedOnCall(null);
+        // Recharger les données
+        fetchOnCallSchedule();
+      } else {
+        const error = await response.json();
+        alert(`❌ Erreur: ${error.detail || 'Impossible de supprimer'}`);
+      }
+    } catch (error) {
+      console.error('Erreur suppression:', error);
+      alert('❌ Erreur lors de la suppression');
+    }
   };
 
   const isAdmin = user?.role === 'admin';
